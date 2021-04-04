@@ -1,5 +1,4 @@
 import Plausible from 'plausible-tracker'
-import { appConfig } from '../config'
 
 export interface AnalyticsTracker {
     trackPageview: () => void
@@ -14,9 +13,7 @@ export function setupAnalytics() {
         process.env.NODE_ENV === 'production' &&
         !localStorage.getItem('plausible_ignore')
 
-    currentTracker = enabled
-        ? Plausible({ apiHost: appConfig.analyticsDomain })
-        : noopTracker
+    currentTracker = enabled ? Plausible() : noopTracker
 }
 
 export function useAnalytics(): AnalyticsTracker {
