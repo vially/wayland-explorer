@@ -1,6 +1,5 @@
 import 'vscode-codicons/dist/codicon.css'
 import { Router, useRoute } from 'wouter'
-import './App.css'
 import { MultiColumnLayout } from './components/layout/MultiColumnLayout'
 import { WaylandProtocolOutline } from './components/outline/WaylandProtocolOutline'
 import { WaylandProtocol } from './components/WaylandProtocol'
