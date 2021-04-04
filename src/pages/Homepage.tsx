@@ -48,7 +48,10 @@ export const Homepage: React.FC = () => {
                             >
                                 <div className="w-full min-w-0">
                                     <Link href={`/${protocol.id}`}>
-                                        <a className="focus:outline-none">
+                                        <a
+                                            href={`/${protocol.id}`}
+                                            className="focus:outline-none"
+                                        >
                                             <span
                                                 className="absolute inset-0"
                                                 aria-hidden="true"
