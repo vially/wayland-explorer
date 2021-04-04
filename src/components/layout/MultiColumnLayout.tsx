@@ -29,7 +29,11 @@ export const MultiColumnLayout: React.FC<{
                 showOutlineButton={!!outlineView}
             />
 
-            <div className="mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0">
+            <div
+                className={`mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0 ${
+                    hideSidebar ? 'xl:pr-0' : ''
+                }`}
+            >
                 <div
                     className={`hidden ${
                         !hideSidebar ? 'xl:block xl:col-span-2' : ''
