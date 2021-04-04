@@ -2,6 +2,10 @@
   BUILD_PATH = "build/protocols"
 
 [[redirects]]
+  from = "/"
+  to = "/protocols/"
+
+[[redirects]]
   from = "/*"
   to = "/protocols/index.html"
   status = 200
