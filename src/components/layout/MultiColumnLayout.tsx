@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { WaylandProtocolLinks } from '../sidebar-navigation/WaylandProtocolLinks'
+import { Footer } from './Footer'
 import { Header } from './Header'
 import { Logo } from './Logo'
 import { OutlineOverlay } from './overlays/OutlineOverlay'
@@ -56,6 +57,7 @@ export const MultiColumnLayout: React.FC<{
                     }
                 >
                     {children}
+                    <Footer />
                 </main>
                 {outlineView && (
                     <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
