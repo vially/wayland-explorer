@@ -1,0 +1,72 @@
+{
+    "name": "wayland-explorer",
+    "description": "Wayland protocol explorer",
+    "version": "0.1.0",
+    "private": true,
+    "license": "MIT",
+    "dependencies": {
+        "@craco/craco": "^6.1.1",
+        "@headlessui/react": "^0.3.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-scripts": "4.0.3",
+        "vscode-codicons": "^0.0.15",
+        "web-vitals": "^1.0.1",
+        "wouter": "^2.7.4"
+    },
+    "scripts": {
+        "start": "craco start",
+        "build": "craco build",
+        "test": "craco test",
+        "regenerate-protocols": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/regenerate-protocols-data.ts",
+        "print-registry": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/print-protocol-registry-items.ts",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss7-compat": "^2.0.4",
+        "@testing-library/jest-dom": "^5.11.4",
+        "@testing-library/react": "^11.1.0",
+        "@testing-library/user-event": "^12.1.10",
+        "@types/jest": "^26.0.15",
+        "@types/node": "^12.0.0",
+        "@types/react": "^17.0.0",
+        "@types/react-dom": "^17.0.0",
+        "autoprefixer": "^9",
+        "fast-xml-parser": "^3.19.0",
+        "husky": "^5.2.0",
+        "lint-staged": "^10.5.4",
+        "postcss": "^7",
+        "prettier": "^2.2.1",
+        "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.1.2"
+    }
+}

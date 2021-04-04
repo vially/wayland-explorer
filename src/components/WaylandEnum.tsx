@@ -1,0 +1,59 @@
+import React from 'react'
+import { WaylandElementProps, WaylandEnumModel } from './common'
+import { WaylandColorTheme as colors } from './common/wayland-protocol-icons'
+import { Badge } from './content/Badge'
+import { WaylandElementSignature } from './content/WaylandElementSignature'
+import { WaylandDataTable } from './WaylandDataTable'
+import { WaylandDescription } from './WaylandDescription'
+
+export const WaylandEnum: React.FC<
+    WaylandElementProps<WaylandEnumModel> & { interfaceName: string }
+> = ({ element, interfaceName }) => (
+    <div>
+        <div className="flex items-center flex-wrap justify-between">
+            <a
+                id={`${interfaceName}:${element.type}:${element.name}`}
+                href={`#${interfaceName}:${element.type}:${element.name}`}
+                title={`${element.name} enum`}
+                className={`text-${colors.Enum} text-xl font-bold`}
+            >
+                <span className="codicon codicon-symbol-enum mr-1"></span>
+                <span className="mr-1">
+                    <span
+                        className={`hidden md:inline text-${colors.Interface}`}
+                    >
+                        {interfaceName}::
+                    </span>
+                    <span>{element.name}</span>
+                </span>
+            </a>
+            {(element.bitfield || element.since) && (
+                <div className="flex items-center">
+                    {element.bitfield && (
+                        <Badge bgColor="orange-100" textColor="orange-800">
+                            bitfield
+                        </Badge>
+                    )}
+                    {element.since && <Badge>since {element.since}</Badge>}
+                </div>
+            )}
+        </div>
+
+        <WaylandElementSignature
+            element={element}
+            interfaceName={interfaceName}
+        />
+
+        {!!element.entries?.length && (
+            <WaylandDataTable
+                elements={element.entries}
+                parentElement={element}
+                interfaceName={interfaceName}
+            />
+        )}
+
+        {element.description && (
+            <WaylandDescription element={element.description} />
+        )}
+    </div>
+)

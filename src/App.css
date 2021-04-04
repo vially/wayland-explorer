@@ -1,0 +1,11 @@
+.max-w-8xl {
+    max-width: 90rem;
+}
+
+.max-h-\(protocol\) {
+    max-height: 100vh;
+}
+
+.top-protocol {
+    top: 0;
+}
