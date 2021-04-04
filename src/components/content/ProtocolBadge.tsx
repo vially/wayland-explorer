@@ -12,23 +12,23 @@ interface BadgeTheme {
 }
 
 const coreBadgeTheme: BadgeTheme = {
-    textColor: 'green-800',
-    backgroundColor: 'green-100',
+    textColor: 'text-green-800',
+    backgroundColor: 'bg-green-100',
 }
 
 const waylandProtocolsStableBadgeTheme: BadgeTheme = {
-    textColor: 'blue-800',
-    backgroundColor: 'blue-100',
+    textColor: 'text-blue-800',
+    backgroundColor: 'bg-blue-100',
 }
 
 const waylandProtocolsUntableBadgeTheme: BadgeTheme = {
-    textColor: 'pink-800',
-    backgroundColor: 'pink-100',
+    textColor: 'text-pink-800',
+    backgroundColor: 'bg-pink-100',
 }
 
 const wlrProtocolsUntableBadgeTheme: BadgeTheme = {
-    textColor: 'red-800',
-    backgroundColor: 'red-100',
+    textColor: 'text-red-800',
+    backgroundColor: 'bg-red-100',
 }
 
 function badgeThemeFor(

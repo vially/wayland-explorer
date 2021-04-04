@@ -30,7 +30,10 @@ export const WaylandEnum: React.FC<
             {(element.bitfield || element.since) && (
                 <div className="flex items-center">
                     {element.bitfield && (
-                        <Badge bgColor="orange-100" textColor="orange-800">
+                        <Badge
+                            bgColor="bg-orange-100"
+                            textColor="text-orange-800"
+                        >
                             bitfield
                         </Badge>
                     )}
