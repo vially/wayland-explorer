@@ -15,13 +15,11 @@ export const WaylandEvent: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} event`}
-                className={`text-${colors.Event} text-xl font-bold`}
+                className={`${colors.Event} text-xl font-bold`}
             >
                 <span className="codicon codicon-symbol-event mr-1"></span>
                 <span className="mr-1">
-                    <span
-                        className={`hidden md:inline text-${colors.Interface}`}
-                    >
+                    <span className={`hidden md:inline ${colors.Interface}`}>
                         {interfaceName}::
                     </span>
                     <span>{element.name}</span>

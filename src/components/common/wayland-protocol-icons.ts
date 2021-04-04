@@ -6,11 +6,11 @@ export interface WaylandElementUIConfig {
 }
 
 export enum WaylandColorTheme {
-    Interface = 'blue-500',
-    Request = 'pink-500',
-    Event = 'emerald-500',
-    Enum = 'orange-500',
-    Entry = 'orange-50',
+    Interface = 'text-blue-500',
+    Request = 'text-pink-500',
+    Event = 'text-emerald-500',
+    Enum = 'text-orange-500',
+    Entry = 'text-orange-50',
 }
 
 const waylandIcons: Record<WaylandElementType, WaylandElementUIConfig> = {

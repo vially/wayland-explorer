@@ -15,9 +15,7 @@ export const WaylandElementSignature: React.FC<{
 }> = ({ element, interfaceName }) => (
     <div className="my-4 p-2 rounded-sm text-gray-100 overflow-hidden bg-gray-800">
         <pre className="overflow-x-auto">
-            <span className={`text-${colorFor(element.type)}`}>
-                {element.name}
-            </span>
+            <span className={colorFor(element.type)}>{element.name}</span>
             {isWaylandEnumElement(element) ? (
                 <span>
                     {' { '}
@@ -55,5 +53,5 @@ export const WaylandElementSignature: React.FC<{
 
 const colorFor = (elementType: WaylandElementType): string =>
     elementType === WaylandElementType.Event
-        ? 'emerald-300'
+        ? 'text-emerald-300'
         : waylandElementConfigFor(elementType).color

@@ -15,7 +15,7 @@ export const WaylandInterfaceOutline: React.FC<
     const { icon, color } = waylandElementConfigFor(element.type)
 
     return (
-        <div className={`text-${color}`}>
+        <div className={color}>
             <a
                 href={`#${element.name}`}
                 title={element.description?.summary}
@@ -46,7 +46,7 @@ const WaylandInterfaceChildOutline: React.FC<
     return (
         <div>
             <a
-                className={`text-${color} ml-4 flex items-center`}
+                className={`${color} ml-4 flex items-center`}
                 href={`#${interfaceElement.name}:${element.type}:${element.name}`}
                 title={element.description?.summary}
             >

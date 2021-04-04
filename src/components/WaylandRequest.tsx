@@ -14,13 +14,11 @@ export const WaylandRequest: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} request`}
-                className={`text-${colors.Request} text-xl font-bold`}
+                className={`${colors.Request} text-xl font-bold`}
             >
                 <span className="codicon codicon-symbol-method mr-1"></span>
                 <span className="mr-1">
-                    <span
-                        className={`hidden md:inline text-${colors.Interface}`}
-                    >
+                    <span className={`hidden md:inline ${colors.Interface}`}>
                         {interfaceName}::
                     </span>
                     <span>{element.name}</span>

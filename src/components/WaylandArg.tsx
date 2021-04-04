@@ -54,7 +54,7 @@ const ArgEnum: React.FC<{ interfaceName: string; argEnum: string }> = ({
     return (
         <a href={`#${interfaceName}:enum:${enumName}`}>
             <span className={`text-blue-300`}>{interfaceName}</span>.
-            <span className={`text-${colors.Enum}`}>{enumName}</span>
+            <span className={colors.Enum}>{enumName}</span>
         </a>
     )
 }

@@ -15,13 +15,11 @@ export const WaylandEnum: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} enum`}
-                className={`text-${colors.Enum} text-xl font-bold`}
+                className={`${colors.Enum} text-xl font-bold`}
             >
                 <span className="codicon codicon-symbol-enum mr-1"></span>
                 <span className="mr-1">
-                    <span
-                        className={`hidden md:inline text-${colors.Interface}`}
-                    >
+                    <span className={`hidden md:inline ${colors.Interface}`}>
                         {interfaceName}::
                     </span>
                     <span>{element.name}</span>

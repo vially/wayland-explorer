@@ -68,7 +68,7 @@ export const WaylandDataTable: React.FC<{
                                 {element.interface && (
                                     <a
                                         href={`#${element.interface}`}
-                                        className={`font-bold text-${colors.Interface}`}
+                                        className={`font-bold ${colors.Interface}`}
                                     >
                                         {element.interface}
                                     </a>
@@ -123,8 +123,8 @@ const ArgEnum: React.FC<{ interfaceName: string; argEnum: string }> = ({
 
     return (
         <a href={`#${interfaceName}:enum:${enumName}`} className="font-bold">
-            <span className={`text-${colors.Interface}`}>{interfaceName}</span>.
-            <span className={`text-${colors.Enum}`}>{enumName}</span>
+            <span className={colors.Interface}>{interfaceName}</span>.
+            <span className={colors.Enum}>{enumName}</span>
         </a>
     )
 }
