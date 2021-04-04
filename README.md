@@ -8,6 +8,10 @@ Wayland protocols are published as XML files. While the [core Wayland protocol](
 
 This project attempts to fill this gap by parsing the XML protocol files and converting them to HTML in order to make it easy to browse and read them on the web.
 
+## Technologies
+
+Built with :sparkling_heart: using React, [Tailwind UI](https://tailwindui.com/components) and [vscode-codicons](https://github.com/microsoft/vscode-codicons).
+
 ## Disclaimer
 
 This project has no affiliation with the official Wayland project.
