@@ -2,9 +2,10 @@ import React from 'react'
 import { Logo } from './Logo'
 
 export const Header: React.FC<{
+    showOutlineButton: boolean
     setIsSidebarOpen: (open: boolean) => void
     setIsOutlineOpen: (open: boolean) => void
-}> = ({ setIsSidebarOpen, setIsOutlineOpen }) => (
+}> = ({ setIsSidebarOpen, setIsOutlineOpen, showOutlineButton }) => (
     <header className="xl:hidden w-full">
         <div className="relative z-10 flex-shrink-0 h-16 bg-gray-50 border-b border-gray-200 shadow-sm flex">
             <button
@@ -34,29 +35,31 @@ export const Header: React.FC<{
                 <Logo />
             </div>
 
-            <button
-                className="lg:hidden border-l border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                onClick={() => setIsOutlineOpen(true)}
-                title="Open outline"
-            >
-                <span className="sr-only">Open outline</span>
-                {/* Heroicon name: outline/menu-alt-3 */}
-                <svg
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
+            {showOutlineButton && (
+                <button
+                    className="lg:hidden border-l border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                    onClick={() => setIsOutlineOpen(true)}
+                    title="Open outline"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16m-7 6h7"
-                    />
-                </svg>
-            </button>
+                    <span className="sr-only">Open outline</span>
+                    {/* Heroicon name: outline/menu-alt-3 */}
+                    <svg
+                        className="h-6 w-6"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 6h16M4 12h16m-7 6h7"
+                        />
+                    </svg>
+                </button>
+            )}
         </div>
     </header>
 )

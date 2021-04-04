@@ -24,7 +24,7 @@ export const WaylandProtocolLinks: React.FC = () => (
                         {section.items.map((protocol) => (
                             <SidebarNavLink
                                 key={protocol.id}
-                                href={`/protocols/${protocol.id}`}
+                                href={`/${protocol.id}`}
                                 title={protocol.name}
                             >
                                 {protocol.name}

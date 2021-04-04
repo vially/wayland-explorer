@@ -25,6 +25,7 @@ export const MultiColumnLayout: React.FC<{
             <Header
                 setIsSidebarOpen={setIsSidebarOpen}
                 setIsOutlineOpen={setIsOutlineOpen}
+                showOutlineButton={!!outlineView}
             />
 
             <div className="mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0">
@@ -44,14 +45,16 @@ export const MultiColumnLayout: React.FC<{
                 <main className="lg:col-span-9 xl:col-span-8">
                     {protocolContentView}
                 </main>
-                <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
-                    <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4">
-                        <h2 className="text-lg font-medium text-gray-900">
-                            Outline
-                        </h2>
-                        {outlineView}
-                    </div>
-                </aside>
+                {outlineView && (
+                    <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
+                        <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4">
+                            <h2 className="text-lg font-medium text-gray-900">
+                                Outline
+                            </h2>
+                            {outlineView}
+                        </div>
+                    </aside>
+                )}
             </div>
 
             <ScrollToTop />
