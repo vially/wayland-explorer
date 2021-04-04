@@ -5,6 +5,7 @@ import { WaylandProtocolOutline } from '../components/outline/WaylandProtocolOut
 import { WaylandProtocolLinks } from '../components/sidebar-navigation/WaylandProtocolLinks'
 import { WaylandProtocol } from '../components/WaylandProtocol'
 import { waylandProtocolRegistry } from '../data/protocol-registry'
+import { NotFound } from './404'
 
 export const WaylandProtocolViewer: React.FC = () => {
     const [match, params] = useRoute<{ protocolId: string }>('/:protocolId')
@@ -17,7 +18,9 @@ export const WaylandProtocolViewer: React.FC = () => {
             element={protocolWithMetadata.protocol}
             metadata={protocolWithMetadata.metadata}
         />
-    ) : null
+    ) : (
+        <NotFound />
+    )
 
     const outlineView = protocolWithMetadata ? (
         <WaylandProtocolOutline element={protocolWithMetadata.protocol} />
