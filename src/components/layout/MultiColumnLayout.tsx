@@ -7,8 +7,9 @@ import { SidebarOverlay } from './overlays/SidebarOverlay'
 import { ScrollToTop } from './ScrollToTop'
 
 export const MultiColumnLayout: React.FC<{
+    hideSidebar?: boolean
     outlineView?: React.ReactNode
-}> = ({ outlineView, children }) => {
+}> = ({ outlineView, hideSidebar, children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isOutlineOpen, setIsOutlineOpen] = useState(false)
 
@@ -28,7 +29,11 @@ export const MultiColumnLayout: React.FC<{
             />
 
             <div className="mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0">
-                <div className="hidden xl:block xl:col-span-2">
+                <div
+                    className={`hidden ${
+                        !hideSidebar ? 'xl:block xl:col-span-2' : ''
+                    }`}
+                >
                     <nav aria-label="Sidebar" className="h-screen sticky top-0">
                         {/* Sidebar component, swap this element with another sidebar if you like */}
                         <div className="flex flex-col h-full border-r border-gray-200 bg-gray-50">
@@ -43,7 +48,9 @@ export const MultiColumnLayout: React.FC<{
                 </div>
                 <main
                     className={
-                        outlineView
+                        hideSidebar
+                            ? 'col-span-12'
+                            : outlineView
                             ? 'lg:col-span-9 xl:col-span-8'
                             : 'lg:col-span-12 xl:col-span-10'
                     }

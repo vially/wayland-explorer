@@ -15,6 +15,7 @@ function App() {
     const [match, params] = useRoute<{ protocolId: string }>(
         '/protocols/:protocolId'
     )
+    const isHomepage = !match
 
     if (match && params?.protocolId) {
         const protocolWithMetadata = match
@@ -37,7 +38,10 @@ function App() {
 
     return (
         <Router base="/protocols">
-            <MultiColumnLayout outlineView={outlineView}>
+            <MultiColumnLayout
+                outlineView={outlineView}
+                hideSidebar={isHomepage}
+            >
                 {contentView}
             </MultiColumnLayout>
         </Router>
