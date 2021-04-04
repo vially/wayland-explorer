@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { WaylandProtocolLinks } from '../sidebar-navigation/WaylandProtocolLinks'
 import { Header } from './Header'
 import { Logo } from './Logo'
 import { OutlineOverlay } from './overlays/OutlineOverlay'
@@ -6,17 +7,15 @@ import { SidebarOverlay } from './overlays/SidebarOverlay'
 import { ScrollToTop } from './ScrollToTop'
 
 export const MultiColumnLayout: React.FC<{
-    protocolContentView: React.ReactNode
-    outlineView: React.ReactNode
-    sidebarView: React.ReactNode
-}> = ({ protocolContentView, outlineView, sidebarView }) => {
+    outlineView?: React.ReactNode
+}> = ({ outlineView, children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isOutlineOpen, setIsOutlineOpen] = useState(false)
 
     return (
         <div className="min-h-screen bg-white">
             <SidebarOverlay open={isSidebarOpen} setIsOpen={setIsSidebarOpen}>
-                {sidebarView}
+                <WaylandProtocolLinks />
             </SidebarOverlay>
             <OutlineOverlay open={isOutlineOpen} setIsOpen={setIsOutlineOpen}>
                 {outlineView}
@@ -37,13 +36,19 @@ export const MultiColumnLayout: React.FC<{
                                 <div className="flex-shrink-0 px-4 my-5">
                                     <Logo />
                                 </div>
-                                {sidebarView}
+                                <WaylandProtocolLinks />
                             </div>
                         </div>
                     </nav>
                 </div>
-                <main className="lg:col-span-9 xl:col-span-8">
-                    {protocolContentView}
+                <main
+                    className={
+                        outlineView
+                            ? 'lg:col-span-9 xl:col-span-8'
+                            : 'lg:col-span-12 xl:col-span-10'
+                    }
+                >
+                    {children}
                 </main>
                 {outlineView && (
                     <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
