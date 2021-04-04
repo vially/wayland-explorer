@@ -1,5 +1,6 @@
 import 'vscode-codicons/dist/codicon.css'
 import { Router, useRoute } from 'wouter'
+import { useAnalytics } from './analytics/plausible'
 import { MultiColumnLayout } from './components/layout/MultiColumnLayout'
 import { WaylandProtocolOutline } from './components/outline/WaylandProtocolOutline'
 import { WaylandProtocol } from './components/WaylandProtocol'
@@ -15,6 +16,8 @@ function App() {
         '/protocols/:protocolId'
     )
     const isHomepage = !match
+
+    useAnalytics().trackPageview()
 
     if (match && params?.protocolId) {
         const protocolWithMetadata = match
