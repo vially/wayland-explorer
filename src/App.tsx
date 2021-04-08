@@ -1,4 +1,3 @@
-import 'vscode-codicons/dist/codicon.css'
 import { Router, useRoute } from 'wouter'
 import { useAnalytics } from './analytics/plausible'
 import { MultiColumnLayout } from './components/layout/MultiColumnLayout'

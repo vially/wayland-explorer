@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import 'vscode-codicons/dist/codicon.css'
 import { setupAnalytics } from './analytics/plausible'
 import App from './App'
 import './index.css'
