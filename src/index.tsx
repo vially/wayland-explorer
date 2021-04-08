@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import 'vscode-codicons/dist/codicon.css'
+import { Router } from 'wouter'
 import { setupAnalytics } from './analytics/plausible'
 import App from './App'
 import './index.css'
@@ -10,7 +11,9 @@ setupAnalytics()
 
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <Router base="/protocols">
+            <App />
+        </Router>
     </React.StrictMode>,
     document.getElementById('root')
 )

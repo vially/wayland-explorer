@@ -1,4 +1,4 @@
-import { Router, useRoute } from 'wouter'
+import { useRoute } from 'wouter'
 import { useAnalytics } from './analytics/plausible'
 import { MultiColumnLayout } from './components/layout/MultiColumnLayout'
 import { WaylandProtocolOutline } from './components/outline/WaylandProtocolOutline'
@@ -11,9 +11,7 @@ function App() {
     let contentView = <Homepage />
     let outlineView = null
 
-    const [match, params] = useRoute<{ protocolId: string }>(
-        '/protocols/:protocolId'
-    )
+    const [match, params] = useRoute<{ protocolId: string }>('/:protocolId')
     const isHomepage = !match
 
     useAnalytics().trackPageview()
@@ -38,14 +36,9 @@ function App() {
     }
 
     return (
-        <Router base="/protocols">
-            <MultiColumnLayout
-                outlineView={outlineView}
-                hideSidebar={isHomepage}
-            >
-                {contentView}
-            </MultiColumnLayout>
-        </Router>
+        <MultiColumnLayout outlineView={outlineView} hideSidebar={isHomepage}>
+            {contentView}
+        </MultiColumnLayout>
     )
 }
 
