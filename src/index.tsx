@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { hydrate, render } from 'react-dom'
 import 'vscode-codicons/dist/codicon.css'
 import { Router } from 'wouter'
 import { setupAnalytics } from './analytics/plausible'
@@ -9,7 +9,9 @@ import reportWebVitals from './reportWebVitals'
 
 setupAnalytics()
 
-ReactDOM.render(
+const hydrateOrRender = process.env.NODE_ENV === 'production' ? hydrate : render
+
+hydrateOrRender(
     <React.StrictMode>
         <Router base="/protocols">
             <App />
