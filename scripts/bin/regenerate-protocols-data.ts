@@ -9,6 +9,7 @@ const relativeProtocolDirs = [
     path.join('protocols', 'wayland', 'stable'),
     path.join('protocols', 'wayland', 'unstable'),
     path.join('protocols', 'wlr', 'unstable'),
+    path.join('protocols', 'external'),
 ]
 
 const jsonFilePathFor = (srcFileName: string): string =>

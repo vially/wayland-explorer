@@ -227,6 +227,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/wlr-virtual-pointer-unstable-v1.json'),
     },
+    {
+        id: 'virtual-keyboard-unstable-v1',
+        name: 'Virtual keyboard',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/virtual-keyboard-unstable-v1.json'),
+        externalUrl:
+            'https://lists.freedesktop.org/archives/wayland-devel/2019-September/040882.html',
+    },
 ]
 
 class WaylandProtocolRegistry {
