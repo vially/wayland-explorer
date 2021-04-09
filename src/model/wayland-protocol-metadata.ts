@@ -7,6 +7,7 @@ export enum WaylandProtocolSource {
     WaylandCore = 'core',
     WaylandProtocols = 'wayland-protocols',
     WlrProtocols = 'wlr-protocols',
+    External = 'external',
 }
 
 export interface WaylandProtocolMetadata {
@@ -14,6 +15,7 @@ export interface WaylandProtocolMetadata {
     name: string
     source: WaylandProtocolSource
     stability: WaylandProtocolStability
+    externalUrl?: string
 }
 
 const sourceRepositoryUrls: Record<WaylandProtocolSource, string> = {
@@ -23,6 +25,7 @@ const sourceRepositoryUrls: Record<WaylandProtocolSource, string> = {
         'https://github.com/wayland-project/wayland-protocols',
     [WaylandProtocolSource.WlrProtocols]:
         'https://github.com/swaywm/wlr-protocols',
+    [WaylandProtocolSource.External]: '',
 }
 
 export function urlForWaylandProtocolSource(
@@ -43,11 +46,13 @@ export function urlForWaylandProtocol(
         return `${urlForWaylandProtocolSource(metadata.source)}/tree/master/${
             metadata.stability
         }/${protocolDirectoryName}/${metadata.id}.xml`
-    } else {
+    } else if (metadata.source === WaylandProtocolSource.WlrProtocols) {
         return `${urlForWaylandProtocolSource(metadata.source)}/blob/master/${
             metadata.stability
         }/${metadata.id}.xml`
     }
+
+    return metadata.externalUrl || ''
 }
 
 export function urlForWaylandProtocolStability(

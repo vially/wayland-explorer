@@ -31,6 +31,11 @@ const wlrProtocolsUntableBadgeTheme: BadgeTheme = {
     backgroundColor: 'bg-red-100',
 }
 
+const externalProtocolsBadgeTheme: BadgeTheme = {
+    textColor: 'text-gray-800',
+    backgroundColor: 'bg-gray-100',
+}
+
 function badgeThemeFor(
     source: WaylandProtocolSource,
     stability: WaylandProtocolStability
@@ -41,8 +46,10 @@ function badgeThemeFor(
         return stability === WaylandProtocolStability.Stable
             ? waylandProtocolsStableBadgeTheme
             : waylandProtocolsUntableBadgeTheme
-    } else {
+    } else if (source === WaylandProtocolSource.WlrProtocols) {
         return wlrProtocolsUntableBadgeTheme
+    } else {
+        return externalProtocolsBadgeTheme
     }
 }
 
@@ -56,6 +63,8 @@ export const ProtocolBadge: React.FC<{ protocol: WaylandProtocolMetadata }> = ({
                 ? 'core'
                 : protocol.source === WaylandProtocolSource.WlrProtocols
                 ? 'wlr'
+                : protocol.source === WaylandProtocolSource.External
+                ? 'external'
                 : protocol.stability}
         </Badge>
     )

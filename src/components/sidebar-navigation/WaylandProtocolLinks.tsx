@@ -76,10 +76,18 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const externalProtocols: Section = {
+        name: 'External',
+        items: protocols.filter(
+            ({ source }) => source === WaylandProtocolSource.External
+        ),
+    }
+
     return [
         coreSection,
         waylandProtocolsStable,
         waylandProtocolsUnstable,
         wlrProtocolsUnstable,
+        externalProtocols,
     ]
 }
