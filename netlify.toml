@@ -1,3 +1,6 @@
+[build.environment]
+  NODE_VERSION = "14"
+
 [[redirects]]
   from = "/"
   to = "/protocols/"
