@@ -4,3 +4,8 @@
 [[redirects]]
   from = "/"
   to = "/protocols/"
+
+[[redirects]]
+  from = "/protocols/*"
+  to = "/protocols/404.html"
+  status = 404
