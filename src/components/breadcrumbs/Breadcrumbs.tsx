@@ -2,6 +2,8 @@ import {
     urlForWaylandProtocol,
     urlForWaylandProtocolSource,
     urlForWaylandProtocolStability,
+} from '../../model/protocol-source-link-builder'
+import {
     WaylandProtocolMetadata,
     WaylandProtocolSource,
 } from '../../model/wayland-protocol-metadata'
