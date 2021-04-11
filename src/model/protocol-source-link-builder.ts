@@ -1,4 +1,3 @@
-import { userConfig } from '../config'
 import {
     GitServiceProvider,
     WaylandProtocolMetadata,
@@ -85,11 +84,14 @@ interface SourceUrlBuilder {
     protocolUrlFor: (metadata: WaylandProtocolMetadata) => string
 }
 
-function sourceUrlBuilderFor(source: WaylandProtocolSource): SourceUrlBuilder {
+function sourceUrlBuilderFor(
+    source: WaylandProtocolSource,
+    gitServiceProvider: GitServiceProvider
+): SourceUrlBuilder {
     const configLike = sourceRepositoryUrls[source]
     const config = isProtocolSourceUrlConfig(configLike)
         ? configLike
-        : configLike[userConfig.gitServiceProvider]
+        : configLike[gitServiceProvider]
 
     return {
         repositoryUrl: config.repositoryUrl,
@@ -116,23 +118,32 @@ function sourceUrlBuilderFor(source: WaylandProtocolSource): SourceUrlBuilder {
 }
 
 export function urlForWaylandProtocolSource(
-    source: WaylandProtocolSource
+    source: WaylandProtocolSource,
+    gitServiceProvider: GitServiceProvider
 ): string {
-    return sourceUrlBuilderFor(source).repositoryUrl
+    return sourceUrlBuilderFor(source, gitServiceProvider).repositoryUrl
 }
 
 export function urlForWaylandProtocol(
-    metadata: WaylandProtocolMetadata
+    metadata: WaylandProtocolMetadata,
+    gitServiceProvider: GitServiceProvider
 ): string {
     return metadata.externalUrl
         ? metadata.externalUrl
-        : sourceUrlBuilderFor(metadata.source).protocolUrlFor(metadata)
+        : sourceUrlBuilderFor(
+              metadata.source,
+              gitServiceProvider
+          ).protocolUrlFor(metadata)
 }
 
 export function urlForWaylandProtocolStability(
-    metadata: WaylandProtocolMetadata
+    metadata: WaylandProtocolMetadata,
+    gitServiceProvider: GitServiceProvider
 ): string {
-    return sourceUrlBuilderFor(metadata.source).stabilityUrlFor(metadata)
+    return sourceUrlBuilderFor(
+        metadata.source,
+        gitServiceProvider
+    ).stabilityUrlFor(metadata)
 }
 
 function waylandProtocolDirectoryNameFor(
