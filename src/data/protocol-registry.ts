@@ -236,6 +236,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://lists.freedesktop.org/archives/wayland-devel/2019-September/040882.html',
     },
+    {
+        id: 'tizen-extension',
+        name: 'Tizen extension',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/tizen-extension.json'),
+        externalUrl:
+            'https://review.tizen.org/git/?p=platform/core/uifw/wayland-extension.git;a=blob;f=protocol/tizen-extension.xml;h=7bacfa6dbf1f54a74f83fe3a27bca38419397dde;hb=refs/heads/accepted/tizen_common',
+    },
 ]
 
 class WaylandProtocolRegistry {

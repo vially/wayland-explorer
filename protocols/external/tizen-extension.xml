@@ -1,0 +1,1353 @@
+<protocol name="tizen_extension">
+  <interface name="tizen_surface" version="1">
+    <request name="get_tizen_resource">
+      <arg name="id" type="new_id" interface="tizen_resource" />
+      <arg name="surface" type="object" interface="wl_surface" />
+    </request>
+  </interface>
+
+  <interface name="tizen_resource" version="1">
+    <request name="destroy" type="destructor" />
+
+    <event name="resource_id">
+      <arg name="id" type="uint" />
+    </event>
+  </interface>
+
+  <interface name="tizen_policy" version="4">
+    <request name="get_visibility">
+      <arg name="id" type="new_id" interface="tizen_visibility" summary="new visibility object"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="get_position">
+      <arg name="id" type="new_id" interface="tizen_position" summary="new position object"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="activate">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="activate_below_by_res_id">
+      <arg name="res_id" type="uint" />
+      <arg name="below_res_id" type="uint" />
+    </request>
+
+    <request name="raise">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="lower">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="lower_by_res_id">
+      <arg name="res_id" type="uint" />
+    </request>
+
+    <request name="set_focus_skip">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="unset_focus_skip">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="set_role">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="role" type="string"/>
+    </request>
+
+    <enum name="win_type">
+      <entry name="none" value="0"/>
+      <entry name="toplevel" value="1"/>
+      <entry name="fullscreen" value="2"/>
+      <entry name="maximized" value="3"/>
+      <entry name="transient" value="4"/>
+      <entry name="menu" value="5"/>
+      <entry name="dnd" value="6"/>
+      <entry name="custom" value="7"/>
+      <entry name="notification" value="8"/>
+      <entry name="utility" value="9"/>
+      <entry name="dialog" value="10"/>
+      <entry name="dock" value="11"/>
+      <entry name="splash" value="12"/>
+    </enum>
+
+    <request name="set_type">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="win_type" type="uint" />
+    </request>
+
+    <!-- for conformant -->
+    <request name="set_conformant">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="unset_conformant">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="get_conformant">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <event name="conformant">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="is_conformant" type="uint"/>
+    </event>
+
+    <enum name="conformant_part">
+      <entry name="indicator" value="0"/>
+      <entry name="keyboard" value="1"/>
+      <entry name="clipboard" value="2"/>
+    </enum>
+
+    <event name="conformant_area">
+       <description summary="Notify of conformant area">
+          Notify of conformant area to client. Sending this event does NOT guarantee
+          perfect compositing of conformant owner client surface and
+          conformant part client surface.
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="conformant_part" type="uint"/>
+      <arg name="state" type="uint"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="w" type="int"/>
+      <arg name="h" type="int"/>
+    </event>
+
+    <enum name="error_state">
+      <entry name="none" value="0"/>
+      <entry name="permission_denied" value="1"/>
+    </enum>
+
+    <!-- for notification -->
+    <enum name="level">
+      <entry name="1" value="0"/>
+      <entry name="2" value="1"/>
+      <entry name="3" value="2"/>
+      <entry name="none" value="-1"/>
+      <entry name="default" value="10"/>
+      <entry name="medium" value="20"/>
+      <entry name="high" value="30"/>
+      <entry name="top" value="40"/>
+    </enum>
+
+    <request name="set_notification_level">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="level" type="int"/>
+    </request>
+
+    <event name="notification_done">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="level" type="int"/>
+      <arg name="error_state" type="uint"/>
+    </event>
+
+    <!-- for transient_for -->
+    <request name="set_transient_for">
+      <arg name="child_id" type="uint" />
+      <arg name="parent_id" type="uint" />
+    </request>
+
+    <request name="unset_transient_for">
+      <arg name="child_id" type="uint" />
+    </request>
+
+    <event name="transient_for_done">
+      <arg name="child_id" type="uint"/>
+    </event>
+
+    <!-- for window_screen_mode -->
+    <enum name="mode">
+      <entry name="default" value="0"/>
+      <entry name="always_on" value="1"/>
+    </enum>
+
+    <request name="set_window_screen_mode">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="mode" type="uint"/>
+    </request>
+
+    <event name="window_screen_mode_done">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="mode" type="uint"/>
+      <arg name="error_state" type="uint"/>
+    </event>
+
+    <!-- for subsurface -->
+    <request name="place_subsurface_below_parent">
+      <arg name="subsurface" type="object" interface="wl_subsurface"/>
+    </request>
+
+    <request name="set_subsurface_stand_alone">
+      <arg name="subsurface" type="object" interface="wl_subsurface"/>
+    </request>
+
+    <request name="get_subsurface">
+      <arg name="id" type="new_id" interface="wl_subsurface" />
+      <arg name="surface" type="object" interface="wl_surface" />
+      <arg name="parent_id" type="uint" />
+    </request>
+
+    <!-- for opaque_state -->
+    <request name="set_opaque_state">
+      <arg name="surface" type="object" interface="wl_surface" />
+      <arg name="state" type="int"/>
+    </request>
+
+    <!-- for iconify -->
+    <request name="iconify">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+    <request name="uniconify">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <event name="iconify_state_changed">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="iconified" type="uint"/>
+      <arg name="force" type="uint"/>
+    </event>
+
+    <!-- for aux_hint -->
+    <request name="add_aux_hint">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="id" type="int" />
+      <arg name="name" type="string" />
+      <arg name="value" type="string" />
+    </request>
+
+    <request name="change_aux_hint">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="id" type="int" />
+      <arg name="value" type="string" />
+    </request>
+
+    <request name="del_aux_hint">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="id" type="int" />
+    </request>
+
+    <request name="get_supported_aux_hints">
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+
+    <event name="supported_aux_hints">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="hints" type="array" />
+      <arg name="num_hints" type="uint"/>
+    </event>
+
+    <event name="allowed_aux_hint">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="id" type="int" />
+    </event>
+
+    <!-- for aux_message -->
+    <event name="aux_message">
+      <arg name="surface" type="object" interface="wl_surface" />
+      <arg name="key" type="string" />
+      <arg name="value" type="string" />
+      <arg name="options" type="array" />
+    </event>
+
+    <!-- for background state -->
+    <request name="set_background_state">
+       <arg name="pid" type="uint" />
+    </request>
+
+    <request name="unset_background_state">
+       <arg name="pid" type="uint" />
+    </request>
+
+    <!-- for floating mode -->
+    <request name="set_floating_mode">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <request name="unset_floating_mode">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+    </request>
+
+    <!-- for stack mode -->
+    <enum name="stack_mode">
+      <entry name="none" value="0"/>
+      <entry name="above" value="1"/>
+      <entry name="below" value="2"/>
+    </enum>
+
+    <request name="set_stack_mode">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="mode" type="uint" />
+    </request>
+
+    <request name="activate_above_by_res_id">
+      <arg name="res_id" type="uint" />
+      <arg name="above_res_id" type="uint" />
+    </request>
+
+    <!-- version 2 additions -->
+    <!-- for subsurface watcher -->
+    <request name="get_subsurface_watcher" since="2">
+      <arg name="id" type="new_id" interface="tizen_subsurface_watcher" />
+      <arg name="surface" type="object" interface="wl_surface" />
+    </request>
+
+    <!-- version 3 additions -->
+    <request name="set_parent" since="3">
+      <arg name="child" type="object" interface="wl_surface" />
+      <arg name="parent" type="object" interface="wl_surface" />
+    </request>
+
+    <!-- version 4 additions -->
+    <!-- for conformant -->
+    <event name="conformant_region" since="4">
+      <description summary="notify of geometry values of conformant region(area)">
+         The server can notify of conformant region(area) using this event.
+         If client is received this event, client should ack for it using
+         tizen_policy@ack_conformant_region request.
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="conformant_part" type="uint"/>
+      <arg name="state" type="uint"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="w" type="int"/>
+      <arg name="h" type="int"/>
+      <arg name="serial" type="uint"/>
+    </event>
+
+    <request name="ack_conformant_region" since="4">
+      <description summary="ack for tizen_policy@conformant_region">
+         A client can refresh its surface for applying new conformant region which
+         is from tizen_policy@conformant_region event. The client has to ack
+         after complete of its updates by this request.
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="serial" type="uint"/>
+    </request>
+
+  </interface>
+
+  <interface name="tizen_visibility" version="1">
+    <request name="destroy" type="destructor"/>
+
+    <enum name="visibility">
+      <entry name="unobscured" value="0"/>
+      <entry name="partially_obscured" value="1"/>
+      <entry name="fully_obscured" value="2"/>
+    </enum>
+
+    <event name="notify">
+      <arg name="visibility" type="uint"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_position" version="1">
+    <request name="destroy" type="destructor"/>
+
+    <request name="set">
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </request>
+
+    <event name="changed">
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_gesture" version="1">
+    <enum name="error">
+      <entry name="none" value="0"/>
+      <entry name="invalid_data" value="1"/>
+      <entry name="no_permission" value="2"/>
+      <entry name="no_system_resources" value="3"/>
+      <entry name="grabbed_already" value="4"/>
+    </enum>
+
+    <enum name="type">
+      <entry name="edge_swipe" value="1"/>
+    </enum>
+
+    <enum name="mode">
+      <entry name="begin" value="1"/>
+      <entry name="update" value="2"/>
+      <entry name="end" value="3"/>
+      <entry name="done" value="4"/>
+    </enum>
+
+    <enum name="edge">
+      <entry name="top" value="1"/>
+      <entry name="right" value="2"/>
+      <entry name="bottom" value="4"/>
+      <entry name="left" value="8"/>
+    </enum>
+
+    <request name="grab_edge_swipe">
+      <arg name="fingers" type="uint"/>
+      <arg name="edge" type="uint" enum="edge"/>
+    </request>
+
+    <request name="ungrab_edge_swipe">
+      <arg name="fingers" type="uint"/>
+      <arg name="edge" type="uint" enum="edge"/>
+    </request>
+
+    <event name="grab_edge_swipe_notify">
+      <arg name="fingers" type="uint"/>
+      <arg name="edge" type="uint" enum="edge"/>
+      <arg name="error" type="uint"/>
+    </event>
+
+    <event name="edge_swipe">
+      <arg name="mode" type="uint" enum="mode"/>
+      <arg name="fingers" type="uint"/>
+      <arg name="sx" type="int" summary="x coordinate of touch down point"/>
+      <arg name="sy" type="int" summary="y coordinate of touch down point"/>
+      <arg name="edge" type="uint" enum="edge"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_keyrouter" version="1">
+    <description summary="an interface to set each focus for each key">
+      In tradition, all the keys in a keyboard and a device on which
+      some keys are attached will be sent to focus surface by default.
+      Currently it's possible to set up each focus for each key in a keyboard and a device.
+      Therefore, by setting a key grab for a surface, the owner of the
+      surface will get the key event when it has the key grab for the key.
+    </description>
+
+    <enum name="error">
+      <entry name="none" value="0" summary="no error"/>
+      <entry name="invalid_surface" value="1" summary="Given surface is invalid."/>
+      <entry name="invalid_key" value="2" summary="Given key is invalid."/>
+      <entry name="invalid_mode" value="3" summary="Given mode is invalid."/>
+      <entry name="grabbed_already" value="4" summary="The key has been grabbed already."/>
+      <entry name="no_permission" value="5" summary="The wl client has no permission to grab the key."/>
+      <entry name="no_system_resources" value="6" summary="System resources are insufficient."/>
+      <entry name="invalid_array" value="7" summary="Given array has invalid pairs or data type."/>
+    </enum>
+
+    <enum name="mode">
+      <description summary="mode for a key grab">
+        This value is used to set a mode for a key grab. With this mode and
+        the order of the surface between surfaces' stack, the compositor will determine the destination client
+        surface.
+      </description>
+      <entry name="none" value="0" summary="none"/>
+      <entry name="shared" value="1"
+       summary="mode to get a key grab with the other client surfaces when the focused client surface gets the key"/>
+      <entry name="topmost" value="2"
+       summary="mode to get a key grab when the client surface is the top most surface"/>
+      <entry name="overridable_exclusive" value="3"
+       summary="mode to get a key grab exclusively, overridably regardless of the order in the surface stack"/>
+      <entry name="exclusive" value="4"
+       summary="mode to get a key grab exclusively regardless of the order in surface stack"/>
+      <entry name="registered" value="5"
+       summary="mode to get a key grab only when a requesting surface is on top among the registering surfaces for the key"/>
+    </enum>
+
+    <enum name="config_mode">
+      <description summary="mode for setting specific property for Key delivery">
+        This value is used to set a mode for a window. With this mode and
+        the order of the surface between surfaces' stack, the compositor will determine the destination client
+        surface.
+      </description>
+      <entry name="none" value="0" summary="none"/>
+      <entry name="invisible_set" value="1"
+       summary="mode to set window to enable send event to invisible window below in stack"/>
+      <entry name="invisible_get" value="2"
+       summary="mode to set window to get event to invisible state if any top window has set register_set"/>
+      <entry name="num_key_focus" value="3"
+          summary="mode to register for num keys for focus window"/>
+      <entry name="picture_off" value="4"
+          summary="mode to set picture off for particular key"/>
+    </enum>
+
+    <request name="set_keygrab">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="key" type="uint"/>
+      <arg name="mode" type="uint"/>
+    </request>
+
+    <request name="unset_keygrab">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="key" type="uint"/>
+    </request>
+
+    <request name="get_keygrab_status">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="key" type="uint"/>
+    </request>
+
+    <request name="set_keygrab_list">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="grab_list" type="array" summary="array of two integer variables pairs each pairs consist of keycode and keygrab mode"/>
+    </request>
+
+    <request name="unset_keygrab_list">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="ungrab_list" type="array" summary="array of integer variables meaning keycode wanted to ungrab"/>
+    </request>
+
+    <request name="get_keygrab_list">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+    </request>
+
+    <request name="set_register_none_key">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="data" type="uint"/>
+    </request>
+
+    <request name="get_keyregister_status">
+      <arg name="data" type="uint"/>
+    </request>
+
+    <request name="set_input_config">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="config_mode" type="uint"/>
+      <arg name="value" type="uint"/>
+    </request>
+
+    <event name="keygrab_notify">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="key" type="uint"/>
+      <arg name="mode" type="uint"/>
+      <arg name="error" type="uint"/>
+    </event>
+
+    <event name="keygrab_notify_list">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="grab_result" type="array" summary="array of three integer variables pairs each pairs consist of keycode, keygrab mode and keygrab result"/>
+    </event>
+
+    <event name="getgrab_notify_list">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="grab_result" type="array" summary="array of two integer variables pairs each pairs consist of keycode, keygrab mode"/>
+    </event>
+
+    <event name="set_register_none_key_notify">
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
+      <arg name="mode" type="uint"/>
+    </event>
+
+    <event name="keyregister_notify">
+      <arg name="status" type="uint"/>
+    </event>
+
+    <event name="set_input_config_notify">
+      <arg name="status" type="uint"/>
+    </event>
+
+    <event name="key_cancel">
+      <arg name="key" type="uint"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_screenshooter" version="1">
+    <description summary="interface for tizen-screenshooter">
+      Clients can get a screenmirror object from this interface.
+    </description>
+
+    <request name="get_screenmirror">
+      <description summary="create a screenmirror object">
+        Before using screenmirror, a client should get a screenmirror object from display
+        server.
+      </description>
+      <arg name="id" type="new_id" interface="tizen_screenmirror" summary="new screenmirror object"/>
+      <arg name="output" type="object" interface="wl_output" summary="output object for screenmirror"/>
+    </request>
+
+    <request name="set_oneshot_auto_rotation">
+      <description summary="set screen shot auto rotation value">
+        Client can set auto rotation value for one shot.
+      </description>
+      <arg name="set" type="uint"/>
+    </request>
+
+    <event name="format">
+      <description summary="supported format for screenshooter">
+        The tbm format codes match the #defines in tbm_surface.h. The formats actually
+        supported by the compositor will be reported by the format event.
+      </description>
+      <arg name="format" type="uint"/>
+    </event>
+
+    <event name="screenshooter_notify">
+      <description summary="send notification of screenshooter">
+        Clients can get notification of screenshooter.
+      </description>
+      <arg name="noti" type="uint"/>
+    </event>
+
+  </interface>
+
+  <interface name="tizen_screenmirror" version="1">
+    <description summary="interface for screenmirror">
+      A client can use this interface to get stream images of screen. Before starting,
+      queue all buffers. Then, start a screenmirror. After starting, a dequeued event
+      will occur when drawing a captured image on a buffer is finished. You might
+      need to queue the dequeued buffer again to get a new image from display server.
+    </description>
+
+    <request name="destroy" type="destructor"/>
+
+    <request name="set_stretch">
+      <arg name="stretch" type="uint" summary="stretch type for screenmirror"/>
+    </request>
+
+    <request name="queue">
+      <description summary="queue a buffer"/>
+        <arg name="buffer" type="object" interface="wl_buffer" summary="buffer object for screenmirror"/>
+    </request>
+
+    <request name="dequeue">
+      <description summary="dequeue a buffer">
+        A user can dequeue a buffer from display server when he wants to take back it from server.
+      </description>
+      <arg name="buffer" type="object" interface="wl_buffer" summary="buffer object for screenmirror"/>
+    </request>
+
+    <request name="start"/>
+    <request name="stop"/>
+
+    <enum name="content">
+      <entry name="normal" value="0"/>
+      <entry name="video" value="1"/>
+    </enum>
+
+    <enum name="stretch">
+      <entry name="keep_ratio" value="0"/>
+      <entry name="fully" value="1"/>
+    </enum>
+
+    <event name="dequeued">
+      <description summary="dequeued event">
+        occurs when drawing a captured image on a buffer is finished
+      </description>
+      <arg name="buffer" type="object" interface="wl_buffer" summary="dequeued buffer which contains a captured image"/>
+    </event>
+
+    <event name="content">
+      <description summary="content changed event">
+        occurs when the content of a captured image is changed. (normal or video)
+      </description>
+      <arg name="content" type="uint"/>
+    </event>
+
+    <event name="stop">
+      <description summary="stop event">
+        occurs when the screenmirror is stopped eventually
+      </description>
+    </event>
+  </interface>
+
+  <interface name="tizen_video" version="1">
+
+    <description summary="interface for tizen-video">
+      Clients can get the video information that the compositor can handle from this interface.
+    </description>
+
+    <enum name="error">
+      <entry name="none" value="0"/>
+      <entry name="object_exists" value="1"/>
+      <entry name="viewport_exists" value="2"/>
+    </enum>
+
+    <event name="format">
+      <description summary="supported format for video">
+        The tbm format codes match the #defines in tbm_surface.h. The formats actually
+        supported by the compositor will be reported by the format event.
+      </description>
+      <arg name="format" type="uint"/>
+    </event>
+
+    <request name="get_object">
+      <arg name="id" type="new_id" interface="tizen_video_object" />
+      <arg name="surface" type="object" interface="wl_surface" />
+    </request>
+
+    <request name="get_viewport">
+      <arg name="id" type="new_id" interface="tizen_viewport" />
+      <arg name="surface" type="object" interface="wl_surface" />
+    </request>
+
+  </interface>
+
+  <interface name="tizen_video_object" version="1">
+
+    <event name="attribute">
+      <arg name="name" type="string"/>
+      <arg name="value" type="uint"/>
+    </event>
+
+    <event name="size">
+      <arg name="min_w" type="int"/>
+      <arg name="min_h" type="int"/>
+      <arg name="max_w" type="int"/>
+      <arg name="max_h" type="int"/>
+      <arg name="prefer_align" type="int"/>
+    </event>
+
+    <request name="destroy" type="destructor"/>
+    <request name="set_attribute">
+      <arg name="name" type="string"/>
+      <arg name="value" type="int"/>
+    </request>
+
+    <request name="follow_topmost_visibility">
+      <description summary="follow mute control change of a topmost surface">
+        If tizen_video_object.follow_topmost_visibility is applied to a video_object,
+        It will be video mute control based on topmost visibility.
+      </description>
+    </request>
+
+    <request name="unfollow_topmost_visibility">
+      <description summary="unfollow mute control change of a topmost surface">
+        If tizen_video_object.unfollow_topmost_visibility is applied to a video_object,
+        It will not be video mute control based on topmost visibility.
+      </description>
+    </request>
+
+  </interface>
+
+  <interface name="tizen_subsurface_watcher" version="1">
+
+    <enum name="msg">
+      <entry name="success" value="0"/>
+      <entry name="parent_id_invalid" value="1"/>
+      <entry name="parent_id_destroyed" value="2"/>
+    </enum>
+
+    <event name="message">
+      <arg name="value" type="uint"/>
+    </event>
+
+  </interface>
+
+  <interface name="tizen_viewport" version="1">
+
+      <description summary="the viewport for a surface">
+    This is the alternative and convenient solution of wl_viewport to present
+    a surface on screen.
+
+    The below five functions can be replaced with this interface. The below
+    functions will be ignored after applying this interface to a surface.
+     - wl_surface.set_buffer_transform
+     - wl_surface.set_buffer_scale
+     - wl_subsurface.set_position
+     - wl_viewport.set_source
+     - wl_viewport.set_destination
+
+    wl_viewport.set_source is very complicated especially when the buffer of
+    wl_surface is transformed by wl_surface.set_buffer_transform. And when the
+    parent is resized, if we want to change the geometry of a subsurface also,
+    wl_subsurface.set_position and wl_viewport.set_destination should be called
+    everytime the parent is resized in client side. This makes difficult to
+    synchronize a parent surface and a subsurface on screen.
+
+    tizen_viewport allows clients to set the relative geometry to a subsurface
+    in a parent surface. Whenever a parent surface is resized, the geometry of
+    a subsurface will be calculated, moved and resized automatically by a
+    compositor. The tizen_viewport is specified in the coordinates of a
+    subsurface's parent.
+
+	If tizen_viewport is applied to a shell surface(toplevel), the all value related
+	with x, y pos of tizen_viewport and tizen_destination_mode interface will be ignored.
+
+    The below 3 functions don't consider the transform of a parent's surface.
+     - tizen_viewport.set_source
+     - tizen_viewport.set_destination
+     - tizen_viewport.set_destination_ratio
+
+    Furthermore, tizen_destination_mode.follow_parent_transform is called,
+    tizen_viewport will consider the transform of a parent surface when applying
+    the destination mode to a subsurface. If tizen_destination_mode.follow_parent_transform
+    is applied to a shell surface, it will be ignored.
+
+    The destination will be cropped by a parent surface.
+
+    The change will be applied when wl_surface.commit is called.
+      </description>
+
+    <event name="destination_changed">
+      <arg name="transform" type="uint"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="width" type="uint"/>
+      <arg name="height" type="uint"/>
+    </event>
+
+    <request name="destroy" type="destructor" />
+
+    <request name="set_transform">
+      <description summary="set the transform of a surface">
+    The accepted values for the transform parameter are the values for wl_output.transform
+    according to the output transform.
+
+    The tizen_viewport.set_transform is applied only to itself. Basically it
+    doesn't effect the transform of its subsurfaces. That is, if 90 transform is
+    setted and its subsurface still has 0 transform, its subsurface won't be
+    rotated.
+
+    If needed to rotate the subsurface depended on a parent surface,
+    tizen_destination_mode.follow_parent_transform will make it possible.
+
+      </description>
+      <arg name="transform" type="uint"/>
+    </request>
+
+    <request name="set_source">
+      <description summary="set the source rectalge of a wl_buffer">
+    The source rectangle won't be changed when a parent is resized. If it needs
+    to be changed, tizen_viewport.set_source should be called with new values.
+      </description>
+      <arg name="x" type="uint"/>
+      <arg name="y" type="uint"/>
+      <arg name="width" type="uint"/>
+      <arg name="height" type="uint"/>
+    </request>
+
+    <request name="set_destination">
+      <description summary="set the destination geometry of a surface">
+    The destination geometry won't be changed when a parent is resized. If it
+    needs to be changed, tizen_viewport.set_destination should be called with
+    new values.
+
+	If tizen_viewport is applied to a shell surface(toplevel), the x, y value of
+	tizen_viewport.set_destination will be ignored.
+      </description>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="width" type="uint"/>
+      <arg name="height" type="uint"/>
+    </request>
+
+    <request name="set_destination_ratio">
+      <description summary="set the ratio destination rectalge in a parent surface">
+    The destination rectangle of a subsurface will be automatically changed
+    when a parent is resized. This allows the real number between 0.0 and 1.0.
+    See wl_fixed_from_double and wl_fixed_to_double.
+
+	If tizen_viewport is applied to a shell surface(toplevel), the x, y value of
+	tizen_viewport.set_destination_ratio will be ignored.
+      </description>
+      <arg name="x" type="fixed"/>
+      <arg name="y" type="fixed"/>
+      <arg name="width" type="fixed"/>
+      <arg name="height" type="fixed"/>
+    </request>
+
+    <request name="get_destination_mode">
+      <arg name="id" type="new_id" interface="tizen_destination_mode" />
+    </request>
+
+    <request name="query_parent_size" since="1">
+      <description summary="set the ratio destination rectalge in a parent surface">
+    A client can asks the display server to send the size of tizen_viewport object's
+    parent surface. Once a client requests it, the "parent_size" event will be sent
+    whenever the parent surface's size is changed.
+      </description>
+    </request>
+
+    <event name="parent_size">
+      <arg name="width" type="uint" />
+      <arg name="height" type="uint" />
+    </event>
+
+    <request name="follow_parent_transform">
+      <description summary="follow the transform change of a parent surface">
+    The real transform of a subsurface is (parent's transform + subsurface's transform).
+    The subsurface will be rotated automatically when the parent is rotated.
+
+    If tizen_viewport.follow_parent_transform is applied to a shell surface(toplevel),
+    it will be ignored.
+      </description>
+    </request>
+
+    <request name="unfollow_parent_transform" />
+
+  </interface>
+
+  <interface name="tizen_destination_mode" version="1">
+
+      <description summary="the destination mode for a surface">
+    The destination rectangle will be automatically changed when a parent is
+    resized. When tizen_destination_mode.set is called, the value of
+    tizen_viewport.set_destination and tizen_viewport.set_destination_ratio
+    will be ignored.
+
+    The destination of a surface is decided by the mode, ratio, scale, offset
+    and align values. The ratio, scale, offset and align will be applied
+    sequentially.
+
+    The change will be applied when wl_surface.commit is called.
+      </description>
+
+    <enum name="error">
+      <entry name="invalid_type" value="0"/>
+    </enum>
+
+    <enum name="type">
+      <entry name="none" value="0"/>
+      <entry name="letter_box" value="1"/>
+      <entry name="origin" value="2"/>
+      <entry name="full" value="3"/>
+      <entry name="cropped_full" value="4"/>
+      <entry name="origin_or_letter" value="5"/>
+    </enum>
+
+    <request name="destroy" type="destructor" />
+
+    <request name="follow_parent_transform">
+      <description summary="follow the transform change of a parent surface">
+    The real transform of a subsurface is (parent's transform + subsurface's transform).
+    That is, the subsurface will be rotated automatically when the parent is rotated.
+
+    If tizen_destination_mode.follow_parent_transform is applied to a shell surface(toplevel),
+    it will be ignored.
+      </description>
+    </request>
+
+    <request name="unfollow_parent_transform" />
+
+    <request name="set" summary="set the destination mode">
+      <arg name="mode" type="uint" enum="type"/>
+    </request>
+
+    <request name="set_ratio">
+      <description summary="set the ratio of the destination rectangle of a subsurface">
+    This allows the real number. See wl_fixed_from_double and wl_fixed_to_double.
+      </description>
+      <arg name="horizontal" type="fixed"/>
+      <arg name="vertical" type="fixed"/>
+    </request>
+
+    <request name="set_scale">
+      <description summary="set the scale of the destination rectangle of a subsurface">
+    This allows the real number. See wl_fixed_from_double and wl_fixed_to_double.
+      </description>
+      <arg name="horizontal" type="fixed"/>
+      <arg name="vertical" type="fixed"/>
+    </request>
+
+    <request name="set_align">
+      <description summary="set the align of the destination rectangle of a subsurface">
+    This allows the real number between 0.0 and 1.0. See wl_fixed_from_double and
+    wl_fixed_to_double.
+      </description>
+      <arg name="horizontal" type="fixed"/>
+      <arg name="vertical" type="fixed"/>
+    </request>
+
+    <request name="set_offset">
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="w" type="int"/>
+      <arg name="h" type="int"/>
+    </request>
+
+  </interface>
+
+  <interface name="tizen_embedded_compositor" version="1">
+
+    <description summary="global embedded compositor object">
+      The global obejct. Wayland has 3 type of compositor, embedded compositor is one of them.
+      But tizen application is sendboxing by smack, then a application not allow commutication to other application by socket.
+      So system or session compositor create socket and send to embedded compostior.
+    </description>
+
+    <request name="get_socket">
+      <description summary="create new socket">
+        The get_socket request ask the server to create socket and emit socket event.
+      </description>
+    </request>
+
+    <event name="socket">
+      <description summary="socket fd">
+        Sent immediately after get_socket request
+      </description>
+      <arg name="sock_fd" type="fd"/>
+    </event>
+
+  </interface>
+
+  <interface name="tizen_input_device_manager" version="1">
+    <description summary="global input device manager object">
+      Tizen input device manager is a global interface. This object has device add/remove events
+      to provide tizen input device object to a client. This allows for a client to get the con
+
+      Be sure to bind this interface after binding wl_seat interface.
+      Tizen input device manager interface will only provide device add/remove event for devices
+      which belongs to the wl_seat object(s) bound by the client. Therefore, the compositor needs to
+      create/send the device add/remove event only for the current client's seat(s).
+    </description>
+
+    <event name="device_add">
+      <description summary="device addition event">
+        The device add/remove notification is going to be sent when a physical/logical device is
+        added/removed to/from the given seat. Note that a tizen input device object can be assigned to
+        a wl_seat and can also be assigned to the other wl_seat at any time. Whenever a relationship between
+        a tizen input device object changes, device remove event from the current wl_seat object will be made
+        and device add event to the other wl_seat object will also be mode.
+      </description>
+      <arg name="serial" type="uint"/>
+      <arg name="identifier" type="string"/>
+      <arg name="device" type="new_id" interface="tizen_input_device"/>
+      <arg name="seat" type="object" interface="wl_seat"/>
+    </event>
+
+    <event name="device_remove">
+      <description summary="device removal event">
+        The device add/remove notification is going to be sent when a physical/logical device is
+        added/removed to/from the given seat. Note that a tizen input device object can be assigned to
+        a wl_seat and can also be assigned to the other wl_seat at any time. Whenever a relationship between
+        a tizen input device object changes, device remove event from the current wl_seat object will be made
+        and device add event to the other wl_seat object will also be mode.
+      </description>
+      <arg name="serial" type="uint"/>
+      <arg name="identifier" type="string"/>
+      <arg name="device" type="object" interface="tizen_input_device"/>
+      <arg name="seat" type="object" interface="wl_seat"/>
+    </event>
+
+    <enum name="clas">
+       <description summary="device class">
+       </description>
+       <entry name="none" value="0" summary="none of class"/>
+       <entry name="mouse" value="1" summary="mouse class"/>
+       <entry name="keyboard" value="2" summary="keyboard class"/>
+       <entry name="touchscreen" value="4" summary="touchscreen class"/>
+    </enum>
+
+    <enum name="error">
+      <entry name="none" value="0" summary="no error"/>
+      <entry name="no_permission" value="1" summary="no permission"/>
+      <entry name="invalid_class" value="2" summary="invalid class"/>
+      <entry name="blocked_already" value="3" summary="blocked already by the other client"/>
+      <entry name="no_system_resources" value="4" summary="no system resources such as memory lack"/>
+      <entry name="invalid_parameter" value="5" summary="argument is invalid"/>
+      <entry name="invalid_surface" value="6" summary="the given surface is not visible or pointer is not on the given surface"/>
+      <entry name="no_pointer_available" value="7" summary="there is no pointer available to warp"/>
+    </enum>
+
+    <event name="error">
+      <description summary="error event">
+      </description>
+      <arg name="errorcode" type="uint" enum="error"/>
+    </event>
+
+    <event name="block_expired">
+      <description summary="block expiration event">
+        This event will be sent if the duration of existing block is expired.
+        Note that no block expired event will be sent if there is no block for the client.
+      </description>
+    </event>
+
+    <request name="block_events">
+      <description summary="request to block sending event(s)">
+        This request allows a client to request to block one or more events for its purpose.
+        By specifying class as an argument in the request, the events belongs to the class will be blocked
+        during the given duration. Note that an error event will be sent if there is any error.
+      </description>
+      <arg name="serial" type="uint" summary=""/>
+      <arg name="clas" type="uint" enum="clas"/>
+      <arg name="duration" type="uint" summary="time duration with millisecond granularity"/>
+    </request>
+
+    <request name="unblock_events">
+      <description summary="request to unblock sending event(s)">
+        This request allows a client to request to release the existing block for the client.
+        Note that no error event will be sent if there is no existing block for the client.
+      </description>
+      <arg name="serial" type="uint" summary=""/>
+    </request>
+
+    <request name="init_generator">
+      <description summary="initialize input generator system">
+      </description>
+      <arg name="clas" type="uint" enum="clas"/>
+    </request>
+
+    <request name="deinit_generator">
+      <description summary="deinitialize input generator system">
+      </description>
+      <arg name="clas" type="uint" enum="clas"/>
+    </request>
+
+    <request name="generate_key">
+      <description summary="generate a key event using specific or default device">
+      </description>
+      <arg name="keyname" type="string"/>
+      <arg name="pressed" type="uint"/>
+    </request>
+
+    <enum name="pointer_event_type">
+      <entry name="begin" value="0"/>
+      <entry name="update" value="1"/>
+      <entry name="end" value="2"/>
+    </enum>
+
+    <request name="generate_pointer">
+      <description summary="generate a pointer event using specific or default device">
+      </description>
+      <arg name="type" type="uint" enum="pointer_event_type"/>
+      <arg name="x" type="uint"/>
+      <arg name="y" type="uint"/>
+      <arg name="button" type="uint"/>
+    </request>
+
+    <request name="generate_touch">
+      <description summary="generate a touch event using specific or default device">
+      </description>
+      <arg name="type" type="uint" enum="pointer_event_type"/>
+      <arg name="x" type="uint"/>
+      <arg name="y" type="uint"/>
+      <arg name="finger" type="uint"/>
+    </request>
+
+    <request name="pointer_warp">
+      <description summary="warp pointer to the relative position to the given surface">
+      </description>
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="x" type="fixed"/>
+      <arg name="y" type="fixed"/>
+    </request>
+  </interface>
+
+  <interface name="tizen_input_device" version="1">
+    <description summary="tizen input device object">
+      The tizen_input_device interface represents one or more input devices associated with a physical/logical
+      input device. This interface provides device specific information/events to allows for client to identify
+      the source device of an event or to get the additional axes/attributes of a device.
+      Note that a tizen_input_device object can be used for a physical input device and can also be used for a
+      group of input devices. e.g. a group of mouse devices
+    </description>
+
+    <enum name="clas">
+       <description summary="device class">
+       </description>
+       <entry name="none" value="0" summary="none of class"/>
+       <entry name="keyboard" value="2" summary="keyboard class"/>
+       <entry name="mouse" value="3" summary="mouse class"/>
+       <entry name="touchscreen" value="4" summary="touchscreen class"/>
+    </enum>
+
+    <enum name="subclas">
+       <description summary="device subclass">
+       </description>
+       <entry name="none" value="0" summary="none of subclass"/>
+    </enum>
+
+    <enum name="axis_type">
+      <description summary="axis type enums which can be supported by a device">
+      </description>
+      <entry name="none" value="0" summary="radius of x axis of an event area e.g. touching area with a finger or a pen"/>
+      <entry name="radius_x" value="1" summary="radius of x axis of an event area e.g. touching area with a finger or a pen"/>
+      <entry name="radius_y" value="2" summary="radius of y axis of an event area e.g. touching area with a finger or a pen"/>
+      <entry name="pressure" value="3" summary="pressure in an event area e.g. touching area with a finger or a pen"/>
+      <entry name="angle" value="4" summary="angle in an event area e.g. touching area with a finger or a pen"/>
+      <entry name="detent" value="5" summary="detent value e.g. moved distance with a rotary device"/>
+    </enum>
+
+    <event name="device_info">
+      <description summary="event contains device information">
+      </description>
+      <arg name="name" type="string"/>
+      <arg name="clas" type="uint" enum="clas"/>
+      <arg name="subclas" type="uint" enum="subclas"/>
+      <arg name="axes" type="array" summary="array of axis enum"/>
+    </event>
+
+    <event name="event_device">
+      <description summary="event indicates the source device associated with a wl_pointer/keyboard/touch event">
+      </description>
+      <arg name="serial" type="uint"/>
+      <arg name="name" type="string"/>
+      <arg name="time" type="uint" summary="timestamp with millisecond granularity"/>
+    </event>
+
+    <request name="select_axes">
+      <description summary="request for selecting some of axes among the axes supported by a tizen_input_device object">
+      </description>
+      <arg name="axes" type="array" summary="array of axis num"/>
+    </request>
+
+    <event name="axis">
+      <description summary="axis change event">
+      </description>
+      <arg name="axis_type" type="uint" enum="axis_type"/>
+      <arg name="value" type="fixed" summary="axis value"/>
+    </event>
+
+    <request name="release" type="destructor">
+      <description summary="release the tizen_input_device object">
+      </description>
+    </request>
+  </interface>
+
+  <interface name="tizen_launchscreen" version="1">
+    <request name="create_img">
+      <arg name="id" type="new_id" interface="tizen_launch_image" summary="new tizen_launch_image object"/>
+    </request>
+  </interface>
+
+  <interface name="tizen_launch_image" version="1">
+    <!-- launch img -->
+    <enum name="file_type">
+      <entry name="img" value="0" summary="splash image file path"/>
+      <entry name="edj" value="1" summary="splash edj file path"/>
+    </enum>
+
+    <enum name="indicator">
+      <entry name="off" value="0" summary="splash hide indicator"/>
+      <entry name="on" value="1" summary="splash show indicator"/>
+    </enum>
+
+    <enum name="rotation">
+      <entry name="0" value="0" summary="rotation angle 0 degree"/>
+      <entry name="90" value="90" summary="rotation angle 90 degree"/>
+      <entry name="180" value="180" summary="rotation angle 180 degree"/>
+      <entry name="270" value="270" summary="rotation angle 270 degree"/>
+    </enum>
+
+    <request name="destroy" type="destructor"/>
+
+    <request name="launch">
+      <arg name="file" type="string"/>
+      <arg name="file_type" type="uint" />
+      <arg name="color_depth" type="uint" />
+      <arg name="rotation" type="uint" />
+      <arg name="indicator" type="uint" />
+      <arg name="options" type="array" />
+    </request>
+
+    <request name="owner">
+      <arg name="pid" type="uint" />
+    </request>
+
+    <request name="show">
+    </request>
+
+    <request name="hide">
+    </request>
+  </interface>
+
+  <interface name="tizen_effect" version="1">
+     <enum name="type">
+      <entry name="none" value="0" summary="none"/>
+      <entry name="show" value="1" summary="show effect of window"/>
+      <entry name="hide" value="2" summary="hide effect of window"/>
+      <entry name="restack" value="3" summary="restack effect of window"/>
+     </enum>
+     <request name="destroy" type="destructor" />
+     <event name="start">
+       <arg name="surface" type="object" interface="wl_surface"/>
+       <arg name="type" type="uint" />
+     </event>
+     <event name="end">
+       <arg name="surface" type="object" interface="wl_surface"/>
+       <arg name="type" type="uint" />
+     </event>
+  </interface>
+
+  <interface name="tizen_display_policy" version="1">
+    <enum name="error_state">
+      <entry name="none" value="0"/>
+      <entry name="permission_denied" value="1"/>
+    </enum>
+    <!-- for window brightness -->
+    <request name="set_window_brightness">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="brightness" type="int"/>
+    </request>
+
+    <event name="window_brightness_done">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="brightness" type="int"/>
+      <arg name="error_state" type="uint"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_indicator" version="1">
+    <enum name="state">
+      <entry name="unknown" value="0" summary="unknown"/>
+      <entry name="off" value="1" summary="can not show indicator"/>
+      <entry name="on" value="2" summary="can show indicator"/>
+    </enum>
+    <enum name="opacity_mode">
+      <entry name="unknown" value="0" summary="unknown"/>
+      <entry name="opaque" value="1" summary="opaque mode"/>
+      <entry name="translucent" value="2" summary="translucent mode"/>
+      <entry name="transparent" value="3" summary="transparent all mode"/>
+      <entry name="bg_transparent" value="4" summary="transparent only background mode"/>
+    </enum>
+    <enum name="visible_type">
+      <entry name="hidden" value="0" summary="hidden type indicator"/>
+      <entry name="shown" value="1" summary="shown type indicator"/>
+    </enum>
+
+    <request name="destroy" type="destructor"/>
+    <request name="set_state">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="state" type="int" />
+    </request>
+    <request name="set_opacity_mode">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="mode" type="int" />
+    </request>
+    <request name="set_visible_type">
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+      <arg name="type" type="int" />
+    </request>
+
+    <event name="flick">
+      <arg name="surface" type="object" interface="wl_surface" summary="occur the flick event"/>
+      <arg name="type" type="int"/>
+    </event>
+  </interface>
+
+  <interface name="tizen_clipboard" version="2">
+     <description summary="an interface for requests and event about clipboard">
+        This interface provides some requests and events about clipboard for other clients.
+     </description>
+     <request name="destroy" type="destructor" />
+     <request name="show">
+      <description summary="request for show clipboard">
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+     </request>
+     <request name="hide">
+      <description summary="request for hide clipboard">
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+     </request>
+     <event name="data_selected">
+      <description summary="announce data are selected by clipboard">
+      </description>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface object"/>
+     </event>
+
+     <!-- version 2 additions -->
+     <request name="set_data_only" since="2">
+        <description summary="request for setting data only mode for this wl_client">
+           A wayland client can notify of that the client is data only mode.
+           The data only mode means that this wayland client doesn't have any
+           wl_surfaces at all but it wants to use wl_data_device for some data
+           operations.
+        </description>
+        <arg name="set" type="uint" />
+     </request>
+
+     <event name="allowed_data_only" since="2">
+        <description summary="event to notify if data only set is allowed or not"/>
+        <arg name="allowed" type="uint" />
+     </event>
+  </interface>
+
+</protocol>
