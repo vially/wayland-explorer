@@ -245,6 +245,24 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://review.tizen.org/git/?p=platform/core/uifw/wayland-extension.git;a=blob;f=protocol/tizen-extension.xml;h=7bacfa6dbf1f54a74f83fe3a27bca38419397dde;hb=refs/heads/accepted/tizen_common',
     },
+    {
+        id: 'nvidia-eglstream',
+        name: 'NVIDIA EGLStream',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/nvidia-eglstream.json'),
+        externalUrl:
+            'https://github.com/NVIDIA/egl-wayland/blob/master/wayland-eglstream/wayland-eglstream.xml',
+    },
+    {
+        id: 'nvidia-eglstream-controller',
+        name: 'NVIDIA EGLStream controller',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/nvidia-eglstream-controller.json'),
+        externalUrl:
+            'https://github.com/NVIDIA/egl-wayland/blob/master/wayland-eglstream/wayland-eglstream-controller.xml',
+    },
 ]
 
 class WaylandProtocolRegistry {
