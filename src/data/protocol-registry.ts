@@ -228,6 +228,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/wlr-virtual-pointer-unstable-v1.json'),
     },
     {
+        id: 'aura-shell',
+        name: 'Chromium aura shell',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/aura-shell.json'),
+        externalUrl:
+            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/aura-shell.xml',
+    },
+    {
         id: 'virtual-keyboard-unstable-v1',
         name: 'Virtual keyboard',
         source: WaylandProtocolSource.External,
