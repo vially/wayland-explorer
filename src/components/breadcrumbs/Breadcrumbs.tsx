@@ -18,6 +18,11 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
         GitServiceProvider.GitHub
     )
 
+    const xmlFileBaseName =
+        metadata.source === WaylandProtocolSource.KDEProtocols
+            ? metadata.id.substring(4)
+            : metadata.id
+
     useEffect(() => {
         setGitServiceProvider(userConfig.gitServiceProvider)
     }, [])
@@ -106,7 +111,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                                 rel="noreferrer"
                                 className="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700 truncate"
                             >
-                                {metadata.id}.xml
+                                {xmlFileBaseName}.xml
                             </a>
                         </div>
                     </li>

@@ -2,13 +2,14 @@ import xmlParser from 'fast-xml-parser'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { WaylandElementType } from '../../src/model/wayland'
-import { findXMLFiles } from '../lib/utils'
+import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
 import { transformXMLElement } from '../lib/xml-protocol-transformers'
 
 const relativeProtocolDirs = [
     path.join('protocols', 'wayland', 'stable'),
     path.join('protocols', 'wayland', 'unstable'),
     path.join('protocols', 'wlr', 'unstable'),
+    path.join('protocols', 'kde', 'src', 'protocols'),
     path.join('protocols', 'external'),
 ]
 
@@ -16,7 +17,7 @@ const jsonFilePathFor = (srcFileName: string): string =>
     path.resolve(
         __dirname,
         '../../src/data/protocols',
-        path.basename(srcFileName, '.xml') + '.json'
+        jsonFileNameFor(srcFileName)
     )
 
 const deprecatedProtocols = [
@@ -25,6 +26,16 @@ const deprecatedProtocols = [
     'xdg-foreign-unstable-v1.xml',
     'xdg-shell-unstable-v5.xml',
     'xdg-shell-unstable-v6.xml',
+    /**
+     * Deprecated KDE protocols
+     * https://github.com/KDE/plasma-wayland-protocols/blob/e89f46fa782713f004a65879c56e844fce63257b/src/protocols/TODOKF6.md
+     */
+    'fullscreen-shell.xml',
+    'remote-access.xml',
+    'surface-extension.xml',
+    'text-input.xml',
+    'text-input-unstable-v2.xml',
+    'wayland-eglstream-controller.xml',
 ]
 
 async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {

@@ -71,6 +71,14 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/swaywm/wlr-protocols/blob/master/${stability}/${protocol}.xml',
     },
+    [WaylandProtocolSource.KDEProtocols]: {
+        repositoryUrl: 'https://github.com/KDE/plasma-wayland-protocols',
+        stabilityUrl:
+            'https://github.com/KDE/plasma-wayland-protocols/tree/master/src/protocols',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/KDE/plasma-wayland-protocols/blob/master/src/protocols/${protocol}.xml',
+    },
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',
         stabilityUrl: '',
@@ -104,6 +112,8 @@ function sourceUrlBuilderFor(
                     ? `${waylandProtocolDirectoryNameFor(metadata)}/${
                           metadata.id
                       }`
+                    : metadata.source === WaylandProtocolSource.KDEProtocols
+                    ? metadata.id.substring(4)
                     : metadata.id
 
             return (
