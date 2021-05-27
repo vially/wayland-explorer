@@ -28,16 +28,16 @@ const sourceRepositoryUrls: Record<
         [GitServiceProvider.GitHub]: {
             repositoryUrl: 'https://github.com/wayland-project/wayland',
             stabilityUrl:
-                'https://github.com/wayland-project/wayland/tree/master/protocol',
+                'https://github.com/wayland-project/wayland/tree/main/protocol',
             protocolUrl:
-                'https://github.com/wayland-project/wayland/blob/master/protocol/wayland.xml',
+                'https://github.com/wayland-project/wayland/blob/main/protocol/wayland.xml',
         },
         [GitServiceProvider.GitLab]: {
             repositoryUrl: 'https://gitlab.freedesktop.org/wayland/wayland',
             stabilityUrl:
-                'https://gitlab.freedesktop.org/wayland/wayland/-/tree/master/protocol',
+                'https://gitlab.freedesktop.org/wayland/wayland/-/tree/main/protocol',
             protocolUrl:
-                'https://gitlab.freedesktop.org/wayland/wayland/-/blob/master/protocol/wayland.xml',
+                'https://gitlab.freedesktop.org/wayland/wayland/-/blob/main/protocol/wayland.xml',
         },
     },
     [WaylandProtocolSource.WaylandProtocols]: {
@@ -46,20 +46,20 @@ const sourceRepositoryUrls: Record<
                 'https://github.com/wayland-project/wayland-protocols',
             stabilityUrl:
                 // eslint-disable-next-line no-template-curly-in-string
-                'https://github.com/wayland-project/wayland-protocols/tree/master/${stability}',
+                'https://github.com/wayland-project/wayland-protocols/tree/main/${stability}',
             protocolUrl:
                 // eslint-disable-next-line no-template-curly-in-string
-                'https://github.com/wayland-project/wayland-protocols/blob/master/${stability}/${protocol}.xml',
+                'https://github.com/wayland-project/wayland-protocols/blob/main/${stability}/${protocol}.xml',
         },
         [GitServiceProvider.GitLab]: {
             repositoryUrl:
                 'https://gitlab.freedesktop.org/wayland/wayland-protocols',
             stabilityUrl:
                 // eslint-disable-next-line no-template-curly-in-string
-                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/tree/master/${stability}',
+                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/tree/main/${stability}',
             protocolUrl:
                 // eslint-disable-next-line no-template-curly-in-string
-                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/master/${stability}/${protocol}.xml',
+                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/${stability}/${protocol}.xml',
         },
     },
     [WaylandProtocolSource.WlrProtocols]: {
