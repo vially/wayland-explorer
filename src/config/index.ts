@@ -3,7 +3,7 @@ import { ExecutionEnvironment } from './execution-environment'
 
 export const appConfig = {
     domain: 'wayland.app',
-    analyticsDomain: 'https://analytics.wayland.app',
+    analyticsDomain: 'https://wayland.app',
 }
 
 export const userConfig = {
