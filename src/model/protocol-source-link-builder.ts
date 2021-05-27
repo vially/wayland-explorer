@@ -161,6 +161,9 @@ function waylandProtocolDirectoryNameFor(
 ): string {
     if (metadata.stability === WaylandProtocolStability.Stable) {
         return metadata.id
+    } else if (metadata.stability === WaylandProtocolStability.Staging) {
+        // Remove version suffix (e.g.: '-v1')
+        return metadata.id.substring(0, metadata.id.length - 3)
     }
 
     // TODO: Add directory name to metadata object and remove this hack

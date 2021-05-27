@@ -39,6 +39,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xdg-shell.json'),
     },
     {
+        id: 'xdg-activation-v1',
+        name: 'XDG activation',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-activation-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,

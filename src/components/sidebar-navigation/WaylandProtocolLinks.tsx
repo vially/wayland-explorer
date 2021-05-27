@@ -58,6 +58,15 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const waylandProtocolsStaging: Section = {
+        name: 'Staging',
+        items: protocols.filter(
+            ({ source, stability }) =>
+                source === WaylandProtocolSource.WaylandProtocols &&
+                stability === WaylandProtocolStability.Staging
+        ),
+    }
+
     const waylandProtocolsUnstable: Section = {
         name: 'Unstable',
         items: protocols.filter(
@@ -95,6 +104,7 @@ function groupProtocolsIntoSections(): Section[] {
     return [
         coreSection,
         waylandProtocolsStable,
+        waylandProtocolsStaging,
         waylandProtocolsUnstable,
         wlrProtocolsUnstable,
         kdeProtocolsUnstable,

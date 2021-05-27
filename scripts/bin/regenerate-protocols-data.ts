@@ -7,6 +7,7 @@ import { transformXMLElement } from '../lib/xml-protocol-transformers'
 
 const relativeProtocolDirs = [
     path.join('protocols', 'wayland', 'stable'),
+    path.join('protocols', 'wayland', 'staging'),
     path.join('protocols', 'wayland', 'unstable'),
     path.join('protocols', 'wlr', 'unstable'),
     path.join('protocols', 'kde', 'src', 'protocols'),
