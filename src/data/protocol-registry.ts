@@ -354,6 +354,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-slide.json'),
     },
     {
+        id: 'wayland-drm',
+        name: 'Mesa Wayland DRM',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/wayland-drm.json'),
+        externalUrl:
+            'https://gitlab.freedesktop.org/mesa/mesa/-/blob/main/src/egl/wayland/wayland-drm/wayland-drm.xml',
+    },
+    {
         id: 'aura-shell',
         name: 'Chromium aura shell',
         source: WaylandProtocolSource.External,
