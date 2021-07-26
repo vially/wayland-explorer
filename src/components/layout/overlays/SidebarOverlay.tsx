@@ -60,7 +60,7 @@ export const SidebarOverlay: React.FC<{
                         </svg>
                     </button>
                 </Transition.Child>
-                <div className="h-full flex flex-col shadow-xl bg-gray-50">
+                <div className="h-full flex flex-col shadow-xl bg-gray-50 dark:bg-gray-900">
                     <div className="px-4 my-4">
                         <Logo />
                     </div>
@@ -68,7 +68,7 @@ export const SidebarOverlay: React.FC<{
                     <nav className="flex-1 overflow-y-auto">
                         {/* Sidebar component, swap this element with another sidebar if you like */}
                         <div
-                            className="flex flex-col border-r border-gray-200 "
+                            className="flex flex-col border-r border-gray-200 dark:border-gray-900"
                             onClick={() => setIsOpen(false)}
                         >
                             {children}
