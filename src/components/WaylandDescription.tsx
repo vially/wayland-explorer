@@ -6,13 +6,16 @@ export const WaylandDescription: React.FC<
 > = ({ element }) => (
     <div>
         {element.summary && (
-            <div className="my-3 font-semibold text-gray-700">
+            <div className="my-3 font-semibold text-gray-700 dark:text-white">
                 {capitalizeFirstLetter(element.summary)}
             </div>
         )}
 
         {element.text?.split('\n\n').map((text, index) => (
-            <p key={index} className="my-3 text-base text-gray-700">
+            <p
+                key={index}
+                className="my-3 text-base text-gray-700 dark:text-white"
+            >
                 {text}
             </p>
         ))}

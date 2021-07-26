@@ -3,7 +3,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
     purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-    darkMode: 'media', // or 'media' or 'class'
+    darkMode: 'class', // or 'media' or 'class'
     theme: {
         extend: {},
         colors: { ...colors, transparent: 'transparent' },
@@ -15,6 +15,7 @@ module.exports = {
     },
     variants: {
         extend: {},
+        scrollbar: ['dark', 'rounded'],
     },
-    plugins: [],
+    plugins: [require('tailwind-scrollbar')],
 }

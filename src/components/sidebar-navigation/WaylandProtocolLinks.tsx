@@ -9,11 +9,14 @@ import {
 import { SidebarNavLink } from './SidebarNavLink'
 
 export const WaylandProtocolLinks: React.FC = () => (
-    <nav aria-label="Sidebar" className="h-full overflow-y-auto pb-4 space-y-6">
+    <nav
+        aria-label="Sidebar"
+        className="h-full overflow-y-auto pb-4 space-y-6 dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-thumb-rounded"
+    >
         {groupProtocolsIntoSections().map((section) => (
             <div key={section.name}>
                 <h3
-                    className="px-4 pb-2 text-xs font-semibold text-gray-700 uppercase tracking-wider truncate"
+                    className="px-4 pb-2 text-xs font-semibold text-gray-700 uppercase tracking-wider truncate dark:text-gray-600"
                     title={section.name}
                 >
                     {section.name}

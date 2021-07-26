@@ -9,13 +9,13 @@ export const Homepage: React.FC = () => {
     usePageTitle('Wayland Protocol Documentation')
 
     return (
-        <div className="py-12 lg:py-24 xl:py-32 bg-white">
+        <div className="py-12 lg:py-24 xl:py-32 bg-white dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="lg:text-center">
                     <h2 className="text-base text-indigo-600 font-semibold tracking-wide uppercase">
                         Wayland Explorer
                     </h2>
-                    <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
                         A better way to read Wayland documentation
                     </p>
                     <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
@@ -44,7 +44,7 @@ export const Homepage: React.FC = () => {
                         {waylandProtocolRegistry.protocols.map((protocol) => (
                             <div
                                 key={protocol.id}
-                                className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 dark:bg-gray-800 dark:border-black"
                             >
                                 <div className="w-full min-w-0">
                                     <Link href={`/${protocol.id}`}>
@@ -57,7 +57,7 @@ export const Homepage: React.FC = () => {
                                                 aria-hidden="true"
                                             />
                                             <div className="flex justify-between items-center">
-                                                <div className="text-sm font-medium text-gray-900">
+                                                <div className="text-sm font-medium text-gray-900 dark:text-white">
                                                     {protocol.name}
                                                 </div>
                                                 <ProtocolBadge

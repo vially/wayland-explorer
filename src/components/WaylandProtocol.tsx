@@ -14,9 +14,9 @@ export const WaylandProtocol: React.FC<{
 
     return (
         <div>
-            <div className="py-4 border-b border-gray-200 mb-10">
+            <div className="py-4 border-b border-gray-200 mb-10 dark:border-gray-700">
                 <div className="flex items-center">
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight dark:text-white">
                         {metadata.name}
                     </h1>
                 </div>

@@ -16,7 +16,7 @@ export const WaylandDataTable: React.FC<{
     interfaceName: string
     parentElement: WaylandRequestModel | WaylandEventModel | WaylandEnumModel
 }> = ({ elements, interfaceName, parentElement }) => (
-    <div className="my-4 border-b border-gray-200">
+    <div className="my-4 border-b border-gray-200 dark:border-gray-700">
         <table className="w-full table-auto text-left border-collapse">
             <thead>
                 <tr>
@@ -134,7 +134,9 @@ const TableCol: React.FC<{ showBorder: boolean; extraClasses?: string }> = (
 ) => (
     <td
         className={`py-2 pr-2 text-xs ${
-            props.showBorder ? 'border-t border-gray-200' : ''
+            props.showBorder
+                ? 'border-t border-gray-200 dark:border-gray-700'
+                : ''
         } ${props.extraClasses ?? ''}`}
     >
         {props.children}
@@ -143,7 +145,7 @@ const TableCol: React.FC<{ showBorder: boolean; extraClasses?: string }> = (
 
 const TableHeader: React.FC<{ extraClasses?: string }> = (props) => (
     <th className="text-sm font-semibold text-gray-600 p-0">
-        <div className="pb-2 pr-2 border-b border-gray-200">
+        <div className="pb-2 pr-2 border-b border-gray-200 dark:border-gray-700">
             {props.children}
         </div>
     </th>

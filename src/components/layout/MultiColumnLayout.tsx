@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { DarkModeButton } from '../DarkModeButton'
 import { WaylandProtocolLinks } from '../sidebar-navigation/WaylandProtocolLinks'
 import { Footer } from './Footer'
 import { Header } from './Header'
@@ -15,7 +16,7 @@ export const MultiColumnLayout: React.FC<{
     const [isOutlineOpen, setIsOutlineOpen] = useState(false)
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white">
             <SidebarOverlay open={isSidebarOpen} setIsOpen={setIsSidebarOpen}>
                 <WaylandProtocolLinks />
             </SidebarOverlay>
@@ -41,10 +42,11 @@ export const MultiColumnLayout: React.FC<{
                 >
                     <nav aria-label="Sidebar" className="h-screen sticky top-0">
                         {/* Sidebar component, swap this element with another sidebar if you like */}
-                        <div className="flex flex-col h-full border-r border-gray-200 bg-gray-50">
+                        <div className="flex flex-col h-full border-r border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
                             <div className="flex-1 flex flex-col overflow-y-auto">
-                                <div className="flex-shrink-0 px-4 my-5">
+                                <div className="flex items-center px-4 my-5">
                                     <Logo />
+                                    <DarkModeButton className="ml-2" />
                                 </div>
                                 <WaylandProtocolLinks />
                             </div>
@@ -65,7 +67,7 @@ export const MultiColumnLayout: React.FC<{
                 </main>
                 {outlineView && (
                     <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
-                        <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4">
+                        <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4 dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-thumb-rounded">
                             <h2 className="text-lg font-medium text-gray-900">
                                 Outline
                             </h2>
