@@ -58,10 +58,10 @@ export const OutlineOverlay: React.FC<{
                                 </svg>
                             </button>
                         </Transition.Child>
-                        <div className="h-full flex flex-col py-6 bg-white shadow-xl overflow-y-auto">
+                        <div className="h-full flex flex-col py-6 bg-white shadow-xl overflow-y-auto dark:bg-gray-900">
                             <div className="px-4 sm:px-6">
                                 <h2
-                                    className="text-lg font-medium text-gray-900"
+                                    className="text-lg font-medium text-gray-900 dark:text-gray-100"
                                     id="slide-over-title"
                                 >
                                     Outline
