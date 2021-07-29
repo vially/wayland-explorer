@@ -1,5 +1,4 @@
 import React from 'react'
-import { DarkModeButton } from '../DarkModeButton'
 import { Logo } from './Logo'
 
 export const Header: React.FC<{
@@ -32,9 +31,8 @@ export const Header: React.FC<{
                     />
                 </svg>
             </button>
-            <div className="flex-1 flex items-center px-4 sm:px-6">
+            <div className="flex-1 flex justify-between px-4 sm:px-6">
                 <Logo />
-                <DarkModeButton className="ml-2" />
             </div>
 
             {showOutlineButton && (

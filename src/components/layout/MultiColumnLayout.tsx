@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { DarkModeButton } from '../DarkModeButton'
 import { WaylandProtocolLinks } from '../sidebar-navigation/WaylandProtocolLinks'
 import { Footer } from './Footer'
 import { Header } from './Header'
@@ -44,9 +43,8 @@ export const MultiColumnLayout: React.FC<{
                         {/* Sidebar component, swap this element with another sidebar if you like */}
                         <div className="flex flex-col h-full border-r border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
                             <div className="flex-1 flex flex-col overflow-y-auto">
-                                <div className="flex items-center px-4 my-5">
+                                <div className="flex-shrink-0 px-4 my-5">
                                     <Logo />
-                                    <DarkModeButton className="ml-2" />
                                 </div>
                                 <WaylandProtocolLinks />
                             </div>
