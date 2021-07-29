@@ -67,7 +67,7 @@ export const MultiColumnLayout: React.FC<{
                 </main>
                 {outlineView && (
                     <aside className="hidden lg:block lg:col-span-3 xl:col-span-2">
-                        <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4 dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-thumb-rounded">
+                        <div className="sticky max-h-screen top-0 space-y-4 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                             <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                                 Outline
                             </h2>

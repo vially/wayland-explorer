@@ -11,7 +11,7 @@ import { SidebarNavLink } from './SidebarNavLink'
 export const WaylandProtocolLinks: React.FC = () => (
     <nav
         aria-label="Sidebar"
-        className="h-full overflow-y-auto pb-4 space-y-6 dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-thumb-rounded"
+        className="h-full overflow-y-auto pb-4 space-y-6 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700"
     >
         {groupProtocolsIntoSections().map((section) => (
             <div key={section.name}>
