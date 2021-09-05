@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { userConfig } from '../../config'
 import {
+    kdeProtocolsWithHardcodedPrefix,
     urlForWaylandProtocol,
     urlForWaylandProtocolSource,
     urlForWaylandProtocolStability,
@@ -19,7 +20,8 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
     )
 
     const xmlFileBaseName =
-        metadata.source === WaylandProtocolSource.KDEProtocols
+        metadata.source === WaylandProtocolSource.KDEProtocols &&
+        !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
             ? metadata.id.substring(4)
             : metadata.id
 

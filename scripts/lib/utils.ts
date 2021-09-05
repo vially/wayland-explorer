@@ -33,12 +33,14 @@ export async function findXMLFiles(rootDirectory: string): Promise<string[]> {
 }
 
 export function jsonFileNameFor(srcFileName: string): string {
-    // Add `kde-` prefix to KDE protocol file names to avoid potential future name clashes
-    const prefix = path.dirname(srcFileName).endsWith('/kde/src/protocols')
-        ? 'kde-'
-        : ''
-
     const baseName = path.basename(srcFileName, '.xml')
+
+    // Add `kde-` prefix to KDE protocol file names to avoid potential future name clashes
+    const prefix =
+        path.dirname(srcFileName).endsWith('/kde/src/protocols') &&
+        !baseName.startsWith('kde-')
+            ? 'kde-'
+            : ''
 
     return `${prefix}${baseName}.json`
 }

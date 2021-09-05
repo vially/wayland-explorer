@@ -46,6 +46,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xdg-activation-v1.json'),
     },
     {
+        id: 'drm-lease-v1',
+        name: 'DRM lease',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/drm-lease-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -291,11 +298,25 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-output-management.json'),
     },
     {
+        id: 'kde-output-management-v2',
+        name: 'KDE output management v2',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-output-management-v2.json'),
+    },
+    {
         id: 'kde-outputdevice',
         name: 'KDE output device',
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/kde-outputdevice.json'),
+    },
+    {
+        id: 'kde-output-device-v2',
+        name: 'KDE output device v2',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-output-device-v2.json'),
     },
     {
         id: 'kde-plasma-shell',

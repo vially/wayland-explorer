@@ -112,7 +112,8 @@ function sourceUrlBuilderFor(
                     ? `${waylandProtocolDirectoryNameFor(metadata)}/${
                           metadata.id
                       }`
-                    : metadata.source === WaylandProtocolSource.KDEProtocols
+                    : metadata.source === WaylandProtocolSource.KDEProtocols &&
+                      !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
                     ? metadata.id.substring(4)
                     : metadata.id
 
@@ -170,3 +171,8 @@ function waylandProtocolDirectoryNameFor(
     const [directoryName] = metadata.id.split(`-${metadata.stability}-v`)
     return directoryName
 }
+
+export const kdeProtocolsWithHardcodedPrefix = [
+    'kde-output-management-v2',
+    'kde-output-device-v2',
+]
