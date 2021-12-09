@@ -63,13 +63,13 @@ const sourceRepositoryUrls: Record<
         },
     },
     [WaylandProtocolSource.WlrProtocols]: {
-        repositoryUrl: 'https://github.com/swaywm/wlr-protocols',
+        repositoryUrl: 'https://gitlab.freedesktop.org/wlroots/wlr-protocols',
         stabilityUrl:
             // eslint-disable-next-line no-template-curly-in-string
-            'https://github.com/swaywm/wlr-protocols/tree/master/${stability}',
+            'https://gitlab.freedesktop.org/wlroots/wlr-protocols/-/tree/master/${stability}',
         protocolUrl:
             // eslint-disable-next-line no-template-curly-in-string
-            'https://github.com/swaywm/wlr-protocols/blob/master/${stability}/${protocol}.xml',
+            'https://gitlab.freedesktop.org/wlroots/wlr-protocols/-/blob/master/${stability}/${protocol}.xml',
     },
     [WaylandProtocolSource.KDEProtocols]: {
         repositoryUrl: 'https://github.com/KDE/plasma-wayland-protocols',
