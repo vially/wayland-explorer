@@ -340,6 +340,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-plasma-window-management.json'),
     },
     {
+        id: 'kde-primary-output-v1',
+        name: 'KDE primary output',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-primary-output-v1.json'),
+    },
+    {
         id: 'kde-screencast',
         name: 'KDE screencast',
         source: WaylandProtocolSource.KDEProtocols,

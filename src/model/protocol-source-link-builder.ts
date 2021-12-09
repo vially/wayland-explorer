@@ -175,4 +175,5 @@ function waylandProtocolDirectoryNameFor(
 export const kdeProtocolsWithHardcodedPrefix = [
     'kde-output-management-v2',
     'kde-output-device-v2',
+    'kde-primary-output-v1',
 ]
