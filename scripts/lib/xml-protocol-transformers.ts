@@ -70,6 +70,7 @@ const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
     [WaylandElementType.Event]: (xmlData: any): WaylandEvent => ({
         type: WaylandElementType.Event,
         name: xmlData['name'],
+        eventType: xmlData['type'],
         since: xmlData['since'],
         description: transformXMLElement<WaylandDescription>(
             xmlData['description'],

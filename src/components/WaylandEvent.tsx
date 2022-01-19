@@ -25,7 +25,16 @@ export const WaylandEvent: React.FC<
                     <span>{element.name}</span>
                 </span>
             </a>
-            {element.since && <Badge>since {element.since}</Badge>}
+            {(element.eventType || element.since) && (
+                <div className="flex items-center">
+                    {element.eventType && (
+                        <Badge bgColor="bg-pink-100" textColor="text-pink-800">
+                            Type: {element.eventType}
+                        </Badge>
+                    )}
+                    {element.since && <Badge>since {element.since}</Badge>}
+                </div>
+            )}
         </div>
 
         <WaylandElementSignature

@@ -51,6 +51,7 @@ export interface WaylandRequest {
 export interface WaylandEvent {
     type: WaylandElementType.Event
     name: string
+    eventType?: string
     since?: string
     description?: WaylandDescription
     args: WaylandArg[]
