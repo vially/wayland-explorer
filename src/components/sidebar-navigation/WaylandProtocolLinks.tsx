@@ -97,6 +97,15 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const westonProtocolsUnstable: Section = {
+        name: 'Weston unstable',
+        items: protocols.filter(
+            ({ source, stability }) =>
+                source === WaylandProtocolSource.WestonProtocols &&
+                stability === WaylandProtocolStability.Unstable
+        ),
+    }
+
     const externalProtocols: Section = {
         name: 'External',
         items: protocols.filter(
@@ -111,6 +120,7 @@ function groupProtocolsIntoSections(): Section[] {
         waylandProtocolsUnstable,
         wlrProtocolsUnstable,
         kdeProtocolsUnstable,
+        westonProtocolsUnstable,
         externalProtocols,
     ]
 }
