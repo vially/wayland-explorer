@@ -22,7 +22,7 @@ export const WaylandProtocolLinks: React.FC = () => (
                     {section.name}
                 </h3>
 
-                <div className="flex-grow flex flex-col">
+                <div className="grow flex flex-col">
                     <div className="flex-1 space-y-1">
                         {section.items.map((protocol) => (
                             <SidebarNavLink
