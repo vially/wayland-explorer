@@ -79,6 +79,14 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/KDE/plasma-wayland-protocols/blob/master/src/protocols/${protocol}.xml',
     },
+    [WaylandProtocolSource.WestonProtocols]: {
+        repositoryUrl: 'https://gitlab.freedesktop.org/wayland/weston',
+        stabilityUrl:
+            'https://gitlab.freedesktop.org/wayland/weston/-/tree/main/protocol',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://gitlab.freedesktop.org/wayland/weston/-/blob/main/protocol/${protocol}.xml',
+    },
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',
         stabilityUrl: '',

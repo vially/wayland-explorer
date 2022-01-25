@@ -36,6 +36,11 @@ const kdeProtocolsUntableBadgeTheme: BadgeTheme = {
     backgroundColor: 'bg-purple-100',
 }
 
+const westonProtocolsUnstableBadgeTheme: BadgeTheme = {
+    textColor: 'text-yellow-800',
+    backgroundColor: 'bg-yellow-100',
+}
+
 const externalProtocolsBadgeTheme: BadgeTheme = {
     textColor: 'text-gray-800',
     backgroundColor: 'bg-gray-100',
@@ -55,6 +60,8 @@ function badgeThemeFor(
         return wlrProtocolsUntableBadgeTheme
     } else if (source === WaylandProtocolSource.KDEProtocols) {
         return kdeProtocolsUntableBadgeTheme
+    } else if (source === WaylandProtocolSource.WestonProtocols) {
+        return westonProtocolsUnstableBadgeTheme
     } else {
         return externalProtocolsBadgeTheme
     }
@@ -72,6 +79,8 @@ export const ProtocolBadge: React.FC<{ protocol: WaylandProtocolMetadata }> = ({
                 ? 'wlr'
                 : protocol.source === WaylandProtocolSource.KDEProtocols
                 ? 'kde'
+                : protocol.source === WaylandProtocolSource.WestonProtocols
+                ? 'weston'
                 : protocol.source === WaylandProtocolSource.External
                 ? 'external'
                 : protocol.stability}

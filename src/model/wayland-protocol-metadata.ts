@@ -9,6 +9,7 @@ export enum WaylandProtocolSource {
     WaylandProtocols = 'wayland-protocols',
     WlrProtocols = 'wlr-protocols',
     KDEProtocols = 'kde-protocols',
+    WestonProtocols = 'weston-protocols',
     External = 'external',
 }
 
