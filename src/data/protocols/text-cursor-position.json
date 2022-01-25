@@ -1,0 +1,1 @@
+{"type":"protocol","name":"text_cursor_position","interfaces":[{"type":"interface","name":"text_cursor_position","version":"1","requests":[{"type":"request","name":"notify","args":[{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"x","argType":"fixed"},{"type":"arg","name":"y","argType":"fixed"}]}],"events":[],"enums":[]}]}

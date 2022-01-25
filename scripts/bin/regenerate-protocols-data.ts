@@ -11,6 +11,7 @@ const relativeProtocolDirs = [
     path.join('protocols', 'wayland', 'unstable'),
     path.join('protocols', 'wlr', 'unstable'),
     path.join('protocols', 'kde', 'src', 'protocols'),
+    path.join('protocols', 'weston', 'protocol'),
     path.join('protocols', 'external'),
 ]
 
