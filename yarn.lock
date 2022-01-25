@@ -2194,6 +2194,11 @@
     "@typescript-eslint/types" "4.30.0"
     eslint-visitor-keys "^2.0.0"
 
+"@vscode/codicons@^0.0.21":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@vscode/codicons/-/codicons-0.0.21.tgz#20ef724b141fdddba3ad86e85f34aaad29e4d3a0"
+  integrity sha512-oUfqbWTaEc2NIVLUxOK2Vi8AB/ixFfp52CkmR+pYZcWAr82IVIDDn50pdEDRXfJNIc4giHDSc5F5ZTsVMZK9Sg==
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.9.0.tgz#bd850604b4042459a5a41cd7d338cbed695ed964"
@@ -11596,11 +11601,6 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
-
-vscode-codicons@^0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/vscode-codicons/-/vscode-codicons-0.0.17.tgz#5ab4f2015641adaa1a73136195ba916aebf8764d"
-  integrity sha512-Hzclzhz9ouj5sfjDbXE78fciSGwDrlOMimkRIxFNy0pmHoexzLH1+OKTbrlR+Gz17C9ZCfX7Mlpq21jGsyhgSg==
 
 w3c-hr-time@^1.0.2:
   version "1.0.2"

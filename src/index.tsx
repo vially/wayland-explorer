@@ -1,6 +1,6 @@
 import React from 'react'
 import { hydrate, render } from 'react-dom'
-import 'vscode-codicons/dist/codicon.css'
+import '@vscode/codicons/dist/codicon.css'
 import { Router } from 'wouter'
 import { setupAnalytics } from './analytics/plausible'
 import App from './App'
