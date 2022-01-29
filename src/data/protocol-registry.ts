@@ -53,6 +53,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/drm-lease-v1.json'),
     },
     {
+        id: 'ext-session-lock-v1',
+        name: 'Session lock',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-session-lock-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
