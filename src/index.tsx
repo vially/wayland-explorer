@@ -1,6 +1,6 @@
-import React from 'react'
-import { hydrate, render } from 'react-dom'
 import '@vscode/codicons/dist/codicon.css'
+import React from 'react'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import { Router } from 'wouter'
 import { setupAnalytics } from './analytics/plausible'
 import App from './App'
@@ -9,7 +9,10 @@ import reportWebVitals from './reportWebVitals'
 
 setupAnalytics()
 
-const hydrateOrRender = process.env.NODE_ENV === 'production' ? hydrate : render
+const hydrateOrRender = (jsx: React.ReactNode, domElement: HTMLElement) =>
+    process.env.NODE_ENV === 'production'
+        ? hydrateRoot(domElement, jsx)
+        : createRoot(domElement).render(jsx)
 
 hydrateOrRender(
     <React.StrictMode>
@@ -17,7 +20,7 @@ hydrateOrRender(
             <App />
         </Router>
     </React.StrictMode>,
-    document.getElementById('root')
+    document.getElementById('root')!
 )
 
 // If you want to start measuring performance in your app, pass a function
