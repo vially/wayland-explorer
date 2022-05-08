@@ -6,6 +6,7 @@ import { OverlayBackground } from './OverlayBackground'
 export const SidebarOverlay: React.FC<{
     open: boolean
     setIsOpen: (open: boolean) => void
+    children?: React.ReactNode
 }> = ({ open, setIsOpen, children }) => (
     <Transition show={open}>
         {/* Off-canvas menu for mobile, show/hide based on off-canvas menu state. */}

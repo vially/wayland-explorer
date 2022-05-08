@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link, useRoute } from 'wouter'
 
-export const SidebarNavLink: React.FC<{ href: string; title?: string }> = (
-    props
-) => {
+export const SidebarNavLink: React.FC<{
+    href: string
+    title?: string
+    children?: React.ReactNode
+}> = (props) => {
     const [isActive] = useRoute(props.href)
 
     return (

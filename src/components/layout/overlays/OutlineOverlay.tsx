@@ -5,6 +5,7 @@ import { OverlayBackground } from './OverlayBackground'
 export const OutlineOverlay: React.FC<{
     open: boolean
     setIsOpen: (open: boolean) => void
+    children?: React.ReactNode
 }> = ({ open, setIsOpen, children }) => (
     <Transition show={open}>
         <section

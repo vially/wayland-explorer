@@ -10,6 +10,7 @@ import { ScrollToTop } from './ScrollToTop'
 export const MultiColumnLayout: React.FC<{
     hideSidebar?: boolean
     outlineView?: React.ReactNode
+    children?: React.ReactNode
 }> = ({ outlineView, hideSidebar, children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isOutlineOpen, setIsOutlineOpen] = useState(false)

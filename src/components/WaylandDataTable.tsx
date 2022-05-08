@@ -129,9 +129,11 @@ const ArgEnum: React.FC<{ interfaceName: string; argEnum: string }> = ({
     )
 }
 
-const TableCol: React.FC<{ showBorder: boolean; extraClasses?: string }> = (
-    props
-) => (
+const TableCol: React.FC<{
+    showBorder: boolean
+    extraClasses?: string
+    children?: React.ReactNode
+}> = (props) => (
     <td
         className={`py-2 pr-2 text-xs ${
             props.showBorder
@@ -143,7 +145,10 @@ const TableCol: React.FC<{ showBorder: boolean; extraClasses?: string }> = (
     </td>
 )
 
-const TableHeader: React.FC<{ extraClasses?: string }> = (props) => (
+const TableHeader: React.FC<{
+    extraClasses?: string
+    children?: React.ReactNode
+}> = (props) => (
     <th className="text-sm font-semibold text-gray-600 p-0">
         <div className="pb-2 pr-2 border-b border-gray-200 dark:border-gray-700">
             {props.children}
