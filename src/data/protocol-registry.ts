@@ -2,7 +2,7 @@ import { WaylandProtocol } from '../model/wayland'
 import {
     WaylandProtocolMetadata,
     WaylandProtocolSource,
-    WaylandProtocolStability,
+    WaylandProtocolStability
 } from '../model/wayland-protocol-metadata'
 
 export interface WaylandProtocolRegistryItem extends WaylandProtocolMetadata {
@@ -354,11 +354,11 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-primary-output-v1.json'),
     },
     {
-        id: 'kde-screencast',
+        id: 'kde-zkde-screencast-unstable-v1',
         name: 'KDE screencast',
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/kde-screencast.json'),
+        protocol: require('./protocols/kde-zkde-screencast-unstable-v1.json'),
     },
     {
         id: 'kde-server-decoration',

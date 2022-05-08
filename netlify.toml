@@ -11,6 +11,10 @@
   to = "/protocols/"
 
 [[redirects]]
+  from = "/protocols/kde-screencast"
+  to = "/protocols/kde-zkde-screencast-unstable-v1"
+
+[[redirects]]
   from = "/protocols/*"
   to = "/protocols/404.html"
   status = 404
