@@ -2,7 +2,7 @@ import { WaylandProtocol } from '../model/wayland'
 import {
     WaylandProtocolMetadata,
     WaylandProtocolSource,
-    WaylandProtocolStability
+    WaylandProtocolStability,
 } from '../model/wayland-protocol-metadata'
 
 export interface WaylandProtocolRegistryItem extends WaylandProtocolMetadata {
@@ -58,6 +58,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Staging,
         protocol: require('./protocols/ext-session-lock-v1.json'),
+    },
+    {
+        id: 'single-pixel-buffer-v1',
+        name: 'Single-pixel buffer',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/single-pixel-buffer-v1.json'),
     },
     {
         id: 'fullscreen-shell-unstable-v1',
