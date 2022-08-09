@@ -1,0 +1,169 @@
+{
+  "generationTimestamp": 1660046755799,
+  "globals": [
+    {
+      "interface": "wl_shm",
+      "version": 1
+    },
+    {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
+    },
+    {
+      "interface": "wl_compositor",
+      "version": 4
+    },
+    {
+      "interface": "wl_subcompositor",
+      "version": 1
+    },
+    {
+      "interface": "wl_data_device_manager",
+      "version": 3
+    },
+    {
+      "interface": "zwlr_gamma_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_output_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "org_kde_kwin_idle",
+      "version": 1
+    },
+    {
+      "interface": "zwp_idle_inhibit_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 4
+    },
+    {
+      "interface": "xdg_wm_base",
+      "version": 2
+    },
+    {
+      "interface": "zwp_tablet_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "org_kde_kwin_server_decoration_manager",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_decoration_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_relative_pointer_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_pointer_constraints_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_presentation",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_output_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwlr_output_power_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v3",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_foreign_toplevel_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "wp_drm_lease_device_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_export_dmabuf_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_screencopy_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "zwlr_data_control_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwp_primary_selection_device_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_viewporter",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_exporter_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_exporter_v2",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v2",
+      "version": 1
+    },
+    {
+      "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_virtual_keyboard_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_virtual_pointer_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwlr_input_inhibit_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wl_seat",
+      "version": 7
+    },
+    {
+      "interface": "zwp_pointer_gestures_v1",
+      "version": 3
+    },
+    {
+      "interface": "wl_output",
+      "version": 4
+    }
+  ]
+}
