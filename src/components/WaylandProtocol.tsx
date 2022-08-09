@@ -5,6 +5,7 @@ import { usePageTitle } from './common/hooks-utils'
 import { WaylandCopyright } from './WaylandCopyright'
 import { WaylandDescription } from './WaylandDescription'
 import { WaylandInterface } from './WaylandInterface'
+import { WaylandCompositors } from './WaylandCompositors'
 
 export const WaylandProtocol: React.FC<{
     element: WaylandProtocolModel
@@ -35,6 +36,7 @@ export const WaylandProtocol: React.FC<{
                     <hr className="my-10" />
                 </div>
             ))}
+            <WaylandCompositors element={element} />
             {element.copyright && (
                 <WaylandCopyright element={element.copyright} />
             )}
