@@ -73,7 +73,7 @@ export const WaylandCompositors: React.FC<{
                 </a>
             </h4>
 
-            <div className="flex justify-center items-center">
+            <div className="flex md:justify-center items-center overflow-x-auto">
                 {rows.length !== 0 ? (
                     <CanIUseTable rows={rows} />
                 ) : (
