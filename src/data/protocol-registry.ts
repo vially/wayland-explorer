@@ -519,6 +519,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://github.com/NVIDIA/egl-wayland/blob/master/wayland-eglstream/wayland-eglstream-controller.xml',
     },
+    {
+        id: 'gtk-shell',
+        name: 'GTK Shell',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/gtk-shell.json'),
+        externalUrl:
+            'https://gitlab.gnome.org/GNOME/gtk/-/blob/main/gdk/wayland/protocol/gtk-shell.xml',
+    },
 ]
 
 class WaylandProtocolRegistry {
