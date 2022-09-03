@@ -6,6 +6,7 @@ import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
 import { transformXMLElement } from '../lib/xml-protocol-transformers'
 
 const relativeProtocolDirs = [
+    path.join('protocols', 'libwayland', 'protocol'),
     path.join('protocols', 'wayland', 'stable'),
     path.join('protocols', 'wayland', 'staging'),
     path.join('protocols', 'wayland', 'unstable'),
@@ -38,6 +39,10 @@ const deprecatedProtocols = [
     'text-input.xml',
     'text-input-unstable-v2.xml',
     'wayland-eglstream-controller.xml',
+    /**
+     * Unused libwayland protocol
+     */
+    'tests.xml'
 ]
 
 async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
