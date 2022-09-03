@@ -10,3 +10,6 @@
 [submodule "protocols/weston"]
 	path = protocols/weston
 	url = https://gitlab.freedesktop.org/wayland/weston.git
+[submodule "protocols/libwayland"]
+	path = protocols/libwayland
+	url = https://github.com/wayland-project/wayland
