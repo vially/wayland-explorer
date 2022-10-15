@@ -67,6 +67,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/single-pixel-buffer-v1.json'),
     },
     {
+        id: 'content-type-v1',
+        name: 'Content type hint',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/content-type-v1.json'),
+    },
+    {
+        id: 'ext-idle-notify-v1',
+        name: 'Idle notify',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-idle-notify-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
