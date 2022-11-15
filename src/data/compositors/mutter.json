@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1660046539976,
+  "generationTimestamp": 1668530201669,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -30,20 +30,12 @@
       "version": 1
     },
     {
-      "interface": "gtk_primary_selection_device_manager",
-      "version": 1
-    },
-    {
       "interface": "wl_subcompositor",
       "version": 1
     },
     {
       "interface": "xdg_wm_base",
       "version": 4
-    },
-    {
-      "interface": "zxdg_shell_v6",
-      "version": 1
     },
     {
       "interface": "gtk_shell1",
@@ -63,7 +55,7 @@
     },
     {
       "interface": "wl_seat",
-      "version": 5
+      "version": 8
     },
     {
       "interface": "zwp_relative_pointer_manager_v1",
@@ -84,6 +76,10 @@
     {
       "interface": "zwp_linux_dmabuf_v1",
       "version": 4
+    },
+    {
+      "interface": "wp_single_pixel_buffer_manager_v1",
+      "version": 1
     },
     {
       "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",

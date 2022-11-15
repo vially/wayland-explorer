@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1660046621507,
+  "generationTimestamp": 1668530316496,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -71,7 +71,7 @@
     },
     {
       "interface": "org_kde_plasma_shell",
-      "version": 7
+      "version": 8
     },
     {
       "interface": "org_kde_kwin_appmenu_manager",
@@ -143,7 +143,7 @@
     },
     {
       "interface": "wl_output",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "zwp_text_input_manager_v2",
