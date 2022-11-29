@@ -81,6 +81,27 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-idle-notify-v1.json'),
     },
     {
+        id: 'tearing-control-v1',
+        name: 'Tearing control',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/tearing-control-v1.json'),
+    },
+    {
+        id: 'xwayland-shell-v1',
+        name: 'Xwayland shell',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xwayland-shell-v1.json'),
+    },
+    {
+        id: 'fractional-scale-v1',
+        name: 'Fractional scale',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/fractional-scale-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
