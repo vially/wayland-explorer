@@ -40,4 +40,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'weston',
         info: require('./compositors/weston.json'),
     },
+    {
+        id: 'mir',
+        name: 'Mir',
+        icon: 'mir',
+        info: require('./compositors/mir.json'),
+    },
 ]

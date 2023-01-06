@@ -1,0 +1,85 @@
+{
+  "generationTimestamp": 1673093842544,
+  "globals": [
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 3
+    },
+    {
+      "interface": "wl_compositor",
+      "version": 4
+    },
+    {
+      "interface": "wl_subcompositor",
+      "version": 1
+    },
+    {
+      "interface": "wl_seat",
+      "version": 8
+    },
+    {
+      "interface": "wl_data_device_manager",
+      "version": 3
+    },
+    {
+      "interface": "wl_shell",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_shell_v6",
+      "version": 1
+    },
+    {
+      "interface": "xdg_wm_base",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 4
+    },
+    {
+      "interface": "zxdg_output_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "zwlr_foreign_toplevel_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwp_virtual_keyboard_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_virtual_pointer_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwp_text_input_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v3",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_screencopy_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "wl_shm",
+      "version": 1
+    },
+    {
+      "interface": "wl_output",
+      "version": 3
+    }
+  ]
+}
