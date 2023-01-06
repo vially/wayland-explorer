@@ -34,4 +34,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'sway',
         info: require('./compositors/sway.json'),
     },
+    {
+        id: 'weston',
+        name: 'Weston',
+        icon: 'weston',
+        info: require('./compositors/weston.json'),
+    },
 ]
