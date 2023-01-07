@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1660046755799,
+  "generationTimestamp": 1673079453178,
   "globals": [
     {
       "interface": "wl_shm",
@@ -15,7 +15,7 @@
     },
     {
       "interface": "wl_compositor",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "wl_subcompositor",
@@ -35,6 +35,10 @@
     },
     {
       "interface": "org_kde_kwin_idle",
+      "version": 1
+    },
+    {
+      "interface": "ext_idle_notifier_v1",
       "version": 1
     },
     {
@@ -75,7 +79,7 @@
     },
     {
       "interface": "zwlr_output_manager_v1",
-      "version": 2
+      "version": 4
     },
     {
       "interface": "zwlr_output_power_manager_v1",
@@ -92,6 +96,10 @@
     {
       "interface": "zwlr_foreign_toplevel_manager_v1",
       "version": 3
+    },
+    {
+      "interface": "ext_session_lock_manager_v1",
+      "version": 1
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -115,6 +123,10 @@
     },
     {
       "interface": "wp_viewporter",
+      "version": 1
+    },
+    {
+      "interface": "wp_single_pixel_buffer_manager_v1",
       "version": 1
     },
     {
@@ -155,7 +167,7 @@
     },
     {
       "interface": "wl_seat",
-      "version": 7
+      "version": 8
     },
     {
       "interface": "zwp_pointer_gestures_v1",
