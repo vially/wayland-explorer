@@ -31,7 +31,7 @@ const deprecatedProtocols = [
     'xdg-shell-unstable-v6.xml',
     /**
      * Deprecated KDE protocols
-     * https://github.com/KDE/plasma-wayland-protocols/blob/e89f46fa782713f004a65879c56e844fce63257b/src/protocols/TODOKF6.md
+     * https://invent.kde.org/libraries/plasma-wayland-protocols/-/blob/78fc6ee77334a147986f01c6d3c6e1b99af1a333/src/protocols/TODOKF6.md
      */
     'fullscreen-shell.xml',
     'remote-access.xml',
@@ -39,6 +39,7 @@ const deprecatedProtocols = [
     'text-input.xml',
     'text-input-unstable-v2.xml',
     'wayland-eglstream-controller.xml',
+    'screencast.xml',
     /**
      * Unused libwayland protocol
      */
