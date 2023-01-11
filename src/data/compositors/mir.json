@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1673093842544,
+  "generationTimestamp": 1673367453755,
   "globals": [
     {
       "interface": "zwp_linux_dmabuf_v1",
@@ -46,6 +46,14 @@
       "version": 2
     },
     {
+      "interface": "zwp_relative_pointer_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_pointer_constraints_v1",
+      "version": 1
+    },
+    {
       "interface": "zwp_virtual_keyboard_manager_v1",
       "version": 1
     },
@@ -67,6 +75,10 @@
     },
     {
       "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_idle_inhibit_manager_v1",
       "version": 1
     },
     {
