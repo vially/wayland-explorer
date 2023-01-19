@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1673367453755,
+  "generationTimestamp": 1674145931206,
   "globals": [
     {
       "interface": "zwp_linux_dmabuf_v1",
@@ -84,6 +84,10 @@
     {
       "interface": "zwlr_screencopy_manager_v1",
       "version": 3
+    },
+    {
+      "interface": "zwp_primary_selection_device_manager_v1",
+      "version": 1
     },
     {
       "interface": "wl_shm",
