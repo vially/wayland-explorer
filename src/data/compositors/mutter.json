@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1668530201669,
+  "generationTimestamp": 1674348606537,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -15,7 +15,7 @@
     },
     {
       "interface": "wl_output",
-      "version": 2
+      "version": 3
     },
     {
       "interface": "zxdg_output_manager_v1",
