@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1668530316496,
+  "generationTimestamp": 1676481378380,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -30,12 +30,16 @@
       "version": 1
     },
     {
+      "interface": "wp_fractional_scale_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wl_shm",
       "version": 1
     },
     {
       "interface": "wl_seat",
-      "version": 7
+      "version": 8
     },
     {
       "interface": "zwp_pointer_gestures_v1",
@@ -70,6 +74,10 @@
       "version": 1
     },
     {
+      "interface": "ext_idle_notifier_v1",
+      "version": 1
+    },
+    {
       "interface": "org_kde_plasma_shell",
       "version": 8
     },
@@ -99,11 +107,7 @@
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 2
-    },
-    {
-      "interface": "kde_primary_output_v1",
-      "version": 2
+      "version": 3
     },
     {
       "interface": "zxdg_output_manager_v1",
@@ -126,7 +130,11 @@
       "version": 1
     },
     {
-      "interface": "wp_drm_lease_device_v1",
+      "interface": "wp_content_type_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_tearing_control_manager_v1",
       "version": 1
     },
     {
@@ -142,8 +150,24 @@
       "version": 2
     },
     {
+      "interface": "kde_output_device_v2",
+      "version": 2
+    },
+    {
       "interface": "wl_output",
       "version": 4
+    },
+    {
+      "interface": "wp_drm_lease_device_v1",
+      "version": 1
+    },
+    {
+      "interface": "kde_output_order_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v1",
+      "version": 1
     },
     {
       "interface": "zwp_text_input_manager_v2",
