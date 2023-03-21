@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1674145931206,
+  "generationTimestamp": 1679409485385,
   "globals": [
     {
       "interface": "zwp_linux_dmabuf_v1",
@@ -31,7 +31,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 1
+      "version": 5
     },
     {
       "interface": "zwlr_layer_shell_v1",
@@ -95,7 +95,7 @@
     },
     {
       "interface": "wl_output",
-      "version": 3
+      "version": 4
     }
   ]
 }
