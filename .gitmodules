@@ -1,15 +1,15 @@
 [submodule "protocols/wayland"]
 	path = protocols/wayland
-	url = https://github.com/wayland-project/wayland-protocols.git
+	url = https://gitlab.freedesktop.org/wayland/wayland-protocols.git
 [submodule "protocols/wlr"]
 	path = protocols/wlr
 	url = https://gitlab.freedesktop.org/wlroots/wlr-protocols.git
 [submodule "protocols/kde"]
 	path = protocols/kde
-	url = https://github.com/KDE/plasma-wayland-protocols.git
+	url = https://invent.kde.org/libraries/plasma-wayland-protocols.git
 [submodule "protocols/weston"]
 	path = protocols/weston
 	url = https://gitlab.freedesktop.org/wayland/weston.git
 [submodule "protocols/libwayland"]
 	path = protocols/libwayland
-	url = https://github.com/wayland-project/wayland
+	url = https://gitlab.freedesktop.org/wayland/wayland.git
