@@ -1,10 +1,10 @@
 import React from 'react'
+import { WaylandDataTable } from './WaylandDataTable'
+import { WaylandDescription } from './WaylandDescription'
 import { WaylandElementProps, WaylandEnumModel } from './common'
 import { WaylandColorTheme as colors } from './common/wayland-protocol-icons'
 import { Badge } from './content/Badge'
 import { WaylandElementSignature } from './content/WaylandElementSignature'
-import { WaylandDataTable } from './WaylandDataTable'
-import { WaylandDescription } from './WaylandDescription'
 
 export const WaylandEnum: React.FC<
     WaylandElementProps<WaylandEnumModel> & { interfaceName: string }
@@ -15,7 +15,7 @@ export const WaylandEnum: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} enum`}
-                className={`${colors.Enum} text-xl font-bold`}
+                className={`${colors.Enum} text-xl font-bold flex items-center`}
             >
                 <span className="codicon codicon-symbol-enum mr-1"></span>
                 <span className="mr-1">

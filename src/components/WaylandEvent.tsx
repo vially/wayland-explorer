@@ -1,10 +1,10 @@
 import React from 'react'
+import { WaylandDataTable } from './WaylandDataTable'
+import { WaylandDescription } from './WaylandDescription'
 import { WaylandElementProps, WaylandEventModel } from './common'
 import { WaylandColorTheme as colors } from './common/wayland-protocol-icons'
 import { Badge } from './content/Badge'
 import { WaylandElementSignature } from './content/WaylandElementSignature'
-import { WaylandDataTable } from './WaylandDataTable'
-import { WaylandDescription } from './WaylandDescription'
 
 export const WaylandEvent: React.FC<
     WaylandElementProps<WaylandEventModel> & { interfaceName: string }
@@ -15,7 +15,7 @@ export const WaylandEvent: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} event`}
-                className={`${colors.Event} text-xl font-bold`}
+                className={`${colors.Event} text-xl font-bold flex items-center`}
             >
                 <span className="codicon codicon-symbol-event mr-1"></span>
                 <span className="mr-1">

@@ -14,7 +14,7 @@ export const WaylandRequest: React.FC<
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
                 title={`${element.name} request`}
-                className={`${colors.Request} text-xl font-bold`}
+                className={`${colors.Request} text-xl font-bold flex items-center`}
             >
                 <span className="codicon codicon-symbol-method mr-1"></span>
                 <span className="mr-1">
