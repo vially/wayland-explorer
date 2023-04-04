@@ -340,6 +340,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-keystate.json'),
     },
     {
+        id: 'kde-lockscreen-overlay-v1',
+        name: 'KDE lockscreen overlay',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-lockscreen-overlay-v1.json'),
+    },
+    {
         id: 'kde-output-management',
         name: 'KDE output management',
         source: WaylandProtocolSource.KDEProtocols,
@@ -366,6 +373,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/kde-output-device-v2.json'),
+    },
+    {
+        id: 'kde-output-order-v1',
+        name: 'KDE output order',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-output-order-v1.json'),
     },
     {
         id: 'kde-plasma-shell',
@@ -478,6 +492,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WestonProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/weston-direct-display.json'),
+    },
+    {
+        id: 'weston-output-capture',
+        name: 'Weston output capture',
+        source: WaylandProtocolSource.WestonProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/weston-output-capture.json'),
     },
     {
         id: 'weston-screenshooter',

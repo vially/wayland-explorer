@@ -136,7 +136,9 @@ function waylandProtocolDirectoryNameFor(
 }
 
 export const kdeProtocolsWithHardcodedPrefix = [
+    'kde-lockscreen-overlay-v1',
     'kde-output-management-v2',
+    'kde-output-order-v1',
     'kde-output-device-v2',
     'kde-primary-output-v1',
 ]
