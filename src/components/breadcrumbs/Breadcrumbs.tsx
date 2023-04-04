@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-import { userConfig } from '../../config'
 import {
     kdeProtocolsWithHardcodedPrefix,
     urlForWaylandProtocol,
@@ -7,7 +5,6 @@ import {
     urlForWaylandProtocolStability,
 } from '../../model/protocol-source-link-builder'
 import {
-    GitServiceProvider,
     WaylandProtocolMetadata,
     WaylandProtocolSource,
 } from '../../model/wayland-protocol-metadata'
@@ -15,19 +12,11 @@ import {
 export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
     metadata,
 }) => {
-    const [gitServiceProvider, setGitServiceProvider] = useState(
-        GitServiceProvider.GitHub
-    )
-
     const xmlFileBaseName =
         metadata.source === WaylandProtocolSource.KDEProtocols &&
         !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
             ? metadata.id.substring(4)
             : metadata.id
-
-    useEffect(() => {
-        setGitServiceProvider(userConfig.gitServiceProvider)
-    }, [])
 
     return (
         <div>
@@ -39,8 +28,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                             WaylandProtocolSource.External ? (
                                 <a
                                     href={urlForWaylandProtocolSource(
-                                        metadata.source,
-                                        gitServiceProvider
+                                        metadata.source
                                     )}
                                     target="_blank"
                                     rel="noreferrer"
@@ -75,8 +63,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                                     </svg>
                                     <a
                                         href={urlForWaylandProtocolStability(
-                                            metadata,
-                                            gitServiceProvider
+                                            metadata
                                         )}
                                         target="_blank"
                                         rel="noreferrer"
@@ -105,10 +92,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                             </svg>
 
                             <a
-                                href={urlForWaylandProtocol(
-                                    metadata,
-                                    gitServiceProvider
-                                )}
+                                href={urlForWaylandProtocol(metadata)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700 truncate"

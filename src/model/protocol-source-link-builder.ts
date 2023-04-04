@@ -1,5 +1,4 @@
 import {
-    GitServiceProvider,
     WaylandProtocolMetadata,
     WaylandProtocolSource,
     WaylandProtocolStability,
@@ -11,56 +10,26 @@ interface ProtocolSourceUrlConfig {
     protocolUrl: string
 }
 
-type ProtocolSourceUrlConfigLike =
-    | ProtocolSourceUrlConfig
-    | Record<GitServiceProvider, ProtocolSourceUrlConfig>
-
-const isProtocolSourceUrlConfig = (
-    templateOrMapping: ProtocolSourceUrlConfigLike
-): templateOrMapping is ProtocolSourceUrlConfig =>
-    'repositoryUrl' in templateOrMapping
-
 const sourceRepositoryUrls: Record<
     WaylandProtocolSource,
-    ProtocolSourceUrlConfigLike
+    ProtocolSourceUrlConfig
 > = {
     [WaylandProtocolSource.WaylandCore]: {
-        [GitServiceProvider.GitHub]: {
-            repositoryUrl: 'https://github.com/wayland-project/wayland',
-            stabilityUrl:
-                'https://github.com/wayland-project/wayland/tree/main/protocol',
-            protocolUrl:
-                'https://github.com/wayland-project/wayland/blob/main/protocol/wayland.xml',
-        },
-        [GitServiceProvider.GitLab]: {
-            repositoryUrl: 'https://gitlab.freedesktop.org/wayland/wayland',
-            stabilityUrl:
-                'https://gitlab.freedesktop.org/wayland/wayland/-/tree/main/protocol',
-            protocolUrl:
-                'https://gitlab.freedesktop.org/wayland/wayland/-/blob/main/protocol/wayland.xml',
-        },
+        repositoryUrl: 'https://gitlab.freedesktop.org/wayland/wayland',
+        stabilityUrl:
+            'https://gitlab.freedesktop.org/wayland/wayland/-/tree/main/protocol',
+        protocolUrl:
+            'https://gitlab.freedesktop.org/wayland/wayland/-/blob/main/protocol/wayland.xml',
     },
     [WaylandProtocolSource.WaylandProtocols]: {
-        [GitServiceProvider.GitHub]: {
-            repositoryUrl:
-                'https://github.com/wayland-project/wayland-protocols',
-            stabilityUrl:
-                // eslint-disable-next-line no-template-curly-in-string
-                'https://github.com/wayland-project/wayland-protocols/tree/main/${stability}',
-            protocolUrl:
-                // eslint-disable-next-line no-template-curly-in-string
-                'https://github.com/wayland-project/wayland-protocols/blob/main/${stability}/${protocol}.xml',
-        },
-        [GitServiceProvider.GitLab]: {
-            repositoryUrl:
-                'https://gitlab.freedesktop.org/wayland/wayland-protocols',
-            stabilityUrl:
-                // eslint-disable-next-line no-template-curly-in-string
-                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/tree/main/${stability}',
-            protocolUrl:
-                // eslint-disable-next-line no-template-curly-in-string
-                'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/${stability}/${protocol}.xml',
-        },
+        repositoryUrl:
+            'https://gitlab.freedesktop.org/wayland/wayland-protocols',
+        stabilityUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/tree/main/${stability}',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/${stability}/${protocol}.xml',
     },
     [WaylandProtocolSource.WlrProtocols]: {
         repositoryUrl: 'https://gitlab.freedesktop.org/wlroots/wlr-protocols',
@@ -72,7 +41,8 @@ const sourceRepositoryUrls: Record<
             'https://gitlab.freedesktop.org/wlroots/wlr-protocols/-/blob/master/${stability}/${protocol}.xml',
     },
     [WaylandProtocolSource.KDEProtocols]: {
-        repositoryUrl: 'https://invent.kde.org/libraries/plasma-wayland-protocols',
+        repositoryUrl:
+            'https://invent.kde.org/libraries/plasma-wayland-protocols',
         stabilityUrl:
             'https://invent.kde.org/libraries/plasma-wayland-protocols/-/tree/master/src/protocols',
         protocolUrl:
@@ -100,14 +70,8 @@ interface SourceUrlBuilder {
     protocolUrlFor: (metadata: WaylandProtocolMetadata) => string
 }
 
-function sourceUrlBuilderFor(
-    source: WaylandProtocolSource,
-    gitServiceProvider: GitServiceProvider
-): SourceUrlBuilder {
-    const configLike = sourceRepositoryUrls[source]
-    const config = isProtocolSourceUrlConfig(configLike)
-        ? configLike
-        : configLike[gitServiceProvider]
+function sourceUrlBuilderFor(source: WaylandProtocolSource): SourceUrlBuilder {
+    const config = sourceRepositoryUrls[source]
 
     return {
         repositoryUrl: config.repositoryUrl,
@@ -137,32 +101,23 @@ function sourceUrlBuilderFor(
 }
 
 export function urlForWaylandProtocolSource(
-    source: WaylandProtocolSource,
-    gitServiceProvider: GitServiceProvider
+    source: WaylandProtocolSource
 ): string {
-    return sourceUrlBuilderFor(source, gitServiceProvider).repositoryUrl
+    return sourceUrlBuilderFor(source).repositoryUrl
 }
 
 export function urlForWaylandProtocol(
-    metadata: WaylandProtocolMetadata,
-    gitServiceProvider: GitServiceProvider
+    metadata: WaylandProtocolMetadata
 ): string {
     return metadata.externalUrl
         ? metadata.externalUrl
-        : sourceUrlBuilderFor(
-              metadata.source,
-              gitServiceProvider
-          ).protocolUrlFor(metadata)
+        : sourceUrlBuilderFor(metadata.source).protocolUrlFor(metadata)
 }
 
 export function urlForWaylandProtocolStability(
-    metadata: WaylandProtocolMetadata,
-    gitServiceProvider: GitServiceProvider
+    metadata: WaylandProtocolMetadata
 ): string {
-    return sourceUrlBuilderFor(
-        metadata.source,
-        gitServiceProvider
-    ).stabilityUrlFor(metadata)
+    return sourceUrlBuilderFor(metadata.source).stabilityUrlFor(metadata)
 }
 
 function waylandProtocolDirectoryNameFor(

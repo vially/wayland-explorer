@@ -20,8 +20,3 @@ export interface WaylandProtocolMetadata {
     stability: WaylandProtocolStability
     externalUrl?: string
 }
-
-export enum GitServiceProvider {
-    GitHub = 'GitHub',
-    GitLab = 'GitLab',
-}
