@@ -549,6 +549,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
             'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/overlay-prioritizer.xml',
     },
     {
+        id: 'surface-augmenter',
+        name: 'Chromium surface augmenter',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/surface-augmenter.json'),
+        externalUrl:
+            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/surface-augmenter.xml',
+    },
+    {
         id: 'virtual-keyboard-unstable-v1',
         name: 'Virtual keyboard',
         source: WaylandProtocolSource.External,
