@@ -540,6 +540,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
             'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/aura-shell.xml',
     },
     {
+        id: 'overlay-prioritizer',
+        name: 'Chromium overlay prioritizer',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/overlay-prioritizer.json'),
+        externalUrl:
+            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/overlay-prioritizer.xml',
+    },
+    {
         id: 'virtual-keyboard-unstable-v1',
         name: 'Virtual keyboard',
         source: WaylandProtocolSource.External,
