@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="agl_shell_desktop">
+  <copyright>
+    Copyright © 2020 Collabora, Ltd.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <interface name="agl_shell_desktop" version="2">
+    <description summary="Private extension to allow applications activate other apps">
+      This extension can be used by regular application to instruct to compositor
+      to activate or switch to other running (regular) applications. The client
+      is responsible for filtering their own app_id when receiving application id.
+
+      The compositor will allow clients to bind to this interface only if the
+      policy engine allows it.
+    </description>
+
+    <enum name="app_role">
+      <entry name="popup" value="0"/>
+      <entry name="fullscreen" value="1"/>
+      <entry name="split_vertical" value="2"/>
+      <entry name="split_horizontal" value="3"/>
+      <entry name="remote" value="4"/>
+    </enum>
+
+    <enum name="app_state">
+      <entry name="activated" value="0"/>
+      <entry name="deactivated" value="1"/>
+      <entry name="destroyed" value="2"/>
+    </enum>
+
+    <event name="application">
+      <description summary="advertise application id">
+        The compositor may choose to advertise one or more application ids which
+        can be used to activate/switch to.
+
+        When this global is bound, the compositor will send all application ids
+        available for activation, but may send additional application id at any
+        time (when they've been mapped in the compositor).
+      </description>
+      <arg name="app_id" type="string"/>
+    </event>
+
+    <request name="activate_app">
+      <description summary="make client current window">
+        Ask the compositor to make a toplevel to become the current/focused
+        window for window management purposes.
+
+        See xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="app_data" type="string" allow-null="true"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+
+    <request name="set_app_property">
+      <description summary="set properties for a client identified by app_id">
+        Ask the compositor to make a top-level window obey the 'app_role' enum
+        and, depending on that role, to use some of the arguments as initial
+        values to take into account.
+
+        Note that x, y, bx, by, width and height would only make sense for the
+        pop-up role, with the output argument being applicable to all the roles.
+        The width and height values define the maximum area which the
+        top-level window should be placed into. Note this doesn't correspond to
+        top-level surface size, but to a bounding box which will be used to
+        clip the surface to, in case the surface area extends that of this
+        bounding box. Both of these values need to be larger than 0 (zero) to be
+        taken into account by the compositor. Any negative values for the width
+        and height will be discarded.
+
+        The x and y values will serve as the (initial) position values.
+        The bx and by values are the top-left x and y value of the bounding box.
+        Any clipping happening to the bounding box will not affect the surface
+        size or the position of the underlying surface backing the top-level
+        window. The bx and by values, like the positional values, could be
+        both set to zero, or even negative values. The compositor will pass
+        those on without any further validation.
+
+        The initial position values and the bounding rectangle will still be
+        in effect on a subsequent activation request of the 'app_id', assuming
+        it was previously de-activated at some point in time.
+
+        See xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="role" type="uint" enum="app_role"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+      <arg name="bx" type="int"/>
+      <arg name="by" type="int"/>
+      <arg name="width" type="int"/>
+      <arg name="height" type="int"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+
+    <request name="deactivate_app">
+      <description summary="de-activate/hide window identified by app_id">
+        Ask the compositor to hide the toplevel window for window
+        management purposes. Depending on the window role, this request
+        will either display the previously active window (or the background
+        in case there's no previously active surface) or temporarily (or
+        until a 'activate_app' is called upon) hide the surface. All
+        the surfaces are identifiable by using the app_id, and no actions are
+        taken in case the app_id is not/was not present.
+
+        See xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+    </request>
+
+    <event name="state_app">
+      <description summary="event sent when application has suffered state modification">
+        Notifies application(s) when other application have suffered state modifications.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="app_data" type="string" allow-null="true"/>
+      <arg name="state" type="uint" enum="app_state"/>
+      <arg name="role" type="uint" enum="app_role"/>
+    </event>
+
+    <!-- Version 2 addition -->
+    <request name="set_app_property_mode" since="2">
+      <description summary="Request to change the application properties lifetime">
+        Use this request to inform the compositor to maintain a pending state
+        for an app_id being set with set_app_property() request. Any
+        subsequent application matching that app_id would survive a potential
+        application destruction. Note that this request will take effect
+        globally on all applications.
+
+        To turn it on, or off, use the 'permanent' argument. Initially,
+        the compositor will have this option set to off. Note that it
+        doesn't matter the order of this request with respect to
+        set_app_property() request, as the changes will only take effect
+        when the application itself does the commit with an app_id set,
+        therefore the only requirement is to call this request before
+        the app_id client does its first commit.
+      </description>
+      <arg name="permanent" type="uint"/>
+    </request>
+
+  </interface>
+</protocol>

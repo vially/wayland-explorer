@@ -531,6 +531,33 @@ const protocols: WaylandProtocolRegistryItem[] = [
             'https://gitlab.freedesktop.org/mesa/mesa/-/blob/main/src/egl/wayland/wayland-drm/wayland-drm.xml',
     },
     {
+        id: 'agl-shell',
+        name: 'AGL shell',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/agl-shell.json'),
+        externalUrl:
+            'https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/agl-compositor.git;a=blob;f=protocol/agl-shell.xml;h=8057387a3f2bbd08ff76ec81ad492ae0e25d0832;hb=HEAD',
+    },
+    {
+        id: 'agl-shell-desktop',
+        name: 'AGL shell desktop',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/agl-shell-desktop.json'),
+        externalUrl:
+            'https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/agl-compositor.git;a=blob;f=protocol/agl-shell-desktop.xml;h=e4445bd071f242b229789c68dc71d04ea2eed140;hb=HEAD',
+    },
+    {
+        id: 'agl-screenshooter',
+        name: 'AGL screenshooter',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/agl-screenshooter.json'),
+        externalUrl:
+            'https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/agl-compositor.git;a=blob;f=protocol/agl-screenshooter.xml;h=231c8cf3abae63b7bdc12d318559ffb4bf6d9a0e;hb=HEAD',
+    },
+    {
         id: 'aura-shell',
         name: 'Chromium aura shell',
         source: WaylandProtocolSource.External,

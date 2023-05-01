@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="agl_screenshooter">
+
+  <copyright>
+    Copyright © 2020 Collabora. Ltd,
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <interface name="agl_screenshooter" version="1">
+    <description summary="agl screenshooter">
+      agl compositor extension that performs a screenshot of the output, which
+      is represented by a 'wl_output' object.
+
+      A client would call 'take_shot' request and wait until the compositor
+      finishes to write the data to a wayland buffer, moment in which signals
+      back the client with the help of the 'done' event. Clients should wait
+      until the 'done' event is received, if they want to take another
+      screenshot, or take another screnshot of a different output.
+
+      The client must provide a wl_shm-based wl_buffer of the correct size when
+      taking a shot. The compositor will write the shot into the wl_buffer and then
+      send the 'done' event that signals completion of writing the data.
+
+      Once the compositor has finished to transfer the data back into the supplied
+      wayland buffer, the client should be able to transfer it to a popular
+      file format on the disk.
+    </description>
+
+    <enum name="done_status">
+      <entry name="success" value="0"/>
+      <entry name="no_memory" value="1"/>
+      <entry name="bad_buffer" value="2"/>
+    </enum>
+
+    <request name="take_shot">
+      <description summary="performs a screenshot">
+        Takes a screenshot of the wayland output represented by a 'wl_output'
+        object. Clients should first retrieve it using global registry, as well
+        as the 'wl_shm' object in order to create a wayland buffer type of
+        object ('wl_buffer').
+
+        Clients can derive the stride and size from the 'wl_output' object, and
+        later on use those when creating shm-based 'wl_buffer', as well as supplying
+        the pixel format.
+      </description>
+
+      <arg name="output" type="object" interface="wl_output"/>
+      <arg name="buffer" type="object" interface="wl_buffer"/>
+    </request>
+
+    <event name="done">
+      <description summary="sent when 'take_shot' finished">
+         Even sent back to notify client 'take_shot' request has completed.
+      </description>
+      <arg name="status" type="uint" enum="done_status" />
+    </event>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy main object">
+        Destroys the 'weston_screenshooter' interface.
+      </description>
+    </request>
+
+  </interface>
+
+</protocol>
