@@ -1,5 +1,5 @@
-import { WaylandProtocolModel } from './common'
 import { compositorRegistry } from '../data/compositor-registry'
+import { WaylandProtocolModel } from './common'
 
 export const WaylandCompositors: React.FC<{
     element: WaylandProtocolModel
@@ -34,10 +34,13 @@ export const WaylandCompositors: React.FC<{
             return (
                 <tr key={index}>
                     {name}
-                    {childElement.versions.map((version) => {
+                    {childElement.versions.map((version, index) => {
                         if (version !== null) {
                             return (
-                                <td className="border-b border-gray-300 dark:border-gray-900 p-2">
+                                <td
+                                    key={index}
+                                    className="border-b border-gray-300 dark:border-gray-900 p-2"
+                                >
                                     <div className="flex justify-center">
                                         <div className="w-7 h-7 leading-7 bg-emerald-500 text-white rounded-lg text-center">
                                             {version}
@@ -47,7 +50,10 @@ export const WaylandCompositors: React.FC<{
                             )
                         } else {
                             return (
-                                <td className="border-b border-gray-300 dark:border-gray-900 p-2">
+                                <td
+                                    key={index}
+                                    className="border-b border-gray-300 dark:border-gray-900 p-2"
+                                >
                                     <div className="flex justify-center">
                                         <div className="w-7 h-7 leading-7 bg-gray-900 text-white rounded-lg text-center">
                                             x
@@ -93,7 +99,7 @@ const CanIUseTable: React.FC<{
                 <tr>
                     <th className="p-4"></th>
                     {compositorRegistry.map((comp) => (
-                        <th className="p-4">
+                        <th key={comp.id} className="p-4">
                             <div className="flex justify-center items-center">
                                 {comp.name}
                                 <img
