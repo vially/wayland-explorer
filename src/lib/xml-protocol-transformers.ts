@@ -11,7 +11,13 @@ import {
     WaylandProtocol,
     WaylandRequest,
 } from '../../src/model/wayland'
-import { coerceArray } from './utils'
+
+export function coerceArray<T = any>(value: T | T[]): T[] {
+    if (value === null || value === undefined) return []
+
+    return Array.isArray(value) ? value : [value]
+}
+
 
 type WaylandXMLElementTransformer = (xmlData: any) => WaylandElement
 
