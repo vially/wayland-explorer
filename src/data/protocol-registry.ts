@@ -102,6 +102,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/fractional-scale-v1.json'),
     },
     {
+        id: 'cursor-shape-v1',
+        name: 'Cursor shape',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/cursor-shape-v1.json'),
+    },
+    {
+        id: 'ext-foreign-toplevel-list-v1',
+        name: 'Foreign toplevel list',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-foreign-toplevel-list-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
