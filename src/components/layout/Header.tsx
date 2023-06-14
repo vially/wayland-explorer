@@ -6,7 +6,7 @@ export const Header: React.FC<{
     setIsSidebarOpen: (open: boolean) => void
     setIsOutlineOpen: (open: boolean) => void
 }> = ({ setIsSidebarOpen, setIsOutlineOpen, showOutlineButton }) => (
-    <header className="xl:hidden w-full">
+    <header className="fixed top-0 xl:hidden w-full z-10">
         <div className="relative z-10 shrink-0 h-16 bg-gray-50 border-b border-gray-200 shadow-sm flex dark:bg-gray-900 dark:border-gray-700">
             <button
                 className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:border-gray-700"

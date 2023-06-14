@@ -31,7 +31,7 @@ export const MultiColumnLayout: React.FC<{
             />
 
             <div
-                className={`mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0 ${
+                className={`mx-auto px-4 pt-16 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8 xl:pl-0 xl:pt-0 ${
                     hideSidebar ? 'xl:pr-0' : ''
                 }`}
             >
