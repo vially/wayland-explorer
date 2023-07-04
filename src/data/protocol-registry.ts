@@ -116,6 +116,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-foreign-toplevel-list-v1.json'),
     },
     {
+        id: 'security-context-v1',
+        name: 'Security context',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/security-context-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
