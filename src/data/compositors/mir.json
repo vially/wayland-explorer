@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1679409485385,
+  "generationTimestamp": 1690029459060,
   "globals": [
     {
       "interface": "zwp_linux_dmabuf_v1",
@@ -87,6 +87,10 @@
     },
     {
       "interface": "zwp_primary_selection_device_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_session_lock_manager_v1",
       "version": 1
     },
     {
