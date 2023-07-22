@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1673049109429,
+  "generationTimestamp": 1690032084749,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -26,6 +26,10 @@
       "version": 1
     },
     {
+      "interface": "wp_tearing_control_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "zwp_relative_pointer_manager_v1",
       "version": 1
     },
@@ -35,6 +39,10 @@
     },
     {
       "interface": "zwp_input_timestamps_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "weston_capture_v1",
       "version": 1
     },
     {
@@ -63,7 +71,7 @@
     },
     {
       "interface": "wl_output",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "zwp_input_panel_v1",
@@ -83,10 +91,6 @@
     },
     {
       "interface": "weston_desktop_shell",
-      "version": 1
-    },
-    {
-      "interface": "weston_screenshooter",
       "version": 1
     }
   ]
