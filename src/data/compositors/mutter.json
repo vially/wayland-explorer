@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1674348606537,
+  "generationTimestamp": 1693432665110,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -15,7 +15,7 @@
     },
     {
       "interface": "wl_output",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "zxdg_output_manager_v1",
@@ -46,6 +46,10 @@
       "version": 1
     },
     {
+      "interface": "wp_fractional_scale_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "zwp_pointer_gestures_v1",
       "version": 3
     },
@@ -63,6 +67,14 @@
     },
     {
       "interface": "zwp_pointer_constraints_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_exporter_v2",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v2",
       "version": 1
     },
     {
