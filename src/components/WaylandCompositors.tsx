@@ -108,6 +108,7 @@ const CanIUseTable: React.FC<{
                                     className="w-5 ml-2 dark:invert"
                                 />
                             </div>
+                            <div className="text-xs text-gray-500 mt-1" title="Date of last update">{new Date(comp.info.generationTimestamp).toLocaleDateString()}</div>
                         </th>
                     ))}
                 </tr>
