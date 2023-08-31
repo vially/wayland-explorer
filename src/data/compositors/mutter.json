@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1693432665110,
+  "generationTimestamp": 1693491846000,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -35,7 +35,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 4
+      "version": 6
     },
     {
       "interface": "gtk_shell1",
@@ -107,6 +107,10 @@
     },
     {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_idle_inhibit_manager_v1",
       "version": 1
     }
   ]
