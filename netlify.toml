@@ -15,6 +15,12 @@
   to = "/protocols/kde-zkde-screencast-unstable-v1"
 
 [[redirects]]
+  from = "/protocols/git/*"
+  to = "/protocols/git.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/protocols/*"
   to = "/protocols/404.html"
   status = 404
