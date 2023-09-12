@@ -39,8 +39,8 @@ function allPageDescriptors(): StaticPageDescriptor[] {
             pageTitle: '404 - Page not found',
         },
         {
-            routerPath: '/git/wayland-protocols/0',
-            fileName: 'git.html',
+            routerPath: '/wayland-protocols/0',
+            fileName: 'wayland-protocols-gitlab.html',
             pageTitle: 'Git',
         },
     ]

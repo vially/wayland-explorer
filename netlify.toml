@@ -15,8 +15,8 @@
   to = "/protocols/kde-zkde-screencast-unstable-v1"
 
 [[redirects]]
-  from = "/protocols/git/*"
-  to = "/protocols/git.html"
+  from = "/protocols/wayland-protocols/*"
+  to = "/protocols/wayland-protocols-gitlab.html"
   status = 200
   force = true
 
