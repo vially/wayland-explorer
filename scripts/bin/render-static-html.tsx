@@ -38,6 +38,11 @@ function allPageDescriptors(): StaticPageDescriptor[] {
             fileName: '404.html',
             pageTitle: '404 - Page not found',
         },
+        {
+            routerPath: '/git/wayland-protocols/0',
+            fileName: 'git.html',
+            pageTitle: 'Git',
+        },
     ]
 
     const protocolPages: StaticPageDescriptor[] = waylandProtocolRegistry.protocols.map(
