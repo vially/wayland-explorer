@@ -12,7 +12,7 @@ function App() {
     let contentView = <Homepage />
     let outlineView = null
 
-    const [isGitlab, gitlabParams] = useRoute<{ iid: string }>('/git/wayland-protocols/:iid')
+    const [isGitlab, gitlabParams] = useRoute<{ iid: string }>('/wayland-protocols/:iid')
 
     const [match, params] = useRoute<{ protocolId: string }>('/:protocolId')
     const isHomepage = !match && !isGitlab
