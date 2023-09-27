@@ -1,5 +1,5 @@
 {
-  "generationTimestamp": 1690032084749,
+  "generationTimestamp": 1695825254000,
   "globals": [
     {
       "interface": "wl_compositor",
@@ -54,16 +54,24 @@
       "version": 1
     },
     {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
+    },
+    {
       "interface": "wl_seat",
       "version": 7
     },
     {
-      "interface": "zwp_linux_dmabuf_v1",
-      "version": 3
-    },
-    {
       "interface": "weston_direct_display_v1",
       "version": 1
+    },
+    {
+      "interface": "zwp_linux_explicit_synchronization_v1",
+      "version": 2
     },
     {
       "interface": "weston_content_protection",
