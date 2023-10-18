@@ -612,7 +612,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/virtual-keyboard-unstable-v1.json'),
         externalUrl:
-            'https://lists.freedesktop.org/archives/wayland-devel/2019-September/040882.html',
+            'https://gitlab.freedesktop.org/wlroots/wlroots/-/blob/5adf325333602d5b1e7ccdeb122633bbc8040ace/protocol/virtual-keyboard-unstable-v1.xml',
     },
     {
         id: 'tizen-extension',
