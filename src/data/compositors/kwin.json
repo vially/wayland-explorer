@@ -1,9 +1,9 @@
 {
-  "generationTimestamp": 1676481378380,
+  "generationTimestamp": 1699893927757,
   "globals": [
     {
       "interface": "wl_compositor",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "zwp_tablet_manager_v2",
@@ -15,7 +15,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 4
+      "version": 6
     },
     {
       "interface": "zwlr_layer_shell_v1",
@@ -30,6 +30,10 @@
       "version": 1
     },
     {
+      "interface": "wp_security_context_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_fractional_scale_manager_v1",
       "version": 1
     },
@@ -39,7 +43,7 @@
     },
     {
       "interface": "wl_seat",
-      "version": 8
+      "version": 9
     },
     {
       "interface": "zwp_pointer_gestures_v1",
@@ -60,6 +64,10 @@
     {
       "interface": "zwlr_data_control_manager_v1",
       "version": 2
+    },
+    {
+      "interface": "wp_cursor_shape_manager_v1",
+      "version": 1
     },
     {
       "interface": "zwp_primary_selection_device_manager_v1",
@@ -107,7 +115,7 @@
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 3
+      "version": 6
     },
     {
       "interface": "zxdg_output_manager_v1",
@@ -138,24 +146,20 @@
       "version": 1
     },
     {
-      "interface": "wl_drm",
-      "version": 2
+      "interface": "qt_toplevel_drag_manager_v1",
+      "version": 1
     },
     {
-      "interface": "zwp_linux_dmabuf_v1",
-      "version": 4
+      "interface": "kde_screen_edge_manager_v1",
+      "version": 1
     },
     {
-      "interface": "kde_output_device_v2",
-      "version": 2
+      "interface": "frog_color_management_factory_v1",
+      "version": 1
     },
     {
-      "interface": "kde_output_device_v2",
-      "version": 2
-    },
-    {
-      "interface": "wl_output",
-      "version": 4
+      "interface": "wp_presentation",
+      "version": 1
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -178,12 +182,28 @@
       "version": 1
     },
     {
-      "interface": "org_kde_kwin_contrast_manager",
+      "interface": "wl_drm",
       "version": 2
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
+    },
+    {
+      "interface": "kde_output_device_v2",
+      "version": 5
+    },
+    {
+      "interface": "wl_output",
+      "version": 4
     },
     {
       "interface": "org_kde_kwin_blur_manager",
       "version": 1
+    },
+    {
+      "interface": "org_kde_kwin_contrast_manager",
+      "version": 2
     },
     {
       "interface": "org_kde_kwin_slide_manager",
