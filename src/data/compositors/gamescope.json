@@ -1,0 +1,65 @@
+{
+  "generationTimestamp": 1702565286938,
+  "globals": [
+    {
+      "interface": "wl_shm",
+      "version": 1
+    },
+    {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
+    },
+    {
+      "interface": "wl_compositor",
+      "version": 5
+    },
+    {
+      "interface": "gamescope_input_method_manager",
+      "version": 2
+    },
+    {
+      "interface": "gamescope_xwayland",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_swapchain_factory",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_pipewire",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_control",
+      "version": 2
+    },
+    {
+      "interface": "gamescope_tearing_control_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_presentation",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_commit_queue_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_wm_base",
+      "version": 3
+    },
+    {
+      "interface": "wl_seat",
+      "version": 8
+    },
+    {
+      "interface": "wl_output",
+      "version": 4
+    }
+  ]
+}

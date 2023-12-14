@@ -46,4 +46,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'mir',
         info: require('./compositors/mir.json'),
     },
+    {
+        id: 'gamescope',
+        name: 'gamescope',
+        icon: 'Steam_Deck',
+        info: require('./compositors/gamescope.json'),
+    },
 ]
