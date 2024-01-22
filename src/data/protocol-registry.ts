@@ -39,6 +39,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xdg-shell.json'),
     },
     {
+        id: 'linux-dmabuf-v1',
+        name: 'Linux DMA-BUF',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Stable,
+        protocol: require('./protocols/linux-dmabuf-v1.json'),
+    },
+    {
         id: 'xdg-activation-v1',
         name: 'XDG activation',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -121,6 +128,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Staging,
         protocol: require('./protocols/security-context-v1.json'),
+    },
+    {
+        id: 'ext-transient-seat-v1',
+        name: 'Transient seat',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-transient-seat-v1.json'),
     },
     {
         id: 'fullscreen-shell-unstable-v1',

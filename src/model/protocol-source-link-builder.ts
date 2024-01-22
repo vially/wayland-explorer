@@ -81,13 +81,12 @@ function sourceUrlBuilderFor(source: WaylandProtocolSource): SourceUrlBuilder {
         protocolUrlFor: (metadata: WaylandProtocolMetadata) => {
             const protocolId =
                 metadata.source === WaylandProtocolSource.WaylandProtocols
-                    ? `${waylandProtocolDirectoryNameFor(metadata)}/${
-                          metadata.id
-                      }`
+                    ? `${waylandProtocolDirectoryNameFor(metadata)}/${metadata.id
+                    }`
                     : metadata.source === WaylandProtocolSource.KDEProtocols &&
-                      !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
-                    ? metadata.id.substring(4)
-                    : metadata.id
+                        !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
+                        ? metadata.id.substring(4)
+                        : metadata.id
 
             return (
                 config.protocolUrl
@@ -124,7 +123,8 @@ function waylandProtocolDirectoryNameFor(
     metadata: WaylandProtocolMetadata
 ): string {
     if (metadata.stability === WaylandProtocolStability.Stable) {
-        return metadata.id
+        // Remove version suffix (e.g.: for `linux-dmabuf-v1`)
+        return metadata.id.endsWith('-v1') ? metadata.id.substring(0, metadata.id.length - 3) : metadata.id
     } else if (metadata.stability === WaylandProtocolStability.Staging) {
         // Remove version suffix (e.g.: '-v1')
         return metadata.id.substring(0, metadata.id.length - 3)
