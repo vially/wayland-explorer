@@ -172,13 +172,6 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/keyboard-shortcuts-inhibit-unstable-v1.json'),
     },
     {
-        id: 'linux-dmabuf-unstable-v1',
-        name: 'Linux DMA-BUF',
-        source: WaylandProtocolSource.WaylandProtocols,
-        stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/linux-dmabuf-unstable-v1.json'),
-    },
-    {
         id: 'linux-explicit-synchronization-unstable-v1',
         name: 'Linux explicit synchronization (dma-fence)',
         source: WaylandProtocolSource.WaylandProtocols,
