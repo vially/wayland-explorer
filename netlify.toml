@@ -15,8 +15,8 @@
   to = "/protocols/kde-zkde-screencast-unstable-v1"
 
 [[redirects]]
-  from = "protocols/linux-dmabuf-unstable-v1"
-  to = "protocols/linux-dmabuf-v1"
+  from = "/protocols/linux-dmabuf-unstable-v1"
+  to = "/protocols/linux-dmabuf-v1"
 
 [[redirects]]
   from = "/protocols/wayland-protocols/*"
