@@ -137,6 +137,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-transient-seat-v1.json'),
     },
     {
+        id: 'xdg-toplevel-drag-v1',
+        name: 'XDG toplevel drag',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-toplevel-drag-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
