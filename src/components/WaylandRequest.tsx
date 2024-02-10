@@ -25,7 +25,7 @@ export const WaylandRequest: React.FC<
                 </span>
             </a>
             {(element.requestType || element.since) && (
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                     {element.requestType && (
                         <Badge bgColor="bg-pink-100" textColor="text-pink-800">
                             Type: {element.requestType}

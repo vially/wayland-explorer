@@ -26,7 +26,7 @@ export const WaylandEvent: React.FC<
                 </span>
             </a>
             {(element.eventType || element.since) && (
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                     {element.eventType && (
                         <Badge bgColor="bg-pink-100" textColor="text-pink-800">
                             Type: {element.eventType}
