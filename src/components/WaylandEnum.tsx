@@ -26,7 +26,7 @@ export const WaylandEnum: React.FC<
                 </span>
             </a>
             {(element.bitfield || element.since) && (
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                     {element.bitfield && (
                         <Badge
                             bgColor="bg-orange-100"
