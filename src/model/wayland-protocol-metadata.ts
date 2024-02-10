@@ -13,10 +13,16 @@ export enum WaylandProtocolSource {
     External = 'external',
 }
 
+export interface WaylandDeprecationItem {
+    name: string
+    reason: string
+}
+
 export interface WaylandProtocolMetadata {
     id: string
     name: string
     source: WaylandProtocolSource
     stability: WaylandProtocolStability
     externalUrl?: string
+    deprecated?: WaylandDeprecationItem[]
 }

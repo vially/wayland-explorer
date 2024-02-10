@@ -16,6 +16,10 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandCore,
         stability: WaylandProtocolStability.Stable,
         protocol: require('./protocols/wayland.json'),
+        deprecated: [
+            { name: 'wl_shell', reason: 'Use xdg-shell' },
+            { name: 'wl_shell_surface', reason: 'Use xdg-shell' },
+        ],
     },
     {
         id: 'presentation-time',
@@ -366,6 +370,10 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/kde-idle.json'),
+        deprecated: [
+            { name: 'org_kde_kwin_idle', reason: 'Use ext-idle-notify' },
+            { name: 'org_kde_kwin_idle_timeout', reason: 'Use ext-idle-notify' },
+        ],
     },
     {
         id: 'kde-keystate',
@@ -457,6 +465,16 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/kde-server-decoration.json'),
+        deprecated: [
+            {
+                name: 'org_kde_kwin_server_decoration_manager',
+                reason: 'Use xdg-decoration',
+            },
+            {
+                name: 'org_kde_kwin_server_decoration',
+                reason: 'Use xdg-decoration',
+            },
+        ],
     },
     {
         id: 'kde-server-decoration-palette',
