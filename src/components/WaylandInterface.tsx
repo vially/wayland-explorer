@@ -1,3 +1,4 @@
+import { WaylandDeprecationItem } from '../model/wayland-protocol-metadata'
 import { WaylandElementProps, WaylandInterfaceModel } from './common'
 import { WaylandColorTheme as colors } from './common/wayland-protocol-icons'
 import { Badge } from './content/Badge'
@@ -7,8 +8,10 @@ import { WaylandEvent } from './WaylandEvent'
 import { WaylandRequest } from './WaylandRequest'
 
 export const WaylandInterface: React.FC<
-    WaylandElementProps<WaylandInterfaceModel>
-> = ({ element }) => (
+    WaylandElementProps<WaylandInterfaceModel> & {
+        deprecated?: WaylandDeprecationItem
+    }
+> = ({ element, deprecated }) => (
     <div>
         <div className="flex items-center flex-wrap justify-between">
             <h2
@@ -25,7 +28,21 @@ export const WaylandInterface: React.FC<
                 </a>
             </h2>
 
-            <Badge>version {element.version}</Badge>
+            <div className="flex items-center gap-1">
+                {deprecated ? (
+                    <Badge
+                        bgColor="bg-red-500"
+                        textColor="text-white"
+                        fontWeigth="font-bold"
+                        title={deprecated.reason}
+                    >
+                        Deprecated
+                    </Badge>
+                ) : (
+                    <></>
+                )}
+                <Badge>version {element.version}</Badge>
+            </div>
         </div>
 
         {element.description ? (

@@ -13,6 +13,11 @@ export const WaylandProtocol: React.FC<{
 }> = ({ element, metadata }) => {
     usePageTitle(`${metadata.name} protocol`)
 
+    const get_deprecation = (name: string) => {
+        const deprecated = metadata.deprecated ? metadata.deprecated : []
+        return deprecated.find((item) => item.name === name)
+    }
+
     return (
         <div>
             <div className="py-4 border-b border-gray-200 mb-10 dark:border-gray-700">
@@ -32,7 +37,10 @@ export const WaylandProtocol: React.FC<{
             </div>
             {element.interfaces.map((childElement, index) => (
                 <div key={index}>
-                    <WaylandInterface element={childElement} />
+                    <WaylandInterface
+                        element={childElement}
+                        deprecated={get_deprecation(childElement.name)}
+                    />
                     <hr className="my-10" />
                 </div>
             ))}
