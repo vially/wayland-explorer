@@ -131,7 +131,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
     },
     {
         id: 'input-method-unstable-v1',
-        name: 'Input method',
+        name: 'Input method v1',
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/input-method-unstable-v1.json'),
@@ -303,6 +303,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WlrProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/wlr-virtual-pointer-unstable-v1.json'),
+    },
+    {
+        id: 'input-method-unstable-v2',
+        name: 'Input method v2',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/input-method-unstable-v2.json'),
+        externalUrl:
+            'https://gitlab.freedesktop.org/wlroots/wlroots/-/blob/dc3d1530/protocol/input-method-unstable-v2.xml',
     },
     {
         id: 'kde-appmenu',
