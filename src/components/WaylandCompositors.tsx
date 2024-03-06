@@ -1,4 +1,7 @@
-import { compositorRegistry } from '../data/compositor-registry'
+import {
+    compositorRegistry,
+    CompositorRegistryItem,
+} from '../data/compositor-registry'
 import { WaylandProtocolModel } from './common'
 
 export const WaylandCompositors: React.FC<{
@@ -93,6 +96,14 @@ export const WaylandCompositors: React.FC<{
 const CanIUseTable: React.FC<{
     rows: JSX.Element[]
 }> = ({ rows }) => {
+    const version = (comp: CompositorRegistryItem) => {
+        if (comp.info.version) {
+            return comp.info.version
+        }
+
+        return new Date(comp.info.generationTimestamp).toLocaleDateString()
+    }
+
     return (
         <table className="border-colapse bg-gray-200 rounded dark:bg-neutral-900">
             <thead>
@@ -108,7 +119,12 @@ const CanIUseTable: React.FC<{
                                     className="w-5 ml-2 dark:invert"
                                 />
                             </div>
-                            <div className="text-xs text-gray-500 mt-1" title="Date of last update">{new Date(comp.info.generationTimestamp).toLocaleDateString()}</div>
+                            <div
+                                className="text-xs text-gray-500 mt-1"
+                                title="Last update"
+                            >
+                                {version(comp)}
+                            </div>
                         </th>
                     ))}
                 </tr>
