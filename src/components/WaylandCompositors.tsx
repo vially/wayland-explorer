@@ -96,35 +96,45 @@ export const WaylandCompositors: React.FC<{
 const CanIUseTable: React.FC<{
     rows: JSX.Element[]
 }> = ({ rows }) => {
-    const version = (comp: CompositorRegistryItem) => {
-        if (comp.info.version) {
-            return comp.info.version
+    const SubTitle: React.FC<{ compositor: CompositorRegistryItem }> = ({
+        compositor,
+    }) => {
+        let version = '...'
+        if (compositor.info.version) {
+            version = compositor.info.version
         }
+        const generationTimestamp = new Date(
+            compositor.info.generationTimestamp
+        ).toLocaleDateString()
 
-        return new Date(comp.info.generationTimestamp).toLocaleDateString()
+        return (
+            <div
+                className="text-xs text-gray-500 mt-1"
+                title={generationTimestamp}
+            >
+                {version}
+            </div>
+        )
     }
 
     return (
-        <table className="border-colapse bg-gray-200 rounded dark:bg-neutral-900">
+        <table className="border-colapse bg-gray-50 rounded dark:bg-neutral-900">
             <thead>
                 <tr>
                     <th className="p-4"></th>
                     {compositorRegistry.map((comp) => (
-                        <th key={comp.id} className="p-4">
-                            <div className="flex justify-center items-center">
-                                {comp.name}
+                        <th key={comp.id} className="px-4 pt-1 align-bottom">
+                            <div className="flex flex-col justify-end items-center gap-2">
+                                <div className="[writing-mode:vertical-rl] rotate-180">
+                                    {comp.name}
+                                </div>
                                 <img
                                     alt={comp.name}
                                     src={`logos/${comp.icon}.svg`}
-                                    className="w-5 ml-2 dark:invert"
+                                    className="w-5 dark:invert"
                                 />
                             </div>
-                            <div
-                                className="text-xs text-gray-500 mt-1"
-                                title="Last update"
-                            >
-                                {version(comp)}
-                            </div>
+                            <SubTitle compositor={comp} />
                         </th>
                     ))}
                 </tr>
