@@ -1,5 +1,6 @@
 {
-  "generationTimestamp": 1699893927757,
+  "generationTimestamp": 1709750464116,
+  "version": "6.0.1",
   "globals": [
     {
       "interface": "wl_compositor",
@@ -12,14 +13,6 @@
     {
       "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
       "version": 1
-    },
-    {
-      "interface": "xdg_wm_base",
-      "version": 6
-    },
-    {
-      "interface": "zwlr_layer_shell_v1",
-      "version": 3
     },
     {
       "interface": "zxdg_decoration_manager_v1",
@@ -115,7 +108,7 @@
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 6
+      "version": 7
     },
     {
       "interface": "zxdg_output_manager_v1",
@@ -146,7 +139,7 @@
       "version": 1
     },
     {
-      "interface": "qt_toplevel_drag_manager_v1",
+      "interface": "xdg_toplevel_drag_manager_v1",
       "version": 1
     },
     {
@@ -160,6 +153,14 @@
     {
       "interface": "wp_presentation",
       "version": 1
+    },
+    {
+      "interface": "xdg_wm_base",
+      "version": 6
+    },
+    {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 5
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -191,7 +192,7 @@
     },
     {
       "interface": "kde_output_device_v2",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "wl_output",
