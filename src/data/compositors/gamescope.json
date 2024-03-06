@@ -1,5 +1,6 @@
 {
   "generationTimestamp": 1702565286938,
+  "version": null,
   "globals": [
     {
       "interface": "wl_shm",

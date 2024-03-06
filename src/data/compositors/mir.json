@@ -1,5 +1,6 @@
 {
   "generationTimestamp": 1690029459060,
+  "version": null,
   "globals": [
     {
       "interface": "zwp_linux_dmabuf_v1",
