@@ -4,7 +4,8 @@ export interface CompositorGlobalInfo {
 }
 
 export interface CompositorInfo {
-    generationTimestamp: number,
+    generationTimestamp: number
+    version: string | null
     globals: CompositorGlobalInfo[]
 }
 
@@ -35,6 +36,12 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/sway.json'),
     },
     {
+        id: 'hyprland',
+        name: 'Hyprland',
+        icon: 'hyprland',
+        info: require('./compositors/hyprland.json'),
+    },
+    {
         id: 'weston',
         name: 'Weston',
         icon: 'weston',
@@ -48,7 +55,7 @@ export const compositorRegistry: CompositorRegistryItem[] = [
     },
     {
         id: 'gamescope',
-        name: 'gamescope',
+        name: 'GameScope',
         icon: 'Steam_Deck',
         info: require('./compositors/gamescope.json'),
     },
