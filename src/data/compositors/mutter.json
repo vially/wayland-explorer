@@ -1,10 +1,10 @@
 {
   "generationTimestamp": 1709750464116,
-  "version": "45.4",
+  "version": "46.1",
   "globals": [
     {
       "interface": "wl_compositor",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "wl_drm",
@@ -88,7 +88,7 @@
     },
     {
       "interface": "zwp_linux_dmabuf_v1",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "wp_single_pixel_buffer_manager_v1",
@@ -112,6 +112,10 @@
     },
     {
       "interface": "zwp_idle_inhibit_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_linux_drm_syncobj_manager_v1",
       "version": 1
     }
   ]
