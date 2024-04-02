@@ -64,6 +64,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/drm-lease-v1.json'),
     },
     {
+        id: 'linux-drm-syncobj-v1',
+        name: 'DRM synchronization object',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/linux-drm-syncobj-v1.json'),
+    },
+    {
         id: 'ext-session-lock-v1',
         name: 'Session lock',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -146,6 +153,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Staging,
         protocol: require('./protocols/xdg-toplevel-drag-v1.json'),
+    },
+    {
+        id: 'xdg-dialog-v1',
+        name: 'XDG dialog windows',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-dialog-v1.json'),
     },
     {
         id: 'fullscreen-shell-unstable-v1',
