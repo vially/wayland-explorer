@@ -3,23 +3,15 @@
   "version": "3.14.3",
   "globals": [
     {
-      "interface": "wl_shm",
-      "version": 1
-    },
-    {
-      "interface": "zwp_linux_dmabuf_v1",
-      "version": 4
-    },
-    {
-      "interface": "wl_compositor",
-      "version": 5
+      "interface": "gamescope_control",
+      "version": 3
     },
     {
       "interface": "gamescope_input_method_manager",
       "version": 3
     },
     {
-      "interface": "gamescope_xwayland",
+      "interface": "gamescope_pipewire",
       "version": 1
     },
     {
@@ -27,27 +19,35 @@
       "version": 1
     },
     {
-      "interface": "gamescope_pipewire",
+      "interface": "gamescope_xwayland",
       "version": 1
     },
     {
-      "interface": "gamescope_control",
-      "version": 3
-    },
-    {
-      "interface": "wp_presentation",
-      "version": 1
+      "interface": "wl_compositor",
+      "version": 5
     },
     {
       "interface": "wl_drm",
       "version": 2
     },
     {
+      "interface": "wl_output",
+      "version": 4
+    },
+    {
+      "interface": "wl_seat",
+      "version": 9
+    },
+    {
+      "interface": "wl_shm",
+      "version": 1
+    },
+    {
       "interface": "wp_linux_drm_syncobj_manager_v1",
       "version": 1
     },
     {
-      "interface": "zwp_relative_pointer_manager_v1",
+      "interface": "wp_presentation",
       "version": 1
     },
     {
@@ -55,12 +55,12 @@
       "version": 3
     },
     {
-      "interface": "wl_seat",
-      "version": 9
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
     },
     {
-      "interface": "wl_output",
-      "version": 4
+      "interface": "zwp_relative_pointer_manager_v1",
+      "version": 1
     }
   ]
 }
