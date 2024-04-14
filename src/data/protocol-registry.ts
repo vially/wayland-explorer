@@ -202,6 +202,11 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/linux-explicit-synchronization-unstable-v1.json'),
+        deprecated: [
+            { name: 'zwp_linux_explicit_synchronization_v1', reason: 'Superseded by linux-drm-syncobj' },
+            { name: 'zwp_linux_surface_synchronization_v1', reason: 'Superseded by linux-drm-syncobj' },
+            { name: 'zwp_linux_buffer_release_v1', reason: 'Superseded by linux-drm-syncobj' },
+        ],
     },
     {
         id: 'pointer-constraints-unstable-v1',
