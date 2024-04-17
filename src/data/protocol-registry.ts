@@ -50,6 +50,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/linux-dmabuf-v1.json'),
     },
     {
+        id: 'tablet-v2',
+        name: 'Tablet',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Stable,
+        protocol: require('./protocols/tablet-v2.json'),
+    },
+    {
         id: 'xdg-activation-v1',
         name: 'XDG activation',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -235,13 +242,6 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/relative-pointer-unstable-v1.json'),
-    },
-    {
-        id: 'tablet-unstable-v2',
-        name: 'Tablet',
-        source: WaylandProtocolSource.WaylandProtocols,
-        stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/tablet-unstable-v2.json'),
     },
     {
         id: 'text-input-unstable-v3',

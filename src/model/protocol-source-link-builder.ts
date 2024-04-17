@@ -124,7 +124,7 @@ function waylandProtocolDirectoryNameFor(
 ): string {
     if (metadata.stability === WaylandProtocolStability.Stable) {
         // Remove version suffix (e.g.: for `linux-dmabuf-v1`)
-        return metadata.id.endsWith('-v1') ? metadata.id.substring(0, metadata.id.length - 3) : metadata.id
+        return (metadata.id.endsWith('-v1') || metadata.id.endsWith('-v2')) ? metadata.id.substring(0, metadata.id.length - 3) : metadata.id
     } else if (metadata.stability === WaylandProtocolStability.Staging) {
         // Remove version suffix (e.g.: '-v1')
         return metadata.id.substring(0, metadata.id.length - 3)

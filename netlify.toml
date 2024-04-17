@@ -19,6 +19,10 @@
   to = "/protocols/linux-dmabuf-v1"
 
 [[redirects]]
+  from = "/protocols/tablet-unstable-v2"
+  to = "/protocols/tablet-v2"
+
+[[redirects]]
   from = "/protocols/wayland-protocols/*"
   to = "/protocols/wayland-protocols-gitlab.html"
   status = 200
