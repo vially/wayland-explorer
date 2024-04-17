@@ -169,6 +169,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xdg-dialog-v1.json'),
     },
     {
+        id: 'alpha-modifier-v1',
+        name: 'Alpha modifier protocol',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/alpha-modifier-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
