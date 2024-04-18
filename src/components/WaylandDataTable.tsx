@@ -16,7 +16,7 @@ export const WaylandDataTable: React.FC<{
     interfaceName: string
     parentElement: WaylandRequestModel | WaylandEventModel | WaylandEnumModel
 }> = ({ elements, interfaceName, parentElement }) => (
-    <div className="my-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="my-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
         <table className="w-full table-auto text-left border-collapse">
             <thead>
                 <tr>
