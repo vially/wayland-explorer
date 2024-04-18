@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1690029459060,
-  "version": null,
+  "generationTimestamp": 1713448515430,
+  "version": "2.16",
   "globals": [
     {
       "interface": "ext_session_lock_manager_v1",
@@ -64,6 +64,14 @@
     },
     {
       "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_method_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_panel_v1",
       "version": 1
     },
     {
