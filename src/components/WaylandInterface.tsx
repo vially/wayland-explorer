@@ -21,10 +21,10 @@ export const WaylandInterface: React.FC<
                 <a
                     href={`#${element.name}`}
                     title={`${element.name} interface`}
-                    className={`${colors.Interface} truncate`}
+                    className={`${colors.Interface}`}
                 >
                     <span className="codicon codicon-symbol-interface mr-1"></span>
-                    <span className="mr-1">{element.name}</span>
+                    <span className="mr-1 break-all">{element.name}</span>
                 </a>
             </h2>
 
