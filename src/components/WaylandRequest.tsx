@@ -21,7 +21,7 @@ export const WaylandRequest: React.FC<
                     <span className={`hidden md:inline ${colors.Interface}`}>
                         {interfaceName}::
                     </span>
-                    <span>{element.name}</span>
+                    <span className="break-all">{element.name}</span>
                 </span>
             </a>
             {(element.requestType || element.since) && (
