@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1709750464116,
-  "version": "46.1",
+  "version": "46",
   "globals": [
     {
       "interface": "wl_compositor",
