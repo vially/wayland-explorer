@@ -717,6 +717,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://gitlab.gnome.org/GNOME/gtk/-/blob/main/gdk/wayland/protocol/gtk-shell.xml',
     },
+    {
+        id: 'mir-shell-unstable-v1',
+        name: 'Mir Shell',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/mir-shell-unstable-v1.json'),
+        externalUrl:
+            'https://github.com/canonical/mir/blob/v2.17.0/wayland-protocols/mir-shell-unstable-v1.xml',
+    },
 ]
 
 class WaylandProtocolRegistry {
