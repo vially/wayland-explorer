@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1712860380305,
-  "version": "3.14.3",
+  "generationTimestamp": 1720526163245,
+  "version": "3.14.22",
   "globals": [
     {
       "interface": "gamescope_control",
@@ -12,6 +12,10 @@
     },
     {
       "interface": "gamescope_pipewire",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_private",
       "version": 1
     },
     {
@@ -55,8 +59,16 @@
       "version": 3
     },
     {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 4
+    },
+    {
       "interface": "zwp_linux_dmabuf_v1",
       "version": 4
+    },
+    {
+      "interface": "zwp_pointer_constraints_v1",
+      "version": 1
     },
     {
       "interface": "zwp_relative_pointer_manager_v1",
