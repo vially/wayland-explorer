@@ -162,6 +162,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xdg-toplevel-drag-v1.json'),
     },
     {
+        id: 'xdg-toplevel-icon-v1',
+        name: 'XDG toplevel icon',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-toplevel-icon-v1.json'),
+    },
+    {
         id: 'xdg-dialog-v1',
         name: 'XDG dialog windows',
         source: WaylandProtocolSource.WaylandProtocols,
