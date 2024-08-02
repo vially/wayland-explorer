@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1713535641090,
-  "version": "6.0",
+  "generationTimestamp": 1721830546465,
+  "version": "6.1",
   "globals": [
     {
       "interface": "ext_idle_notifier_v1",
@@ -12,11 +12,11 @@
     },
     {
       "interface": "kde_output_device_v2",
-      "version": 6
+      "version": 8
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 7
+      "version": 9
     },
     {
       "interface": "kde_output_order_v1",
@@ -115,6 +115,10 @@
       "version": 1
     },
     {
+      "interface": "wp_linux_drm_syncobj_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_presentation",
       "version": 1
     },
@@ -141,6 +145,10 @@
     {
       "interface": "xdg_wm_base",
       "version": 6
+    },
+    {
+      "interface": "xdg_wm_dialog_v1",
+      "version": 1
     },
     {
       "interface": "zwlr_data_control_manager_v1",
