@@ -106,6 +106,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-idle-notify-v1.json'),
     },
     {
+        id: 'ext-image-capture-source-v1',
+        name: 'Image Capture Source',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-image-capture-source-v1.json'),
+    },
+    {
+        id: 'ext-image-copy-capture-v1',
+        name: 'Image Copy Capture',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-image-copy-capture-v1.json'),
+    },
+    {
         id: 'tearing-control-v1',
         name: 'Tearing control',
         source: WaylandProtocolSource.WaylandProtocols,
