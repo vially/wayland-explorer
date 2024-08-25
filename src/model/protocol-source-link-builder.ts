@@ -49,6 +49,15 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://invent.kde.org/libraries/plasma-wayland-protocols/-/blob/master/src/protocols/${protocol}.xml',
     },
+    [WaylandProtocolSource.CosmicProtocols]: {
+        repositoryUrl:
+            'https://github.com/pop-os/cosmic-protocols',
+        stabilityUrl:
+            'https://github.com/pop-os/cosmic-protocols/tree/main/${stability}',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/pop-os/cosmic-protocols/blob/main/${stability}/${protocol}.xml',
+    },
     [WaylandProtocolSource.WestonProtocols]: {
         repositoryUrl: 'https://gitlab.freedesktop.org/wayland/weston',
         stabilityUrl:
