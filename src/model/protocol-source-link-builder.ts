@@ -53,6 +53,7 @@ const sourceRepositoryUrls: Record<
         repositoryUrl:
             'https://github.com/pop-os/cosmic-protocols',
         stabilityUrl:
+            // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/pop-os/cosmic-protocols/tree/main/${stability}',
         protocolUrl:
             // eslint-disable-next-line no-template-curly-in-string
