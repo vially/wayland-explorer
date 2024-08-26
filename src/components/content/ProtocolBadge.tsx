@@ -37,8 +37,8 @@ const kdeProtocolsUnstableBadgeTheme: BadgeTheme = {
 }
 
 const cosmicProtocolsUnstableBadgeTheme: BadgeTheme = {
-    textColor: 'text-amber-100',
-    backgroundColor: 'bg-orange-400',
+    textColor: 'text-amber-800',
+    backgroundColor: 'bg-red-100',
 }
 
 const westonProtocolsUnstableBadgeTheme: BadgeTheme = {
