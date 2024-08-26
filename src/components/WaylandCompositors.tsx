@@ -45,7 +45,7 @@ export const WaylandCompositors: React.FC<{
                                     className="border-b border-gray-300 dark:border-gray-900 p-2"
                                 >
                                     <div className="flex justify-center">
-                                        <div className="w-7 h-7 leading-7 bg-emerald-500 text-white rounded-lg text-center">
+                                        <div className="w-7 h-7 leading-7 bg-emerald-700 text-white rounded-lg text-center">
                                             {version}
                                         </div>
                                     </div>
@@ -58,7 +58,7 @@ export const WaylandCompositors: React.FC<{
                                     className="border-b border-gray-300 dark:border-gray-900 p-2"
                                 >
                                     <div className="flex justify-center">
-                                        <div className="w-7 h-7 leading-7 bg-gray-900 text-white rounded-lg text-center">
+                                        <div className="w-7 h-7 leading-7 bg-red-900 text-white rounded-lg text-center">
                                             x
                                         </div>
                                     </div>
