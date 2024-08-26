@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1724690454296,
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "globals": [
     {
       "interface": "ext_idle_notifier_v1",
