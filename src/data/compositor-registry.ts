@@ -36,10 +36,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/sway.json'),
     },
     {
-        id: 'cosmic-comp',
-        name: 'cosmic-comp',
+        id: 'cosmic',
+        name: 'COSMIC',
         icon: 'cosmic',
-        info: require('./compositors/cosmic-comp.json'),
+        info: require('./compositors/cosmic.json'),
     },
     {
         id: 'hyprland',
