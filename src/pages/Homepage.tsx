@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'wouter'
 import { usePageTitle } from '../components/common/hooks-utils'
-import { capitalizeFirstLetter } from '../components/common/utils'
 import { ProtocolBadge } from '../components/content/ProtocolBadge'
 import { waylandProtocolRegistry } from '../data/protocol-registry'
 
@@ -66,12 +65,12 @@ export const Homepage: React.FC = () => {
                                             </div>
                                             {protocol.protocol.description
                                                 ?.summary && (
-                                                <p className="text-sm text-gray-500 truncate mt-2">
-                                                    {capitalizeFirstLetter(
+                                                <p className="capitalize text-sm text-gray-500 truncate mt-2">
+                                                    {
                                                         protocol.protocol
                                                             .description
                                                             ?.summary
-                                                    )}
+                                                    }
                                                 </p>
                                             )}
                                         </a>
