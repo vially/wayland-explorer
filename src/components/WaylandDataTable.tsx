@@ -50,6 +50,17 @@ export const WaylandDataTable: React.FC<{
                             >
                                 {element.name}
                             </a>
+                            {isWaylandEntryElement(element) && element.deprecatedSince && (
+                                <span className="ml-2">
+                                    <Badge
+                                        bgColor="bg-red-500"
+                                        textColor="text-white"
+                                        fontWeigth="font-bold"
+                                    >
+                                        Deprecated since {element.deprecatedSince}
+                                    </Badge>
+                                </span>
+                            )}
                             {isWaylandEntryElement(element) && element.since && (
                                 <span className="ml-2">
                                     <Badge>since {element.since}</Badge>
