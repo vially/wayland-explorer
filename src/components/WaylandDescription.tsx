@@ -1,13 +1,12 @@
 import { WaylandDescriptionModel, WaylandElementProps } from './common'
-import { capitalizeFirstLetter } from './common/utils'
 
 export const WaylandDescription: React.FC<
     WaylandElementProps<WaylandDescriptionModel>
 > = ({ element }) => (
     <div>
         {element.summary && (
-            <div className="my-3 font-semibold text-gray-700 dark:text-white">
-                {capitalizeFirstLetter(element.summary)}
+            <div className="my-3 capitalize font-semibold text-gray-700 dark:text-white">
+                {element.summary}
             </div>
         )}
 
