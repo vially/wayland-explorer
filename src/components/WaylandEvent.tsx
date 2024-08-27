@@ -27,6 +27,15 @@ export const WaylandEvent: React.FC<
             </a>
             {(element.eventType || element.since) && (
                 <div className="flex items-center gap-1">
+                    {element.deprecatedSince && (
+                        <Badge
+                            bgColor="bg-red-500"
+                            textColor="text-white"
+                            fontWeigth="font-bold"
+                        >
+                            Deprecated since {element.deprecatedSince}
+                        </Badge>
+                    )}
                     {element.eventType && (
                         <Badge bgColor="bg-pink-100" textColor="text-pink-800">
                             Type: {element.eventType}

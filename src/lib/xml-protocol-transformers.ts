@@ -18,7 +18,6 @@ export function coerceArray<T = any>(value: T | T[]): T[] {
     return Array.isArray(value) ? value : [value]
 }
 
-
 type WaylandXMLElementTransformer = (xmlData: any) => WaylandElement
 
 const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
@@ -67,6 +66,7 @@ const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
         name: xmlData['name'],
         requestType: xmlData['type'],
         since: xmlData['since'],
+        deprecatedSince: xmlData['deprecated-since'],
         description: transformXMLElement<WaylandDescription>(
             xmlData['description'],
             WaylandElementType.Description
@@ -78,6 +78,7 @@ const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
         name: xmlData['name'],
         eventType: xmlData['type'],
         since: xmlData['since'],
+        deprecatedSince: xmlData['deprecated-since'],
         description: transformXMLElement<WaylandDescription>(
             xmlData['description'],
             WaylandElementType.Description
@@ -101,6 +102,7 @@ const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
         value: xmlData['value'],
         summary: xmlData['summary'],
         since: xmlData['since'],
+        deprecatedSince: xmlData['deprecated-since'],
         description: transformXMLElement<WaylandDescription>(
             xmlData['description'],
             WaylandElementType.Description

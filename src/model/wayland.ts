@@ -44,6 +44,7 @@ export interface WaylandRequest {
     name: string
     requestType?: string
     since?: string
+    deprecatedSince?: string
     description?: WaylandDescription
     args: WaylandArg[]
 }
@@ -53,6 +54,7 @@ export interface WaylandEvent {
     name: string
     eventType?: string
     since?: string
+    deprecatedSince?: string
     description?: WaylandDescription
     args: WaylandArg[]
 }
@@ -72,6 +74,7 @@ export interface WaylandEntry {
     value: string
     summary?: string
     since?: string
+    deprecatedSince?: string
     description?: WaylandDescription
 }
 
