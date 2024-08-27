@@ -38,6 +38,5 @@ function parseList(block: string): { block: string; list?: string[] } {
         return { block };
     }
     const list = block.slice(listStart + 2).split('\n* ');
-    console.log({ block: block.slice(0, listStart) });
     return { block: block.slice(0, listStart), list }
 }
