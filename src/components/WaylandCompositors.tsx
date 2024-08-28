@@ -128,11 +128,13 @@ const CanIUseTable: React.FC<{
                                 <div className="[writing-mode:vertical-rl] rotate-180">
                                     {comp.name}
                                 </div>
-                                <img
-                                    alt={comp.name}
-                                    src={`logos/${comp.icon}.svg`}
-                                    className="w-5 dark:invert"
-                                />
+                                {comp.icon && (
+                                    <img
+                                        alt={comp.name}
+                                        src={`logos/${comp.icon}.svg`}
+                                        className="w-5 dark:invert"
+                                    />
+                                )}
                             </div>
                             <SubTitle compositor={comp} />
                         </th>
