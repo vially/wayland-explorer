@@ -20,8 +20,8 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
 
     return (
         <div>
-            <nav className="hidden sm:flex" aria-label="Breadcrumb">
-                <ol className="flex items-center space-x-2">
+            <nav aria-label="Breadcrumb">
+                <ol className="flex flex-wrap items-center space-x-1 [&>li]:overflow-x-hidden">
                     <li>
                         <div>
                             {metadata.source !==
@@ -32,7 +32,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                                     )}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-sm text-gray-500 hover:text-gray-700"
+                                    className="text-sm/loose text-gray-500 hover:text-gray-700"
                                 >
                                     {metadata.source}
                                 </a>
@@ -67,7 +67,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                                         )}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+                                        className="ml-1 text-sm/loose font-medium text-gray-500 hover:text-gray-700"
                                     >
                                         {metadata.stability}
                                     </a>
@@ -95,7 +95,7 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                                 href={urlForWaylandProtocol(metadata)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700 truncate"
+                                className="ml-1 text-sm font-medium text-gray-500 hover:text-gray-700 truncate"
                             >
                                 {xmlFileBaseName}.xml
                             </a>
@@ -103,11 +103,6 @@ export const Breadcrumbs: React.FC<{ metadata: WaylandProtocolMetadata }> = ({
                     </li>
                 </ol>
             </nav>
-            <div className="sm:hidden">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    {metadata.id}
-                </span>
-            </div>
         </div>
     )
 }
