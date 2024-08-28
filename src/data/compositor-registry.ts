@@ -12,7 +12,7 @@ export interface CompositorInfo {
 export interface CompositorRegistryItem {
     id: string
     name: string
-    icon: string
+    icon?: string
     info: CompositorInfo
 }
 
@@ -46,6 +46,11 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         name: 'Hyprland',
         icon: 'hyprland',
         info: require('./compositors/hyprland.json'),
+    },
+    {
+        id: 'niri',
+        name: 'niri',
+        info: require('./compositors/niri.json'),
     },
     {
         id: 'weston',
