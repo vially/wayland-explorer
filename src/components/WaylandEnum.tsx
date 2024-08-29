@@ -10,7 +10,7 @@ export const WaylandEnum: React.FC<
     WaylandElementProps<WaylandEnumModel> & { interfaceName: string }
 > = ({ element, interfaceName }) => (
     <div>
-        <div className="flex items-center flex-wrap justify-between">
+        <div className="flex items-center flex-wrap justify-between overflow-x-auto">
             <a
                 id={`${interfaceName}:${element.type}:${element.name}`}
                 href={`#${interfaceName}:${element.type}:${element.name}`}
