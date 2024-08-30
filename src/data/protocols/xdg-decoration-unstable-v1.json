@@ -1,1 +1,181 @@
-{"type":"protocol","name":"xdg_decoration_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2018 Simon Ser\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"zxdg_decoration_manager_v1","version":"1","description":{"type":"description","text":"This interface allows a compositor to announce support for server-side\n      decorations.\n\n      A window decoration is a set of window controls as deemed appropriate by\n      the party managing them, such as user interface components used to move,\n      resize and change a window's state.\n\n      A client can use this protocol to request being decorated by a supporting\n      compositor.\n\n      If compositor and client do not negotiate the use of a server-side\n      decoration using this protocol, clients continue to self-decorate as they\n      see fit.\n\n      Warning! The protocol described in this file is experimental and\n      backward incompatible changes may be made. Backward compatible changes\n      may be added together with the corresponding interface version bump.\n      Backward incompatible changes are done by bumping the version number in\n      the protocol and interface names and resetting the interface version.\n      Once the protocol is to be declared stable, the 'z' prefix and the\n      version number in the protocol and interface names are removed and the\n      interface version number is reset.","summary":"window decoration manager"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the decoration manager. This doesn't destroy objects created\n        with the manager.","summary":"destroy the decoration manager object"},"args":[]},{"type":"request","name":"get_toplevel_decoration","description":{"type":"description","text":"Create a new decoration object associated with the given toplevel.\n\n        Creating an xdg_toplevel_decoration from an xdg_toplevel which has a\n        buffer attached or committed is a client error, and any attempts by a\n        client to attach or manipulate a buffer prior to the first\n        xdg_toplevel_decoration.configure event must also be treated as\n        errors.","summary":"create a new toplevel decoration object"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zxdg_toplevel_decoration_v1"},{"type":"arg","name":"toplevel","argType":"object","interface":"xdg_toplevel"}]}],"events":[],"enums":[]},{"type":"interface","name":"zxdg_toplevel_decoration_v1","version":"1","description":{"type":"description","text":"The decoration object allows the compositor to toggle server-side window\n      decorations for a toplevel surface. The client can request to switch to\n      another mode.\n\n      The xdg_toplevel_decoration object must be destroyed before its\n      xdg_toplevel.","summary":"decoration object for a toplevel surface"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Switch back to a mode without any server-side decorations at the next\n        commit.","summary":"destroy the decoration object"},"args":[]},{"type":"request","name":"set_mode","description":{"type":"description","text":"Set the toplevel surface decoration mode. This informs the compositor\n        that the client prefers the provided decoration mode.\n\n        After requesting a decoration mode, the compositor will respond by\n        emitting an xdg_surface.configure event. The client should then update\n        its content, drawing it without decorations if the received mode is\n        server-side decorations. The client must also acknowledge the configure\n        when committing the new content (see xdg_surface.ack_configure).\n\n        The compositor can decide not to use the client's mode and enforce a\n        different mode instead.\n\n        Clients whose decoration mode depend on the xdg_toplevel state may send\n        a set_mode request in response to an xdg_surface.configure event and wait\n        for the next xdg_surface.configure event to prevent unwanted state.\n        Such clients are responsible for preventing configure loops and must\n        make sure not to send multiple successive set_mode requests with the\n        same decoration mode.","summary":"set the decoration mode"},"args":[{"type":"arg","name":"mode","argType":"uint","summary":"the decoration mode","enum":"mode"}]},{"type":"request","name":"unset_mode","description":{"type":"description","text":"Unset the toplevel surface decoration mode. This informs the compositor\n        that the client doesn't prefer a particular decoration mode.\n\n        This request has the same semantics as set_mode.","summary":"unset the decoration mode"},"args":[]}],"events":[{"type":"event","name":"configure","description":{"type":"description","text":"The configure event configures the effective decoration mode. The\n        configured state should not be applied immediately. Clients must send an\n        ack_configure in response to this event. See xdg_surface.configure and\n        xdg_surface.ack_configure for details.\n\n        A configure event can be sent at any time. The specified mode must be\n        obeyed by the client.","summary":"notify a decoration mode change"},"args":[{"type":"arg","name":"mode","argType":"uint","summary":"the decoration mode","enum":"mode"}]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"unconfigured_buffer","value":"0","summary":"xdg_toplevel has a buffer attached before configure"},{"type":"entry","name":"already_constructed","value":"1","summary":"xdg_toplevel already has a decoration object"},{"type":"entry","name":"orphaned","value":"2","summary":"xdg_toplevel destroyed before the decoration object"}]},{"type":"enum","name":"mode","bitfield":false,"description":{"type":"description","text":"These values describe window decoration modes.","summary":"window decoration modes"},"entries":[{"type":"entry","name":"client_side","value":"1","summary":"no server-side window decoration"},{"type":"entry","name":"server_side","value":"2","summary":"server-side window decoration"}]}]}]}
+{
+  "type": "protocol",
+  "name": "xdg_decoration_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 Simon Ser\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zxdg_decoration_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a compositor to announce support for server-side\ndecorations.\n\nA window decoration is a set of window controls as deemed appropriate by\nthe party managing them, such as user interface components used to move,\nresize and change a window's state.\n\nA client can use this protocol to request being decorated by a supporting\ncompositor.\n\nIf compositor and client do not negotiate the use of a server-side\ndecoration using this protocol, clients continue to self-decorate as they\nsee fit.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+        "summary": "window decoration manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the decoration manager. This doesn't destroy objects created\nwith the manager.",
+            "summary": "destroy the decoration manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_toplevel_decoration",
+          "description": {
+            "type": "description",
+            "text": "Create a new decoration object associated with the given toplevel.\n\nCreating an xdg_toplevel_decoration from an xdg_toplevel which has a\nbuffer attached or committed is a client error, and any attempts by a\nclient to attach or manipulate a buffer prior to the first\nxdg_toplevel_decoration.configure event must also be treated as\nerrors.",
+            "summary": "create a new toplevel decoration object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zxdg_toplevel_decoration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zxdg_toplevel_decoration_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The decoration object allows the compositor to toggle server-side window\ndecorations for a toplevel surface. The client can request to switch to\nanother mode.\n\nThe xdg_toplevel_decoration object must be destroyed before its\nxdg_toplevel.",
+        "summary": "decoration object for a toplevel surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Switch back to a mode without any server-side decorations at the next\ncommit.",
+            "summary": "destroy the decoration object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_mode",
+          "description": {
+            "type": "description",
+            "text": "Set the toplevel surface decoration mode. This informs the compositor\nthat the client prefers the provided decoration mode.\n\nAfter requesting a decoration mode, the compositor will respond by\nemitting an xdg_surface.configure event. The client should then update\nits content, drawing it without decorations if the received mode is\nserver-side decorations. The client must also acknowledge the configure\nwhen committing the new content (see xdg_surface.ack_configure).\n\nThe compositor can decide not to use the client's mode and enforce a\ndifferent mode instead.\n\nClients whose decoration mode depend on the xdg_toplevel state may send\na set_mode request in response to an xdg_surface.configure event and wait\nfor the next xdg_surface.configure event to prevent unwanted state.\nSuch clients are responsible for preventing configure loops and must\nmake sure not to send multiple successive set_mode requests with the\nsame decoration mode.",
+            "summary": "set the decoration mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "the decoration mode",
+              "enum": "mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_mode",
+          "description": {
+            "type": "description",
+            "text": "Unset the toplevel surface decoration mode. This informs the compositor\nthat the client doesn't prefer a particular decoration mode.\n\nThis request has the same semantics as set_mode.",
+            "summary": "unset the decoration mode"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "configure",
+          "description": {
+            "type": "description",
+            "text": "The configure event configures the effective decoration mode. The\nconfigured state should not be applied immediately. Clients must send an\nack_configure in response to this event. See xdg_surface.configure and\nxdg_surface.ack_configure for details.\n\nA configure event can be sent at any time. The specified mode must be\nobeyed by the client.",
+            "summary": "notify a decoration mode change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "the decoration mode",
+              "enum": "mode"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unconfigured_buffer",
+              "value": "0",
+              "summary": "xdg_toplevel has a buffer attached before configure"
+            },
+            {
+              "type": "entry",
+              "name": "already_constructed",
+              "value": "1",
+              "summary": "xdg_toplevel already has a decoration object"
+            },
+            {
+              "type": "entry",
+              "name": "orphaned",
+              "value": "2",
+              "summary": "xdg_toplevel destroyed before the decoration object"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These values describe window decoration modes.",
+            "summary": "window decoration modes"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "client_side",
+              "value": "1",
+              "summary": "no server-side window decoration"
+            },
+            {
+              "type": "entry",
+              "name": "server_side",
+              "value": "2",
+              "summary": "server-side window decoration"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

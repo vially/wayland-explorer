@@ -1,1 +1,148 @@
-{"type":"protocol","name":"ivi_hmi_controller","copyright":{"type":"copyright","text":"Copyright (C) 2013 DENSO CORPORATION\n    Copyright (c) 2013 BMW Car IT GmbH\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"ivi_hmi_controller","version":"1","description":{"type":"description","summary":"set up and control IVI style UI"},"requests":[{"type":"request","name":"UI_ready","description":{"type":"description","summary":"inform the ready for drawing desktop."},"args":[]},{"type":"request","name":"workspace_control","description":{"type":"description","text":"Reference protocol to control a surface by server.\n        To control a surface by server, it gives seat to the server\n        to e.g. control Home screen. Home screen has several workspaces\n        to group launchers of wayland application. These workspaces\n        are drawn on a horizontally long surface to be controlled\n        by motion of input device. E.g. A motion from right to left\n        happens, the viewport of surface is controlled in the ivi-shell\n        by using ivi-layout. client can recognizes the end of controlling\n        by event \"workspace_end_control\".","summary":"start controlling a surface by server"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"},{"type":"arg","name":"serial","argType":"uint"}]},{"type":"request","name":"switch_mode","description":{"type":"description","text":"hmi-controller loaded to ivi-shall implements 4 types of layout\n        as a reference; tiling, side by side, full_screen, and random.","summary":"request mode switch of application layout"},"args":[{"type":"arg","name":"layout_mode","argType":"uint"}]},{"type":"request","name":"home","description":{"type":"description","text":"home screen is a reference implementation of launcher to launch\n        wayland applications. The home screen has several workspaces to\n        group wayland applications. By defining the following keys in\n        weston.ini, user can add launcher icon to launch a wayland application\n        to a workspace.\n        [ivi-launcher]\n        workspace-id=0\n\t\t: id of workspace to add a launcher\n        icon-id=4001\n\t\t: ivi id of ivi_surface to draw an icon\n        icon=/home/user/review/build-ivi-shell/data/icon_ivi_flower.png\n\t\t: path to icon image\n        path=/home/user/review/build-ivi-shell/weston-dnd\n\t\t: path to wayland application","summary":"request displaying/undisplaying home screen"},"args":[{"type":"arg","name":"home","argType":"uint"}]}],"events":[{"type":"event","name":"workspace_end_control","description":{"type":"description","summary":"notify controlling workspace end"},"args":[{"type":"arg","name":"is_controlled","argType":"int"}]}],"enums":[{"type":"enum","name":"layout_mode","bitfield":false,"entries":[{"type":"entry","name":"tiling","value":"0"},{"type":"entry","name":"side_by_side","value":"1"},{"type":"entry","name":"full_screen","value":"2"},{"type":"entry","name":"random","value":"3"}]},{"type":"enum","name":"home","bitfield":false,"entries":[{"type":"entry","name":"off","value":"0"},{"type":"entry","name":"on","value":"1"}]}]}]}
+{
+  "type": "protocol",
+  "name": "ivi_hmi_controller",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (C) 2013 DENSO CORPORATION\nCopyright (c) 2013 BMW Car IT GmbH\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "ivi_hmi_controller",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "summary": "set up and control IVI style UI"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "UI_ready",
+          "description": {
+            "type": "description",
+            "summary": "inform the ready for drawing desktop."
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "workspace_control",
+          "description": {
+            "type": "description",
+            "text": "Reference protocol to control a surface by server.\nTo control a surface by server, it gives seat to the server\nto e.g. control Home screen. Home screen has several workspaces\nto group launchers of wayland application. These workspaces\nare drawn on a horizontally long surface to be controlled\nby motion of input device. E.g. A motion from right to left\nhappens, the viewport of surface is controlled in the ivi-shell\nby using ivi-layout. client can recognizes the end of controlling\nby event \"workspace_end_control\".",
+            "summary": "start controlling a surface by server"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "switch_mode",
+          "description": {
+            "type": "description",
+            "text": "hmi-controller loaded to ivi-shall implements 4 types of layout\nas a reference; tiling, side by side, full_screen, and random.",
+            "summary": "request mode switch of application layout"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "layout_mode",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "home",
+          "description": {
+            "type": "description",
+            "text": "home screen is a reference implementation of launcher to launch\nwayland applications. The home screen has several workspaces to\ngroup wayland applications. By defining the following keys in\nweston.ini, user can add launcher icon to launch a wayland application\nto a workspace.\n[ivi-launcher]\nworkspace-id=0\n: id of workspace to add a launcher\nicon-id=4001\n: ivi id of ivi_surface to draw an icon\nicon=/home/user/review/build-ivi-shell/data/icon_ivi_flower.png\n: path to icon image\npath=/home/user/review/build-ivi-shell/weston-dnd\n: path to wayland application",
+            "summary": "request displaying/undisplaying home screen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "home",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "workspace_end_control",
+          "description": {
+            "type": "description",
+            "summary": "notify controlling workspace end"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "is_controlled",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "layout_mode",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "tiling",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "side_by_side",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "full_screen",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "random",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "home",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "off",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "on",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,272 @@
-{"type":"protocol","name":"stream","copyright":{"type":"copyright","text":"Copyright (c) 2014-2019, NVIDIA CORPORATION. All rights reserved.\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice shall be included in\n    all copies or substantial portions of the Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"wl_eglstream","version":"1","requests":[],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"bad_alloc","value":"0","summary":"Bad allocation error"},{"type":"entry","name":"bad_handle","value":"1","summary":"Bad handle error"},{"type":"entry","name":"bad_attribs","value":"2","summary":"Bad attributes error"},{"type":"entry","name":"bad_address","value":"3","summary":"Bad IP address error"}]},{"type":"enum","name":"handle_type","bitfield":false,"description":{"type":"description","text":"- fd:     The given handle represents a file descriptor, and the\n                    EGLStream connection must be done as described in\n                    EGL_KHR_stream_cross_process_fd\n\n          - inet:   The EGLStream connection must be done using an inet address\n                    and port as described in EGL_NV_stream_socket. The given\n                    handle can be ignored, but both inet address and port must\n                    be given as attributes.\n\n          - socket: The given handle represents a unix socket, and the EGLStream\n                    connection must be done as described in EGL_NV_stream_socket.","summary":"Stream handle type"},"entries":[{"type":"entry","name":"fd","value":"0","summary":"File descriptor"},{"type":"entry","name":"inet","value":"1","summary":"Inet connection"},{"type":"entry","name":"socket","value":"2","summary":"Unix socket"}]},{"type":"enum","name":"attrib","bitfield":false,"description":{"type":"description","text":"- inet_addr:  The given attribute encodes an IPv4 address of a client\n                      socket. Both IPv4 address and port must be set at the same\n                      time.\n\n        - inet_port:  The given attribute encodes a port of a client socket.\n                      Both IPv4 address and port must be set at the same time.\n\n        - y_inverted: The given attribute encodes the default value for a\n                      stream's image inversion relative to wayland protocol\n                      convention. Vulkan apps will be set to 'true', while\n                      OpenGL apps will be set to 'false'.\n                      NOTE: EGL_NV_stream_origin is the authorative source of\n                      truth regarding a stream's frame orientation and should be\n                      queried for an accurate value. The given attribute is a\n                      'best guess' fallback mechanism which should only be used\n                      when a query to EGL_NV_stream_origin fails.","summary":"Stream creation attributes"},"entries":[{"type":"entry","name":"inet_addr","value":"0","summary":"Inet IPv4 address"},{"type":"entry","name":"inet_port","value":"1","summary":"IP port"},{"type":"entry","name":"y_inverted","value":"2","summary":"Image Y-inversion bit"}]}]},{"type":"interface","name":"wl_eglstream_display","version":"1","requests":[{"type":"request","name":"create_stream","description":{"type":"description","text":"Create a wl_buffer corresponding to given handle. The attributes list\n        may be used to define additional EGLStream connection data (e.g inet\n        address/port). The server can create its EGLStream handle using the\n        information encoded in the wl_buffer.","summary":"Create a wl_buffer from the given handle"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"New ID","interface":"wl_buffer"},{"type":"arg","name":"width","argType":"int","summary":"Stream framebuffer width"},{"type":"arg","name":"height","argType":"int","summary":"Stream framebuffer height"},{"type":"arg","name":"handle","argType":"fd","summary":"Handle for the stream creation"},{"type":"arg","name":"type","argType":"int","summary":"Handle type"},{"type":"arg","name":"attribs","argType":"array","summary":"Stream extra connection attribs","description":{"type":"description","text":"It contains key-value pairs compatible with intptr_t type. A key must\n          be one of wl_eglstream_display_attrib enumeration values. What a value\n          represents is attribute-specific.","summary":"List of attributes with extra connection data"}}]},{"type":"request","name":"swap_interval","description":{"type":"description","text":"Set the swap interval for the consumer of the given EGLStream. The swap\n        interval is silently clamped to the valid range on the server side.","summary":"change the swap interval of an EGLStream consumer"},"args":[{"type":"arg","name":"stream","argType":"object","summary":"wl_buffer corresponding to an EGLStream","interface":"wl_buffer"},{"type":"arg","name":"interval","argType":"int","summary":"new swap interval"}]}],"events":[{"type":"event","name":"caps","description":{"type":"description","text":"The capabilities event is sent out at wl_eglstream_display binding\n        time. It allows the server to advertise what features it supports so\n        clients may know what is safe to be used.","summary":"Server capabilities event"},"args":[{"type":"arg","name":"caps","argType":"int","summary":"Capabilities mask"}]},{"type":"event","name":"swapinterval_override","description":{"type":"description","text":"The swapinterval_override event is sent out whenever a client requests\n        a swapinterval setting through swap_interval() and there is an override\n        in place that will make such request to be ignored.\n        The swapinterval_override event will provide the override value so\n        that the client is made aware of it.","summary":"Server Swap interval override event"},"args":[{"type":"arg","name":"swapinterval","argType":"int","summary":"Server swap interval override value"},{"type":"arg","name":"stream","argType":"object","summary":"wl_buffer corresponding to an EGLStream","interface":"wl_buffer"}]}],"enums":[{"type":"enum","name":"cap","bitfield":false,"description":{"type":"description","text":"This enum values should be used as bit masks.\n\n        - stream_fd:     The server supports EGLStream connections as described\n                         in EGL_KHR_stream_cross_process_fd\n\n        - stream_inet:   The server supports EGLStream inet connections as\n                         described in EGL_NV_stream_socket.\n\n        - stream_socket: The server supports EGLStream unix socket connections\n                         as described in EGL_NV_stream_socket.","summary":"wl_eglstream_display capability codes"},"entries":[{"type":"entry","name":"stream_fd","value":"1","summary":"Stream connection with FD"},{"type":"entry","name":"stream_inet","value":"2","summary":"Stream inet connection"},{"type":"entry","name":"stream_socket","value":"4","summary":"Stream unix connection"}]}]}]}
+{
+  "type": "protocol",
+  "name": "stream",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (c) 2014-2019, NVIDIA CORPORATION. All rights reserved.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wl_eglstream",
+      "version": "1",
+      "requests": [],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "bad_alloc",
+              "value": "0",
+              "summary": "Bad allocation error"
+            },
+            {
+              "type": "entry",
+              "name": "bad_handle",
+              "value": "1",
+              "summary": "Bad handle error"
+            },
+            {
+              "type": "entry",
+              "name": "bad_attribs",
+              "value": "2",
+              "summary": "Bad attributes error"
+            },
+            {
+              "type": "entry",
+              "name": "bad_address",
+              "value": "3",
+              "summary": "Bad IP address error"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "handle_type",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "- fd:     The given handle represents a file descriptor, and the\nEGLStream connection must be done as described in\nEGL_KHR_stream_cross_process_fd\n\n- inet:   The EGLStream connection must be done using an inet address\nand port as described in EGL_NV_stream_socket. The given\nhandle can be ignored, but both inet address and port must\nbe given as attributes.\n\n- socket: The given handle represents a unix socket, and the EGLStream\nconnection must be done as described in EGL_NV_stream_socket.",
+            "summary": "Stream handle type"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "fd",
+              "value": "0",
+              "summary": "File descriptor"
+            },
+            {
+              "type": "entry",
+              "name": "inet",
+              "value": "1",
+              "summary": "Inet connection"
+            },
+            {
+              "type": "entry",
+              "name": "socket",
+              "value": "2",
+              "summary": "Unix socket"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "attrib",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "- inet_addr:  The given attribute encodes an IPv4 address of a client\nsocket. Both IPv4 address and port must be set at the same\ntime.\n\n- inet_port:  The given attribute encodes a port of a client socket.\nBoth IPv4 address and port must be set at the same time.\n\n- y_inverted: The given attribute encodes the default value for a\nstream's image inversion relative to wayland protocol\nconvention. Vulkan apps will be set to 'true', while\nOpenGL apps will be set to 'false'.\nNOTE: EGL_NV_stream_origin is the authorative source of\ntruth regarding a stream's frame orientation and should be\nqueried for an accurate value. The given attribute is a\n'best guess' fallback mechanism which should only be used\nwhen a query to EGL_NV_stream_origin fails.",
+            "summary": "Stream creation attributes"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "inet_addr",
+              "value": "0",
+              "summary": "Inet IPv4 address"
+            },
+            {
+              "type": "entry",
+              "name": "inet_port",
+              "value": "1",
+              "summary": "IP port"
+            },
+            {
+              "type": "entry",
+              "name": "y_inverted",
+              "value": "2",
+              "summary": "Image Y-inversion bit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "wl_eglstream_display",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_stream",
+          "description": {
+            "type": "description",
+            "text": "Create a wl_buffer corresponding to given handle. The attributes list\nmay be used to define additional EGLStream connection data (e.g inet\naddress/port). The server can create its EGLStream handle using the\ninformation encoded in the wl_buffer.",
+            "summary": "Create a wl_buffer from the given handle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "New ID",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "Stream framebuffer width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "Stream framebuffer height"
+            },
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "fd",
+              "summary": "Handle for the stream creation"
+            },
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "int",
+              "summary": "Handle type"
+            },
+            {
+              "type": "arg",
+              "name": "attribs",
+              "argType": "array",
+              "summary": "Stream extra connection attribs",
+              "description": {
+                "type": "description",
+                "text": "It contains key-value pairs compatible with intptr_t type. A key must\nbe one of wl_eglstream_display_attrib enumeration values. What a value\nrepresents is attribute-specific.",
+                "summary": "List of attributes with extra connection data"
+              }
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "swap_interval",
+          "description": {
+            "type": "description",
+            "text": "Set the swap interval for the consumer of the given EGLStream. The swap\ninterval is silently clamped to the valid range on the server side.",
+            "summary": "change the swap interval of an EGLStream consumer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "object",
+              "summary": "wl_buffer corresponding to an EGLStream",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "interval",
+              "argType": "int",
+              "summary": "new swap interval"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "caps",
+          "description": {
+            "type": "description",
+            "text": "The capabilities event is sent out at wl_eglstream_display binding\ntime. It allows the server to advertise what features it supports so\nclients may know what is safe to be used.",
+            "summary": "Server capabilities event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "caps",
+              "argType": "int",
+              "summary": "Capabilities mask"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "swapinterval_override",
+          "description": {
+            "type": "description",
+            "text": "The swapinterval_override event is sent out whenever a client requests\na swapinterval setting through swap_interval() and there is an override\nin place that will make such request to be ignored.\nThe swapinterval_override event will provide the override value so\nthat the client is made aware of it.",
+            "summary": "Server Swap interval override event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "swapinterval",
+              "argType": "int",
+              "summary": "Server swap interval override value"
+            },
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "object",
+              "summary": "wl_buffer corresponding to an EGLStream",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "cap",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "This enum values should be used as bit masks.\n\n- stream_fd:     The server supports EGLStream connections as described\nin EGL_KHR_stream_cross_process_fd\n\n- stream_inet:   The server supports EGLStream inet connections as\ndescribed in EGL_NV_stream_socket.\n\n- stream_socket: The server supports EGLStream unix socket connections\nas described in EGL_NV_stream_socket.",
+            "summary": "wl_eglstream_display capability codes"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "stream_fd",
+              "value": "1",
+              "summary": "Stream connection with FD"
+            },
+            {
+              "type": "entry",
+              "name": "stream_inet",
+              "value": "2",
+              "summary": "Stream inet connection"
+            },
+            {
+              "type": "entry",
+              "name": "stream_socket",
+              "value": "4",
+              "summary": "Stream unix connection"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

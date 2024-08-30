@@ -1,1 +1,362 @@
-{"type":"protocol","name":"wlr_virtual_pointer_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2019 Josef Gajdusek\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"zwlr_virtual_pointer_v1","version":"2","description":{"type":"description","text":"This protocol allows clients to emulate a physical pointer device. The\n      requests are mostly mirror opposites of those specified in wl_pointer.","summary":"virtual pointer"},"requests":[{"type":"request","name":"motion","description":{"type":"description","text":"The pointer has moved by a relative amount to the previous request.\n\n        Values are in the global compositor space.","summary":"pointer relative motion event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"dx","argType":"fixed","summary":"displacement on the x-axis"},{"type":"arg","name":"dy","argType":"fixed","summary":"displacement on the y-axis"}]},{"type":"request","name":"motion_absolute","description":{"type":"description","text":"The pointer has moved in an absolute coordinate frame.\n\n        Value of x can range from 0 to x_extent, value of y can range from 0\n        to y_extent.","summary":"pointer absolute motion event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"x","argType":"uint","summary":"position on the x-axis"},{"type":"arg","name":"y","argType":"uint","summary":"position on the y-axis"},{"type":"arg","name":"x_extent","argType":"uint","summary":"extent of the x-axis"},{"type":"arg","name":"y_extent","argType":"uint","summary":"extent of the y-axis"}]},{"type":"request","name":"button","description":{"type":"description","text":"A button was pressed or released.","summary":"button event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"button","argType":"uint","summary":"button that produced the event"},{"type":"arg","name":"state","argType":"uint","summary":"physical state of the button","enum":"wl_pointer.button_state"}]},{"type":"request","name":"axis","description":{"type":"description","text":"Scroll and other axis requests.","summary":"axis event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"axis","argType":"uint","summary":"axis type","enum":"wl_pointer.axis"},{"type":"arg","name":"value","argType":"fixed","summary":"length of vector in touchpad coordinates"}]},{"type":"request","name":"frame","description":{"type":"description","text":"Indicates the set of events that logically belong together.","summary":"end of a pointer event sequence"},"args":[]},{"type":"request","name":"axis_source","description":{"type":"description","text":"Source information for scroll and other axis.","summary":"axis source event"},"args":[{"type":"arg","name":"axis_source","argType":"uint","summary":"source of the axis event","enum":"wl_pointer.axis_source"}]},{"type":"request","name":"axis_stop","description":{"type":"description","text":"Stop notification for scroll and other axes.","summary":"axis stop event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"axis","argType":"uint","summary":"the axis stopped with this event","enum":"wl_pointer.axis"}]},{"type":"request","name":"axis_discrete","description":{"type":"description","text":"Discrete step information for scroll and other axes.\n\n        This event allows the client to extend data normally sent using the axis\n        event with discrete value.","summary":"axis click event"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"axis","argType":"uint","summary":"axis type","enum":"wl_pointer.axis"},{"type":"arg","name":"value","argType":"fixed","summary":"length of vector in touchpad coordinates"},{"type":"arg","name":"discrete","argType":"int","summary":"number of steps"}]},{"type":"request","name":"destroy","requestType":"destructor","since":"1","description":{"type":"description","summary":"destroy the virtual pointer object"},"args":[]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_axis","value":"0","summary":"client sent invalid axis enumeration value"},{"type":"entry","name":"invalid_axis_source","value":"1","summary":"client sent invalid axis source enumeration value"}]}]},{"type":"interface","name":"zwlr_virtual_pointer_manager_v1","version":"2","description":{"type":"description","text":"This object allows clients to create individual virtual pointer objects.","summary":"virtual pointer manager"},"requests":[{"type":"request","name":"create_virtual_pointer","description":{"type":"description","text":"Creates a new virtual pointer. The optional seat is a suggestion to the\n        compositor.","summary":"Create a new virtual pointer"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat","allowNull":"true"},{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_virtual_pointer_v1"}]},{"type":"request","name":"destroy","requestType":"destructor","since":"1","description":{"type":"description","summary":"destroy the virtual pointer manager"},"args":[]},{"type":"request","name":"create_virtual_pointer_with_output","since":"2","description":{"type":"description","text":"Creates a new virtual pointer. The seat and the output arguments are\n        optional. If the seat argument is set, the compositor should assign the\n        input device to the requested seat. If the output argument is set, the\n        compositor should map the input device to the requested output.","summary":"Create a new virtual pointer"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat","allowNull":"true"},{"type":"arg","name":"output","argType":"object","interface":"wl_output","allowNull":"true"},{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_virtual_pointer_v1"}]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "wlr_virtual_pointer_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2019 Josef Gajdusek\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwlr_virtual_pointer_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This protocol allows clients to emulate a physical pointer device. The\nrequests are mostly mirror opposites of those specified in wl_pointer.",
+        "summary": "virtual pointer"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "motion",
+          "description": {
+            "type": "description",
+            "text": "The pointer has moved by a relative amount to the previous request.\n\nValues are in the global compositor space.",
+            "summary": "pointer relative motion event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed",
+              "summary": "displacement on the x-axis"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed",
+              "summary": "displacement on the y-axis"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "motion_absolute",
+          "description": {
+            "type": "description",
+            "text": "The pointer has moved in an absolute coordinate frame.\n\nValue of x can range from 0 to x_extent, value of y can range from 0\nto y_extent.",
+            "summary": "pointer absolute motion event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "uint",
+              "summary": "position on the x-axis"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "uint",
+              "summary": "position on the y-axis"
+            },
+            {
+              "type": "arg",
+              "name": "x_extent",
+              "argType": "uint",
+              "summary": "extent of the x-axis"
+            },
+            {
+              "type": "arg",
+              "name": "y_extent",
+              "argType": "uint",
+              "summary": "extent of the y-axis"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "button",
+          "description": {
+            "type": "description",
+            "text": "A button was pressed or released.",
+            "summary": "button event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint",
+              "summary": "button that produced the event"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "physical state of the button",
+              "enum": "wl_pointer.button_state",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "axis",
+          "description": {
+            "type": "description",
+            "text": "Scroll and other axis requests.",
+            "summary": "axis event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "axis",
+              "argType": "uint",
+              "summary": "axis type",
+              "enum": "wl_pointer.axis",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "fixed",
+              "summary": "length of vector in touchpad coordinates"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "frame",
+          "description": {
+            "type": "description",
+            "text": "Indicates the set of events that logically belong together.",
+            "summary": "end of a pointer event sequence"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "axis_source",
+          "description": {
+            "type": "description",
+            "text": "Source information for scroll and other axis.",
+            "summary": "axis source event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "axis_source",
+              "argType": "uint",
+              "summary": "source of the axis event",
+              "enum": "wl_pointer.axis_source",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "axis_stop",
+          "description": {
+            "type": "description",
+            "text": "Stop notification for scroll and other axes.",
+            "summary": "axis stop event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "axis",
+              "argType": "uint",
+              "summary": "the axis stopped with this event",
+              "enum": "wl_pointer.axis",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "axis_discrete",
+          "description": {
+            "type": "description",
+            "text": "Discrete step information for scroll and other axes.\n\nThis event allows the client to extend data normally sent using the axis\nevent with discrete value.",
+            "summary": "axis click event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "axis",
+              "argType": "uint",
+              "summary": "axis type",
+              "enum": "wl_pointer.axis",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "fixed",
+              "summary": "length of vector in touchpad coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "discrete",
+              "argType": "int",
+              "summary": "number of steps"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the virtual pointer object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_axis",
+              "value": "0",
+              "summary": "client sent invalid axis enumeration value"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_axis_source",
+              "value": "1",
+              "summary": "client sent invalid axis source enumeration value"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_virtual_pointer_manager_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This object allows clients to create individual virtual pointer objects.",
+        "summary": "virtual pointer manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_virtual_pointer",
+          "description": {
+            "type": "description",
+            "text": "Creates a new virtual pointer. The optional seat is a suggestion to the\ncompositor.",
+            "summary": "Create a new virtual pointer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_virtual_pointer_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the virtual pointer manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_virtual_pointer_with_output",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Creates a new virtual pointer. The seat and the output arguments are\noptional. If the seat argument is set, the compositor should assign the\ninput device to the requested seat. If the output argument is set, the\ncompositor should map the input device to the requested output.",
+            "summary": "Create a new virtual pointer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_virtual_pointer_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

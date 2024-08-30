@@ -1,1 +1,179 @@
-{"type":"protocol","name":"server_decoration","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2015 Martin Gräßlin\n\n    SPDX-License-Identifier: LGPL-2.1-or-later\n  "},"interfaces":[{"type":"interface","name":"org_kde_kwin_server_decoration_manager","version":"1","description":{"type":"description","text":"This interface allows to coordinate whether the server should create\n        a server-side window decoration around a wl_surface representing a\n        shell surface (wl_shell_surface or similar). By announcing support\n        for this interface the server indicates that it supports server\n        side decorations.\n\n        Use in conjunction with zxdg_decoration_manager_v1 is undefined.","summary":"Server side window decoration manager"},"requests":[{"type":"request","name":"create","description":{"type":"description","text":"When a client creates a server-side decoration object it indicates\n            that it supports the protocol. The client is supposed to tell the\n            server whether it wants server-side decorations or will provide\n            client-side decorations.\n\n            If the client does not create a server-side decoration object for\n            a surface the server interprets this as lack of support for this\n            protocol and considers it as client-side decorated. Nevertheless a\n            client-side decorated surface should use this protocol to indicate\n            to the server that it does not want a server-side deco.","summary":"Create a server-side decoration object for a given surface"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"org_kde_kwin_server_decoration"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]}],"events":[{"type":"event","name":"default_mode","description":{"type":"description","text":"This event is emitted directly after binding the interface. It contains\n              the default mode for the decoration. When a new server decoration object\n              is created this new object will be in the default mode until the first\n              request_mode is requested.\n\n              The server may change the default mode at any time.","summary":"The default mode used on the server"},"args":[{"type":"arg","name":"mode","argType":"uint","summary":"The default decoration mode applied to newly created server decorations."}]}],"enums":[{"type":"enum","name":"mode","bitfield":false,"description":{"type":"description","summary":"Possible values to use in request_mode and the event mode."},"entries":[{"type":"entry","name":"None","value":"0","summary":"Undecorated: The surface is not decorated at all, neither server nor client-side. An example is a popup surface which should not be decorated."},{"type":"entry","name":"Client","value":"1","summary":"Client-side decoration: The decoration is part of the surface and the client."},{"type":"entry","name":"Server","value":"2","summary":"Server-side decoration: The server embeds the surface into a decoration frame."}]}]},{"type":"interface","name":"org_kde_kwin_server_decoration","version":"1","requests":[{"type":"request","name":"release","requestType":"destructor","description":{"type":"description","summary":"release the server decoration object"},"args":[]},{"type":"request","name":"request_mode","description":{"type":"description","summary":"The decoration mode the surface wants to use."},"args":[{"type":"arg","name":"mode","argType":"uint","summary":"The mode this surface wants to use."}]}],"events":[{"type":"event","name":"mode","description":{"type":"description","text":"This event is emitted directly after the decoration is created and\n              represents the base decoration policy by the server. E.g. a server\n              which wants all surfaces to be client-side decorated will send Client,\n              a server which wants server-side decoration will send Server.\n\n              The client can request a different mode through the decoration request.\n              The server will acknowledge this by another event with the same mode. So\n              even if a server prefers server-side decoration it's possible to force a\n              client-side decoration.\n\n              The server may emit this event at any time. In this case the client can\n              again request a different mode. It's the responsibility of the server to\n              prevent a feedback loop.","summary":"The new decoration mode applied by the server"},"args":[{"type":"arg","name":"mode","argType":"uint","summary":"The decoration mode applied to the surface by the server."}]}],"enums":[{"type":"enum","name":"mode","bitfield":false,"description":{"type":"description","summary":"Possible values to use in request_mode and the event mode."},"entries":[{"type":"entry","name":"None","value":"0","summary":"Undecorated: The surface is not decorated at all, neither server nor client-side. An example is a popup surface which should not be decorated."},{"type":"entry","name":"Client","value":"1","summary":"Client-side decoration: The decoration is part of the surface and the client."},{"type":"entry","name":"Server","value":"2","summary":"Server-side decoration: The server embeds the surface into a decoration frame."}]}]}]}
+{
+  "type": "protocol",
+  "name": "server_decoration",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2015 Martin Gräßlin\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_server_decoration_manager",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows to coordinate whether the server should create\na server-side window decoration around a wl_surface representing a\nshell surface (wl_shell_surface or similar). By announcing support\nfor this interface the server indicates that it supports server\nside decorations.\n\nUse in conjunction with zxdg_decoration_manager_v1 is undefined.",
+        "summary": "Server side window decoration manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create",
+          "description": {
+            "type": "description",
+            "text": "When a client creates a server-side decoration object it indicates\nthat it supports the protocol. The client is supposed to tell the\nserver whether it wants server-side decorations or will provide\nclient-side decorations.\n\nIf the client does not create a server-side decoration object for\na surface the server interprets this as lack of support for this\nprotocol and considers it as client-side decorated. Nevertheless a\nclient-side decorated surface should use this protocol to indicate\nto the server that it does not want a server-side deco.",
+            "summary": "Create a server-side decoration object for a given surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "org_kde_kwin_server_decoration"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "default_mode",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted directly after binding the interface. It contains\nthe default mode for the decoration. When a new server decoration object\nis created this new object will be in the default mode until the first\nrequest_mode is requested.\n\nThe server may change the default mode at any time.",
+            "summary": "The default mode used on the server"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "The default decoration mode applied to newly created server decorations."
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "Possible values to use in request_mode and the event mode."
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "None",
+              "value": "0",
+              "summary": "Undecorated: The surface is not decorated at all, neither server nor client-side. An example is a popup surface which should not be decorated."
+            },
+            {
+              "type": "entry",
+              "name": "Client",
+              "value": "1",
+              "summary": "Client-side decoration: The decoration is part of the surface and the client."
+            },
+            {
+              "type": "entry",
+              "name": "Server",
+              "value": "2",
+              "summary": "Server-side decoration: The server embeds the surface into a decoration frame."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_server_decoration",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "release the server decoration object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "request_mode",
+          "description": {
+            "type": "description",
+            "summary": "The decoration mode the surface wants to use."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "The mode this surface wants to use."
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "mode",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted directly after the decoration is created and\nrepresents the base decoration policy by the server. E.g. a server\nwhich wants all surfaces to be client-side decorated will send Client,\na server which wants server-side decoration will send Server.\n\nThe client can request a different mode through the decoration request.\nThe server will acknowledge this by another event with the same mode. So\neven if a server prefers server-side decoration it's possible to force a\nclient-side decoration.\n\nThe server may emit this event at any time. In this case the client can\nagain request a different mode. It's the responsibility of the server to\nprevent a feedback loop.",
+            "summary": "The new decoration mode applied by the server"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "The decoration mode applied to the surface by the server."
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "Possible values to use in request_mode and the event mode."
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "None",
+              "value": "0",
+              "summary": "Undecorated: The surface is not decorated at all, neither server nor client-side. An example is a popup surface which should not be decorated."
+            },
+            {
+              "type": "entry",
+              "name": "Client",
+              "value": "1",
+              "summary": "Client-side decoration: The decoration is part of the surface and the client."
+            },
+            {
+              "type": "entry",
+              "name": "Server",
+              "value": "2",
+              "summary": "Server-side decoration: The server embeds the surface into a decoration frame."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

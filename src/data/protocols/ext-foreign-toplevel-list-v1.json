@@ -1,1 +1,172 @@
-{"type":"protocol","name":"ext_foreign_toplevel_list_v1","copyright":{"type":"copyright","text":"Copyright © 2018 Ilia Bozhinov\n    Copyright © 2020 Isaac Freund\n    Copyright © 2022 wb9688\n    Copyright © 2023 i509VCB\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"description":{"type":"description","text":"The purpose of this protocol is to provide protocol object handles for\n    toplevels, possibly originating from another client.\n\n    This protocol is intentionally minimalistic and expects additional\n    functionality (e.g. creating a screencopy source from a toplevel handle,\n    getting information about the state of the toplevel) to be implemented\n    in extension protocols.\n\n    The compositor may choose to restrict this protocol to a special client\n    launched by the compositor itself or expose it to all clients,\n    this is compositor policy.\n\n    The key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n    \"should\", \"should not\", \"recommended\",  \"may\", and \"optional\" in this\n    document are to be interpreted as described in IETF RFC 2119.\n\n    Warning! The protocol described in this file is currently in the testing\n    phase. Backward compatible changes may be added together with the\n    corresponding interface version bump. Backward incompatible changes can\n    only be done by creating a new major version of the extension.","summary":"list toplevels"},"interfaces":[{"type":"interface","name":"ext_foreign_toplevel_list_v1","version":"1","description":{"type":"description","text":"A toplevel is defined as a surface with a role similar to xdg_toplevel.\n      XWayland surfaces may be treated like toplevels in this protocol.\n\n      After a client binds the ext_foreign_toplevel_list_v1, each mapped\n      toplevel window will be sent using the ext_foreign_toplevel_list_v1.toplevel\n      event.\n\n      Clients which only care about the current state can perform a roundtrip after\n      binding this global.\n\n      For each instance of ext_foreign_toplevel_list_v1, the compositor must\n      create a new ext_foreign_toplevel_handle_v1 object for each mapped toplevel.\n\n      If a compositor implementation sends the ext_foreign_toplevel_list_v1.finished\n      event after the global is bound, the compositor must not send any\n      ext_foreign_toplevel_list_v1.toplevel events.","summary":"list toplevels"},"requests":[{"type":"request","name":"stop","description":{"type":"description","text":"This request indicates that the client no longer wishes to receive\n        events for new toplevels.\n\n        The Wayland protocol is asynchronous, meaning the compositor may send\n        further toplevel events until the stop request is processed.\n        The client should wait for a ext_foreign_toplevel_list_v1.finished\n        event before destroying this object.","summary":"stop sending events"},"args":[]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"This request should be called either when the client will no longer\n        use the ext_foreign_toplevel_list_v1 or after the finished event\n        has been received to allow destruction of the object.\n\n        If a client wishes to destroy this object it should send a\n        ext_foreign_toplevel_list_v1.stop request and wait for a ext_foreign_toplevel_list_v1.finished\n        event, then destroy the handles and then this object.","summary":"destroy the ext_foreign_toplevel_list_v1 object"},"args":[]}],"events":[{"type":"event","name":"toplevel","description":{"type":"description","text":"This event is emitted whenever a new toplevel window is created. It is\n        emitted for all toplevels, regardless of the app that has created them.\n\n        All initial properties of the toplevel (identifier, title, app_id) will be sent\n        immediately after this event using the corresponding events for\n        ext_foreign_toplevel_handle_v1. The compositor will use the\n        ext_foreign_toplevel_handle_v1.done event to indicate when all data has\n        been sent.","summary":"a toplevel has been created"},"args":[{"type":"arg","name":"toplevel","argType":"new_id","interface":"ext_foreign_toplevel_handle_v1"}]},{"type":"event","name":"finished","description":{"type":"description","text":"This event indicates that the compositor is done sending events\n        to this object. The client should destroy the object.\n        See ext_foreign_toplevel_list_v1.destroy for more information.\n\n        The compositor must not send any more toplevel events after this event.","summary":"the compositor has finished with the toplevel manager"},"args":[]}],"enums":[]},{"type":"interface","name":"ext_foreign_toplevel_handle_v1","version":"1","description":{"type":"description","text":"A ext_foreign_toplevel_handle_v1 object represents a mapped toplevel\n      window. A single app may have multiple mapped toplevels.","summary":"a mapped toplevel"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"This request should be used when the client will no longer use the handle\n        or after the closed event has been received to allow destruction of the\n        object.\n\n        When a handle is destroyed, a new handle may not be created by the server\n        until the toplevel is unmapped and then remapped. Destroying a toplevel handle\n        is not recommended unless the client is cleaning up child objects\n        before destroying the ext_foreign_toplevel_list_v1 object, the toplevel\n        was closed or the toplevel handle will not be used in the future.\n\n        Other protocols which extend the ext_foreign_toplevel_handle_v1\n        interface should require destructors for extension interfaces be\n        called before allowing the toplevel handle to be destroyed.","summary":"destroy the ext_foreign_toplevel_handle_v1 object"},"args":[]}],"events":[{"type":"event","name":"closed","description":{"type":"description","text":"The server will emit no further events on the ext_foreign_toplevel_handle_v1\n        after this event. Any requests received aside from the destroy request must\n        be ignored. Upon receiving this event, the client should destroy the handle.\n\n        Other protocols which extend the ext_foreign_toplevel_handle_v1\n        interface must also ignore requests other than destructors.","summary":"the toplevel has been closed"},"args":[]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent after all changes in the toplevel state have\n        been sent.\n\n        This allows changes to the ext_foreign_toplevel_handle_v1 properties\n        to be atomically applied. Other protocols which extend the\n        ext_foreign_toplevel_handle_v1 interface may use this event to also\n        atomically apply any pending state.\n\n        This event must not be sent after the ext_foreign_toplevel_handle_v1.closed\n        event.","summary":"all information about the toplevel has been sent"},"args":[]},{"type":"event","name":"title","description":{"type":"description","text":"The title of the toplevel has changed.\n\n        The configured state must not be applied immediately. See\n        ext_foreign_toplevel_handle_v1.done for details.","summary":"title change"},"args":[{"type":"arg","name":"title","argType":"string"}]},{"type":"event","name":"app_id","description":{"type":"description","text":"The app id of the toplevel has changed.\n\n        The configured state must not be applied immediately. See\n        ext_foreign_toplevel_handle_v1.done for details.","summary":"app_id change"},"args":[{"type":"arg","name":"app_id","argType":"string"}]},{"type":"event","name":"identifier","description":{"type":"description","text":"This identifier is used to check if two or more toplevel handles belong\n        to the same toplevel.\n\n        The identifier is useful for command line tools or privileged clients\n        which may need to reference an exact toplevel across processes or\n        instances of the ext_foreign_toplevel_list_v1 global.\n\n        The compositor must only send this event when the handle is created.\n\n        The identifier must be unique per toplevel and it's handles. Two different\n        toplevels must not have the same identifier. The identifier is only valid\n        as long as the toplevel is mapped. If the toplevel is unmapped the identifier\n        must not be reused. An identifier must not be reused by the compositor to\n        ensure there are no races when sharing identifiers between processes.\n\n        An identifier is a string that contains up to 32 printable ASCII bytes.\n        An identifier must not be an empty string. It is recommended that a\n        compositor includes an opaque generation value in identifiers. How the\n        generation value is used when generating the identifier is implementation\n        dependent.","summary":"a stable identifier for a toplevel"},"args":[{"type":"arg","name":"identifier","argType":"string"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "ext_foreign_toplevel_list_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopyright © 2022 wb9688\nCopyright © 2023 i509VCB\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "The purpose of this protocol is to provide protocol object handles for\ntoplevels, possibly originating from another client.\n\nThis protocol is intentionally minimalistic and expects additional\nfunctionality (e.g. creating a screencopy source from a toplevel handle,\ngetting information about the state of the toplevel) to be implemented\nin extension protocols.\n\nThe compositor may choose to restrict this protocol to a special client\nlaunched by the compositor itself or expose it to all clients,\nthis is compositor policy.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\",  \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "list toplevels"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "ext_foreign_toplevel_list_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A toplevel is defined as a surface with a role similar to xdg_toplevel.\nXWayland surfaces may be treated like toplevels in this protocol.\n\nAfter a client binds the ext_foreign_toplevel_list_v1, each mapped\ntoplevel window will be sent using the ext_foreign_toplevel_list_v1.toplevel\nevent.\n\nClients which only care about the current state can perform a roundtrip after\nbinding this global.\n\nFor each instance of ext_foreign_toplevel_list_v1, the compositor must\ncreate a new ext_foreign_toplevel_handle_v1 object for each mapped toplevel.\n\nIf a compositor implementation sends the ext_foreign_toplevel_list_v1.finished\nevent after the global is bound, the compositor must not send any\next_foreign_toplevel_list_v1.toplevel events.",
+        "summary": "list toplevels"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wishes to receive\nevents for new toplevels.\n\nThe Wayland protocol is asynchronous, meaning the compositor may send\nfurther toplevel events until the stop request is processed.\nThe client should wait for a ext_foreign_toplevel_list_v1.finished\nevent before destroying this object.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called either when the client will no longer\nuse the ext_foreign_toplevel_list_v1 or after the finished event\nhas been received to allow destruction of the object.\n\nIf a client wishes to destroy this object it should send a\next_foreign_toplevel_list_v1.stop request and wait for a ext_foreign_toplevel_list_v1.finished\nevent, then destroy the handles and then this object.",
+            "summary": "destroy the ext_foreign_toplevel_list_v1 object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "toplevel",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever a new toplevel window is created. It is\nemitted for all toplevels, regardless of the app that has created them.\n\nAll initial properties of the toplevel (identifier, title, app_id) will be sent\nimmediately after this event using the corresponding events for\next_foreign_toplevel_handle_v1. The compositor will use the\next_foreign_toplevel_handle_v1.done event to indicate when all data has\nbeen sent.",
+            "summary": "a toplevel has been created"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "new_id",
+              "interface": "ext_foreign_toplevel_handle_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor is done sending events\nto this object. The client should destroy the object.\nSee ext_foreign_toplevel_list_v1.destroy for more information.\n\nThe compositor must not send any more toplevel events after this event.",
+            "summary": "the compositor has finished with the toplevel manager"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "ext_foreign_toplevel_handle_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A ext_foreign_toplevel_handle_v1 object represents a mapped toplevel\nwindow. A single app may have multiple mapped toplevels.",
+        "summary": "a mapped toplevel"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be used when the client will no longer use the handle\nor after the closed event has been received to allow destruction of the\nobject.\n\nWhen a handle is destroyed, a new handle may not be created by the server\nuntil the toplevel is unmapped and then remapped. Destroying a toplevel handle\nis not recommended unless the client is cleaning up child objects\nbefore destroying the ext_foreign_toplevel_list_v1 object, the toplevel\nwas closed or the toplevel handle will not be used in the future.\n\nOther protocols which extend the ext_foreign_toplevel_handle_v1\ninterface should require destructors for extension interfaces be\ncalled before allowing the toplevel handle to be destroyed.",
+            "summary": "destroy the ext_foreign_toplevel_handle_v1 object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "text": "The server will emit no further events on the ext_foreign_toplevel_handle_v1\nafter this event. Any requests received aside from the destroy request must\nbe ignored. Upon receiving this event, the client should destroy the handle.\n\nOther protocols which extend the ext_foreign_toplevel_handle_v1\ninterface must also ignore requests other than destructors.",
+            "summary": "the toplevel has been closed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all changes in the toplevel state have\nbeen sent.\n\nThis allows changes to the ext_foreign_toplevel_handle_v1 properties\nto be atomically applied. Other protocols which extend the\next_foreign_toplevel_handle_v1 interface may use this event to also\natomically apply any pending state.\n\nThis event must not be sent after the ext_foreign_toplevel_handle_v1.closed\nevent.",
+            "summary": "all information about the toplevel has been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "title",
+          "description": {
+            "type": "description",
+            "text": "The title of the toplevel has changed.\n\nThe configured state must not be applied immediately. See\next_foreign_toplevel_handle_v1.done for details.",
+            "summary": "title change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "title",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_id",
+          "description": {
+            "type": "description",
+            "text": "The app id of the toplevel has changed.\n\nThe configured state must not be applied immediately. See\next_foreign_toplevel_handle_v1.done for details.",
+            "summary": "app_id change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "identifier",
+          "description": {
+            "type": "description",
+            "text": "This identifier is used to check if two or more toplevel handles belong\nto the same toplevel.\n\nThe identifier is useful for command line tools or privileged clients\nwhich may need to reference an exact toplevel across processes or\ninstances of the ext_foreign_toplevel_list_v1 global.\n\nThe compositor must only send this event when the handle is created.\n\nThe identifier must be unique per toplevel and it's handles. Two different\ntoplevels must not have the same identifier. The identifier is only valid\nas long as the toplevel is mapped. If the toplevel is unmapped the identifier\nmust not be reused. An identifier must not be reused by the compositor to\nensure there are no races when sharing identifiers between processes.\n\nAn identifier is a string that contains up to 32 printable ASCII bytes.\nAn identifier must not be an empty string. It is recommended that a\ncompositor includes an opaque generation value in identifiers. How the\ngeneration value is used when generating the identifier is implementation\ndependent.",
+            "summary": "a stable identifier for a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

@@ -197,6 +197,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/alpha-modifier-v1.json'),
     },
     {
+        id: 'color-management-v1',
+        name: 'Color management v1',
+        source: WaylandProtocolSource.WaylandCore,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/color-management-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -414,6 +421,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-dpms.json'),
     },
     {
+        id: 'kde-external-brightness-v1',
+        name: 'KDE external brightness',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-external-brightness-v1.json'),
+    },
+    {
         id: 'kde-fake-input',
         name: 'KDE fake input',
         source: WaylandProtocolSource.KDEProtocols,
@@ -507,6 +521,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.KDEProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/kde-primary-output-v1.json'),
+    },
+    {
+        id: 'kde-screen-edge-v1',
+        name: 'KDE screen edge',
+        source: WaylandProtocolSource.KDEProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/kde-screen-edge-v1.json'),
     },
     {
         id: 'kde-zkde-screencast-unstable-v1',
@@ -659,13 +680,6 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/weston-output-capture.json'),
     },
     {
-        id: 'weston-screenshooter',
-        name: 'Weston screenshooter',
-        source: WaylandProtocolSource.WestonProtocols,
-        stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/weston-screenshooter.json'),
-    },
-    {
         id: 'weston-test',
         name: 'Weston test',
         source: WaylandProtocolSource.WestonProtocols,
@@ -716,6 +730,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
             'https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/agl-compositor.git;a=blob;f=protocol/agl-screenshooter.xml;h=231c8cf3abae63b7bdc12d318559ffb4bf6d9a0e;hb=HEAD',
     },
     {
+        id: 'aura-output-management',
+        name: 'Chromium aura output management',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/aura-output-management.json'),
+        externalUrl:
+            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/aura-output-management.xml',
+    },
+    {
         id: 'aura-shell',
         name: 'Chromium aura shell',
         source: WaylandProtocolSource.External,
@@ -723,6 +746,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/aura-shell.json'),
         externalUrl:
             'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/aura-shell.xml',
+    },
+    {
+        id: 'chrome-color-management',
+        name: 'Chromium color management',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/chrome-color-management.json'),
+        externalUrl:
+            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/chrome-color-management.xml',
     },
     {
         id: 'overlay-prioritizer',

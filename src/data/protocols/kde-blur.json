@@ -1,1 +1,89 @@
-{"type":"protocol","name":"blur","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2015 Martin Gräßlin\n    SPDX-FileCopyrightText: 2015 Marco Martin\n\n    SPDX-License-Identifier: LGPL-2.1-or-later\n  "},"interfaces":[{"type":"interface","name":"org_kde_kwin_blur_manager","version":"1","requests":[{"type":"request","name":"create","args":[{"type":"arg","name":"id","argType":"new_id","interface":"org_kde_kwin_blur"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]},{"type":"request","name":"unset","args":[{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]}],"events":[],"enums":[]},{"type":"interface","name":"org_kde_kwin_blur","version":"1","requests":[{"type":"request","name":"commit","args":[]},{"type":"request","name":"set_region","args":[{"type":"arg","name":"region","argType":"object","interface":"wl_region","allowNull":"true"}]},{"type":"request","name":"release","requestType":"destructor","description":{"type":"description","summary":"release the blur object"},"args":[]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "blur",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2015 Martin Gräßlin\nSPDX-FileCopyrightText: 2015 Marco Martin\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_blur_manager",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "create",
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "org_kde_kwin_blur"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_blur",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "commit",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_region",
+          "args": [
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "release the blur object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

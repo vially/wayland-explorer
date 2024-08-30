@@ -1,1 +1,617 @@
-{"type":"protocol","name":"agl_shell","copyright":{"type":"copyright","text":"Copyright © 2019, 2022 Collabora, Ltd.\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"agl_shell","version":"7","description":{"type":"description","text":"Starting with version 2 of the protocol, the client is required to wait\n      for the 'bound_ok' or 'bound_fail' events in order to proceed further.\n\n      In case the client gets a 'bound_fail' event then it should consider that\n      there's another client already bound to the agl_shell protocol.\n      A client that receives a 'bound_ok' event should consider that there's\n      no other client already bound to the interface and can proceed further.\n\n      If the client uses an older version of the protocol it will receive\n      automatically an error and the compositor will terminate the connection,\n      if there's another client already bound the interface.\n\n      If the client receives the 'bound_fail' event and attempts to use the\n      interface further it will receive an error and the compositor will\n      terminate the connection. After the 'bound_fail' event was received the\n      client should call the destructor, which has been added with version 2\n      of the protocol. The client is free to try at a later point in time to\n      see if it will receive the 'bound_ok' event, but there's no explicit way\n      of finding out when that event will be delivered.\n      It is assumed that it can infer that information through other\n      means/other channels.","summary":"user interface for Automotive Grade Linux platform"},"requests":[{"type":"request","name":"ready","description":{"type":"description","text":"Tell the server that this client is ready to be shown. The server\n        will delay presentation during start-up until all shell clients are\n        ready to be shown, and will display a black screen instead.\n        This gives the client an opportunity to set up and configure several\n        surfaces into a coherent interface.\n\n        The client that binds to this interface must send this request, otherwise\n        they may stall the compositor unnecessarily.\n\n        If this request is called after the compositor has already finished\n        start-up, no operation is performed.","summary":"client is ready to be shown"},"args":[]},{"type":"request","name":"set_background","description":{"type":"description","text":"Set the surface to act as the background of an output. After this\n        request, the server will immediately send a configure event with\n        the dimensions the client should use to cover the entire output.\n\n        The surface must have a \"desktop\" surface role, as supported by\n        libweston-desktop.\n\n        Only a single surface may be the background for any output. If a\n        background surface already exists, a protocol error is raised.","summary":"set surface as output's background"},"args":[{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"request","name":"set_panel","description":{"type":"description","text":"Set the surface to act as a panel of an output. The 'edge' argument\n        says what edge of the output the surface will be anchored to.\n        After this request, the server will send a configure event with the\n        corresponding width/height that the client should use, and 0 for the\n        other dimension. E.g. if the edge is 'top', the width will be the\n        output's width, and the height will be 0.\n\n        The surface must have a \"desktop\" surface role, as supported by\n        libweston-desktop.\n\n        The compositor will take the panel's window geometry into account when\n        positioning other windows, so the panels are not covered.\n\n        XXX: What happens if e.g. both top and left are used at the same time?\n        Who gets to have the corner?\n\n        Only a single surface may be the panel for an output's edge. If a\n        surface already exists on an edge, a protocol error is raised.","summary":"set surface as panel"},"args":[{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"edge","argType":"uint","enum":"edge"}]},{"type":"request","name":"activate_app","description":{"type":"description","text":"Ask the compositor to make a toplevel to become the current/focused\n        window for window management purposes.\n\n        See xdg_toplevel.set_app_id from the xdg-shell protocol for a\n        description of app_id.\n\n        If multiple toplevels have the same app_id, the result is unspecified.\n\n        XXX: Do we need feedback to say it didn't work? (e.g. client does\n        not exist)","summary":"make client current window"},"args":[{"type":"arg","name":"app_id","argType":"string"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"request","name":"destroy","requestType":"destructor","since":"2","description":{"type":"description","summary":"destroys the factory object"},"args":[]},{"type":"request","name":"set_activate_region","since":"4","description":{"type":"description","text":"A hint for the compositor to use a custom area, rather than\n      inferring the activation area. If any panels are used\n      the compositor computes the activation area by subtracting the\n      panels geometry area. If no panels are used then the entire output\n      is being used. This request changes that as to hint the compositor\n      to use the supplied rectangle and ignore any potential panels\n      that might been set-up previously.\n\n      In order for this request to take effect it will need to happen\n      before the 'ready' request in order for the compositor to make use of it.\n      Note that any 'set_panel' request be will not be honored, if this request\n      has been called.\n\n      The x and y coordinates use the top-left corner as the origin. The\n      rectangle area shouldn't exceed the output area, while an area smaller\n      than the output, would basically result in showing up the background\n      surface.","summary":"sets a specific region to activate"},"args":[{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"x","argType":"int","summary":"x position of rectangle"},{"type":"arg","name":"y","argType":"int","summary":"y position of rectangle"},{"type":"arg","name":"width","argType":"int","summary":"width of rectangle"},{"type":"arg","name":"height","argType":"int","summary":"height of rectangle"}]},{"type":"request","name":"deactivate_app","since":"5","description":{"type":"description","text":"Ask the compositor to hide the toplevel window for window\n        management purposes. Depending on the window role, this request\n        will either display the previously active window (or the background\n        in case there's no previously active surface) or temporarily (or\n        until a 'activate_app' is called upon) hide the surface.\n\n        All the surfaces are identifiable by using the app_id, and no actions\n        are taken in case the app_id is not/was not present.\n\n        See xdg_toplevel.set_app_id from the xdg-shell protocol for a\n        description of app_id.","summary":"de-activate/hide window identified by app_id"},"args":[{"type":"arg","name":"app_id","argType":"string"}]},{"type":"request","name":"set_app_float","since":"6","description":{"type":"description","text":"Makes the application identified by app_id as floating. If the\n        application's window is already mapped, in a maximized, normal state,\n        it would transition to the float state.\n\n        For applications that want to modify their own state, this request\n        must be done before the initial surface commit in order to take effect.\n\n        If the application is already in floating state, this request wouldn't\n        do anything.\n\n        There's no persistence of this request, once the application terminated\n        you'll to issue this request again for that particular app_id.\n\n        The x, and y values would be initial position of the window where the\n        window surface will be placed.\n\n        See xdg_toplevel.set_app_id from the xdg-shell protocol for a\n        description of app_id.","summary":"set the window identified by app_id as float"},"args":[{"type":"arg","name":"app_id","argType":"string"},{"type":"arg","name":"x","argType":"int","summary":"x position"},{"type":"arg","name":"y","argType":"int","summary":"y position"}]},{"type":"request","name":"set_app_normal","since":"6","description":{"type":"description","text":"Returns the application identified by app_id as it was in the normal state.\n      This is useful to come back from other states to the maximized state, the\n      normal state applications are started.","summary":"set the window identified by app_id as normally started"},"args":[{"type":"arg","name":"app_id","argType":"string"}]},{"type":"request","name":"set_app_fullscreen","since":"7","description":{"type":"description","text":"Makes the application identified by app_id as fullscreen. If the\n        application's window is already mapped, in a maximized, normal state,\n        it would transition to the fullscreen state.\n\n        For applications that want to modify their own state, this request\n        must be done before the initial surface commit in order to take effect.\n\n        If the application is already in fullscreen state, this request wouldn't\n        do anything.\n\n        There's no persistence of this request, once the application terminated\n        you'll to issue this request again for that particular app_id.\n\n        See xdg_toplevel.set_app_id from the xdg-shell protocol for a\n        description of app_id.","summary":""},"args":[{"type":"arg","name":"app_id","argType":"string"}]}],"events":[{"type":"event","name":"bound_ok","since":"2","description":{"type":"description","text":"Informs the client that it was able to bind the agl_shell\n        interface succesfully. Clients are required to wait for this\n        event before continuing further.","summary":"event sent if binding was ok"},"args":[]},{"type":"event","name":"bound_fail","since":"2","description":{"type":"description","text":"Informs the client that binding to the agl_shell interface was\n        unsuccesfull. Clients are required to wait for this event for\n        continuing further.","summary":"event sent if binding was nok"},"args":[]},{"type":"event","name":"app_state","since":"3","description":{"type":"description","text":"Informs the client that an application has changed its state to another,\n        specified by the app_state enum. Client can use this event to track\n        current application state. For instance to know when the application has\n        started, or when terminated/stopped.","summary":"event sent when an application suffered state modification"},"args":[{"type":"arg","name":"app_id","argType":"string"},{"type":"arg","name":"state","argType":"uint","enum":"app_state"}]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_argument","value":"0"},{"type":"entry","name":"background_exists","value":"1"},{"type":"entry","name":"panel_exists","value":"2"}]},{"type":"enum","name":"edge","bitfield":false,"entries":[{"type":"entry","name":"top","value":"0"},{"type":"entry","name":"bottom","value":"1"},{"type":"entry","name":"left","value":"2"},{"type":"entry","name":"right","value":"3"}]},{"type":"enum","name":"app_state","since":"3","bitfield":false,"entries":[{"type":"entry","name":"started","value":"0"},{"type":"entry","name":"terminated","value":"1"},{"type":"entry","name":"activated","value":"2"},{"type":"entry","name":"deactivated","value":"3"}]}]},{"type":"interface","name":"agl_shell_ext","version":"1","description":{"type":"description","text":"This interface allows another client bind to the agl_shell interface,\n      while there's another shell client already present.\n\n      The client should first bind to this interface and then inform the\n      compositor with the 'doas_shell_client' request and it wants to bind to\n      the agl_shell interface. The client is still expected, if using a new\n      version of the agl_shell interface, to wait for the 'bound_ok' and\n      'bound_fail' events before issueing any other requests/events.\n\n      Note that this interface has its limitations, and the compositor would\n      still refuse the act for 'set_panel' or 'set_background' requests\n      of the agl_shell interface if there's already a client that used them.\n\n      Any other requests or events should be delievered and handled as it would\n      a client bound to the agl_shell interface.","summary":"extended user interface for Automotive Grade Linux platform"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Call the destructor once you're ready with agl_shell_ext interface.\n        This would reset the state and would make any requests made\n        on the agl_shell interface be terminated. The client would need \n        to bind again the agl_shell_ext and issue a 'doas_shell_client'\n        request.","summary":"destroys the factory object"},"args":[]},{"type":"request","name":"doas_shell_client","description":{"type":"description","text":"Prior to binding to agl_shell interface, this request would inform\n        the compositor that it wants to gain access the agl_shell interface.\n        The client is expected to wait for 'doas_shell_client_done' event and \n        check for a successful status before going further with binding to\n        the agl_shell interface.","summary":"Informs the compositor it wants to bind to the\n      agl_shell interface"},"args":[]}],"events":[{"type":"event","name":"doas_done","description":{"type":"description","text":"The client should check the status event to verify that the\n        compositor was able to handle the request.","summary":"event sent as a reply to doas_shell_client"},"args":[{"type":"arg","name":"status","argType":"uint","enum":"doas_shell_client_status"}]}],"enums":[{"type":"enum","name":"doas_shell_client_status","bitfield":false,"entries":[{"type":"entry","name":"success","value":"0"},{"type":"entry","name":"failed","value":"1"}]}]}]}
+{
+  "type": "protocol",
+  "name": "agl_shell",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2019, 2022 Collabora, Ltd.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "agl_shell",
+      "version": "11",
+      "description": {
+        "type": "description",
+        "text": "Starting with version 2 of the protocol, the client is required to wait\nfor the 'bound_ok' or 'bound_fail' events in order to proceed further.\n\nIn case the client gets a 'bound_fail' event then it should consider that\nthere's another client already bound to the agl_shell protocol.\nA client that receives a 'bound_ok' event should consider that there's\nno other client already bound to the interface and can proceed further.\n\nIf the client uses an older version of the protocol it will receive\nautomatically an error and the compositor will terminate the connection,\nif there's another client already bound the interface.\n\nIf the client receives the 'bound_fail' event and attempts to use the\ninterface further it will receive an error and the compositor will\nterminate the connection. After the 'bound_fail' event was received the\nclient should call the destructor, which has been added with version 2\nof the protocol. The client is free to try at a later point in time to\nsee if it will receive the 'bound_ok' event, but there's no explicit way\nof finding out when that event will be delivered.\nIt is assumed that it can infer that information through other\nmeans/other channels.",
+        "summary": "user interface for Automotive Grade Linux platform"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "Tell the server that this client is ready to be shown. The server\nwill delay presentation during start-up until all shell clients are\nready to be shown, and will display a black screen instead.\nThis gives the client an opportunity to set up and configure several\nsurfaces into a coherent interface.\n\nThe client that binds to this interface must send this request, otherwise\nthey may stall the compositor unnecessarily.\n\nIf this request is called after the compositor has already finished\nstart-up, no operation is performed.",
+            "summary": "client is ready to be shown"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_background",
+          "description": {
+            "type": "description",
+            "text": "Set the surface to act as the background of an output. After this\nrequest, the server will immediately send a configure event with\nthe dimensions the client should use to cover the entire output.\n\nThe surface must have a \"desktop\" surface role, as supported by\nlibweston-desktop.\n\nOnly a single surface may be the background for any output. If a\nbackground surface already exists, a protocol error is raised.",
+            "summary": "set surface as output's background"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_panel",
+          "description": {
+            "type": "description",
+            "text": "Set the surface to act as a panel of an output. The 'edge' argument\nsays what edge of the output the surface will be anchored to.\nAfter this request, the server will send a configure event with the\ncorresponding width/height that the client should use, and 0 for the\nother dimension. E.g. if the edge is 'top', the width will be the\noutput's width, and the height will be 0.\n\nThe surface must have a \"desktop\" surface role, as supported by\nlibweston-desktop.\n\nThe compositor will take the panel's window geometry into account when\npositioning other windows, so the panels are not covered.\n\nXXX: What happens if e.g. both top and left are used at the same time?\nWho gets to have the corner?\n\nOnly a single surface may be the panel for an output's edge. If a\nsurface already exists on an edge, a protocol error is raised.",
+            "summary": "set surface as panel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "edge",
+              "argType": "uint",
+              "enum": "edge"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "activate_app",
+          "description": {
+            "type": "description",
+            "text": "Ask the compositor to make a toplevel to become the current/focused\nwindow for window management purposes.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.\n\nIf multiple toplevels have the same app_id, the result is unspecified.\n\nXXX: Do we need feedback to say it didn't work? (e.g. client does\nnot exist)",
+            "summary": "make client current window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "destroys the factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_activate_region",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "A hint for the compositor to use a custom area, rather than\ninferring the activation area. If any panels are used\nthe compositor computes the activation area by subtracting the\npanels geometry area. If no panels are used then the entire output\nis being used. This request changes that as to hint the compositor\nto use the supplied rectangle and ignore any potential panels\nthat might been set-up previously.\n\nIn order for this request to take effect it will need to happen\nbefore the 'ready' request in order for the compositor to make use of it.\nNote that any 'set_panel' request be will not be honored, if this request\nhas been called.\n\nThe x and y coordinates use the top-left corner as the origin. The\nrectangle area shouldn't exceed the output area, while an area smaller\nthan the output, would basically result in showing up the background\nsurface.",
+            "summary": "sets a specific region to activate"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x position of rectangle"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y position of rectangle"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of rectangle"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of rectangle"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "deactivate_app",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "text": "Ask the compositor to hide the toplevel window for window\nmanagement purposes. Depending on the window role, this request\nwill either display the previously active window (or the background\nin case there's no previously active surface) or temporarily (or\nuntil a 'activate_app' is called upon) hide the surface.\n\nAll the surfaces are identifiable by using the app_id, and no actions\nare taken in case the app_id is not/was not present.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "de-activate/hide window identified by app_id"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_float",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "text": "Makes the application identified by app_id as floating. If the\napplication's window is already mapped, in a maximized, normal state,\nit would transition to the float state.\n\nFor applications that want to modify their own state, this request\nmust be done before the initial surface commit in order to take effect.\n\nIf the application is already in floating state, this request wouldn't\ndo anything.\n\nThere's no persistence of this request, once the application terminated\nyou'll to issue this request again for that particular app_id.\n\nThe x, and y values would be initial position of the window where the\nwindow surface will be placed.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "set the window identified by app_id as float"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x position"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y position"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_normal",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "text": "Returns the application identified by app_id as it was in the normal state.\nThis is useful to come back from other states to the maximized state, the\nnormal state applications are started.",
+            "summary": "set the window identified by app_id as normally started"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_fullscreen",
+          "since": "7",
+          "description": {
+            "type": "description",
+            "text": "Makes the application identified by app_id as fullscreen. If the\napplication's window is already mapped, in a maximized, normal state,\nit would transition to the fullscreen state.\n\nFor applications that want to modify their own state, this request\nmust be done before the initial surface commit in order to take effect.\n\nIf the application is already in fullscreen state, this request wouldn't\ndo anything.\n\nThere's no persistence of this request, once the application terminated\nyou'll to issue this request again for that particular app_id.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": ""
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_output",
+          "since": "8",
+          "description": {
+            "type": "description",
+            "text": "this would allow the compositor to place an application on a particular\noutput, if that output is indeed available. this can happen before\napplication is started which would make the application start on that\nparticular output. if the application is already started it would\nmove the application to that output.\n\nthere's no persistence of this request, once the application terminated\nyou'll need to issue this request again for that particular app_id.\n\nsee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "assign an application to a particular output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_position",
+          "since": "9",
+          "description": {
+            "type": "description",
+            "text": "Clients can inform the compositor to position a floating type of window\nat the specific location, pointed by x and y value. If the window is\nnot a floating type, the request will be discarded. Note that\npositioning doesn't take output into consideration nor does orientation\nof the outpus. It is expected that the client knows already where the\nposition is localed in global coordonate space. If the window doesn't\nexist the compositor will ignore the request. For this request to\nfunction properly the window would first to be set as floating and then\nit can be moved using this request.\n\nsee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "move window to a specific position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_scale",
+          "since": "10",
+          "description": {
+            "type": "description",
+            "text": "Clients can inform the compositor to scale a floating type of window\nto the values specified in width and height. If the window is\nnot a floating type, the request will be discarded. If the window\ndoesn't exist the compositor will ignore the request. For this request\nto function properly the window would first to be set as floating\nand then it can be moved using this request.\n\n\nsee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "scale window to a specific rectangle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_app_split",
+          "since": "11",
+          "description": {
+            "type": "description",
+            "text": "This requests asks the compositor to change the application from the\noriginal mode (whatever that might be) to a split, tiled orientation\nmode defined in the tile orientation enum.\nClients need to implement resizing (to handle xdg-shell configure\nevents) for this to work correctly.\n\nThis request only handles a single level of tiling for practical\nreasons: to keep implementation simple and straight forward. The\ncompositor will ignore requests if there are already two windows\npresent. The client can verify this request succeed by checking the\nxdg-shell configure event and with it, the states sent\nby the compositor.\n\nIf there's no app_id with the supplied name, the compositor will add\nthe app to a pending list in order to be applied when an application\ngets started, or if the application sets its application after the\ninitial wl_surface.commit request.\n\nApplications can use this approach if they want to be started in a\ntiled orientation position, before creating the xdg-shell toplevel role.\n\nA none orientation type would make the window go back to the original\nmaximized mode. If two windows are side by side, returning one of them\nback the original mode would mean the other one will be made hidden\nand the one doing the request for the none orientation will become\nthe currently active window. A further activation, using activate_app\nrequest for the other window would make that one active.\n\nClosing the window in the tiled orientation state implies that either\nthe background surface will displayed, or in case there was another\napplications being shown at that time, will make that application be\nreturned to the original, maximized state.\n\nThe tiled orientation could be applied independently of each other,\nsuch that a client can transition from one tiled orientation to\nanother. Note that any other window already present would literally\ntake the opposite orientation with the one currently being changed. So\ntiled orientation modification automatically implies a tile orientation\nfor any other application already present/active at that time.\n\nIn case there's already a client active at that time, it will be\nattributed automatically the opposite tiled orientation, such that two\nconcurrent applications can be displayed at the same time.\n\nThe orientation tiles can not be combined, and only state at a time\ncan be active. Only horizontal and vertical tiling is possible. A\nhorizontal and vertical tile orientation simultaneously is not\npossible.\n\nInput focus is being delivered to the last started/activated window,\nsuch that users can cycle between that one or the other, assumes there's\nanother window in the first place.\n\nA width size can also be specified for the split window. Note that this\nwidth can't exceed the output width value, or the compositor can choose\nto ignore this value.\n\nMaking the split window sticky would inform the compositor that the\nwindow should always be active when switching or when activating between\nother windows. This would allow navigating, starting and activating other\nwindows while keeping the current window always in a split state.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "set the application with a split orientation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "orientation",
+              "argType": "uint",
+              "enum": "tile_orientation"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the window being split"
+            },
+            {
+              "type": "arg",
+              "name": "sticky",
+              "argType": "int",
+              "summary": "make the split window stiky"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "bound_ok",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Informs the client that it was able to bind the agl_shell\ninterface succesfully. Clients are required to wait for this\nevent before continuing further.",
+            "summary": "event sent if binding was ok"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "bound_fail",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Informs the client that binding to the agl_shell interface was\nunsuccesfull. Clients are required to wait for this event for\ncontinuing further.",
+            "summary": "event sent if binding was nok"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "app_state",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Informs the client that an application has changed its state to another,\nspecified by the app_state enum. Client can use this event to track\ncurrent application state. For instance to know when the application has\nstarted, or when terminated/stopped.",
+            "summary": "event sent when an application suffered state modification"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "app_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_on_output",
+          "since": "8",
+          "description": {
+            "type": "description",
+            "text": "Clients can use this event to be notified when an application\nwants to be displayed on a certain output. This event is sent in\nresponse to the set_app_output request.\n\nSee xdg_toplevel.set_app_id from the xdg-shell protocol for a\ndescription of app_id.",
+            "summary": "Event sent as a reponse to set_app_output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_argument",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "background_exists",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "panel_exists",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "edge",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "app_state",
+          "since": "3",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "started",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "terminated",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "activated",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "deactivated",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tile_orientation",
+          "since": "11",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "agl_shell_ext",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows another client bind to the agl_shell interface,\nwhile there's another shell client already present.\n\nThe client should first bind to this interface and then inform the\ncompositor with the 'doas_shell_client' request and it wants to bind to\nthe agl_shell interface. The client is still expected, if using a new\nversion of the agl_shell interface, to wait for the 'bound_ok' and\n'bound_fail' events before issueing any other requests/events.\n\nNote that this interface has its limitations, and the compositor would\nstill refuse the act for 'set_panel' or 'set_background' requests\nof the agl_shell interface if there's already a client that used them.\n\nAny other requests or events should be delievered and handled as it would\na client bound to the agl_shell interface.",
+        "summary": "extended user interface for Automotive Grade Linux platform"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Call the destructor once you're ready with agl_shell_ext interface.\nThis would reset the state and would make any requests made\non the agl_shell interface be terminated. The client would need\nto bind again the agl_shell_ext and issue a 'doas_shell_client'\nrequest.",
+            "summary": "destroys the factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "doas_shell_client",
+          "description": {
+            "type": "description",
+            "text": "Prior to binding to agl_shell interface, this request would inform\nthe compositor that it wants to gain access the agl_shell interface.\nThe client is expected to wait for 'doas_shell_client_done' event and\ncheck for a successful status before going further with binding to\nthe agl_shell interface.",
+            "summary": "Informs the compositor it wants to bind to the\n      agl_shell interface"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "doas_done",
+          "description": {
+            "type": "description",
+            "text": "The client should check the status event to verify that the\ncompositor was able to handle the request.",
+            "summary": "event sent as a reply to doas_shell_client"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "status",
+              "argType": "uint",
+              "enum": "doas_shell_client_status"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "doas_shell_client_status",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "success",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "failed",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

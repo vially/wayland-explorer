@@ -1,0 +1,1466 @@
+{
+  "type": "protocol",
+  "name": "chrome_color_management",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2019 Sebastian Wick\nCopyright 2019 Erwin Burema\nCopyright 2020 AMD\nCopyright 2020 Collabora, Ltd.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol specifies a way for a client to set the color space and\nHDR metadata of a surface and to get information about the color spaces\nand HDR capabilities of outputs.\n\nThis protocol is based on a proposed upstream protocol, which we will migrate\nto once it is approved. It may diverge from the proposed upstream protocol\nover the course of our development.",
+    "summary": "color management protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcr_color_manager_v1",
+      "version": "6",
+      "description": {
+        "type": "description",
+        "text": "A global interface used for getting color management surface and color\nmanagement output objects as well as creating color space objects from\nICC profiles, parameters, or enumerated names.",
+        "summary": "color manager singleton"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_color_space_from_icc",
+          "description": {
+            "type": "description",
+            "text": "Create a color space object from an ICC profile. This request returns\na zcr_color_space_creator_v1 object which either returns an error\nor the successfully created zcr_color_space_v1 object.\n\nThe description of the color space to create is sent in the form of an\nICC profile as a file descriptor in the argument icc.\n\nThe fd must be seekable and the maximum size of the ICC profile is 4 MB.\nViolating these requirements will raise an icc_fd protocol error. A\ncompositor must not modify the contents of the file, and the fd may be\nsealed for writes and size changes.\n\nThe file contents must represent a valid ICC profile.\nThe ICC profile version must be 2 or 4, it must be a 3 channel profile\nand the class must be 'input', 'output', 'abstract' or 'display'.\nViolating these requirements will not result in a protocol error but\nraise the zcr_color_space_creator_v1.error event.\n\nSee the zcr_color_space_v1 and zcr_color_space_creator_v1 interface for\nmore details about the created object.\n\nSee the specification from International Color Consortium for more\ndetails about ICC profiles, also known as ISO 15076-1:2010.",
+            "summary": "create a color space object from ICC profiles"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_creator_v1"
+            },
+            {
+              "type": "arg",
+              "name": "icc",
+              "argType": "fd"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_color_space_from_names",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] Create a color space object from well-known names. This request returns\na zcr_color_space_creator_v1 object which either returns an error\nor the successfully created zcr_color_space_v1 object.\n\nEOTF, chromaticity and whitepoint must not be unknown. Otherwise, or\nif a given value is not listed in the enumeration, the protocol error\nbad_enum is raised.\n\nSee the zcr_color_space_v1 and zcr_color_space_creator_v1 interface for\nmore details about the created object. Use create_color_space_from_complete_names\ninstead.",
+            "summary": "create a color space object from well-known names"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_creator_v1"
+            },
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "chromaticity",
+              "argType": "uint",
+              "summary": "chromaticity",
+              "enum": "chromaticity_names"
+            },
+            {
+              "type": "arg",
+              "name": "whitepoint",
+              "argType": "uint",
+              "summary": "whitepoint",
+              "enum": "whitepoint_names"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_color_space_from_params",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] Create a color space object from parameters. This request returns\na zcr_color_space_creator_v1 object which either returns an error\nor the successfully created zcr_color_space_v1 object.\n\nEOTF must not be unknown. Otherwise, or if a given EOTF is not listed\nin the enumeration, the protocol error bad_enum is raised.\n\nThe white point must be inside the triangle created by the red, green\nand blue primaries. Otherwise the bad_param protocol error is raised.\n\nAll the chromaticity values are multiplied by 10000 to produce the\nintegers carried by the protocol.\n\nSee the zcr_color_space_v1 and zcr_color_space_creator_v1 interface for\nmore details about the created object. Use create_color_space_from_complete_params\ninstead.",
+            "summary": "create a color space object from parameters"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_creator_v1"
+            },
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_x",
+              "argType": "uint",
+              "summary": "red primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_y",
+              "argType": "uint",
+              "summary": "red primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_x",
+              "argType": "uint",
+              "summary": "green primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_y",
+              "argType": "uint",
+              "summary": "green primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_x",
+              "argType": "uint",
+              "summary": "blue primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_y",
+              "argType": "uint",
+              "summary": "blue primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_x",
+              "argType": "uint",
+              "summary": "white point X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_y",
+              "argType": "uint",
+              "summary": "white point Y * 10000"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_color_management_output",
+          "description": {
+            "type": "description",
+            "text": "This creates a new zcr_color_management_output_v1 object for the\ngiven wl_output.\n\nSee the zcr_color_management_output_v1 interface for more details.",
+            "summary": "create a color management interface for a wl_output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_management_output_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_color_management_surface",
+          "description": {
+            "type": "description",
+            "text": "This creates a new color zcr_color_management_surface_v1 object for the\ngiven wl_surface.\n\nSee the zcr_color_management_surface_v1 interface for more details.",
+            "summary": "create a color management interface for a wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_management_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the zcr_color_manager_v1 object. This does not affect any other\nobjects in any way.",
+            "summary": "destroy the color manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_color_space_from_complete_names",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Create a color space object from well-known names. This request returns\na zcr_color_space_creator_v1 object which either returns an error\nor the successfully created zcr_color_space_v1 object.\n\nEOTF, chromaticity and whitepoint must not be unknown. Otherwise, or\nif a given value is not listed in the enumeration, the protocol error\nbad_enum is raised.\n\nThis request additionally includes matrix and range information.\n\nSee the zcr_color_space_v1 and zcr_color_space_creator_v1 interface for\nmore details about the created object.",
+            "summary": "create a color space object from well-known names"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_creator_v1"
+            },
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "chromaticity",
+              "argType": "uint",
+              "summary": "chromaticity",
+              "enum": "chromaticity_names"
+            },
+            {
+              "type": "arg",
+              "name": "whitepoint",
+              "argType": "uint",
+              "summary": "whitepoint",
+              "enum": "whitepoint_names"
+            },
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "uint",
+              "summary": "color matrix",
+              "enum": "matrix_names"
+            },
+            {
+              "type": "arg",
+              "name": "range",
+              "argType": "uint",
+              "summary": "color range",
+              "enum": "range_names"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_color_space_from_complete_params",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Create a color space object from parameters. This request returns\na zcr_color_space_creator_v1 object which either returns an error\nor the successfully created zcr_color_space_v1 object.\n\nEOTF must not be unknown. Otherwise, or if a given EOTF is not listed\nin the enumeration, the protocol error bad_enum is raised.\n\nThe white point must be inside the triangle created by the red, green\nand blue primaries. Otherwise the bad_param protocol error is raised.\n\nAll the chromaticity values are multiplied by 10000 to produce the\nintegers carried by the protocol.\n\nThis request additionally includes matrix and range information.\n\nSee the zcr_color_space_v1 and zcr_color_space_creator_v1 interface for\nmore details about the created object.",
+            "summary": "create a color space object from parameters"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_creator_v1"
+            },
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "uint",
+              "summary": "Color matrix",
+              "enum": "matrix_names"
+            },
+            {
+              "type": "arg",
+              "name": "range",
+              "argType": "uint",
+              "summary": "Color range",
+              "enum": "range_names"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_x",
+              "argType": "uint",
+              "summary": "red primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_y",
+              "argType": "uint",
+              "summary": "red primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_x",
+              "argType": "uint",
+              "summary": "green primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_y",
+              "argType": "uint",
+              "summary": "green primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_x",
+              "argType": "uint",
+              "summary": "blue primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_y",
+              "argType": "uint",
+              "summary": "blue primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_x",
+              "argType": "uint",
+              "summary": "white point X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_y",
+              "argType": "uint",
+              "summary": "white point Y * 10000"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "eotf_names",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Names that describe a well-known EOTF.\n\nA compositor must support all of these based on the protocol interface\nversion.",
+            "summary": "well-known EOTF names"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "summary": "unknown EOTF"
+            },
+            {
+              "type": "entry",
+              "name": "linear",
+              "value": "1",
+              "summary": "Linear transfer function"
+            },
+            {
+              "type": "entry",
+              "name": "srgb",
+              "value": "2",
+              "summary": "sRGB transfer function"
+            },
+            {
+              "type": "entry",
+              "name": "bt2087",
+              "value": "3",
+              "summary": "BT.2087 transfer function"
+            },
+            {
+              "type": "entry",
+              "name": "adobergb",
+              "value": "4",
+              "summary": "AdobeRGB transfer function"
+            },
+            {
+              "type": "entry",
+              "name": "pq",
+              "value": "5",
+              "summary": "Perceptual quantizer / SMPTEST2084"
+            },
+            {
+              "type": "entry",
+              "name": "hlg",
+              "value": "6",
+              "summary": "hybrid log gamma",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "bt709",
+              "value": "7",
+              "summary": "gamma for rec709 encoded videos",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "extendedsrgb10",
+              "value": "8",
+              "summary": "sRGB transfer function with headroom for HDR",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "smpte170m",
+              "value": "9",
+              "summary": "SMPTE240M transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "smpte240m",
+              "value": "10",
+              "summary": "SMPTE240M transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "smptest428_1",
+              "value": "11",
+              "summary": "SMPTEST428_1 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "log",
+              "value": "12",
+              "summary": "LOG transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "log_sqrt",
+              "value": "13",
+              "summary": "LOG Sqrt transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "iec61966_2_4",
+              "value": "14",
+              "summary": "IEC61966_2_4 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bt1361_ecg",
+              "value": "15",
+              "summary": "BT1361_ECG transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bt2020_10",
+              "value": "16",
+              "summary": "BT2020_10 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bt2020_12",
+              "value": "17",
+              "summary": "BT2020_12 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "scrgb_linear_80_nits",
+              "value": "18",
+              "summary": "SCRGB Linear transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "gamma18",
+              "value": "19",
+              "summary": "GAMMA18 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "gamma28",
+              "value": "20",
+              "summary": "GAMMA28 transfer function",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "srgb_hdr",
+              "value": "21",
+              "summary": "sRGB transfer function",
+              "since": "6"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "chromaticity_names",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Names that describe well-known chromaticities.\n\nA compositor must support all of these based on the protocol interface\nversion.",
+            "summary": "well-known chromaticity names"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "summary": "unknown chromaticity"
+            },
+            {
+              "type": "entry",
+              "name": "bt601_525_line",
+              "value": "1",
+              "summary": "ITU-R BT.601 http://www.itu.int/rec/R-REC-BT.601/en"
+            },
+            {
+              "type": "entry",
+              "name": "bt601_625_line",
+              "value": "2",
+              "summary": "ITU-R BT.601 http://www.itu.int/rec/R-REC-BT.601/en"
+            },
+            {
+              "type": "entry",
+              "name": "smpte170m",
+              "value": "3",
+              "summary": "SMPTE 170M-1999 https://www.itu.int/rec/R-REC-BT.1700/en"
+            },
+            {
+              "type": "entry",
+              "name": "bt709",
+              "value": "4",
+              "summary": "ITU-R BT.709 https://www.itu.int/rec/R-REC-BT.709/en"
+            },
+            {
+              "type": "entry",
+              "name": "bt2020",
+              "value": "5",
+              "summary": "ITU-R BT.2020 http://www.itu.int/rec/R-REC-BT.2020/en"
+            },
+            {
+              "type": "entry",
+              "name": "srgb",
+              "value": "6",
+              "summary": "IEC/4WD 61966-2-1: sRGB https://webstore.iec.ch/publication/6169"
+            },
+            {
+              "type": "entry",
+              "name": "displayp3",
+              "value": "7",
+              "summary": "Display P3 https://developer.apple.com/reference/coregraphics/cgcolorspace/1408916-displayp3"
+            },
+            {
+              "type": "entry",
+              "name": "adobergb",
+              "value": "8",
+              "summary": "Adobe RGB https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf"
+            },
+            {
+              "type": "entry",
+              "name": "wide_gamut_color_spin",
+              "value": "9",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bt470m",
+              "value": "10",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "smpte240m",
+              "value": "11",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "xyz_d50",
+              "value": "12",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "smptest428_1",
+              "value": "13",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "smptest431_2",
+              "value": "14",
+              "summary": "",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "film",
+              "value": "15",
+              "summary": "",
+              "since": "5"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "whitepoint_names",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Names that describe well-known whitepoints.\n\nA compositor must support all of these based on the protocol interface\nversion.",
+            "summary": "well-known whitepoint names"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "summary": "unknown whitepoint"
+            },
+            {
+              "type": "entry",
+              "name": "dci",
+              "value": "1",
+              "summary": "DCI whitepoint"
+            },
+            {
+              "type": "entry",
+              "name": "d50",
+              "value": "2",
+              "summary": "D50 whitepoint"
+            },
+            {
+              "type": "entry",
+              "name": "d65",
+              "value": "3",
+              "summary": "D65 whitepoint"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "icc_fd",
+              "value": "0",
+              "summary": "given ICC fd has bad properties"
+            },
+            {
+              "type": "entry",
+              "name": "bad_enum",
+              "value": "1",
+              "summary": "bad value given as a well-known name"
+            },
+            {
+              "type": "entry",
+              "name": "bad_param",
+              "value": "2",
+              "summary": "bad parameter value"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "matrix_names",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Names that describe typical ColorSpace Matrix IDs",
+            "summary": "For specifying color matrices"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "summary": "Unknown range"
+            },
+            {
+              "type": "entry",
+              "name": "rgb",
+              "value": "1",
+              "summary": "RGB matrix"
+            },
+            {
+              "type": "entry",
+              "name": "bt709",
+              "value": "2",
+              "summary": "BT709 matrix"
+            },
+            {
+              "type": "entry",
+              "name": "bt2020_ncl",
+              "value": "3",
+              "summary": "BT2020_NCL matrix"
+            },
+            {
+              "type": "entry",
+              "name": "bt2020_cl",
+              "value": "4",
+              "summary": "BT2020_CL matrix"
+            },
+            {
+              "type": "entry",
+              "name": "fcc",
+              "value": "5",
+              "summary": "FCC matrix"
+            },
+            {
+              "type": "entry",
+              "name": "smpte170m",
+              "value": "6",
+              "summary": "SMPTE170M matrix"
+            },
+            {
+              "type": "entry",
+              "name": "smpte240m",
+              "value": "7",
+              "summary": "SMPTE240M matrix"
+            },
+            {
+              "type": "entry",
+              "name": "ydzdx",
+              "value": "8",
+              "summary": "YDZDX matrix",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bt470bg",
+              "value": "9",
+              "summary": "BT470BG matrix",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "gbr",
+              "value": "10",
+              "summary": "GBR matrix",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "ycocg",
+              "value": "11",
+              "summary": "YCOCG matrix",
+              "since": "5"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "range_names",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Names that describe typical RGB value ranges.",
+            "summary": "For specifying RGB ranges"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "summary": "Unknown range"
+            },
+            {
+              "type": "entry",
+              "name": "limited",
+              "value": "1",
+              "summary": "Limited RGB color range (values from 16-235 for 8-bit)"
+            },
+            {
+              "type": "entry",
+              "name": "full",
+              "value": "2",
+              "summary": "Full RGB color range (values from 0 to 255 for 8-bit)"
+            },
+            {
+              "type": "entry",
+              "name": "derived",
+              "value": "3",
+              "summary": "Range is defined by EOTF/MatrixID"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcr_color_management_output_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "A zcr_color_management_output_v1 describes the color properties of an\noutput.\n\nWhen zcr_color_management_output_v1 object is created, it will send\nits initial events followed by a wl_output.done event. When creating\nwl_output and its extension objects, use a final wl_display.sync to\nguarantee that all output events have been received across all\nextensions.\n\nIf the wl_output associated with the zcr_color_management_output_v1 is\ndestroyed, the zcr_color_management_output_v1 object becomes inert.",
+        "summary": "output color properties"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_color_space",
+          "description": {
+            "type": "description",
+            "text": "This creates a new zcr_color_space_v1 object for the current color space\nof the output. There always is exactly one color space active for an\noutput so the client should destroy the color space created by earlier\ninvocations of this request. This request is usually sent as a reaction\nto the color_space_changed event or when creating a\nzcr_color_management_output_v1 object.\n\nThe created zcr_color_space_v1 object preserves the color space\nof the output from the time the object was created.\n\nThe resulting color space object allows get_information request.\n\nSee the zcr_color_space_v1 interface for more details.",
+            "summary": "get the color space of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the color zcr_color_management_output_v1 object. This does not\naffect any remaining protocol objects.",
+            "summary": "destroy the color management output"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "color_space_changed",
+          "description": {
+            "type": "description",
+            "text": "The color_space_changed event is sent whenever the color space of the\noutput changed, followed by one wl_output.done event common to\noutput events across all extensions.\n\nThis is not an initial event.",
+            "summary": "color space changed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "extended_dynamic_range",
+          "description": {
+            "type": "description",
+            "text": "This is both an initial event and sent whenever the value changed.\nWhen the value changed, this event is followed by one wl_output.done\nevent common to output events across all extensions.\n\nThe extended dynamic range value describes how much dynamic range is\navailable relative to the SDR maximum white. EDR value is proportional\nto luminance, and the luminance of black is used as the zero level.\nA value of 1.0 means that the the display can not display\nanything brighter than SDR maximum white. A value of 3.0 means that the\nSDR maximum white is at one third of the highest luminance the display\ncan produce.\n\nThe absolute luminance of the SDR maximum white depends on the monitor\ncapabilities, the viewing conditions and the viewer personal\npreferences. A such, it cannot be given a single value in cd/m².\nCompositors using HDR video modes should allow users to control the the\nSDR maximum white level which the output EDR value is calculated from.\n\nThe SDR maximum white is a relative reference luminance that allows\nto tone-map content from different dynamic ranges into a single common\ndynamic range for display.\n\nThe EDR value is multiplied by 1000 to produce the integer value\ncarried by the protocol.",
+            "summary": "output extended dynamic range"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "uint",
+              "summary": "EDR value * 1000"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcr_color_management_surface_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "A zcr_color_management_surface_v1 allows the client to set the color\nspace and HDR properties of a surface.\n\nIf the wl_surface associated with the zcr_color_management_surface_v1 is\ndestroyed, the zcr_color_management_surface_v1 object becomes inert.",
+        "summary": "color management extension to a surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_alpha_mode",
+          "description": {
+            "type": "description",
+            "text": "Assuming an alpha channel exists, it is always linear. The alpha mode\ndetermines whether the color channels include alpha pre-multiplied or\nnot. Using straight alpha might have performance benefits.\n\nAlpha mode is double buffered, and will be applied at the time\nwl_surface.commit of the corresponding wl_surface is called.\n\nBy default, a surface is assumed to have pre-multiplied alpha.",
+            "summary": "set the surface alpha mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "alpha_mode",
+              "argType": "uint",
+              "summary": "alpha mode",
+              "enum": "alpha_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_extended_dynamic_range",
+          "description": {
+            "type": "description",
+            "text": "Set the extended dynamic range (EDR) value for the underlying surface.\nThe EDR value is double buffered, and will be applied at the time\nwl_surface.commit of the corresponding wl_surface is called.\n\nThe EDR value describes how much dynamic range is encoded relative to\nthe SDR maximum white. EDR value is proportional to luminance, using\nthe luminance of black as the zero level. A value of 1.0 means that the\nSDR maximum white is the highest possible luminance of the surface. A\nvalue of 3.0 means that the SDR maximum white is one third of the\nhighest possible luminance of the surface.\n\nThe color space attached to the surface can make the code values in the\nbuffer non-linear in regards to the luminance. The code value to produce\na third of the luminance of the biggest code value therefore might not\nbe one third of the biggest code value.\n\nFor the definition of the SDR maximum white on an output, see\nzcr_color_management_output_v1.extended_dynamic_range. Content\nproducers are free to choose their SDR maximum white level. How it\nshall be displayed depends on the monitor capabilities and the output\nEDR value.\n\nBy default the EDR value is 1.0. The compositor will tone map the image\nto match the EDR of each output the surface is shown on. The aim for\nthe EDR-EDR mapping is to produce a relative luminance mapping that\nlooks equally good regardless of the viewing conditions and the monitor\ncapabilities, assuming the output EDR value was tuned to the output\ncapabilities and the viewing environment. There might be performance\nand image quality benefits from providing content readily tone mapped to\nthe EDR value of the output the surface is shown on.\n\nThe EDR value is multiplied by 1000 to produce the integer value\ncarried by the protocol.",
+            "summary": "set the content extended dynamic range"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "uint",
+              "summary": "EDR value * 1000"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_color_space",
+          "description": {
+            "type": "description",
+            "text": "Set the color space of the underlying surface. The color space and\nrender intent are double buffered, and will be applied\nat the time wl_surface.commit of the corresponding wl_surface is called.\n\n\nThe render intent gives the compositor a hint what to optimize for in\ncolor space transformations.\n\nBy default, a surface is assumed to have the sRGB color space and an\narbitrary render intent.\n\nIf the color space of the surface matches the color space of an output\nit is shown on the performance and color accuracy might improve. To find\nthose color spaces the client can listen to the preferred_color_space or\nthe wl_surface.enter/leave events. This improvement may require using\nthe color space object created by\nzcr_color_management_output_v1.get_color_space.",
+            "summary": "set the surface color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "color_space",
+              "argType": "object",
+              "interface": "zcr_color_space_v1"
+            },
+            {
+              "type": "arg",
+              "name": "render_intent",
+              "argType": "uint",
+              "summary": "render intent",
+              "enum": "render_intent"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_default_color_space",
+          "description": {
+            "type": "description",
+            "text": "This request sets the surface color space to the defaults, see\nset_color_space. The setting will be applied at the time\nwl_surface.commit of the corresponding wl_surface is called.",
+            "summary": "set the surface color space to default"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the zcr_color_management_surface_v1 object.\n\nWhen the last zcr_color_management_surface_v1 object for a wl_surface\nis destroyed, the destruction will pend unsetting the wl_surface's\ncolor space, render intent and alpha mode similar to set_color_space\nwill pend a set.",
+            "summary": "destroy the color management interface for a surface"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "preferred_color_space",
+          "description": {
+            "type": "description",
+            "text": "The preferred_color_space event is sent when the compositor determines\nor switches the output that implies the preferred color space. The\npreferred color space is the one which likely has the most performance\nand quality benefits if used by a client for its surface contents.\n\nThe event does not carry a zcr_color_space_v1 but a wl_output object.\nThe concrete zcr_color_space_v1 can be created by calling\nzcr_color_management_output_v1.get_color_space on the output and\nlistening to zcr_color_management_output_v1.color_space_changed\nevents.\n\nAs clients may bind to the same global wl_output multiple\ntimes, this event is sent for each bound instance that matches\nthe preferred color space output. If a client has not bound to\nthe right wl_output global at all, this event is not sent.\n\nThis is only a hint and clients can set any valid color space with\nset_color_space but there might be performance and color accuracy\nimprovements by providing the surface in the preferred color space.",
+            "summary": "output for color optimization"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "render_intent",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Rendering intent allow the client to hint at how to perform color space\ntransformations.\n\nSee the ICC specification for more details about rendering intent.",
+            "summary": "render intent"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "perceptual",
+              "value": "0",
+              "summary": "perceptual"
+            },
+            {
+              "type": "entry",
+              "name": "relative",
+              "value": "1",
+              "summary": "media-relative colorimetric"
+            },
+            {
+              "type": "entry",
+              "name": "saturation",
+              "value": "2",
+              "summary": "saturation"
+            },
+            {
+              "type": "entry",
+              "name": "absolute",
+              "value": "3",
+              "summary": "ICC-absolute colorimetric"
+            },
+            {
+              "type": "entry",
+              "name": "relative_bpc",
+              "value": "4",
+              "summary": "media-relative colorimetric + black point compensation"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "alpha_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Specifies whether alpha is pre-multiplied into color channels or not.\nIf pre-multiplied, the linear alpha value is already multiplied with the\n(non-linear) color channel code values in the color channels.",
+            "summary": "alpha mode"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "straight",
+              "value": "0",
+              "summary": "alpha is independent from color channels"
+            },
+            {
+              "type": "entry",
+              "name": "premultiplied",
+              "value": "1",
+              "summary": "alpha is pre-multiplied into color channels"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcr_color_space_creator_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "A zcr_color_space_creator_v1 object returns a created color space\nor the error which occured during creation.\n\nOnce a zcr_color_space_creator_v1 object has delivered a 'created'\nor 'error' event it is automatically destroyed.",
+        "summary": "color space creator"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "created",
+          "description": {
+            "type": "description",
+            "text": "Delivers the successfully created color space.\n\nThe resulting color space object does not allow get_information request.",
+            "summary": "color space object created"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zcr_color_space_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "error",
+          "description": {
+            "type": "description",
+            "text": "This event is sent if the color space creation failed.",
+            "summary": "color space creation failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "error",
+              "argType": "uint",
+              "summary": "error bitmask",
+              "enum": "creation_error"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "creation_error",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Bitmask of errors which occured while trying to create a color space",
+            "summary": "color space creation error"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "malformed_icc",
+              "value": "0x1",
+              "summary": "malformed ICC profile"
+            },
+            {
+              "type": "entry",
+              "name": "bad_icc",
+              "value": "0x2",
+              "summary": "ICC profile does not meet requirements"
+            },
+            {
+              "type": "entry",
+              "name": "bad_primaries",
+              "value": "0x4",
+              "summary": "bad primaries"
+            },
+            {
+              "type": "entry",
+              "name": "bad_whitepoint",
+              "value": "0x8",
+              "summary": "bad whitepoint"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcr_color_space_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "Refers to a color space which can be attached to a surface\n(zcr_color_management_surface_v1.set_color_space). It may provide\ninformation like the ICC profile and the well-known names to allow\nclients to know the color space and do color transformations of their\nown.\n\nOnce created and regardless of how it was created, a zcr_color_space_v1\nobject always refers to one fixed color space.\n\nThe client can create a zcr_color_space_v1 object with\nzcr_color_manager_v1 requests or from an output by calling\nzcr_color_management_output_v1.get_color_space.\n\nOther extensions may define more zcr_color_space_v1 factory interfaces.\nThose interfaces must explicitly specify the interface version for the\nobject created, otherwise versioning zcr_color_space_v1 correctly\nbecomes impossible. Using a 'new_id' argument without 'interface'\nattribute defined in XML forces code generators to add two explicit\narguments: interface and version. Version is the explicit version\nnumber needed, and interface should be required to be\n\"zcr_color_space_v1\". The compositor supported zcr_color_space_v1\nversions are defined by the advertised zcr_color_manager_v1 in\nwl_registry.",
+        "summary": "color space"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_information",
+          "description": {
+            "type": "description",
+            "text": "As a reply to this request, the compositor will send all available\ninformation events describing this color space object and finally\nthe 'done' event. Other extensions may define more events to be sent\nbefore 'done'.\n\nThis request is allowed only on zcr_color_space_v1 objects where the\nmessage that created the object specifies that get_information is\nallowed. Otherwise protocol error no_information is raised.\n\nEvery get_information request on the same object will always return the\nexact same data.\n\nSee zcr_color_management_output_v1.get_color_space and\nzcr_color_space_creator_v1.created.",
+            "summary": "get information about the color space"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the zcr_color_space_v1 object.\n\nDestroying the zcr_color_space_v1 which is active on a surface or an\noutput does not change the color space of those objects.",
+            "summary": "destroy the color space"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "icc_file",
+          "description": {
+            "type": "description",
+            "text": "This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nThe icc argument provides a file descriptor to the client which can be\nmemory-mapped to provide the ICC profile describing the color space.\nThe fd must be mapped with MAP_PRIVATE and read-only by the client.\n\nCompositors should send this event always when information is requested.\nICC profiles provide the common foundation which all color managed\nclients may rely on.",
+            "summary": "ICC profile describing the color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "icc",
+              "argType": "fd",
+              "summary": "ICC profile file descriptor"
+            },
+            {
+              "type": "arg",
+              "name": "icc_size",
+              "argType": "uint",
+              "summary": "ICC profile size, in bytes"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "names",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nEOTF, chromaticity and whitepoint contain well-known names of those\nproperties if available and unknown otherwise.\n\nCompositors should not assume that all clients can understand these\nnames. The names are provided for client convenience. If a client\nunderstands the name triplet, it may ignore other information about\nthe color space, the ICC profile for example. Use complete_names instead.",
+            "summary": "well-known names of a color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "zcr_color_manager_v1.eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "chromaticity",
+              "argType": "uint",
+              "summary": "chromaticity",
+              "enum": "zcr_color_manager_v1.chromaticity_names"
+            },
+            {
+              "type": "arg",
+              "name": "whitepoint",
+              "argType": "uint",
+              "summary": "whitepoint",
+              "enum": "zcr_color_manager_v1.whitepoint_names"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "params",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nThe RGB primary value arguments along with the whitepoint value arguments\nand eotf can be used to define an arbitrary or custom color space.\n\nThe eotf enum contains well known names of that property, but the compositor\nshould not assume that all clients will understand those names. Use\ncomplete_params instead.",
+            "summary": "RGB primaries along with whitepoint defining color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "zcr_color_manager_v1.eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_x",
+              "argType": "uint",
+              "summary": "red primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_y",
+              "argType": "uint",
+              "summary": "red primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_x",
+              "argType": "uint",
+              "summary": "green primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_y",
+              "argType": "uint",
+              "summary": "green primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_x",
+              "argType": "uint",
+              "summary": "blue primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_y",
+              "argType": "uint",
+              "summary": "blue primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_x",
+              "argType": "uint",
+              "summary": "white point X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_y",
+              "argType": "uint",
+              "summary": "white point Y * 10000"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nThis signifies that all color space information events have been\ndelivered for the object.",
+            "summary": "end of color space information"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "complete_names",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nEOTF, chromaticity, matrix, range and whitepoint contain well-known names of those\nproperties if available and unknown otherwise.\n\nCompositors should not assume that all clients can understand these\nnames. The names are provided for client convenience. If a client\nunderstands the name triplet, it may ignore other information about\nthe color space, the ICC profile for example.",
+            "summary": "well-known names of a color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "zcr_color_manager_v1.eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "chromaticity",
+              "argType": "uint",
+              "summary": "chromaticity",
+              "enum": "zcr_color_manager_v1.chromaticity_names"
+            },
+            {
+              "type": "arg",
+              "name": "whitepoint",
+              "argType": "uint",
+              "summary": "whitepoint",
+              "enum": "zcr_color_manager_v1.whitepoint_names"
+            },
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "uint",
+              "summary": "Color matrix",
+              "enum": "zcr_color_manager_v1.matrix_names"
+            },
+            {
+              "type": "arg",
+              "name": "range",
+              "argType": "uint",
+              "summary": "Color range",
+              "enum": "zcr_color_manager_v1.range_names"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "complete_params",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event may be sent only as a response to\nzcr_color_space_v1.get_information.\n\nThe RGB primary value arguments along with the whitepoint value arguments\nand eotf can be used to define an arbitrary or custom color space.\n\nThe eotf enum contains well known names of that property, but the compositor\nshould not assume that all clients will understand those names.",
+            "summary": "RGB primaries along with whitepoint defining color space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "eotf",
+              "argType": "uint",
+              "summary": "EOTF",
+              "enum": "zcr_color_manager_v1.eotf_names"
+            },
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "uint",
+              "summary": "Color matrix",
+              "enum": "zcr_color_manager_v1.matrix_names"
+            },
+            {
+              "type": "arg",
+              "name": "range",
+              "argType": "uint",
+              "summary": "Color range",
+              "enum": "zcr_color_manager_v1.range_names"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_x",
+              "argType": "uint",
+              "summary": "red primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_r_y",
+              "argType": "uint",
+              "summary": "red primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_x",
+              "argType": "uint",
+              "summary": "green primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_g_y",
+              "argType": "uint",
+              "summary": "green primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_x",
+              "argType": "uint",
+              "summary": "blue primary X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "primary_b_y",
+              "argType": "uint",
+              "summary": "blue primary Y * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_x",
+              "argType": "uint",
+              "summary": "white point X * 10000"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_y",
+              "argType": "uint",
+              "summary": "white point Y * 10000"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_information",
+              "value": "0",
+              "summary": "get_information disallowed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,123 @@
-{"type":"protocol","name":"fractional_scale_v1","copyright":{"type":"copyright","text":"Copyright © 2022 Kenny Levinsen\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol allows a compositor to suggest for surfaces to render at\n    fractional scales.\n\n    A client can submit scaled content by utilizing wp_viewport. This is done by\n    creating a wp_viewport object for the surface and setting the destination\n    rectangle to the surface size before the scale factor is applied.\n\n    The buffer size is calculated by multiplying the surface size by the\n    intended scale.\n\n    The wl_surface buffer scale should remain set to 1.\n\n    If a surface has a surface-local size of 100 px by 50 px and wishes to\n    submit buffers with a scale of 1.5, then a buffer of 150px by 75 px should\n    be used and the wp_viewport destination rectangle should be 100 px by 50 px.\n\n    For toplevel surfaces, the size is rounded halfway away from zero. The\n    rounding algorithm for subsurface position and size is not defined.","summary":"Protocol for requesting fractional surface scales"},"interfaces":[{"type":"interface","name":"wp_fractional_scale_manager_v1","version":"1","description":{"type":"description","text":"A global interface for requesting surfaces to use fractional scales.","summary":"fractional surface scale information"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Informs the server that the client will not be using this protocol\n        object anymore. This does not affect any other objects,\n        wp_fractional_scale_v1 objects included.","summary":"unbind the fractional surface scale interface"},"args":[]},{"type":"request","name":"get_fractional_scale","description":{"type":"description","text":"Create an add-on object for the the wl_surface to let the compositor\n        request fractional scales. If the given wl_surface already has a\n        wp_fractional_scale_v1 object associated, the fractional_scale_exists\n        protocol error is raised.","summary":"extend surface interface for scale information"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new surface scale info interface id","interface":"wp_fractional_scale_v1"},{"type":"arg","name":"surface","argType":"object","summary":"the surface","interface":"wl_surface"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"fractional_scale_exists","value":"0","summary":"the surface already has a fractional_scale object associated"}]}]},{"type":"interface","name":"wp_fractional_scale_v1","version":"1","description":{"type":"description","text":"An additional interface to a wl_surface object which allows the compositor\n      to inform the client of the preferred scale.","summary":"fractional scale interface to a wl_surface"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the fractional scale object. When this object is destroyed,\n        preferred_scale events will no longer be sent.","summary":"remove surface scale information for surface"},"args":[]}],"events":[{"type":"event","name":"preferred_scale","description":{"type":"description","text":"Notification of a new preferred scale for this surface that the\n        compositor suggests that the client should use.\n\n        The sent scale is the numerator of a fraction with a denominator of 120.","summary":"notify of new preferred scale"},"args":[{"type":"arg","name":"scale","argType":"uint","summary":"the new preferred scale"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "fractional_scale_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2022 Kenny Levinsen\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a compositor to suggest for surfaces to render at\nfractional scales.\n\nA client can submit scaled content by utilizing wp_viewport. This is done by\ncreating a wp_viewport object for the surface and setting the destination\nrectangle to the surface size before the scale factor is applied.\n\nThe buffer size is calculated by multiplying the surface size by the\nintended scale.\n\nThe wl_surface buffer scale should remain set to 1.\n\nIf a surface has a surface-local size of 100 px by 50 px and wishes to\nsubmit buffers with a scale of 1.5, then a buffer of 150px by 75 px should\nbe used and the wp_viewport destination rectangle should be 100 px by 50 px.\n\nFor toplevel surfaces, the size is rounded halfway away from zero. The\nrounding algorithm for subsurface position and size is not defined.",
+    "summary": "Protocol for requesting fractional surface scales"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wp_fractional_scale_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global interface for requesting surfaces to use fractional scales.",
+        "summary": "fractional surface scale information"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will not be using this protocol\nobject anymore. This does not affect any other objects,\nwp_fractional_scale_v1 objects included.",
+            "summary": "unbind the fractional surface scale interface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_fractional_scale",
+          "description": {
+            "type": "description",
+            "text": "Create an add-on object for the the wl_surface to let the compositor\nrequest fractional scales. If the given wl_surface already has a\nwp_fractional_scale_v1 object associated, the fractional_scale_exists\nprotocol error is raised.",
+            "summary": "extend surface interface for scale information"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new surface scale info interface id",
+              "interface": "wp_fractional_scale_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "fractional_scale_exists",
+              "value": "0",
+              "summary": "the surface already has a fractional_scale object associated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "wp_fractional_scale_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An additional interface to a wl_surface object which allows the compositor\nto inform the client of the preferred scale.",
+        "summary": "fractional scale interface to a wl_surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the fractional scale object. When this object is destroyed,\npreferred_scale events will no longer be sent.",
+            "summary": "remove surface scale information for surface"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "preferred_scale",
+          "description": {
+            "type": "description",
+            "text": "Notification of a new preferred scale for this surface that the\ncompositor suggests that the client should use.\n\nThe sent scale is the numerator of a fraction with a denominator of 120.",
+            "summary": "notify of new preferred scale"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "uint",
+              "summary": "the new preferred scale"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

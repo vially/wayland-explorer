@@ -59,7 +59,7 @@ async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
     )
 
     const dstFileName = jsonFilePathFor(srcFileName)
-    await fs.writeFile(dstFileName, JSON.stringify(protocol))
+    await fs.writeFile(dstFileName, JSON.stringify(protocol, undefined, 2))
     console.log(`✔ ${path.basename(dstFileName)}`)
 }
 

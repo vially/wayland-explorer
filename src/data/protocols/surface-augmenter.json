@@ -1,1 +1,569 @@
-{"type":"protocol","name":"surface_augmenter","copyright":{"type":"copyright","text":"Copyright 2021 The Chromium Authors\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"surface_augmenter","version":"5","description":{"type":"description","text":"The global interface exposing surface delegated composition\n      capabilities is used to instantiate an interface extension for a\n      wl_surface object. This extended interface will then allow\n      delegated compostion of the surface contents, effectively\n      disconnecting the direct relationship between the buffer and the\n      surface content (adding support for solid quads and rounded corner\n      for instance).","summary":"surface composition delegation"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Informs the server that the client will not be using this\n        protocol object anymore. This does not affect any other objects,\n        augmenter objects included.","summary":"Destroy the surface augmenter."},"args":[]},{"type":"request","name":"create_solid_color_buffer","description":{"type":"description","text":"Instantiate a buffer of the given size for the purpose of a solid color\n  quad of a given color.","summary":"creates a solid color buffer"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"wl_buffer"},{"type":"arg","name":"color","argType":"array","summary":"quad color represented by a SkColor4f"},{"type":"arg","name":"width","argType":"int"},{"type":"arg","name":"height","argType":"int"}]},{"type":"request","name":"get_augmented_surface","description":{"type":"description","text":"Instantiate an interface extension for the given wl_surface to\n\textend composition of its content. If the given wl_surface already has\n\ta augmentation object associated, the delegate_exists protocol error is\n  raised.","summary":"extend surface interface for delegation"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new augmenter interface id","interface":"augmented_surface"},{"type":"arg","name":"surface","argType":"object","summary":"the surface","interface":"wl_surface"}]},{"type":"request","name":"get_augmented_subsurface","since":"2","description":{"type":"description","text":"Instantiate an interface extension for the given wl_subsurface to\n\textend composition of its content. If the given wl_subsurface already has\n\ta augmentation object associated, the delegate_exists protocol error is\n  raised.","summary":"extend sub surface interface for delegation"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new augmenter interface id","interface":"augmented_sub_surface"},{"type":"arg","name":"subsurface","argType":"object","summary":"the subsurface","interface":"wl_subsurface"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"augmented_surface_exists","value":"0","summary":"the surface already has a augmenter object\n             associated"}]}]},{"type":"interface","name":"augmented_surface","version":"3","description":{"type":"description","text":"An additional interface to a wl_surface object, which allows the\n      client to specify the delegated composition of the surface\n      contents.","summary":"delegate composition of a wl_surface"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"The associated wl_surface's augmenter is removed.\n\tThe change is applied on the next wl_surface.commit.","summary":"remove delegated composition of the surface"},"args":[]},{"type":"request","name":"set_rounded_corners","description":{"type":"description","text":"[Deprecated] Informs the server that it must apply the rounded corners\n        mask filter that shall be applied on next commit. Use\n        set_rounded_corners_bounds instead.","summary":"set the surface rounded corners"},"args":[{"type":"arg","name":"top_left","argType":"fixed","summary":"top left corner"},{"type":"arg","name":"top_right","argType":"fixed","summary":"top right corner"},{"type":"arg","name":"bottom_right","argType":"fixed","summary":"bottom right corner"},{"type":"arg","name":"bottom_left","argType":"fixed","summary":"bottom left corner"}]},{"type":"request","name":"set_destination_size","since":"2","description":{"type":"description","text":"Sets the surface destination viewport size, with subpixel accuracy.\n      This state is double-buffered, and is applied on the next wl_surface.commit.","summary":"set the surface destination viewport size, with subpixel accuracy"},"args":[{"type":"arg","name":"width","argType":"fixed","summary":"width of the surface"},{"type":"arg","name":"height","argType":"fixed","summary":"height of the surface"}]},{"type":"request","name":"set_rounded_clip_bounds","since":"2","description":{"type":"description","text":"Informs the server that it must apply the rounded clipping mask filter\n        that shall be applied on next commit. The mask can be uniform for\n        several surfaces and applied uniformally so that two or more\n        surfaces visually look as a single surface with rounded corners.\n        Please note this is can only be used on surfaces that are used as\n        overlays, which must not have any subtrees. The rounding will be\n        ignored if the bounds are outside of the surface.","summary":"set the surface rounded clip bounds"},"args":[{"type":"arg","name":"x","argType":"int"},{"type":"arg","name":"y","argType":"int"},{"type":"arg","name":"width","argType":"int"},{"type":"arg","name":"height","argType":"int"},{"type":"arg","name":"top_left","argType":"fixed","summary":"top left corner"},{"type":"arg","name":"top_right","argType":"fixed","summary":"top right corner"},{"type":"arg","name":"bottom_right","argType":"fixed","summary":"bottom right corner"},{"type":"arg","name":"bottom_left","argType":"fixed","summary":"bottom left corner"}]},{"type":"request","name":"set_background_color","since":"3","description":{"type":"description","text":"Sets a background color of a this surface. This information will be\n        associated with the next buffer commit. Please note this is different\n        from solid color buffers, which creates a new buffer instance, and\n        rather provides additional information how the buffer should be\n        composited. Passing empty array means the background color is reset.\n        The default value is determined by the Wayland compositor then.","summary":"sets a background color of this surface"},"args":[{"type":"arg","name":"color","argType":"array","summary":"overlay color represented by a SkColor4f"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"bad_value","value":"0","summary":"negative values in radius or size"},{"type":"entry","name":"no_surface","value":"1","summary":"the wl_surface was destroyed"}]}]},{"type":"interface","name":"augmented_sub_surface","version":"5","description":{"type":"description","text":"An additional interface to a wl_subsurface object, which allows the\n      client to specify the delegated composition of the surface\n      contents.","summary":"delegate composition of a wl_subsurface"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"The associated wl_surface's augmenter is removed.\n\tThe change is applied on the next wl_surface.commit.","summary":"remove delegated composition of the surface"},"args":[]},{"type":"request","name":"set_position","description":{"type":"description","text":"This schedules a sub-surface position change.\n\tThe sub-surface will be moved so that its origin (top left\n\tcorner pixel) will be at the location x, y of the parent surface\n\tcoordinate system. The coordinates are not restricted to the parent\n\tsurface area. Negative values are allowed.\n\n\tThe scheduled coordinates will take effect whenever the state of the\n\tparent surface is applied. When this happens depends on whether the\n\tparent surface is in synchronized mode or not. See\n\twl_subsurface.set_sync and wl_subsurface.set_desync for details.\n\n\tIf more than one set_position request is invoked by the client before\n\tthe commit of the parent surface, the position of a new request always\n\treplaces the scheduled position from any previous request.\n\n\tThe initial position is 0, 0.\n  This state is double-buffered, and is applied on the next wl_surface.commit.","summary":"sets a subsurface position with subpixel accuracy"},"args":[{"type":"arg","name":"x","argType":"fixed","summary":"x coordinate in the parent surface"},{"type":"arg","name":"y","argType":"fixed","summary":"y coordinate in the parent surface"}]},{"type":"request","name":"set_clip_rect","since":"4","description":{"type":"description","text":"This schedules a clip rect to be applied when drawing this sub-surface.\n  The clip will be placed with its origin (top left corner pixel) at the\n  location x, y of the parent surface coordinate system. The coordinates are not\n  restricted to the parent surface area. Negative x and y values are allowed.\n\n  If all of x, y, width and height are -1.0, the clip rect is unset instead.\n\n  Initially, surfaces have no clip set.\n  This state is double-buffered, and is applied on the next wl_surface.commit.","summary":"sets a subsurface clip rect with subpixel accuracy"},"args":[{"type":"arg","name":"x","argType":"fixed","summary":"x coordinate in the parent surface"},{"type":"arg","name":"y","argType":"fixed","summary":"y coordinate in the parent surface"},{"type":"arg","name":"width","argType":"fixed","summary":"width of the clip rect"},{"type":"arg","name":"height","argType":"fixed","summary":"height of the clip rect"}]},{"type":"request","name":"set_transform","since":"5","description":{"type":"description","text":"This schedules a transform to be applied when drawing this sub-surface.\n        This transform does not apply to any child surfaces of this sub-surface.\n\n        The matrix should be passed as an array of 6 floats in column major\n        order. An empty array can be sent to set the transform to the identity\n        matrix.\n\n        The initial transform is identity.\n        This state is double-buffered, and is applied on the next wl_surface.commit.","summary":"sets a subsurface transform as an affine matrix"},"args":[{"type":"arg","name":"matrix","argType":"array","summary":"size 6 affine matrix, or size 0 for identity matrix"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_size","value":"0","summary":"array sent with invalid dimensions"}]}]}]}
+{
+  "type": "protocol",
+  "name": "surface_augmenter",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2021 The Chromium Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "surface_augmenter",
+      "version": "12",
+      "description": {
+        "type": "description",
+        "text": "The global interface exposing surface delegated composition\ncapabilities is used to instantiate an interface extension for a\nwl_surface object. This extended interface will then allow\ndelegated compostion of the surface contents, effectively\ndisconnecting the direct relationship between the buffer and the\nsurface content (adding support for solid quads and rounded corner\nfor instance).",
+        "summary": "surface composition delegation"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will not be using this\nprotocol object anymore. This does not affect any other objects,\naugmenter objects included.",
+            "summary": "Destroy the surface augmenter."
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_solid_color_buffer",
+          "description": {
+            "type": "description",
+            "text": "Instantiate a buffer of the given size for the purpose of a solid color\nquad of a given color.\n\n\nThis buffer does not require resources in the compositor, so it is immediately\nreusable and shareable. So it is not responsible for sending wl_buffer.release\nor zwp_linux_buffer_release_v1.*_release events.",
+            "summary": "creates a solid color buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "color",
+              "argType": "array",
+              "summary": "quad color represented by a SkColor4f"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_augmented_surface",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given wl_surface to\nextend composition of its content. If the given wl_surface already has\na augmentation object associated, the delegate_exists protocol error is\nraised.\n\n\nIf needs to be called, this must be called before a surface role object is\ncreated.",
+            "summary": "extend surface interface for delegation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new augmenter interface id",
+              "interface": "augmented_surface"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_augmented_subsurface",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given wl_subsurface to\nextend composition of its content. If the given wl_subsurface already has\na augmentation object associated, the delegate_exists protocol error is\nraised.",
+            "summary": "extend sub surface interface for delegation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new augmenter interface id",
+              "interface": "augmented_sub_surface"
+            },
+            {
+              "type": "arg",
+              "name": "subsurface",
+              "argType": "object",
+              "summary": "the subsurface",
+              "interface": "wl_subsurface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "augmented_surface_exists",
+              "value": "0",
+              "summary": "the surface already has a augmenter object\n             associated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "augmented_surface",
+      "version": "12",
+      "description": {
+        "type": "description",
+        "text": "An additional interface to a wl_surface object, which allows the\nclient to specify the delegated composition of the surface\ncontents.\n\n\nThis makes the surface an object only used to composite its parent\nsurface. This means the surface will be clipped to the parent bounds, will\nnot receive input events or display enter/leave events, etc.\n\nUse wl_subsurface role objects to express which parent surface this will\nperform delegate composition for.\n\nThe commits to this surface is assumed to behave synchronized with its\nparent commits, as a synchronized wl_subsurface would.\n\nThe compositor does not perform fine-grained damage extension calculation\nthat is introduced by an augmented_surface moving, resizing, changing\nstacking, or disappearing. A client performing such operations should\naccount for it and damage the parent non-augmented wl_surface accordingly.\n\nVarious changes like adding or removing an augmented sub-surface, changing\nits position or stacking order, will not introduce extra damage on the\ncompositor side. The parent wl_surface should account for the extra damage\nintroduced.\n\nThis surface, using a wl_subsurface role of its parent, cannot be stacked\nrelative to non-augmented sub-surfaces of the parent, but can be stacked\nrelative to other augmented children. Nor can this surface have\nnon-augmented sub-surface children.\n\nA mixed tree structure of using augmented_surfaces to delegate composite\nwl_surfaces would look like this:\n\nwl_surface@1:{ augmented_surface@1,2,3 }\n/           \\_____\n/                   \\\nwl_surface@2:               wl_surface@3:\n{ augmented_surface@4,5 }   { augmented_surface@6 }\n\nEvery wl_surface has a list of augmented_surfaces. Assuming the\nwl_surface stacking order, from bottom to top, is:\nwl_surface@1, wl_surface@2, wl_surface@3\n\nThen the final composition order, from bottom to top, is:\nwl_surface@1, augmented_surface@1,2,3, wl_surface@2, augmented_surface@4,5,\nwl_surface@3, augmented_surface@6",
+        "summary": "delegate composition of a wl_surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Client will no longer be able to control the delegated composition properties\nof this surface. This does not change the existing delegated composition\nbehavior.",
+            "summary": "remove delegated composition of the surface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_rounded_corners",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated]. Use set_rounded_corners_clip_bounds request below.\n\nInforms the server that it must apply the rounded corners\nmask filter that shall be applied on next commit. Use\nset_rounded_corners_bounds instead.",
+            "summary": "set the surface rounded corners"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "top_left",
+              "argType": "fixed",
+              "summary": "top left corner"
+            },
+            {
+              "type": "arg",
+              "name": "top_right",
+              "argType": "fixed",
+              "summary": "top right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_right",
+              "argType": "fixed",
+              "summary": "bottom right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_left",
+              "argType": "fixed",
+              "summary": "bottom left corner"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_destination_size",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Sets the surface destination viewport size, with subpixel accuracy.\nThis state is double-buffered, and is applied on the next wl_surface.commit.",
+            "summary": "set the surface destination viewport size, with subpixel accuracy"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "fixed",
+              "summary": "width of the surface"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "fixed",
+              "summary": "height of the surface"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_rounded_clip_bounds",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated]. Use set_rounded_corners_clip_bounds request below.\n\nInforms the server that it must apply the rounded clipping mask filter\nthat shall be applied on next commit. The mask can be uniform for\nseveral surfaces and applied uniformally so that two or more\nsurfaces visually look as a single surface with rounded corners.\nPlease note this is can only be used on surfaces that are used as\noverlays, which must not have any subtrees. The rounding will be\nignored if the bounds are outside of the surface.",
+            "summary": "set the surface rounded clip bounds"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "top_left",
+              "argType": "fixed",
+              "summary": "top left corner"
+            },
+            {
+              "type": "arg",
+              "name": "top_right",
+              "argType": "fixed",
+              "summary": "top right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_right",
+              "argType": "fixed",
+              "summary": "bottom right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_left",
+              "argType": "fixed",
+              "summary": "bottom left corner"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_background_color",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Sets a background color of a this surface. This information will be\nassociated with the next buffer commit. Please note this is different\nfrom solid color buffers, which creates a new buffer instance, and\nrather provides additional information how the buffer should be\ncomposited. Passing empty array means the background color is reset.\nThe default value is determined by the Wayland compositor then.",
+            "summary": "sets a background color of this surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "color",
+              "argType": "array",
+              "summary": "overlay color represented by a SkColor4f"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_trusted_damage",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] When set, this surface trusts all damage reported to this\nsurface and descendant sub-surfaces is accurate, and will not try to\nrecompute it. If not set, various changes like adding or removing a\nsub-surface, changing its position or stacking order, can cause full\ndamage on this surface.\n\nThe initial state is disabled.",
+            "summary": "sets the trusted damage state of this surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "enabled",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_rounded_corners_clip_bounds",
+          "since": "7",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that it must apply the rounded clipping mask filter\nthat shall be applied on next commit. The mask can be uniform for\nseveral surfaces and applied uniformally so that two or more\nsurfaces visually look as a single surface with rounded corners.\n\nSince version 9, the bounds will be placed with its origin (top left\ncorner pixel) at the location x, y of the surface local coordinate\nsystem. On version 8 or before, it is placed with its root surface\ncoordinates, but this is deperecated.\n\nPlease note this is can only be used on surfaces that are used as\noverlays, which must not have any subtrees. The rounding will be\nignored if the bounds are outside of the surface.",
+            "summary": "set the surface rounded corners clip bounds"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "top_left",
+              "argType": "fixed",
+              "summary": "top left corner"
+            },
+            {
+              "type": "arg",
+              "name": "top_right",
+              "argType": "fixed",
+              "summary": "top right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_right",
+              "argType": "fixed",
+              "summary": "bottom right corner"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_left",
+              "argType": "fixed",
+              "summary": "bottom left corner"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_clip_rect",
+          "since": "8",
+          "description": {
+            "type": "description",
+            "text": "This schedules a clip rect to be applied when drawing this sub-surface.\nThe clip will be placed with its origin (top left corner pixel) at the\nlocation x, y of the surface local coordinate system. The coordinates are not\nrestricted to the surface area. Negative x and y values are allowed.\n\nIf all of x, y, width and height are -1.0, the clip rect is unset instead.\n\nInitially, surfaces have no clip set.\nThis state is double-buffered, and is applied on the next wl_surface.commit.",
+            "summary": "sets a subsurface clip rect on surface local coordinates"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "x coordinate in the surface local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "y coordinate in the surface local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "fixed",
+              "summary": "width of the clip rect"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "fixed",
+              "summary": "height of the clip rect"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_frame_trace_id",
+          "since": "11",
+          "description": {
+            "type": "description",
+            "text": "This sets a trace ID to connect the frame submission trace event flow at\nthe client and the server side.\nThis state is double-buffered, and is applied on the next\nwl_surface.commit.",
+            "summary": "sets a trace ID for tracking frame submission flow"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the trace ID"
+            },
+            {
+              "type": "arg",
+              "name": "id_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the trace ID"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "bad_value",
+              "value": "0",
+              "summary": "negative values in radius or size"
+            },
+            {
+              "type": "entry",
+              "name": "no_surface",
+              "value": "1",
+              "summary": "the wl_surface was destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "bad_surface",
+              "value": "2",
+              "summary": "incompatible surface"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "augmented_sub_surface",
+      "version": "5",
+      "description": {
+        "type": "description",
+        "text": "An additional interface to a wl_subsurface object, which allows the\nclient to specify the delegated composition of the surface\ncontents.",
+        "summary": "delegate composition of a wl_subsurface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The associated wl_surface's augmenter is removed.\nThe change is applied on the next wl_surface.commit.",
+            "summary": "remove delegated composition of the surface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_position",
+          "description": {
+            "type": "description",
+            "text": "This schedules a sub-surface position change.\nThe sub-surface will be moved so that its origin (top left\ncorner pixel) will be at the location x, y of the parent surface\ncoordinate system. The coordinates are not restricted to the parent\nsurface area. Negative values are allowed.\n\nThe scheduled coordinates will take effect whenever the state of the\nparent surface is applied. When this happens depends on whether the\nparent surface is in synchronized mode or not. See\nwl_subsurface.set_sync and wl_subsurface.set_desync for details.\n\nIf more than one set_position request is invoked by the client before\nthe commit of the parent surface, the position of a new request always\nreplaces the scheduled position from any previous request.\n\nThe initial position is 0, 0.\nThis state is double-buffered, and is applied on the next wl_surface.commit.",
+            "summary": "sets a subsurface position with subpixel accuracy"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "x coordinate in the parent surface"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "y coordinate in the parent surface"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_clip_rect",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "[Deprecated] Use set_clip_rect on augmented_surface instead.\nThis schedules a clip rect to be applied when drawing this sub-surface.\nThe clip will be placed with its origin (top left corner pixel) at the\nlocation x, y of the parent surface coordinate system. The coordinates are not\nrestricted to the parent surface area. Negative x and y values are allowed.\n\nIf all of x, y, width and height are -1.0, the clip rect is unset instead.\n\nInitially, surfaces have no clip set.\nThis state is double-buffered, and is applied on the next wl_surface.commit.",
+            "summary": "sets a subsurface clip rect with subpixel accuracy"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "x coordinate in the parent surface"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "y coordinate in the parent surface"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "fixed",
+              "summary": "width of the clip rect"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "fixed",
+              "summary": "height of the clip rect"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_transform",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "text": "This schedules a transform to be applied when drawing this sub-surface.\nThis transform does not apply to any child surfaces of this sub-surface.\n\nThe matrix should be passed as an array of 6 floats in column major\norder. An empty array can be sent to set the transform to the identity\nmatrix.\n\nThe initial transform is identity.\nThis state is double-buffered, and is applied on the next\nwl_surface.commit.",
+            "summary": "sets a subsurface transform as an affine matrix"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "array",
+              "summary": "size 6 affine matrix, or size 0 for identity matrix"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_size",
+              "value": "0",
+              "summary": "array sent with invalid dimensions"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

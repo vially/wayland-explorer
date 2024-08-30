@@ -1,1 +1,222 @@
-{"type":"protocol","name":"zwp_linux_explicit_synchronization_unstable_v1","copyright":{"type":"copyright","text":"Copyright 2016 The Chromium Authors.\n    Copyright 2017 Intel Corporation\n    Copyright 2018 Collabora, Ltd\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"zwp_linux_explicit_synchronization_v1","version":"2","description":{"type":"description","text":"This global is a factory interface, allowing clients to request\n      explicit synchronization for buffers on a per-surface basis.\n\n      See zwp_linux_surface_synchronization_v1 for more information.\n\n      This interface is derived from Chromium's\n      zcr_linux_explicit_synchronization_v1.\n\n      Note: this protocol is superseded by linux-drm-syncobj.\n\n      Warning! The protocol described in this file is experimental and\n      backward incompatible changes may be made. Backward compatible changes\n      may be added together with the corresponding interface version bump.\n      Backward incompatible changes are done by bumping the version number in\n      the protocol and interface names and resetting the interface version.\n      Once the protocol is to be declared stable, the 'z' prefix and the\n      version number in the protocol and interface names are removed and the\n      interface version number is reset.","summary":"protocol for providing explicit synchronization"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this explicit synchronization factory object. Other objects,\n        including zwp_linux_surface_synchronization_v1 objects created by this\n        factory, shall not be affected by this request.","summary":"destroy explicit synchronization factory object"},"args":[]},{"type":"request","name":"get_synchronization","description":{"type":"description","text":"Instantiate an interface extension for the given wl_surface to provide\n        explicit synchronization.\n\n        If the given wl_surface already has an explicit synchronization object\n        associated, the synchronization_exists protocol error is raised.\n\n        Graphics APIs, like EGL or Vulkan, that manage the buffer queue and\n        commits of a wl_surface themselves, are likely to be using this\n        extension internally. If a client is using such an API for a\n        wl_surface, it should not directly use this extension on that surface,\n        to avoid raising a synchronization_exists protocol error.","summary":"extend surface interface for explicit synchronization"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new synchronization interface id","interface":"zwp_linux_surface_synchronization_v1"},{"type":"arg","name":"surface","argType":"object","summary":"the surface","interface":"wl_surface"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"synchronization_exists","value":"0","summary":"the surface already has a synchronization object associated"}]}]},{"type":"interface","name":"zwp_linux_surface_synchronization_v1","version":"2","description":{"type":"description","text":"This object implements per-surface explicit synchronization.\n\n      Synchronization refers to co-ordination of pipelined operations performed\n      on buffers. Most GPU clients will schedule an asynchronous operation to\n      render to the buffer, then immediately send the buffer to the compositor\n      to be attached to a surface.\n\n      In implicit synchronization, ensuring that the rendering operation is\n      complete before the compositor displays the buffer is an implementation\n      detail handled by either the kernel or userspace graphics driver.\n\n      By contrast, in explicit synchronization, dma_fence objects mark when the\n      asynchronous operations are complete. When submitting a buffer, the\n      client provides an acquire fence which will be waited on before the\n      compositor accesses the buffer. The Wayland server, through a\n      zwp_linux_buffer_release_v1 object, will inform the client with an event\n      which may be accompanied by a release fence, when the compositor will no\n      longer access the buffer contents due to the specific commit that\n      requested the release event.\n\n      Each surface can be associated with only one object of this interface at\n      any time.\n\n      In version 1 of this interface, explicit synchronization is only\n      guaranteed to be supported for buffers created with any version of the\n      wp_linux_dmabuf buffer factory. Version 2 additionally guarantees\n      explicit synchronization support for opaque EGL buffers, which is a type\n      of platform specific buffers described in the EGL_WL_bind_wayland_display\n      extension. Compositors are free to support explicit synchronization for\n      additional buffer types.","summary":"per-surface explicit synchronization support"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this explicit synchronization object.\n\n        Any fence set by this object with set_acquire_fence since the last\n        commit will be discarded by the server. Any fences set by this object\n        before the last commit are not affected.\n\n        zwp_linux_buffer_release_v1 objects created by this object are not\n        affected by this request.","summary":"destroy synchronization object"},"args":[]},{"type":"request","name":"set_acquire_fence","description":{"type":"description","text":"Set the acquire fence that must be signaled before the compositor\n        may sample from the buffer attached with wl_surface.attach. The fence\n        is a dma_fence kernel object.\n\n        The acquire fence is double-buffered state, and will be applied on the\n        next wl_surface.commit request for the associated surface. Thus, it\n        applies only to the buffer that is attached to the surface at commit\n        time.\n\n        If the provided fd is not a valid dma_fence fd, then an INVALID_FENCE\n        error is raised.\n\n        If a fence has already been attached during the same commit cycle, a\n        DUPLICATE_FENCE error is raised.\n\n        If the associated wl_surface was destroyed, a NO_SURFACE error is\n        raised.\n\n        If at surface commit time the attached buffer does not support explicit\n        synchronization, an UNSUPPORTED_BUFFER error is raised.\n\n        If at surface commit time there is no buffer attached, a NO_BUFFER\n        error is raised.","summary":"set the acquire fence"},"args":[{"type":"arg","name":"fd","argType":"fd","summary":"acquire fence fd"}]},{"type":"request","name":"get_release","description":{"type":"description","text":"Create a listener for the release of the buffer attached by the\n        client with wl_surface.attach. See zwp_linux_buffer_release_v1\n        documentation for more information.\n\n        The release object is double-buffered state, and will be associated\n        with the buffer that is attached to the surface at wl_surface.commit\n        time.\n\n        If a zwp_linux_buffer_release_v1 object has already been requested for\n        the surface in the same commit cycle, a DUPLICATE_RELEASE error is\n        raised.\n\n        If the associated wl_surface was destroyed, a NO_SURFACE error\n        is raised.\n\n        If at surface commit time there is no buffer attached, a NO_BUFFER\n        error is raised.","summary":"release fence for last-attached buffer"},"args":[{"type":"arg","name":"release","argType":"new_id","summary":"new zwp_linux_buffer_release_v1 object","interface":"zwp_linux_buffer_release_v1"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_fence","value":"0","summary":"the fence specified by the client could not be imported"},{"type":"entry","name":"duplicate_fence","value":"1","summary":"multiple fences added for a single surface commit"},{"type":"entry","name":"duplicate_release","value":"2","summary":"multiple releases added for a single surface commit"},{"type":"entry","name":"no_surface","value":"3","summary":"the associated wl_surface was destroyed"},{"type":"entry","name":"unsupported_buffer","value":"4","summary":"the buffer does not support explicit synchronization"},{"type":"entry","name":"no_buffer","value":"5","summary":"no buffer was attached"}]}]},{"type":"interface","name":"zwp_linux_buffer_release_v1","version":"1","description":{"type":"description","text":"This object is instantiated in response to a\n      zwp_linux_surface_synchronization_v1.get_release request.\n\n      It provides an alternative to wl_buffer.release events, providing a\n      unique release from a single wl_surface.commit request. The release event\n      also supports explicit synchronization, providing a fence FD for the\n      client to synchronize against.\n\n      Exactly one event, either a fenced_release or an immediate_release, will\n      be emitted for the wl_surface.commit request. The compositor can choose\n      release by release which event it uses.\n\n      This event does not replace wl_buffer.release events; servers are still\n      required to send those events.\n\n      Once a buffer release object has delivered a 'fenced_release' or an\n      'immediate_release' event it is automatically destroyed.","summary":"buffer release explicit synchronization"},"requests":[],"events":[{"type":"event","name":"fenced_release","eventType":"destructor","description":{"type":"description","text":"Sent when the compositor has finalised its usage of the associated\n        buffer for the relevant commit, providing a dma_fence which will be\n        signaled when all operations by the compositor on that buffer for that\n        commit have finished.\n\n        Once the fence has signaled, and assuming the associated buffer is not\n        pending release from other wl_surface.commit requests, no additional\n        explicit or implicit synchronization is required to safely reuse or\n        destroy the buffer.\n\n        This event destroys the zwp_linux_buffer_release_v1 object.","summary":"release buffer with fence"},"args":[{"type":"arg","name":"fence","argType":"fd","summary":"fence for last operation on buffer"}]},{"type":"event","name":"immediate_release","eventType":"destructor","description":{"type":"description","text":"Sent when the compositor has finalised its usage of the associated\n        buffer for the relevant commit, and either performed no operations\n        using it, or has a guarantee that all its operations on that buffer for\n        that commit have finished.\n\n        Once this event is received, and assuming the associated buffer is not\n        pending release from other wl_surface.commit requests, no additional\n        explicit or implicit synchronization is required to safely reuse or\n        destroy the buffer.\n\n        This event destroys the zwp_linux_buffer_release_v1 object.","summary":"release buffer immediately"},"args":[]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "zwp_linux_explicit_synchronization_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2016 The Chromium Authors.\nCopyright 2017 Intel Corporation\nCopyright 2018 Collabora, Ltd\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwp_linux_explicit_synchronization_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This global is a factory interface, allowing clients to request\nexplicit synchronization for buffers on a per-surface basis.\n\nSee zwp_linux_surface_synchronization_v1 for more information.\n\nThis interface is derived from Chromium's\nzcr_linux_explicit_synchronization_v1.\n\nNote: this protocol is superseded by linux-drm-syncobj.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+        "summary": "protocol for providing explicit synchronization"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this explicit synchronization factory object. Other objects,\nincluding zwp_linux_surface_synchronization_v1 objects created by this\nfactory, shall not be affected by this request.",
+            "summary": "destroy explicit synchronization factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_synchronization",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given wl_surface to provide\nexplicit synchronization.\n\nIf the given wl_surface already has an explicit synchronization object\nassociated, the synchronization_exists protocol error is raised.\n\nGraphics APIs, like EGL or Vulkan, that manage the buffer queue and\ncommits of a wl_surface themselves, are likely to be using this\nextension internally. If a client is using such an API for a\nwl_surface, it should not directly use this extension on that surface,\nto avoid raising a synchronization_exists protocol error.",
+            "summary": "extend surface interface for explicit synchronization"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new synchronization interface id",
+              "interface": "zwp_linux_surface_synchronization_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "synchronization_exists",
+              "value": "0",
+              "summary": "the surface already has a synchronization object associated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwp_linux_surface_synchronization_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This object implements per-surface explicit synchronization.\n\nSynchronization refers to co-ordination of pipelined operations performed\non buffers. Most GPU clients will schedule an asynchronous operation to\nrender to the buffer, then immediately send the buffer to the compositor\nto be attached to a surface.\n\nIn implicit synchronization, ensuring that the rendering operation is\ncomplete before the compositor displays the buffer is an implementation\ndetail handled by either the kernel or userspace graphics driver.\n\nBy contrast, in explicit synchronization, dma_fence objects mark when the\nasynchronous operations are complete. When submitting a buffer, the\nclient provides an acquire fence which will be waited on before the\ncompositor accesses the buffer. The Wayland server, through a\nzwp_linux_buffer_release_v1 object, will inform the client with an event\nwhich may be accompanied by a release fence, when the compositor will no\nlonger access the buffer contents due to the specific commit that\nrequested the release event.\n\nEach surface can be associated with only one object of this interface at\nany time.\n\nIn version 1 of this interface, explicit synchronization is only\nguaranteed to be supported for buffers created with any version of the\nwp_linux_dmabuf buffer factory. Version 2 additionally guarantees\nexplicit synchronization support for opaque EGL buffers, which is a type\nof platform specific buffers described in the EGL_WL_bind_wayland_display\nextension. Compositors are free to support explicit synchronization for\nadditional buffer types.",
+        "summary": "per-surface explicit synchronization support"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this explicit synchronization object.\n\nAny fence set by this object with set_acquire_fence since the last\ncommit will be discarded by the server. Any fences set by this object\nbefore the last commit are not affected.\n\nzwp_linux_buffer_release_v1 objects created by this object are not\naffected by this request.",
+            "summary": "destroy synchronization object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_acquire_fence",
+          "description": {
+            "type": "description",
+            "text": "Set the acquire fence that must be signaled before the compositor\nmay sample from the buffer attached with wl_surface.attach. The fence\nis a dma_fence kernel object.\n\nThe acquire fence is double-buffered state, and will be applied on the\nnext wl_surface.commit request for the associated surface. Thus, it\napplies only to the buffer that is attached to the surface at commit\ntime.\n\nIf the provided fd is not a valid dma_fence fd, then an INVALID_FENCE\nerror is raised.\n\nIf a fence has already been attached during the same commit cycle, a\nDUPLICATE_FENCE error is raised.\n\nIf the associated wl_surface was destroyed, a NO_SURFACE error is\nraised.\n\nIf at surface commit time the attached buffer does not support explicit\nsynchronization, an UNSUPPORTED_BUFFER error is raised.\n\nIf at surface commit time there is no buffer attached, a NO_BUFFER\nerror is raised.",
+            "summary": "set the acquire fence"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "acquire fence fd"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_release",
+          "description": {
+            "type": "description",
+            "text": "Create a listener for the release of the buffer attached by the\nclient with wl_surface.attach. See zwp_linux_buffer_release_v1\ndocumentation for more information.\n\nThe release object is double-buffered state, and will be associated\nwith the buffer that is attached to the surface at wl_surface.commit\ntime.\n\nIf a zwp_linux_buffer_release_v1 object has already been requested for\nthe surface in the same commit cycle, a DUPLICATE_RELEASE error is\nraised.\n\nIf the associated wl_surface was destroyed, a NO_SURFACE error\nis raised.\n\nIf at surface commit time there is no buffer attached, a NO_BUFFER\nerror is raised.",
+            "summary": "release fence for last-attached buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "release",
+              "argType": "new_id",
+              "summary": "new zwp_linux_buffer_release_v1 object",
+              "interface": "zwp_linux_buffer_release_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_fence",
+              "value": "0",
+              "summary": "the fence specified by the client could not be imported"
+            },
+            {
+              "type": "entry",
+              "name": "duplicate_fence",
+              "value": "1",
+              "summary": "multiple fences added for a single surface commit"
+            },
+            {
+              "type": "entry",
+              "name": "duplicate_release",
+              "value": "2",
+              "summary": "multiple releases added for a single surface commit"
+            },
+            {
+              "type": "entry",
+              "name": "no_surface",
+              "value": "3",
+              "summary": "the associated wl_surface was destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "unsupported_buffer",
+              "value": "4",
+              "summary": "the buffer does not support explicit synchronization"
+            },
+            {
+              "type": "entry",
+              "name": "no_buffer",
+              "value": "5",
+              "summary": "no buffer was attached"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwp_linux_buffer_release_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is instantiated in response to a\nzwp_linux_surface_synchronization_v1.get_release request.\n\nIt provides an alternative to wl_buffer.release events, providing a\nunique release from a single wl_surface.commit request. The release event\nalso supports explicit synchronization, providing a fence FD for the\nclient to synchronize against.\n\nExactly one event, either a fenced_release or an immediate_release, will\nbe emitted for the wl_surface.commit request. The compositor can choose\nrelease by release which event it uses.\n\nThis event does not replace wl_buffer.release events; servers are still\nrequired to send those events.\n\nOnce a buffer release object has delivered a 'fenced_release' or an\n'immediate_release' event it is automatically destroyed.",
+        "summary": "buffer release explicit synchronization"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "fenced_release",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Sent when the compositor has finalised its usage of the associated\nbuffer for the relevant commit, providing a dma_fence which will be\nsignaled when all operations by the compositor on that buffer for that\ncommit have finished.\n\nOnce the fence has signaled, and assuming the associated buffer is not\npending release from other wl_surface.commit requests, no additional\nexplicit or implicit synchronization is required to safely reuse or\ndestroy the buffer.\n\nThis event destroys the zwp_linux_buffer_release_v1 object.",
+            "summary": "release buffer with fence"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fence",
+              "argType": "fd",
+              "summary": "fence for last operation on buffer"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "immediate_release",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Sent when the compositor has finalised its usage of the associated\nbuffer for the relevant commit, and either performed no operations\nusing it, or has a guarantee that all its operations on that buffer for\nthat commit have finished.\n\nOnce this event is received, and assuming the associated buffer is not\npending release from other wl_surface.commit requests, no additional\nexplicit or implicit synchronization is required to safely reuse or\ndestroy the buffer.\n\nThis event destroys the zwp_linux_buffer_release_v1 object.",
+            "summary": "release buffer immediately"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

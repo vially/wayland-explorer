@@ -1,1 +1,111 @@
-{"type":"protocol","name":"ext_idle_notify_v1","copyright":{"type":"copyright","text":"Copyright © 2015 Martin Gräßlin\n    Copyright © 2022 Simon Ser\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"ext_idle_notifier_v1","version":"1","description":{"type":"description","text":"This interface allows clients to monitor user idle status.\n\n      After binding to this global, clients can create ext_idle_notification_v1\n      objects to get notified when the user is idle for a given amount of time.","summary":"idle notification manager"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the manager object. All objects created via this interface\n        remain valid.","summary":"destroy the manager"},"args":[]},{"type":"request","name":"get_idle_notification","description":{"type":"description","text":"Create a new idle notification object.\n\n        The notification object has a minimum timeout duration and is tied to a\n        seat. The client will be notified if the seat is inactive for at least\n        the provided timeout. See ext_idle_notification_v1 for more details.\n\n        A zero timeout is valid and means the client wants to be notified as\n        soon as possible when the seat is inactive.","summary":"create a notification object"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"ext_idle_notification_v1"},{"type":"arg","name":"timeout","argType":"uint","summary":"minimum idle timeout in msec"},{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"}]}],"events":[],"enums":[]},{"type":"interface","name":"ext_idle_notification_v1","version":"1","description":{"type":"description","text":"This interface is used by the compositor to send idle notification events\n      to clients.\n\n      Initially the notification object is not idle. The notification object\n      becomes idle when no user activity has happened for at least the timeout\n      duration, starting from the creation of the notification object. User\n      activity may include input events or a presence sensor, but is\n      compositor-specific. If an idle inhibitor is active (e.g. another client\n      has created a zwp_idle_inhibitor_v1 on a visible surface), the compositor\n      must not make the notification object idle.\n\n      When the notification object becomes idle, an idled event is sent. When\n      user activity starts again, the notification object stops being idle,\n      a resumed event is sent and the timeout is restarted.","summary":"idle notification"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the notification object.","summary":"destroy the notification object"},"args":[]}],"events":[{"type":"event","name":"idled","description":{"type":"description","text":"This event is sent when the notification object becomes idle.\n\n        It's a compositor protocol error to send this event twice without a\n        resumed event in-between.","summary":"notification object is idle"},"args":[]},{"type":"event","name":"resumed","description":{"type":"description","text":"This event is sent when the notification object stops being idle.\n\n        It's a compositor protocol error to send this event twice without an\n        idled event in-between. It's a compositor protocol error to send this\n        event prior to any idled event.","summary":"notification object is no longer idle"},"args":[]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "ext_idle_notify_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2015 Martin Gräßlin\nCopyright © 2022 Simon Ser\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "ext_idle_notifier_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to monitor user idle status.\n\nAfter binding to this global, clients can create ext_idle_notification_v1\nobjects to get notified when the user is idle for a given amount of time.",
+        "summary": "idle notification manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object. All objects created via this interface\nremain valid.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_idle_notification",
+          "description": {
+            "type": "description",
+            "text": "Create a new idle notification object.\n\nThe notification object has a minimum timeout duration and is tied to a\nseat. The client will be notified if the seat is inactive for at least\nthe provided timeout. See ext_idle_notification_v1 for more details.\n\nA zero timeout is valid and means the client wants to be notified as\nsoon as possible when the seat is inactive.",
+            "summary": "create a notification object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "ext_idle_notification_v1"
+            },
+            {
+              "type": "arg",
+              "name": "timeout",
+              "argType": "uint",
+              "summary": "minimum idle timeout in msec"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "ext_idle_notification_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is used by the compositor to send idle notification events\nto clients.\n\nInitially the notification object is not idle. The notification object\nbecomes idle when no user activity has happened for at least the timeout\nduration, starting from the creation of the notification object. User\nactivity may include input events or a presence sensor, but is\ncompositor-specific. If an idle inhibitor is active (e.g. another client\nhas created a zwp_idle_inhibitor_v1 on a visible surface), the compositor\nmust not make the notification object idle.\n\nWhen the notification object becomes idle, an idled event is sent. When\nuser activity starts again, the notification object stops being idle,\na resumed event is sent and the timeout is restarted.",
+        "summary": "idle notification"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the notification object.",
+            "summary": "destroy the notification object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "idled",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the notification object becomes idle.\n\nIt's a compositor protocol error to send this event twice without a\nresumed event in-between.",
+            "summary": "notification object is idle"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "resumed",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the notification object stops being idle.\n\nIt's a compositor protocol error to send this event twice without an\nidled event in-between. It's a compositor protocol error to send this\nevent prior to any idled event.",
+            "summary": "notification object is no longer idle"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

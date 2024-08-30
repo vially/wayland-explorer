@@ -1,1 +1,53 @@
-{"type":"protocol","name":"kde_primary_output_v1","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2021 Aleix Pol Gonzalez <aleixpol@kde.org>\n\n    SPDX-License-Identifier: MIT-CMU\n    "},"interfaces":[{"type":"interface","name":"kde_primary_output_v1","version":"2","description":{"type":"description","text":"Protocol for telling which is the primary display among the selection of enabled outputs.","summary":"expose which is the primary display"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","since":"2","description":{"type":"description","summary":"Destroy the primary output notifier."},"args":[]}],"events":[{"type":"event","name":"primary_output","description":{"type":"description","text":"Specifies which output is the primary one identified by their uuid. See kde_output_device_v2 uuid event for more information about it.","summary":"Provide the current primary output's name"},"args":[{"type":"arg","name":"output_name","argType":"string","summary":"the name of the output"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "kde_primary_output_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2021 Aleix Pol Gonzalez <aleixpol@kde.org>\n\nSPDX-License-Identifier: MIT-CMU\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "kde_primary_output_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "Protocol for telling which is the primary display among the selection\nof enabled outputs.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
+        "summary": "expose which is the primary display"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "Destroy the primary output notifier."
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "primary_output",
+          "description": {
+            "type": "description",
+            "text": "Specifies which output is the primary one identified by their uuid. See kde_output_device_v2 uuid event for more information about it.",
+            "summary": "Provide the current primary output's name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string",
+              "summary": "the name of the output"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

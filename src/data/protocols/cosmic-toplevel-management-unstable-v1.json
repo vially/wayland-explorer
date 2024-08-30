@@ -1,1 +1,348 @@
-{"type":"protocol","name":"cosmic_toplevel_management_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2018 Ilia Bozhinov\n    Copyright © 2020 Isaac Freund\n    Copyright © 2022 wb9688\n    Copyright © 2022 Victoria Brekenfeld\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"interfaces":[{"type":"interface","name":"zcosmic_toplevel_manager_v1","version":"2","description":{"type":"description","text":"This protocol allows clients such as a taskbar to request the compositor\n      to preform typical actions on open toplevels. The compositor is in all\n      cases free to ignore the request.","summary":"control open apps"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"This request indicates that the client has finished using the\n        zcosmic_toplevel_manager_v1 object and that it can be safely\n        destroyed.","summary":"destroy the zcosmic_toplevel_manager_v1"},"args":[]},{"type":"request","name":"close","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.closed event will be sent.","summary":"request that a toplevel be closed"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"activate","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be activated"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"},{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"}]},{"type":"request","name":"set_maximized","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be maximized"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"unset_maximized","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be unmaximized"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"set_minimized","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be minimized"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"unset_minimized","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be unminimized"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"set_fullscreen","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state and potentially the\n        zcosmic_toplevel_handle_v1.output_enter/output_leave events will\n        be sent.\n\n        The output parameter a hint to the compositor and may be ignored. A\n        value of NULL indicates that the compositor should choose the target\n        output, if it honors the fullscreen request.","summary":"request that a toplevel be fullscreened"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output","allowNull":"true"}]},{"type":"request","name":"unset_fullscreen","description":{"type":"description","text":"If the compositor honors this request, the\n        zcosmic_toplevel_handle_v1.state event will be sent.","summary":"request that a toplevel be unfullscreened"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"set_rectangle","description":{"type":"description","text":"If a client using this protocol displays UI elements corresponding\n        to toplevels, it may use this request to inform the server about such\n        a relation. This information may be used by the server, for example as\n        the target for a minimize animation.\n\n        If the client sets more than one rectangle, only the most recently\n        set rectangle is considered.\n\n        The dimensions are given in surface-local coordinates.\n\n        Setting width=height=0 removes the current rectangle if one was set.","summary":"designate a rectangle to represent a toplevel"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"x","argType":"int"},{"type":"arg","name":"y","argType":"int"},{"type":"arg","name":"width","argType":"int"},{"type":"arg","name":"height","argType":"int"}]},{"type":"request","name":"move_to_workspace","since":"2","description":{"type":"description","text":"Move window to workspace, on given output.","summary":"move toplevel to workspace"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"},{"type":"arg","name":"workspace","argType":"object","interface":"zcosmic_workspace_handle_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]}],"events":[{"type":"event","name":"capabilities","description":{"type":"description","text":"This event advertises the capabilities supported by the compositor. If\n        a capability isn't supported, clients should hide or disable the UI\n        elements that expose this functionality. For instance, if the\n        compositor doesn't advertise support for closing toplevels, a button\n        triggering the close request should not be displayed.\n\n        The compositor will ignore requests it doesn't support. For instance,\n        a compositor which doesn't advertise support for closing toplevels will ignore\n        close requests.\n\n        Compositors must send this event once after creation of an\n        zcosmic_toplevel_manager_v1 . When the capabilities change, compositors\n        must send this event again.\n\n        The capabilities are sent as an array of 32-bit unsigned integers in\n        native endianness.","summary":"compositor capabilities"},"args":[{"type":"arg","name":"capabilities","argType":"array","summary":"array of 32-bit capabilities"}]}],"enums":[{"type":"enum","name":"zcosmic_toplelevel_management_capabilities_v1","bitfield":false,"entries":[{"type":"entry","name":"close","value":"1","summary":"close request is available"},{"type":"entry","name":"activate","value":"2","summary":"activate request is available"},{"type":"entry","name":"maximize","value":"3","summary":"set_maximized and unset_maximized requests are available"},{"type":"entry","name":"minimize","value":"4","summary":"set_minimized and unset_minimized requests are available"},{"type":"entry","name":"fullscreen","value":"5","summary":"set_fullscreen and unset_fullscreen requests are available"},{"type":"entry","name":"move_to_workspace","value":"6","summary":"move_to_workspace request is available","since":"2"}]},{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_rectangle","value":"0","summary":"the provided rectangle is invalid"}]}]}]}
+{
+  "type": "protocol",
+  "name": "cosmic_toplevel_management_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopyright © 2022 wb9688\nCopyright © 2022 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_toplevel_manager_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This protocol allows clients such as a taskbar to request the compositor\nto preform typical actions on open toplevels. The compositor is in all\ncases free to ignore the request.",
+        "summary": "control open apps"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client has finished using the\nzcosmic_toplevel_manager_v1 object and that it can be safely\ndestroyed.",
+            "summary": "destroy the zcosmic_toplevel_manager_v1"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.closed event will be sent.",
+            "summary": "request that a toplevel be closed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be activated"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_maximized",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be maximized"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_maximized",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be unmaximized"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_minimized",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be minimized"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_minimized",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be unminimized"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state and potentially the\nzcosmic_toplevel_handle_v1.output_enter/output_leave events will\nbe sent.\n\nThe output parameter a hint to the compositor and may be ignored. A\nvalue of NULL indicates that the compositor should choose the target\noutput, if it honors the fullscreen request.",
+            "summary": "request that a toplevel be fullscreened"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be unfullscreened"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_rectangle",
+          "description": {
+            "type": "description",
+            "text": "If a client using this protocol displays UI elements corresponding\nto toplevels, it may use this request to inform the server about such\na relation. This information may be used by the server, for example as\nthe target for a minimize animation.\n\nIf the client sets more than one rectangle, only the most recently\nset rectangle is considered.\n\nThe dimensions are given in surface-local coordinates.\n\nSetting width=height=0 removes the current rectangle if one was set.",
+            "summary": "designate a rectangle to represent a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "move_to_workspace",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Move window to workspace, on given output.",
+            "summary": "move toplevel to workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "zcosmic_workspace_handle_v1",
+              "protocol": "cosmic-workspace-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "capabilities",
+          "description": {
+            "type": "description",
+            "text": "This event advertises the capabilities supported by the compositor. If\na capability isn't supported, clients should hide or disable the UI\nelements that expose this functionality. For instance, if the\ncompositor doesn't advertise support for closing toplevels, a button\ntriggering the close request should not be displayed.\n\nThe compositor will ignore requests it doesn't support. For instance,\na compositor which doesn't advertise support for closing toplevels will ignore\nclose requests.\n\nCompositors must send this event once after creation of an\nzcosmic_toplevel_manager_v1 . When the capabilities change, compositors\nmust send this event again.\n\nThe capabilities are sent as an array of 32-bit unsigned integers in\nnative endianness.",
+            "summary": "compositor capabilities"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "capabilities",
+              "argType": "array",
+              "summary": "array of 32-bit capabilities"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "zcosmic_toplelevel_management_capabilities_v1",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "close",
+              "value": "1",
+              "summary": "close request is available"
+            },
+            {
+              "type": "entry",
+              "name": "activate",
+              "value": "2",
+              "summary": "activate request is available"
+            },
+            {
+              "type": "entry",
+              "name": "maximize",
+              "value": "3",
+              "summary": "set_maximized and unset_maximized requests are available"
+            },
+            {
+              "type": "entry",
+              "name": "minimize",
+              "value": "4",
+              "summary": "set_minimized and unset_minimized requests are available"
+            },
+            {
+              "type": "entry",
+              "name": "fullscreen",
+              "value": "5",
+              "summary": "set_fullscreen and unset_fullscreen requests are available"
+            },
+            {
+              "type": "entry",
+              "name": "move_to_workspace",
+              "value": "6",
+              "summary": "move_to_workspace request is available",
+              "since": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_rectangle",
+              "value": "0",
+              "summary": "the provided rectangle is invalid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

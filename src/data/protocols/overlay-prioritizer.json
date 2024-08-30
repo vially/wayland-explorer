@@ -1,1 +1,170 @@
-{"type":"protocol","name":"overlay_prioritizer","copyright":{"type":"copyright","text":"Copyright 2021 The Chromium Authors\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"overlay_prioritizer","version":"1","description":{"type":"description","text":"The global interface exposing overlay delegated prioritization\n      hint capabilities is used to instantiate an interface extension for a\n      wl_surface object. This extended interface will then allow\n      delegated overlay prioritization of the surface.","summary":"overlay hint prioritization"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Informs the server that the client will not be using this\n        protocol object anymore. This does not affect any other objects,\n        prioritizer objects included.","summary":"Destroy the overlay prioritizer."},"args":[]},{"type":"request","name":"get_overlay_prioritized_surface","description":{"type":"description","text":"Instantiate an interface extension for the given wl_surface to\n\tadd support for overlay prioritization hinting. If the given wl_surface already has\n\ta prioritization object associated, the delegate_exists protocol error is\n  raised.","summary":"extend surface interface for overlay prioritization hint"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new prioritized interface id","interface":"overlay_prioritized_surface"},{"type":"arg","name":"surface","argType":"object","summary":"the surface","interface":"wl_surface"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"overlay_hinted_surface_exists","value":"0","summary":"the surface already has a prioritizer object\n             associated"}]}]},{"type":"interface","name":"overlay_prioritized_surface","version":"1","description":{"type":"description","text":"An additional interface to a wl_surface object, which allows the\n      client to specify hints for the overlay prioritization of the surface.","summary":"delegate overlay prioritization hint of a wl_surface"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"The associated wl_surface's overlay prioritization is removed.\n\tThe change is applied on the next wl_surface.commit.","summary":"remove overlay prioritization the surface"},"args":[]},{"type":"request","name":"set_overlay_priority","description":{"type":"description","summary":"set the surface overlay priority"},"args":[{"type":"arg","name":"priority","argType":"uint"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"bad_value","value":"0","summary":"negative values in radius or size"},{"type":"entry","name":"no_surface","value":"1","summary":"the wl_surface was destroyed"}]},{"type":"enum","name":"overlay_priority","bitfield":false,"description":{"type":"description","summary":"hints for overlay prioritization"},"entries":[{"type":"entry","name":"none","value":"0","summary":"overlay promotion is not necessary for this surface"},{"type":"entry","name":"regular","value":"1","summary":"surface could be considered as a candidate for promotion"},{"type":"entry","name":"preferred_low_latency_canvas","value":"2","summary":"the surface is a low latency canvas that works better if promoted to overlay"},{"type":"entry","name":"required_hardware_protection","value":"3","summary":"the surface contains protected content and requires to be promoted to overlay"}]}]}]}
+{
+  "type": "protocol",
+  "name": "overlay_prioritizer",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2021 The Chromium Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "overlay_prioritizer",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The global interface exposing overlay delegated prioritization\nhint capabilities is used to instantiate an interface extension for a\nwl_surface object. This extended interface will then allow\ndelegated overlay prioritization of the surface.",
+        "summary": "overlay hint prioritization"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will not be using this\nprotocol object anymore. This does not affect any other objects,\nprioritizer objects included.",
+            "summary": "Destroy the overlay prioritizer."
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_overlay_prioritized_surface",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given wl_surface to\nadd support for overlay prioritization hinting. If the given wl_surface already has\na prioritization object associated, the delegate_exists protocol error is\nraised.",
+            "summary": "extend surface interface for overlay prioritization hint"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new prioritized interface id",
+              "interface": "overlay_prioritized_surface"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "overlay_hinted_surface_exists",
+              "value": "0",
+              "summary": "the surface already has a prioritizer object\n             associated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "overlay_prioritized_surface",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An additional interface to a wl_surface object, which allows the\nclient to specify hints for the overlay prioritization of the surface.",
+        "summary": "delegate overlay prioritization hint of a wl_surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The associated wl_surface's overlay prioritization is removed.\nThe change is applied on the next wl_surface.commit.",
+            "summary": "remove overlay prioritization the surface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_overlay_priority",
+          "description": {
+            "type": "description",
+            "summary": "set the surface overlay priority"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "priority",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "bad_value",
+              "value": "0",
+              "summary": "negative values in radius or size"
+            },
+            {
+              "type": "entry",
+              "name": "no_surface",
+              "value": "1",
+              "summary": "the wl_surface was destroyed"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "overlay_priority",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "hints for overlay prioritization"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "summary": "overlay promotion is not necessary for this surface"
+            },
+            {
+              "type": "entry",
+              "name": "regular",
+              "value": "1",
+              "summary": "surface could be considered as a candidate for promotion"
+            },
+            {
+              "type": "entry",
+              "name": "preferred_low_latency_canvas",
+              "value": "2",
+              "summary": "the surface is a low latency canvas that works better if promoted to overlay"
+            },
+            {
+              "type": "entry",
+              "name": "required_hardware_protection",
+              "value": "3",
+              "summary": "the surface contains protected content and requires to be promoted to overlay"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

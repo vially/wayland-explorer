@@ -1,1 +1,147 @@
-{"type":"protocol","name":"xdg_toplevel_drag_v1","copyright":{"type":"copyright","text":"Copyright 2023 David Redondo\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"xdg_toplevel_drag_manager_v1","version":"1","description":{"type":"description","text":"This protocol enhances normal drag and drop with the ability to move a\n      window at the same time. This allows having detachable parts of a window\n      that when dragged out of it become a new window and can be dragged over\n      an existing window to be reattached.\n\n      A typical workflow would be when the user starts dragging on top of a\n      detachable part of a window, the client would create a wl_data_source and\n      a xdg_toplevel_drag_v1 object and start the drag as normal via\n      wl_data_device.start_drag. Once the client determines that the detachable\n      window contents should be detached from the originating window, it creates\n      a new xdg_toplevel with these contents and issues a\n      xdg_toplevel_drag_v1.attach request before mapping it. From now on the new\n      window is moved by the compositor during the drag as if the client called\n      xdg_toplevel.move.\n\n      Dragging an existing window is similar. The client creates a\n      xdg_toplevel_drag_v1 object and attaches the existing toplevel before\n      starting the drag.\n\n      Clients use the existing drag and drop mechanism to detect when a window\n      can be docked or undocked. If the client wants to snap a window into a\n      parent window it should delete or unmap the dragged top-level. If the\n      contents should be detached again it attaches a new toplevel as described\n      above. If a drag operation is cancelled without being dropped, clients\n      should revert to the previous state, deleting any newly created windows\n      as appropriate. When a drag operation ends as indicated by\n      wl_data_source.dnd_drop_performed the dragged toplevel window's final\n      position is determined as if a xdg_toplevel_move operation ended.\n\n      Warning! The protocol described in this file is currently in the testing\n      phase. Backward compatible changes may be added together with the\n      corresponding interface version bump. Backward incompatible changes can\n      only be done by creating a new major version of the extension.","summary":"Move a window during a drag"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this xdg_toplevel_drag_manager_v1 object. Other objects,\n        including xdg_toplevel_drag_v1 objects created by this factory, are not\n        affected by this request.","summary":"destroy the xdg_toplevel_drag_manager_v1 object"},"args":[]},{"type":"request","name":"get_xdg_toplevel_drag","description":{"type":"description","text":"Create an xdg_toplevel_drag for a drag and drop operation that is going\n        to be started with data_source.\n\n        This request can only be made on sources used in drag-and-drop, so it\n        must be performed before wl_data_device.start_drag. Attempting to use\n        the source other than for drag-and-drop such as in\n        wl_data_device.set_selection will raise an invalid_source error.\n\n        Destroying data_source while a toplevel is attached to the\n        xdg_toplevel_drag is undefined.","summary":"get an xdg_toplevel_drag for a wl_data_source"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"xdg_toplevel_drag_v1"},{"type":"arg","name":"data_source","argType":"object","interface":"wl_data_source"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_source","value":"0","summary":"data_source already used for toplevel drag"}]}]},{"type":"interface","name":"xdg_toplevel_drag_v1","version":"1","description":{"type":"description","summary":"Object representing a toplevel move during a drag"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this xdg_toplevel_drag_v1 object. This request must only be\n        called after the underlying wl_data_source drag has ended, as indicated\n        by the dnd_drop_performed or cancelled events. In any other case an\n        ongoing_drag error is raised.","summary":"destroy an xdg_toplevel_drag_v1 object"},"args":[]},{"type":"request","name":"attach","description":{"type":"description","text":"Request that the window will be moved with the cursor during the drag\n        operation. The offset is a hint to the compositor how the toplevel\n        should be positioned relative to the cursor hotspot in surface local\n        coordinates. For example it might only be used when an unmapped window\n        is attached. The attached window does not participate in the selection\n        of the drag target.\n\n        If the toplevel is unmapped while it is attached, it is automatically\n        detached from the drag. In this case this request has to be called again\n        if the window should be attached after it is remapped.\n\n        This request can be called multiple times but issuing it while a\n        toplevel with an active role is attached raises a toplevel_attached\n        error.","summary":"Move a toplevel with the drag operation"},"args":[{"type":"arg","name":"toplevel","argType":"object","interface":"xdg_toplevel"},{"type":"arg","name":"x_offset","argType":"int","summary":"dragged surface x offset"},{"type":"arg","name":"y_offset","argType":"int","summary":"dragged surface y offset"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"toplevel_attached","value":"0","summary":"valid toplevel already attached"},{"type":"entry","name":"ongoing_drag","value":"1","summary":"drag has not ended"}]}]}]}
+{
+  "type": "protocol",
+  "name": "xdg_toplevel_drag_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2023 David Redondo\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_drag_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This protocol enhances normal drag and drop with the ability to move a\nwindow at the same time. This allows having detachable parts of a window\nthat when dragged out of it become a new window and can be dragged over\nan existing window to be reattached.\n\nA typical workflow would be when the user starts dragging on top of a\ndetachable part of a window, the client would create a wl_data_source and\na xdg_toplevel_drag_v1 object and start the drag as normal via\nwl_data_device.start_drag. Once the client determines that the detachable\nwindow contents should be detached from the originating window, it creates\na new xdg_toplevel with these contents and issues a\nxdg_toplevel_drag_v1.attach request before mapping it. From now on the new\nwindow is moved by the compositor during the drag as if the client called\nxdg_toplevel.move.\n\nDragging an existing window is similar. The client creates a\nxdg_toplevel_drag_v1 object and attaches the existing toplevel before\nstarting the drag.\n\nClients use the existing drag and drop mechanism to detect when a window\ncan be docked or undocked. If the client wants to snap a window into a\nparent window it should delete or unmap the dragged top-level. If the\ncontents should be detached again it attaches a new toplevel as described\nabove. If a drag operation is cancelled without being dropped, clients\nshould revert to the previous state, deleting any newly created windows\nas appropriate. When a drag operation ends as indicated by\nwl_data_source.dnd_drop_performed the dragged toplevel window's final\nposition is determined as if a xdg_toplevel_move operation ended.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "Move a window during a drag"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this xdg_toplevel_drag_manager_v1 object. Other objects,\nincluding xdg_toplevel_drag_v1 objects created by this factory, are not\naffected by this request.",
+            "summary": "destroy the xdg_toplevel_drag_manager_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_xdg_toplevel_drag",
+          "description": {
+            "type": "description",
+            "text": "Create an xdg_toplevel_drag for a drag and drop operation that is going\nto be started with data_source.\n\nThis request can only be made on sources used in drag-and-drop, so it\nmust be performed before wl_data_device.start_drag. Attempting to use\nthe source other than for drag-and-drop such as in\nwl_data_device.set_selection will raise an invalid_source error.\n\nDestroying data_source while a toplevel is attached to the\nxdg_toplevel_drag is undefined.",
+            "summary": "get an xdg_toplevel_drag for a wl_data_source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xdg_toplevel_drag_v1"
+            },
+            {
+              "type": "arg",
+              "name": "data_source",
+              "argType": "object",
+              "interface": "wl_data_source",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_source",
+              "value": "0",
+              "summary": "data_source already used for toplevel drag"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_drag_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "summary": "Object representing a toplevel move during a drag"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this xdg_toplevel_drag_v1 object. This request must only be\ncalled after the underlying wl_data_source drag has ended, as indicated\nby the dnd_drop_performed or cancelled events. In any other case an\nongoing_drag error is raised.",
+            "summary": "destroy an xdg_toplevel_drag_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "attach",
+          "description": {
+            "type": "description",
+            "text": "Request that the window will be moved with the cursor during the drag\noperation. The offset is a hint to the compositor how the toplevel\nshould be positioned relative to the cursor hotspot in surface local\ncoordinates. For example it might only be used when an unmapped window\nis attached. The attached window does not participate in the selection\nof the drag target.\n\nIf the toplevel is unmapped while it is attached, it is automatically\ndetached from the drag. In this case this request has to be called again\nif the window should be attached after it is remapped.\n\nThis request can be called multiple times but issuing it while a\ntoplevel with an active role is attached raises a toplevel_attached\nerror.",
+            "summary": "Move a toplevel with the drag operation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "x_offset",
+              "argType": "int",
+              "summary": "dragged surface x offset"
+            },
+            {
+              "type": "arg",
+              "name": "y_offset",
+              "argType": "int",
+              "summary": "dragged surface y offset"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "toplevel_attached",
+              "value": "0",
+              "summary": "valid toplevel already attached"
+            },
+            {
+              "type": "entry",
+              "name": "ongoing_drag",
+              "value": "1",
+              "summary": "drag has not ended"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -35,8 +35,8 @@ export const WaylandDescription: React.FC<
 function parseList(block: string): { block: string; list?: string[] } {
     const listStart = block.startsWith("* ") ? 0 : block.indexOf('\n*')
     if (listStart === -1) {
-        return { block };
+        return { block }
     }
-    const list = block.slice(listStart + 2).split('\n* ');
+    const list = block.slice(listStart + 2).split('\n* ')
     return { block: block.slice(0, listStart), list }
 }
