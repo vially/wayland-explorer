@@ -1,1 +1,102 @@
-{"type":"protocol","name":"keystate","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2019 Aleix Pol Gonzalez <aleixpol@kde.org>\n\n    SPDX-License-Identifier: LGPL-2.1-or-later\n  "},"interfaces":[{"type":"interface","name":"org_kde_kwin_keystate","version":"4","description":{"type":"description","text":"Keeps track of the states of the different keys that have a state attached to it.","summary":"Key States"},"requests":[{"type":"request","name":"fetchStates","args":[]},{"type":"request","name":"destroy","requestType":"destructor","since":"4","args":[]}],"events":[{"type":"event","name":"stateChanged","description":{"type":"description","summary":"Updates the state for a said key"},"args":[{"type":"arg","name":"key","argType":"uint"},{"type":"arg","name":"state","argType":"uint"}]}],"enums":[{"type":"enum","name":"key","bitfield":false,"entries":[{"type":"entry","name":"capslock","value":"0"},{"type":"entry","name":"numlock","value":"1"},{"type":"entry","name":"scrolllock","value":"2"}]},{"type":"enum","name":"state","bitfield":false,"entries":[{"type":"entry","name":"unlocked","value":"0"},{"type":"entry","name":"latched","value":"1"},{"type":"entry","name":"locked","value":"2"}]}]}]}
+{
+  "type": "protocol",
+  "name": "keystate",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2019 Aleix Pol Gonzalez <aleixpol@kde.org>\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_keystate",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "Keeps track of the states of the different keys that have a state attached to it.",
+        "summary": "Key States"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "fetchStates",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "4",
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "stateChanged",
+          "description": {
+            "type": "description",
+            "summary": "Updates the state for a said key"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "key",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "capslock",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "numlock",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "scrolllock",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unlocked",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "latched",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "locked",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

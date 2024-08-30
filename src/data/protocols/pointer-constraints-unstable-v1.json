@@ -1,1 +1,344 @@
-{"type":"protocol","name":"pointer_constraints_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2014      Jonas Ådahl\n    Copyright © 2015      Red Hat Inc.\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol specifies a set of interfaces used for adding constraints to\n    the motion of a pointer. Possible constraints include confining pointer\n    motions to a given region, or locking it to its current position.\n\n    In order to constrain the pointer, a client must first bind the global\n    interface \"wp_pointer_constraints\" which, if a compositor supports pointer\n    constraints, is exposed by the registry. Using the bound global object, the\n    client uses the request that corresponds to the type of constraint it wants\n    to make. See wp_pointer_constraints for more details.\n\n    Warning! The protocol described in this file is experimental and backward\n    incompatible changes may be made. Backward compatible changes may be added\n    together with the corresponding interface version bump. Backward\n    incompatible changes are done by bumping the version number in the protocol\n    and interface names and resetting the interface version. Once the protocol\n    is to be declared stable, the 'z' prefix and the version number in the\n    protocol and interface names are removed and the interface version number is\n    reset.","summary":"protocol for constraining pointer motions"},"interfaces":[{"type":"interface","name":"zwp_pointer_constraints_v1","version":"1","description":{"type":"description","text":"The global interface exposing pointer constraining functionality. It\n      exposes two requests: lock_pointer for locking the pointer to its\n      position, and confine_pointer for locking the pointer to a region.\n\n      The lock_pointer and confine_pointer requests create the objects\n      wp_locked_pointer and wp_confined_pointer respectively, and the client can\n      use these objects to interact with the lock.\n\n      For any surface, only one lock or confinement may be active across all\n      wl_pointer objects of the same seat. If a lock or confinement is requested\n      when another lock or confinement is active or requested on the same surface\n      and with any of the wl_pointer objects of the same seat, an\n      'already_constrained' error will be raised.","summary":"constrain the movement of a pointer"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Used by the client to notify the server that it will no longer use this\n\tpointer constraints object.","summary":"destroy the pointer constraints manager object"},"args":[]},{"type":"request","name":"lock_pointer","description":{"type":"description","text":"The lock_pointer request lets the client request to disable movements of\n\tthe virtual pointer (i.e. the cursor), effectively locking the pointer\n\tto a position. This request may not take effect immediately; in the\n\tfuture, when the compositor deems implementation-specific constraints\n\tare satisfied, the pointer lock will be activated and the compositor\n\tsends a locked event.\n\n\tThe protocol provides no guarantee that the constraints are ever\n\tsatisfied, and does not require the compositor to send an error if the\n\tconstraints cannot ever be satisfied. It is thus possible to request a\n\tlock that will never activate.\n\n\tThere may not be another pointer constraint of any kind requested or\n\tactive on the surface for any of the wl_pointer objects of the seat of\n\tthe passed pointer when requesting a lock. If there is, an error will be\n\traised. See general pointer lock documentation for more details.\n\n\tThe intersection of the region passed with this request and the input\n\tregion of the surface is used to determine where the pointer must be\n\tin order for the lock to activate. It is up to the compositor whether to\n\twarp the pointer or require some kind of user interaction for the lock\n\tto activate. If the region is null the surface input region is used.\n\n\tA surface may receive pointer focus without the lock being activated.\n\n\tThe request creates a new object wp_locked_pointer which is used to\n\tinteract with the lock as well as receive updates about its state. See\n\tthe the description of wp_locked_pointer for further information.\n\n\tNote that while a pointer is locked, the wl_pointer objects of the\n\tcorresponding seat will not emit any wl_pointer.motion events, but\n\trelative motion events will still be emitted via wp_relative_pointer\n\tobjects of the same seat. wl_pointer.axis and wl_pointer.button events\n\tare unaffected.","summary":"lock pointer to a position"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_locked_pointer_v1"},{"type":"arg","name":"surface","argType":"object","summary":"surface to lock pointer to","interface":"wl_surface"},{"type":"arg","name":"pointer","argType":"object","summary":"the pointer that should be locked","interface":"wl_pointer"},{"type":"arg","name":"region","argType":"object","summary":"region of surface","interface":"wl_region","allowNull":"true"},{"type":"arg","name":"lifetime","argType":"uint","summary":"lock lifetime","enum":"lifetime"}]},{"type":"request","name":"confine_pointer","description":{"type":"description","text":"The confine_pointer request lets the client request to confine the\n\tpointer cursor to a given region. This request may not take effect\n\timmediately; in the future, when the compositor deems implementation-\n\tspecific constraints are satisfied, the pointer confinement will be\n\tactivated and the compositor sends a confined event.\n\n\tThe intersection of the region passed with this request and the input\n\tregion of the surface is used to determine where the pointer must be\n\tin order for the confinement to activate. It is up to the compositor\n\twhether to warp the pointer or require some kind of user interaction for\n\tthe confinement to activate. If the region is null the surface input\n\tregion is used.\n\n\tThe request will create a new object wp_confined_pointer which is used\n\tto interact with the confinement as well as receive updates about its\n\tstate. See the the description of wp_confined_pointer for further\n\tinformation.","summary":"confine pointer to a region"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_confined_pointer_v1"},{"type":"arg","name":"surface","argType":"object","summary":"surface to lock pointer to","interface":"wl_surface"},{"type":"arg","name":"pointer","argType":"object","summary":"the pointer that should be confined","interface":"wl_pointer"},{"type":"arg","name":"region","argType":"object","summary":"region of surface","interface":"wl_region","allowNull":"true"},{"type":"arg","name":"lifetime","argType":"uint","summary":"confinement lifetime","enum":"lifetime"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"description":{"type":"description","text":"These errors can be emitted in response to wp_pointer_constraints\n\trequests.","summary":"wp_pointer_constraints error values"},"entries":[{"type":"entry","name":"already_constrained","value":"1","summary":"pointer constraint already requested on that surface"}]},{"type":"enum","name":"lifetime","bitfield":false,"description":{"type":"description","text":"These values represent different lifetime semantics. They are passed\n\tas arguments to the factory requests to specify how the constraint\n\tlifetimes should be managed.","summary":"constraint lifetime"},"entries":[{"type":"entry","name":"oneshot","value":"1","description":{"type":"description","text":"A oneshot pointer constraint will never reactivate once it has been\n\t  deactivated. See the corresponding deactivation event\n\t  (wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for\n\t  details.","summary":"the pointer constraint is defunct once deactivated"}},{"type":"entry","name":"persistent","value":"2","description":{"type":"description","text":"A persistent pointer constraint may again reactivate once it has\n\t  been deactivated. See the corresponding deactivation event\n\t  (wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for\n\t  details.","summary":"the pointer constraint may reactivate"}}]}]},{"type":"interface","name":"zwp_locked_pointer_v1","version":"1","description":{"type":"description","text":"The wp_locked_pointer interface represents a locked pointer state.\n\n      While the lock of this object is active, the wl_pointer objects of the\n      associated seat will not emit any wl_pointer.motion events.\n\n      This object will send the event 'locked' when the lock is activated.\n      Whenever the lock is activated, it is guaranteed that the locked surface\n      will already have received pointer focus and that the pointer will be\n      within the region passed to the request creating this object.\n\n      To unlock the pointer, send the destroy request. This will also destroy\n      the wp_locked_pointer object.\n\n      If the compositor decides to unlock the pointer the unlocked event is\n      sent. See wp_locked_pointer.unlock for details.\n\n      When unlocking, the compositor may warp the cursor position to the set\n      cursor position hint. If it does, it will not result in any relative\n      motion events emitted via wp_relative_pointer.\n\n      If the surface the lock was requested on is destroyed and the lock is not\n      yet activated, the wp_locked_pointer object is now defunct and must be\n      destroyed.","summary":"receive relative pointer motion events"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the locked pointer object. If applicable, the compositor will\n\tunlock the pointer.","summary":"destroy the locked pointer object"},"args":[]},{"type":"request","name":"set_cursor_position_hint","description":{"type":"description","text":"Set the cursor position hint relative to the top left corner of the\n\tsurface.\n\n\tIf the client is drawing its own cursor, it should update the position\n\thint to the position of its own cursor. A compositor may use this\n\tinformation to warp the pointer upon unlock in order to avoid pointer\n\tjumps.\n\n\tThe cursor position hint is double-buffered state, see\n\twl_surface.commit.","summary":"set the pointer cursor position hint"},"args":[{"type":"arg","name":"surface_x","argType":"fixed","summary":"surface-local x coordinate"},{"type":"arg","name":"surface_y","argType":"fixed","summary":"surface-local y coordinate"}]},{"type":"request","name":"set_region","description":{"type":"description","text":"Set a new region used to lock the pointer.\n\n\tThe new lock region is double-buffered, see wl_surface.commit.\n\n\tFor details about the lock region, see wp_locked_pointer.","summary":"set a new lock region"},"args":[{"type":"arg","name":"region","argType":"object","summary":"region of surface","interface":"wl_region","allowNull":"true"}]}],"events":[{"type":"event","name":"locked","description":{"type":"description","text":"Notification that the pointer lock of the seat's pointer is activated.","summary":"lock activation event"},"args":[]},{"type":"event","name":"unlocked","description":{"type":"description","text":"Notification that the pointer lock of the seat's pointer is no longer\n\tactive. If this is a oneshot pointer lock (see\n\twp_pointer_constraints.lifetime) this object is now defunct and should\n\tbe destroyed. If this is a persistent pointer lock (see\n\twp_pointer_constraints.lifetime) this pointer lock may again\n\treactivate in the future.","summary":"lock deactivation event"},"args":[]}],"enums":[]},{"type":"interface","name":"zwp_confined_pointer_v1","version":"1","description":{"type":"description","text":"The wp_confined_pointer interface represents a confined pointer state.\n\n      This object will send the event 'confined' when the confinement is\n      activated. Whenever the confinement is activated, it is guaranteed that\n      the surface the pointer is confined to will already have received pointer\n      focus and that the pointer will be within the region passed to the request\n      creating this object. It is up to the compositor to decide whether this\n      requires some user interaction and if the pointer will warp to within the\n      passed region if outside.\n\n      To unconfine the pointer, send the destroy request. This will also destroy\n      the wp_confined_pointer object.\n\n      If the compositor decides to unconfine the pointer the unconfined event is\n      sent. The wp_confined_pointer object is at this point defunct and should\n      be destroyed.","summary":"confined pointer object"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the confined pointer object. If applicable, the compositor will\n\tunconfine the pointer.","summary":"destroy the confined pointer object"},"args":[]},{"type":"request","name":"set_region","description":{"type":"description","text":"Set a new region used to confine the pointer.\n\n\tThe new confine region is double-buffered, see wl_surface.commit.\n\n\tIf the confinement is active when the new confinement region is applied\n\tand the pointer ends up outside of newly applied region, the pointer may\n\twarped to a position within the new confinement region. If warped, a\n\twl_pointer.motion event will be emitted, but no\n\twp_relative_pointer.relative_motion event.\n\n\tThe compositor may also, instead of using the new region, unconfine the\n\tpointer.\n\n\tFor details about the confine region, see wp_confined_pointer.","summary":"set a new confine region"},"args":[{"type":"arg","name":"region","argType":"object","summary":"region of surface","interface":"wl_region","allowNull":"true"}]}],"events":[{"type":"event","name":"confined","description":{"type":"description","text":"Notification that the pointer confinement of the seat's pointer is\n\tactivated.","summary":"pointer confined"},"args":[]},{"type":"event","name":"unconfined","description":{"type":"description","text":"Notification that the pointer confinement of the seat's pointer is no\n\tlonger active. If this is a oneshot pointer confinement (see\n\twp_pointer_constraints.lifetime) this object is now defunct and should\n\tbe destroyed. If this is a persistent pointer confinement (see\n\twp_pointer_constraints.lifetime) this pointer confinement may again\n\treactivate in the future.","summary":"pointer unconfined"},"args":[]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "pointer_constraints_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2014      Jonas Ådahl\nCopyright © 2015      Red Hat Inc.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol specifies a set of interfaces used for adding constraints to\nthe motion of a pointer. Possible constraints include confining pointer\nmotions to a given region, or locking it to its current position.\n\nIn order to constrain the pointer, a client must first bind the global\ninterface \"wp_pointer_constraints\" which, if a compositor supports pointer\nconstraints, is exposed by the registry. Using the bound global object, the\nclient uses the request that corresponds to the type of constraint it wants\nto make. See wp_pointer_constraints for more details.\n\nWarning! The protocol described in this file is experimental and backward\nincompatible changes may be made. Backward compatible changes may be added\ntogether with the corresponding interface version bump. Backward\nincompatible changes are done by bumping the version number in the protocol\nand interface names and resetting the interface version. Once the protocol\nis to be declared stable, the 'z' prefix and the version number in the\nprotocol and interface names are removed and the interface version number is\nreset.",
+    "summary": "protocol for constraining pointer motions"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwp_pointer_constraints_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The global interface exposing pointer constraining functionality. It\nexposes two requests: lock_pointer for locking the pointer to its\nposition, and confine_pointer for locking the pointer to a region.\n\nThe lock_pointer and confine_pointer requests create the objects\nwp_locked_pointer and wp_confined_pointer respectively, and the client can\nuse these objects to interact with the lock.\n\nFor any surface, only one lock or confinement may be active across all\nwl_pointer objects of the same seat. If a lock or confinement is requested\nwhen another lock or confinement is active or requested on the same surface\nand with any of the wl_pointer objects of the same seat, an\n'already_constrained' error will be raised.",
+        "summary": "constrain the movement of a pointer"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Used by the client to notify the server that it will no longer use this\npointer constraints object.",
+            "summary": "destroy the pointer constraints manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "lock_pointer",
+          "description": {
+            "type": "description",
+            "text": "The lock_pointer request lets the client request to disable movements of\nthe virtual pointer (i.e. the cursor), effectively locking the pointer\nto a position. This request may not take effect immediately; in the\nfuture, when the compositor deems implementation-specific constraints\nare satisfied, the pointer lock will be activated and the compositor\nsends a locked event.\n\nThe protocol provides no guarantee that the constraints are ever\nsatisfied, and does not require the compositor to send an error if the\nconstraints cannot ever be satisfied. It is thus possible to request a\nlock that will never activate.\n\nThere may not be another pointer constraint of any kind requested or\nactive on the surface for any of the wl_pointer objects of the seat of\nthe passed pointer when requesting a lock. If there is, an error will be\nraised. See general pointer lock documentation for more details.\n\nThe intersection of the region passed with this request and the input\nregion of the surface is used to determine where the pointer must be\nin order for the lock to activate. It is up to the compositor whether to\nwarp the pointer or require some kind of user interaction for the lock\nto activate. If the region is null the surface input region is used.\n\nA surface may receive pointer focus without the lock being activated.\n\nThe request creates a new object wp_locked_pointer which is used to\ninteract with the lock as well as receive updates about its state. See\nthe the description of wp_locked_pointer for further information.\n\nNote that while a pointer is locked, the wl_pointer objects of the\ncorresponding seat will not emit any wl_pointer.motion events, but\nrelative motion events will still be emitted via wp_relative_pointer\nobjects of the same seat. wl_pointer.axis and wl_pointer.button events\nare unaffected.",
+            "summary": "lock pointer to a position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_locked_pointer_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface to lock pointer to",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "summary": "the pointer that should be locked",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "summary": "region of surface",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "lifetime",
+              "argType": "uint",
+              "summary": "lock lifetime",
+              "enum": "lifetime"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "confine_pointer",
+          "description": {
+            "type": "description",
+            "text": "The confine_pointer request lets the client request to confine the\npointer cursor to a given region. This request may not take effect\nimmediately; in the future, when the compositor deems implementation-\nspecific constraints are satisfied, the pointer confinement will be\nactivated and the compositor sends a confined event.\n\nThe intersection of the region passed with this request and the input\nregion of the surface is used to determine where the pointer must be\nin order for the confinement to activate. It is up to the compositor\nwhether to warp the pointer or require some kind of user interaction for\nthe confinement to activate. If the region is null the surface input\nregion is used.\n\nThe request will create a new object wp_confined_pointer which is used\nto interact with the confinement as well as receive updates about its\nstate. See the the description of wp_confined_pointer for further\ninformation.",
+            "summary": "confine pointer to a region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_confined_pointer_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface to lock pointer to",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "summary": "the pointer that should be confined",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "summary": "region of surface",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "lifetime",
+              "argType": "uint",
+              "summary": "confinement lifetime",
+              "enum": "lifetime"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These errors can be emitted in response to wp_pointer_constraints\nrequests.",
+            "summary": "wp_pointer_constraints error values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_constrained",
+              "value": "1",
+              "summary": "pointer constraint already requested on that surface"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "lifetime",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These values represent different lifetime semantics. They are passed\nas arguments to the factory requests to specify how the constraint\nlifetimes should be managed.",
+            "summary": "constraint lifetime"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "oneshot",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "A oneshot pointer constraint will never reactivate once it has been\ndeactivated. See the corresponding deactivation event\n(wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for\ndetails.",
+                "summary": "the pointer constraint is defunct once deactivated"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "persistent",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "A persistent pointer constraint may again reactivate once it has\nbeen deactivated. See the corresponding deactivation event\n(wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for\ndetails.",
+                "summary": "the pointer constraint may reactivate"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwp_locked_pointer_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The wp_locked_pointer interface represents a locked pointer state.\n\nWhile the lock of this object is active, the wl_pointer objects of the\nassociated seat will not emit any wl_pointer.motion events.\n\nThis object will send the event 'locked' when the lock is activated.\nWhenever the lock is activated, it is guaranteed that the locked surface\nwill already have received pointer focus and that the pointer will be\nwithin the region passed to the request creating this object.\n\nTo unlock the pointer, send the destroy request. This will also destroy\nthe wp_locked_pointer object.\n\nIf the compositor decides to unlock the pointer the unlocked event is\nsent. See wp_locked_pointer.unlock for details.\n\nWhen unlocking, the compositor may warp the cursor position to the set\ncursor position hint. If it does, it will not result in any relative\nmotion events emitted via wp_relative_pointer.\n\nIf the surface the lock was requested on is destroyed and the lock is not\nyet activated, the wp_locked_pointer object is now defunct and must be\ndestroyed.",
+        "summary": "receive relative pointer motion events"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the locked pointer object. If applicable, the compositor will\nunlock the pointer.",
+            "summary": "destroy the locked pointer object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_cursor_position_hint",
+          "description": {
+            "type": "description",
+            "text": "Set the cursor position hint relative to the top left corner of the\nsurface.\n\nIf the client is drawing its own cursor, it should update the position\nhint to the position of its own cursor. A compositor may use this\ninformation to warp the pointer upon unlock in order to avoid pointer\njumps.\n\nThe cursor position hint is double-buffered state, see\nwl_surface.commit.",
+            "summary": "set the pointer cursor position hint"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface_x",
+              "argType": "fixed",
+              "summary": "surface-local x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "surface_y",
+              "argType": "fixed",
+              "summary": "surface-local y coordinate"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_region",
+          "description": {
+            "type": "description",
+            "text": "Set a new region used to lock the pointer.\n\nThe new lock region is double-buffered, see wl_surface.commit.\n\nFor details about the lock region, see wp_locked_pointer.",
+            "summary": "set a new lock region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "summary": "region of surface",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "locked",
+          "description": {
+            "type": "description",
+            "text": "Notification that the pointer lock of the seat's pointer is activated.",
+            "summary": "lock activation event"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unlocked",
+          "description": {
+            "type": "description",
+            "text": "Notification that the pointer lock of the seat's pointer is no longer\nactive. If this is a oneshot pointer lock (see\nwp_pointer_constraints.lifetime) this object is now defunct and should\nbe destroyed. If this is a persistent pointer lock (see\nwp_pointer_constraints.lifetime) this pointer lock may again\nreactivate in the future.",
+            "summary": "lock deactivation event"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_confined_pointer_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The wp_confined_pointer interface represents a confined pointer state.\n\nThis object will send the event 'confined' when the confinement is\nactivated. Whenever the confinement is activated, it is guaranteed that\nthe surface the pointer is confined to will already have received pointer\nfocus and that the pointer will be within the region passed to the request\ncreating this object. It is up to the compositor to decide whether this\nrequires some user interaction and if the pointer will warp to within the\npassed region if outside.\n\nTo unconfine the pointer, send the destroy request. This will also destroy\nthe wp_confined_pointer object.\n\nIf the compositor decides to unconfine the pointer the unconfined event is\nsent. The wp_confined_pointer object is at this point defunct and should\nbe destroyed.",
+        "summary": "confined pointer object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the confined pointer object. If applicable, the compositor will\nunconfine the pointer.",
+            "summary": "destroy the confined pointer object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_region",
+          "description": {
+            "type": "description",
+            "text": "Set a new region used to confine the pointer.\n\nThe new confine region is double-buffered, see wl_surface.commit.\n\nIf the confinement is active when the new confinement region is applied\nand the pointer ends up outside of newly applied region, the pointer may\nwarped to a position within the new confinement region. If warped, a\nwl_pointer.motion event will be emitted, but no\nwp_relative_pointer.relative_motion event.\n\nThe compositor may also, instead of using the new region, unconfine the\npointer.\n\nFor details about the confine region, see wp_confined_pointer.",
+            "summary": "set a new confine region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "summary": "region of surface",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "confined",
+          "description": {
+            "type": "description",
+            "text": "Notification that the pointer confinement of the seat's pointer is\nactivated.",
+            "summary": "pointer confined"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unconfined",
+          "description": {
+            "type": "description",
+            "text": "Notification that the pointer confinement of the seat's pointer is no\nlonger active. If this is a oneshot pointer confinement (see\nwp_pointer_constraints.lifetime) this object is now defunct and should\nbe destroyed. If this is a persistent pointer confinement (see\nwp_pointer_constraints.lifetime) this pointer confinement may again\nreactivate in the future.",
+            "summary": "pointer unconfined"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

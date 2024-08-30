@@ -1,1 +1,672 @@
-{"type":"protocol","name":"cosmic_screencopy_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2021-2022 Andri Yngvason\n    Copyright © 2022 Victoria Brekenfeld\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol allows clients to ask the compositor to copy part of the\n    screen content to a client buffer.\n\n    Warning! The protocol described in this file is experimental and\n    backward incompatible changes may be made. Backward compatible changes\n    may be added together with the corresponding interface version bump.\n    Backward incompatible changes are done by bumping the version number in\n    the protocol and interface names and resetting the interface version.\n    Once the protocol is to be declared stable, the 'z' prefix and the\n    version number in the protocol and interface names are removed and the\n    interface version number is reset.","summary":"screen content capturing on client buffers"},"interfaces":[{"type":"interface","name":"zcosmic_screencopy_manager_v1","version":"1","description":{"type":"description","text":"This object is a manager which offers requests to start capturing from a\n      source.","summary":"manager to inform clients and begin capturing"},"requests":[{"type":"request","name":"capture_output","description":{"type":"description","text":"Create a capturing session for an output.\n\n        It is a protocol error to request a cursor mode that was not\n        previously advertised by the compositor (see `supported_cursor_mode` event).","summary":"capture an output"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"zcosmic_screencopy_session_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"cursor","argType":"uint","enum":"cursor_mode"}]},{"type":"request","name":"capture_workspace","description":{"type":"description","text":"Create a capturing session for an entire workspace.\n\n        An output must be provided that has previously been associated\n        with the given workspace through an `output_enter` event\n        (see cosmic-workspace-unstable-v1).\n\n        If the provided output is not associated with the workspace at the\n        time this request is send, the capture will failed with `invalid_output`\n        until a new association is established.\n\n        It is a protocol error to request a cursor mode that was not\n        previously advertised by the compositor (see `supported_cursor_mode` event).","summary":"capture a workspace"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"zcosmic_screencopy_session_v1"},{"type":"arg","name":"workspace","argType":"object","interface":"zcosmic_workspace_handle_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"cursor","argType":"uint","enum":"cursor_mode"}]},{"type":"request","name":"capture_toplevel","description":{"type":"description","text":"Create a capturing session for a toplevel.\n\n        It is a protocol error to request a cursor mode that was not\n        previously advertised by the compositor (see `supported_cursor_mode` event).","summary":"capture an output"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"zcosmic_screencopy_session_v1"},{"type":"arg","name":"toplevel","argType":"object","interface":"zcosmic_toplevel_handle_v1"},{"type":"arg","name":"cursor","argType":"uint","enum":"cursor_mode"}]}],"events":[{"type":"event","name":"supported_cursor_mode","description":{"type":"description","text":"Immediately after initialization of the zcosmic_screencopy_manager_v1\n        global, it will send supported_cursor_mode events to notify the client\n        about supported cursor modes.","summary":"Advertised supported cursor modes"},"args":[{"type":"arg","name":"mode","argType":"uint","enum":"cursor_mode"}]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_cursor_mode","value":"0","summary":"the provided cursor mode is not supported"}]},{"type":"enum","name":"cursor_mode","bitfield":false,"entries":[{"type":"entry","name":"hidden","value":"0","description":{"type":"description","text":"Cursors are not rendered and its contents won't be\n          send by the compositor in any form.","summary":"cursor is hidden"}},{"type":"entry","name":"embedded","value":"1","description":{"type":"description","text":"Cursors are rendered and embedded into the captured buffer.","summary":"cursor is rendered embedded"}},{"type":"entry","name":"capture","value":"2","description":{"type":"description","text":"Cursors are not rendered, but can be received an additional\n          buffers using the `capture_cursor` request of the\n          `zcosmic_screencopy_session_v1` interface.","summary":"cursor is rendered separately"}}]}]},{"type":"interface","name":"zcosmic_screencopy_session_v1","version":"1","description":{"type":"description","text":"This object represents a session that's being captured.\n\n      After a screencopy session is created, buffer_info events will be emitted\n      from the compositor to tell the client which buffer types and formats are\n      supported for reading from the surface.\n\n      When the client knows all the buffer attributes, it can create a buffer,\n      attach it to the screencopy surface using the \"attach_buffer\" request,\n      set the buffer damage using the \"damage_buffer\" request and then call\n      the \"commit\" request.\n\n      After \"commit\" has been called, the next time that a buffer is committed\n      by the compositor, the contents of that buffer will be copied to the one\n      committed to the screencopy session. A series of events will be generated,\n      ending with the \"ready\" event, which means that the buffer is ready to be\n      used and a buffer may be committed to the surface again.\n\n      The \"failed\" event may be sent at any time. When this happens, the client\n      must destroy the session. Depending on the failure reason, the client can\n      create a new session to replace it.","summary":"a capture session"},"requests":[{"type":"request","name":"capture_cursor","description":{"type":"description","text":"Creates a sub-session used to capture the cursor of a given seat.\n        Using this request, when the server did not indicate support\n        through a `supported_cursor_mode` event with the value `capture` is\n        a protocol error.\n\n        The sub-session will not generate cursor_enter or cursor_leave events.\n        It will generate a single cursor_info event for the captured seat, if\n        the cursor previously entered the session, or no cursor_info event.\n        The event will be identical to the matching cursor_info event generated on the\n        main session.\n\n        The buffer_info provided by the compositor can be different\n        to the supported buffers for the main session and can also be different\n        for each captured seat.\n\n        Sub-session will never send a `commit_time` or `ready` event,\n        but are considered ready and displayed in tandem with their main-session.","summary":"create sub-session to capture cursor"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"zcosmic_screencopy_session_v1"},{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"}]},{"type":"request","name":"attach_buffer","description":{"type":"description","text":"Attach a buffer to the surface.","summary":"attach buffer to surface"},"args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"},{"type":"arg","name":"node","argType":"string","summary":"device node","allowNull":"true"},{"type":"arg","name":"age","argType":"uint"}]},{"type":"request","name":"commit","description":{"type":"description","text":"Commit the screencopy session.\n\n        The frame will be copied to the session. A ready\n        event is generated when the buffer is ready.\n\n        If the \"on_damage\" flag is set, the compositor should wait sending new\n        frames to the client until there is damage.","summary":"commit session"},"args":[{"type":"arg","name":"options","argType":"uint","enum":"options"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the surface. This request can be sent at any time by the\n        client.","summary":"delete this object"},"args":[]}],"events":[{"type":"event","name":"buffer_info","description":{"type":"description","text":"Provides information about buffer parameters that need to be used for\n        the main image. This event is sent for every supported buffer type\n        after the session is created.\n\n        The stride parameter is invalid for dmabuf and may be set to 0.","summary":"buffer information"},"args":[{"type":"arg","name":"type","argType":"uint","summary":"buffer type","enum":"buffer_type"},{"type":"arg","name":"node","argType":"string","summary":"device node","allowNull":"true"},{"type":"arg","name":"format","argType":"uint","summary":"buffer drm format"},{"type":"arg","name":"width","argType":"uint","summary":"buffer width"},{"type":"arg","name":"height","argType":"uint","summary":"buffer height"},{"type":"arg","name":"stride","argType":"uint","summary":"buffer stride"}]},{"type":"event","name":"init_done","description":{"type":"description","text":"This event is sent once when all buffer info events have been sent.","summary":"session initialisation done"},"args":[]},{"type":"event","name":"transform","description":{"type":"description","text":"This event is sent before the ready event and holds transformations\n        of the source buffer.","summary":"carries the transform"},"args":[{"type":"arg","name":"transform","argType":"int","enum":"wl_output.transform"}]},{"type":"event","name":"damage","description":{"type":"description","text":"This event is sent before the ready event. It may be generated multiple\n        times for each commit.\n\n        The arguments describe a box around an area that has changed since the\n        last ready event.\n\n        These coordinates originate in the upper left corner of the buffer.","summary":"carries the coordinates of the damaged region"},"args":[{"type":"arg","name":"x","argType":"uint","summary":"damaged x coordinates"},{"type":"arg","name":"y","argType":"uint","summary":"damaged y coordinates"},{"type":"arg","name":"width","argType":"uint","summary":"current width"},{"type":"arg","name":"height","argType":"uint","summary":"current height"}]},{"type":"event","name":"cursor_enter","description":{"type":"description","text":"Sent when a cursor enters the captured surface. It shall be generated\n        before the \"cursor_info\" event when and only when a cursor enters the\n        surface.","summary":"cursor entered surface"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"},{"type":"arg","name":"input_type","argType":"uint","summary":"input type","enum":"input_type"}]},{"type":"event","name":"cursor_leave","description":{"type":"description","text":"Sent when a cursor leaves the captured surface. No \"cursor_info\" event\n        is generated for for the given cursor.","summary":"cursor left surface"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"},{"type":"arg","name":"input_type","argType":"uint","summary":"input type","enum":"input_type"}]},{"type":"event","name":"cursor_info","description":{"type":"description","text":"This event is generated for each cursor buffer that was attached to the\n        session and for which the cursor is currently focused in the session.\n        It is generated once for each cursor buffer before the ready event.\n\n        Cursors outside the surface do not get captured and no event will be\n        generated for them.\n\n        If the cursor image has changed, the cursor buffer will have been\n        updated and the \"has_damage\" argument will be set to 1; otherwise 0.\n\n        The given position is the position of the cursor's hotspot and it is\n        relative to the main buffer's top left corner in transformed buffer\n        pixel coordinates.\n\n        The hotspot coordinates are relative to the cursor buffers upper left\n        corner.","summary":"cursor specific information"},"args":[{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"},{"type":"arg","name":"input_type","argType":"uint","enum":"input_type"},{"type":"arg","name":"position_x","argType":"int","summary":"position x coordinates"},{"type":"arg","name":"position_y","argType":"int","summary":"position y coordinates"},{"type":"arg","name":"width","argType":"int","summary":"width of the cursor image"},{"type":"arg","name":"height","argType":"int","summary":"height of the cursor image"},{"type":"arg","name":"hotspot_x","argType":"int","summary":"hotspot x coordinates"},{"type":"arg","name":"hotspot_y","argType":"int","summary":"hotspot y coordinates"}]},{"type":"event","name":"failed","description":{"type":"description","text":"This event indicates that the attempted frame copy has failed.\n\n        After receiving this event, the client must destroy the object.","summary":"commit failed"},"args":[{"type":"arg","name":"reason","argType":"uint","enum":"failure_reason"}]},{"type":"event","name":"commit_time","description":{"type":"description","text":"This event indicates the time at which the frame is committed to be\n        scanned out in system monotonic time.\n\n        The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\n        each component being an unsigned 32-bit value. Whole seconds are in\n        tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\n        and the additional fractional part in tv_nsec as nanoseconds. Hence,\n        for valid timestamps tv_nsec must be in [0, 999999999].","summary":"indicates the commit time of the frame"},"args":[{"type":"arg","name":"tv_sec_hi","argType":"uint","summary":"high 32 bits of the seconds part of the timestamp"},{"type":"arg","name":"tv_sec_lo","argType":"uint","summary":"low 32 bits of the seconds part of the timestamp"},{"type":"arg","name":"tv_nsec","argType":"uint","summary":"nanoseconds part of the timestamp"}]},{"type":"event","name":"ready","description":{"type":"description","text":"Called as soon as the frame is copied, indicating it is available\n        for reading.","summary":"indicates frame is available for reading"},"args":[]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_cursor_mode","value":"0","summary":"the provided cursor mode is not supported"}]},{"type":"enum","name":"failure_reason","bitfield":false,"entries":[{"type":"entry","name":"unspec","value":"0"},{"type":"entry","name":"invalid_buffer","value":"1"},{"type":"entry","name":"invalid_output","value":"2"},{"type":"entry","name":"invalid_workspace","value":"3"},{"type":"entry","name":"invalid_toplevel","value":"4"},{"type":"entry","name":"invalid_seat","value":"5"},{"type":"entry","name":"invalid_size","value":"6"}]},{"type":"enum","name":"options","bitfield":true,"entries":[{"type":"entry","name":"on_damage","value":"1"}]},{"type":"enum","name":"input_type","bitfield":false,"entries":[{"type":"entry","name":"pointer","value":"0"},{"type":"entry","name":"tablet","value":"1"}]},{"type":"enum","name":"buffer_type","bitfield":false,"entries":[{"type":"entry","name":"wl_shm","value":"0"},{"type":"entry","name":"dmabuf","value":"1"}]}]}]}
+{
+  "type": "protocol",
+  "name": "cosmic_screencopy_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2021-2022 Andri Yngvason\nCopyright © 2022 Victoria Brekenfeld\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to ask the compositor to copy part of the\nscreen content to a client buffer.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "summary": "screen content capturing on client buffers"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_screencopy_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to start capturing from a\nsource.",
+        "summary": "manager to inform clients and begin capturing"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "capture_output",
+          "description": {
+            "type": "description",
+            "text": "Create a capturing session for an output.\n\nIt is a protocol error to request a cursor mode that was not\npreviously advertised by the compositor (see `supported_cursor_mode` event).",
+            "summary": "capture an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "zcosmic_screencopy_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "uint",
+              "enum": "cursor_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "capture_workspace",
+          "description": {
+            "type": "description",
+            "text": "Create a capturing session for an entire workspace.\n\nAn output must be provided that has previously been associated\nwith the given workspace through an `output_enter` event\n(see cosmic-workspace-unstable-v1).\n\nIf the provided output is not associated with the workspace at the\ntime this request is send, the capture will failed with `invalid_output`\nuntil a new association is established.\n\nIt is a protocol error to request a cursor mode that was not\npreviously advertised by the compositor (see `supported_cursor_mode` event).",
+            "summary": "capture a workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "zcosmic_screencopy_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "zcosmic_workspace_handle_v1",
+              "protocol": "cosmic-workspace-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "uint",
+              "enum": "cursor_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "capture_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Create a capturing session for a toplevel.\n\nIt is a protocol error to request a cursor mode that was not\npreviously advertised by the compositor (see `supported_cursor_mode` event).",
+            "summary": "capture an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "zcosmic_screencopy_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "uint",
+              "enum": "cursor_mode"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "supported_cursor_mode",
+          "description": {
+            "type": "description",
+            "text": "Immediately after initialization of the zcosmic_screencopy_manager_v1\nglobal, it will send supported_cursor_mode events to notify the client\nabout supported cursor modes.",
+            "summary": "Advertised supported cursor modes"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "enum": "cursor_mode"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_cursor_mode",
+              "value": "0",
+              "summary": "the provided cursor mode is not supported"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "cursor_mode",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "hidden",
+              "value": "0",
+              "description": {
+                "type": "description",
+                "text": "Cursors are not rendered and its contents won't be\nsend by the compositor in any form.",
+                "summary": "cursor is hidden"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "embedded",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "Cursors are rendered and embedded into the captured buffer.",
+                "summary": "cursor is rendered embedded"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "capture",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "Cursors are not rendered, but can be received an additional\nbuffers using the `capture_cursor` request of the\n`zcosmic_screencopy_session_v1` interface.",
+                "summary": "cursor is rendered separately"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_screencopy_session_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents a session that's being captured.\n\nAfter a screencopy session is created, buffer_info events will be emitted\nfrom the compositor to tell the client which buffer types and formats are\nsupported for reading from the surface.\n\nWhen the client knows all the buffer attributes, it can create a buffer,\nattach it to the screencopy surface using the \"attach_buffer\" request,\nset the buffer damage using the \"damage_buffer\" request and then call\nthe \"commit\" request.\n\nAfter \"commit\" has been called, the next time that a buffer is committed\nby the compositor, the contents of that buffer will be copied to the one\ncommitted to the screencopy session. A series of events will be generated,\nending with the \"ready\" event, which means that the buffer is ready to be\nused and a buffer may be committed to the surface again.\n\nThe \"failed\" event may be sent at any time. When this happens, the client\nmust destroy the session. Depending on the failure reason, the client can\ncreate a new session to replace it.",
+        "summary": "a capture session"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "capture_cursor",
+          "description": {
+            "type": "description",
+            "text": "Creates a sub-session used to capture the cursor of a given seat.\nUsing this request, when the server did not indicate support\nthrough a `supported_cursor_mode` event with the value `capture` is\na protocol error.\n\nThe sub-session will not generate cursor_enter or cursor_leave events.\nIt will generate a single cursor_info event for the captured seat, if\nthe cursor previously entered the session, or no cursor_info event.\nThe event will be identical to the matching cursor_info event generated on the\nmain session.\n\nThe buffer_info provided by the compositor can be different\nto the supported buffers for the main session and can also be different\nfor each captured seat.\n\nSub-session will never send a `commit_time` or `ready` event,\nbut are considered ready and displayed in tandem with their main-session.",
+            "summary": "create sub-session to capture cursor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "zcosmic_screencopy_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_buffer",
+          "description": {
+            "type": "description",
+            "text": "Attach a buffer to the surface.",
+            "summary": "attach buffer to surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "node",
+              "argType": "string",
+              "summary": "device node",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "age",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Commit the screencopy session.\n\nThe frame will be copied to the session. A ready\nevent is generated when the buffer is ready.\n\nIf the \"on_damage\" flag is set, the compositor should wait sending new\nframes to the client until there is damage.",
+            "summary": "commit session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "options",
+              "argType": "uint",
+              "enum": "options"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the surface. This request can be sent at any time by the\nclient.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "buffer_info",
+          "description": {
+            "type": "description",
+            "text": "Provides information about buffer parameters that need to be used for\nthe main image. This event is sent for every supported buffer type\nafter the session is created.\n\nThe stride parameter is invalid for dmabuf and may be set to 0.",
+            "summary": "buffer information"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "buffer type",
+              "enum": "buffer_type"
+            },
+            {
+              "type": "arg",
+              "name": "node",
+              "argType": "string",
+              "summary": "device node",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "buffer drm format"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "buffer width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "buffer height"
+            },
+            {
+              "type": "arg",
+              "name": "stride",
+              "argType": "uint",
+              "summary": "buffer stride"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "init_done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once when all buffer info events have been sent.",
+            "summary": "session initialisation done"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "transform",
+          "description": {
+            "type": "description",
+            "text": "This event is sent before the ready event and holds transformations\nof the source buffer.",
+            "summary": "carries the transform"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "int",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "damage",
+          "description": {
+            "type": "description",
+            "text": "This event is sent before the ready event. It may be generated multiple\ntimes for each commit.\n\nThe arguments describe a box around an area that has changed since the\nlast ready event.\n\nThese coordinates originate in the upper left corner of the buffer.",
+            "summary": "carries the coordinates of the damaged region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "uint",
+              "summary": "damaged x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "uint",
+              "summary": "damaged y coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "current width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "current height"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cursor_enter",
+          "description": {
+            "type": "description",
+            "text": "Sent when a cursor enters the captured surface. It shall be generated\nbefore the \"cursor_info\" event when and only when a cursor enters the\nsurface.",
+            "summary": "cursor entered surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_type",
+              "argType": "uint",
+              "summary": "input type",
+              "enum": "input_type"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cursor_leave",
+          "description": {
+            "type": "description",
+            "text": "Sent when a cursor leaves the captured surface. No \"cursor_info\" event\nis generated for for the given cursor.",
+            "summary": "cursor left surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_type",
+              "argType": "uint",
+              "summary": "input type",
+              "enum": "input_type"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cursor_info",
+          "description": {
+            "type": "description",
+            "text": "This event is generated for each cursor buffer that was attached to the\nsession and for which the cursor is currently focused in the session.\nIt is generated once for each cursor buffer before the ready event.\n\nCursors outside the surface do not get captured and no event will be\ngenerated for them.\n\nIf the cursor image has changed, the cursor buffer will have been\nupdated and the \"has_damage\" argument will be set to 1; otherwise 0.\n\nThe given position is the position of the cursor's hotspot and it is\nrelative to the main buffer's top left corner in transformed buffer\npixel coordinates.\n\nThe hotspot coordinates are relative to the cursor buffers upper left\ncorner.",
+            "summary": "cursor specific information"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_type",
+              "argType": "uint",
+              "enum": "input_type"
+            },
+            {
+              "type": "arg",
+              "name": "position_x",
+              "argType": "int",
+              "summary": "position x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "position_y",
+              "argType": "int",
+              "summary": "position y coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the cursor image"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the cursor image"
+            },
+            {
+              "type": "arg",
+              "name": "hotspot_x",
+              "argType": "int",
+              "summary": "hotspot x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "hotspot_y",
+              "argType": "int",
+              "summary": "hotspot y coordinates"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the attempted frame copy has failed.\n\nAfter receiving this event, the client must destroy the object.",
+            "summary": "commit failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "failure_reason"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "commit_time",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the time at which the frame is committed to be\nscanned out in system monotonic time.\n\nThe timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\neach component being an unsigned 32-bit value. Whole seconds are in\ntv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\nand the additional fractional part in tv_nsec as nanoseconds. Hence,\nfor valid timestamps tv_nsec must be in [0, 999999999].",
+            "summary": "indicates the commit time of the frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of the timestamp"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "Called as soon as the frame is copied, indicating it is available\nfor reading.",
+            "summary": "indicates frame is available for reading"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_cursor_mode",
+              "value": "0",
+              "summary": "the provided cursor mode is not supported"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "failure_reason",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unspec",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_buffer",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_output",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_workspace",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_toplevel",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_seat",
+              "value": "5"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_size",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "options",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "on_damage",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "input_type",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "pointer",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "tablet",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "buffer_type",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "wl_shm",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "dmabuf",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

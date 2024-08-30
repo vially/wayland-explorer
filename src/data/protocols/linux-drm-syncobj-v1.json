@@ -1,1 +1,261 @@
-{"type":"protocol","name":"linux_drm_syncobj_v1","copyright":{"type":"copyright","text":"Copyright 2016 The Chromium Authors.\n    Copyright 2017 Intel Corporation\n    Copyright 2018 Collabora, Ltd\n    Copyright 2021 Simon Ser\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol allows clients to request explicit synchronization for\n    buffers. It is tied to the Linux DRM synchronization object framework.\n\n    Synchronization refers to co-ordination of pipelined operations performed\n    on buffers. Most GPU clients will schedule an asynchronous operation to\n    render to the buffer, then immediately send the buffer to the compositor\n    to be attached to a surface.\n\n    With implicit synchronization, ensuring that the rendering operation is\n    complete before the compositor displays the buffer is an implementation\n    detail handled by either the kernel or userspace graphics driver.\n\n    By contrast, with explicit synchronization, DRM synchronization object\n    timeline points mark when the asynchronous operations are complete. When\n    submitting a buffer, the client provides a timeline point which will be\n    waited on before the compositor accesses the buffer, and another timeline\n    point that the compositor will signal when it no longer needs to access the\n    buffer contents for the purposes of the surface commit.\n\n    Linux DRM synchronization objects are documented at:\n    https://dri.freedesktop.org/docs/drm/gpu/drm-mm.html#drm-sync-objects\n\n    Warning! The protocol described in this file is currently in the testing\n    phase. Backward compatible changes may be added together with the\n    corresponding interface version bump. Backward incompatible changes can\n    only be done by creating a new major version of the extension.","summary":"protocol for providing explicit synchronization"},"interfaces":[{"type":"interface","name":"wp_linux_drm_syncobj_manager_v1","version":"1","description":{"type":"description","text":"This global is a factory interface, allowing clients to request\n      explicit synchronization for buffers on a per-surface basis.\n\n      See wp_linux_drm_syncobj_surface_v1 for more information.","summary":"global for providing explicit synchronization"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this explicit synchronization factory object. Other objects\n        shall not be affected by this request.","summary":"destroy explicit synchronization factory object"},"args":[]},{"type":"request","name":"get_surface","description":{"type":"description","text":"Instantiate an interface extension for the given wl_surface to provide\n        explicit synchronization.\n\n        If the given wl_surface already has an explicit synchronization object\n        associated, the surface_exists protocol error is raised.\n\n        Graphics APIs, like EGL or Vulkan, that manage the buffer queue and\n        commits of a wl_surface themselves, are likely to be using this\n        extension internally. If a client is using such an API for a\n        wl_surface, it should not directly use this extension on that surface,\n        to avoid raising a surface_exists protocol error.","summary":"extend surface interface for explicit synchronization"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"the new synchronization surface object id","interface":"wp_linux_drm_syncobj_surface_v1"},{"type":"arg","name":"surface","argType":"object","summary":"the surface","interface":"wl_surface"}]},{"type":"request","name":"import_timeline","description":{"type":"description","text":"Import a DRM synchronization object timeline.\n\n        If the FD cannot be imported, the invalid_timeline error is raised.","summary":"import a DRM syncobj timeline"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"wp_linux_drm_syncobj_timeline_v1"},{"type":"arg","name":"fd","argType":"fd","summary":"drm_syncobj file descriptor"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"surface_exists","value":"0","summary":"the surface already has a synchronization object associated"},{"type":"entry","name":"invalid_timeline","value":"1","summary":"the timeline object could not be imported"}]}]},{"type":"interface","name":"wp_linux_drm_syncobj_timeline_v1","version":"1","description":{"type":"description","text":"This object represents an explicit synchronization object timeline\n      imported by the client to the compositor.","summary":"synchronization object timeline"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the synchronization object timeline. Other objects are not\n        affected by this request, in particular timeline points set by\n        set_acquire_point and set_release_point are not unset.","summary":"destroy the timeline"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"wp_linux_drm_syncobj_surface_v1","version":"1","description":{"type":"description","text":"This object is an add-on interface for wl_surface to enable explicit\n      synchronization.\n\n      Each surface can be associated with only one object of this interface at\n      any time.\n\n      Explicit synchronization is guaranteed to be supported for buffers\n      created with any version of the linux-dmabuf protocol. Compositors are\n      free to support explicit synchronization for additional buffer types.\n      If at surface commit time the attached buffer does not support explicit\n      synchronization, an unsupported_buffer error is raised.\n\n      As long as the wp_linux_drm_syncobj_surface_v1 object is alive, the\n      compositor may ignore implicit synchronization for buffers attached and\n      committed to the wl_surface. The delivery of wl_buffer.release events\n      for buffers attached to the surface becomes undefined.\n\n      Clients must set both acquire and release points if and only if a\n      non-null buffer is attached in the same surface commit. See the\n      no_buffer, no_acquire_point and no_release_point protocol errors.\n\n      If at surface commit time the acquire and release DRM syncobj timelines\n      are identical, the acquire point value must be strictly less than the\n      release point value, or else the conflicting_points protocol error is\n      raised.","summary":"per-surface explicit synchronization"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy this surface synchronization object.\n\n        Any timeline point set by this object with set_acquire_point or\n        set_release_point since the last commit may be discarded by the\n        compositor. Any timeline point set by this object before the last\n        commit will not be affected.","summary":"destroy the surface synchronization object"},"args":[]},{"type":"request","name":"set_acquire_point","description":{"type":"description","text":"Set the timeline point that must be signalled before the compositor may\n        sample from the buffer attached with wl_surface.attach.\n\n        The 64-bit unsigned value combined from point_hi and point_lo is the\n        point value.\n\n        The acquire point is double-buffered state, and will be applied on the\n        next wl_surface.commit request for the associated surface. Thus, it\n        applies only to the buffer that is attached to the surface at commit\n        time.\n\n        If an acquire point has already been attached during the same commit\n        cycle, the new point replaces the old one.\n\n        If the associated wl_surface was destroyed, a no_surface error is\n        raised.\n\n        If at surface commit time there is a pending acquire timeline point set\n        but no pending buffer attached, a no_buffer error is raised. If at\n        surface commit time there is a pending buffer attached but no pending\n        acquire timeline point set, the no_acquire_point protocol error is\n        raised.","summary":"set the acquire timeline point"},"args":[{"type":"arg","name":"timeline","argType":"object","interface":"wp_linux_drm_syncobj_timeline_v1"},{"type":"arg","name":"point_hi","argType":"uint","summary":"high 32 bits of the point value"},{"type":"arg","name":"point_lo","argType":"uint","summary":"low 32 bits of the point value"}]},{"type":"request","name":"set_release_point","description":{"type":"description","text":"Set the timeline point that must be signalled by the compositor when it\n        has finished its usage of the buffer attached with wl_surface.attach\n        for the relevant commit.\n\n        Once the timeline point is signaled, and assuming the associated buffer\n        is not pending release from other wl_surface.commit requests, no\n        additional explicit or implicit synchronization with the compositor is\n        required to safely re-use the buffer.\n\n        Note that clients cannot rely on the release point being always\n        signaled after the acquire point: compositors may release buffers\n        without ever reading from them. In addition, the compositor may use\n        different presentation paths for different commits, which may have\n        different release behavior. As a result, the compositor may signal the\n        release points in a different order than the client committed them.\n\n        Because signaling a timeline point also signals every previous point,\n        it is generally not safe to use the same timeline object for the\n        release points of multiple buffers. The out-of-order signaling\n        described above may lead to a release point being signaled before the\n        compositor has finished reading. To avoid this, it is strongly\n        recommended that each buffer should use a separate timeline for its\n        release points.\n\n        The 64-bit unsigned value combined from point_hi and point_lo is the\n        point value.\n\n        The release point is double-buffered state, and will be applied on the\n        next wl_surface.commit request for the associated surface. Thus, it\n        applies only to the buffer that is attached to the surface at commit\n        time.\n\n        If a release point has already been attached during the same commit\n        cycle, the new point replaces the old one.\n\n        If the associated wl_surface was destroyed, a no_surface error is\n        raised.\n\n        If at surface commit time there is a pending release timeline point set\n        but no pending buffer attached, a no_buffer error is raised. If at\n        surface commit time there is a pending buffer attached but no pending\n        release timeline point set, the no_release_point protocol error is\n        raised.","summary":"set the release timeline point"},"args":[{"type":"arg","name":"timeline","argType":"object","interface":"wp_linux_drm_syncobj_timeline_v1"},{"type":"arg","name":"point_hi","argType":"uint","summary":"high 32 bits of the point value"},{"type":"arg","name":"point_lo","argType":"uint","summary":"low 32 bits of the point value"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"no_surface","value":"1","summary":"the associated wl_surface was destroyed"},{"type":"entry","name":"unsupported_buffer","value":"2","summary":"the buffer does not support explicit synchronization"},{"type":"entry","name":"no_buffer","value":"3","summary":"no buffer was attached"},{"type":"entry","name":"no_acquire_point","value":"4","summary":"no acquire timeline point was set"},{"type":"entry","name":"no_release_point","value":"5","summary":"no release timeline point was set"},{"type":"entry","name":"conflicting_points","value":"6","summary":"acquire and release timeline points are in conflict"}]}]}]}
+{
+  "type": "protocol",
+  "name": "linux_drm_syncobj_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2016 The Chromium Authors.\nCopyright 2017 Intel Corporation\nCopyright 2018 Collabora, Ltd\nCopyright 2021 Simon Ser\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to request explicit synchronization for\nbuffers. It is tied to the Linux DRM synchronization object framework.\n\nSynchronization refers to co-ordination of pipelined operations performed\non buffers. Most GPU clients will schedule an asynchronous operation to\nrender to the buffer, then immediately send the buffer to the compositor\nto be attached to a surface.\n\nWith implicit synchronization, ensuring that the rendering operation is\ncomplete before the compositor displays the buffer is an implementation\ndetail handled by either the kernel or userspace graphics driver.\n\nBy contrast, with explicit synchronization, DRM synchronization object\ntimeline points mark when the asynchronous operations are complete. When\nsubmitting a buffer, the client provides a timeline point which will be\nwaited on before the compositor accesses the buffer, and another timeline\npoint that the compositor will signal when it no longer needs to access the\nbuffer contents for the purposes of the surface commit.\n\nLinux DRM synchronization objects are documented at:\nhttps://dri.freedesktop.org/docs/drm/gpu/drm-mm.html#drm-sync-objects\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "protocol for providing explicit synchronization"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wp_linux_drm_syncobj_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global is a factory interface, allowing clients to request\nexplicit synchronization for buffers on a per-surface basis.\n\nSee wp_linux_drm_syncobj_surface_v1 for more information.",
+        "summary": "global for providing explicit synchronization"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this explicit synchronization factory object. Other objects\nshall not be affected by this request.",
+            "summary": "destroy explicit synchronization factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_surface",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given wl_surface to provide\nexplicit synchronization.\n\nIf the given wl_surface already has an explicit synchronization object\nassociated, the surface_exists protocol error is raised.\n\nGraphics APIs, like EGL or Vulkan, that manage the buffer queue and\ncommits of a wl_surface themselves, are likely to be using this\nextension internally. If a client is using such an API for a\nwl_surface, it should not directly use this extension on that surface,\nto avoid raising a surface_exists protocol error.",
+            "summary": "extend surface interface for explicit synchronization"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new synchronization surface object id",
+              "interface": "wp_linux_drm_syncobj_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "import_timeline",
+          "description": {
+            "type": "description",
+            "text": "Import a DRM synchronization object timeline.\n\nIf the FD cannot be imported, the invalid_timeline error is raised.",
+            "summary": "import a DRM syncobj timeline"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wp_linux_drm_syncobj_timeline_v1"
+            },
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "drm_syncobj file descriptor"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "surface_exists",
+              "value": "0",
+              "summary": "the surface already has a synchronization object associated"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_timeline",
+              "value": "1",
+              "summary": "the timeline object could not be imported"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "wp_linux_drm_syncobj_timeline_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents an explicit synchronization object timeline\nimported by the client to the compositor.",
+        "summary": "synchronization object timeline"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the synchronization object timeline. Other objects are not\naffected by this request, in particular timeline points set by\nset_acquire_point and set_release_point are not unset.",
+            "summary": "destroy the timeline"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "wp_linux_drm_syncobj_surface_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is an add-on interface for wl_surface to enable explicit\nsynchronization.\n\nEach surface can be associated with only one object of this interface at\nany time.\n\nExplicit synchronization is guaranteed to be supported for buffers\ncreated with any version of the linux-dmabuf protocol. Compositors are\nfree to support explicit synchronization for additional buffer types.\nIf at surface commit time the attached buffer does not support explicit\nsynchronization, an unsupported_buffer error is raised.\n\nAs long as the wp_linux_drm_syncobj_surface_v1 object is alive, the\ncompositor may ignore implicit synchronization for buffers attached and\ncommitted to the wl_surface. The delivery of wl_buffer.release events\nfor buffers attached to the surface becomes undefined.\n\nClients must set both acquire and release points if and only if a\nnon-null buffer is attached in the same surface commit. See the\nno_buffer, no_acquire_point and no_release_point protocol errors.\n\nIf at surface commit time the acquire and release DRM syncobj timelines\nare identical, the acquire point value must be strictly less than the\nrelease point value, or else the conflicting_points protocol error is\nraised.",
+        "summary": "per-surface explicit synchronization"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this surface synchronization object.\n\nAny timeline point set by this object with set_acquire_point or\nset_release_point since the last commit may be discarded by the\ncompositor. Any timeline point set by this object before the last\ncommit will not be affected.",
+            "summary": "destroy the surface synchronization object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_acquire_point",
+          "description": {
+            "type": "description",
+            "text": "Set the timeline point that must be signalled before the compositor may\nsample from the buffer attached with wl_surface.attach.\n\nThe 64-bit unsigned value combined from point_hi and point_lo is the\npoint value.\n\nThe acquire point is double-buffered state, and will be applied on the\nnext wl_surface.commit request for the associated surface. Thus, it\napplies only to the buffer that is attached to the surface at commit\ntime.\n\nIf an acquire point has already been attached during the same commit\ncycle, the new point replaces the old one.\n\nIf the associated wl_surface was destroyed, a no_surface error is\nraised.\n\nIf at surface commit time there is a pending acquire timeline point set\nbut no pending buffer attached, a no_buffer error is raised. If at\nsurface commit time there is a pending buffer attached but no pending\nacquire timeline point set, the no_acquire_point protocol error is\nraised.",
+            "summary": "set the acquire timeline point"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "timeline",
+              "argType": "object",
+              "interface": "wp_linux_drm_syncobj_timeline_v1"
+            },
+            {
+              "type": "arg",
+              "name": "point_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the point value"
+            },
+            {
+              "type": "arg",
+              "name": "point_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the point value"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_release_point",
+          "description": {
+            "type": "description",
+            "text": "Set the timeline point that must be signalled by the compositor when it\nhas finished its usage of the buffer attached with wl_surface.attach\nfor the relevant commit.\n\nOnce the timeline point is signaled, and assuming the associated buffer\nis not pending release from other wl_surface.commit requests, no\nadditional explicit or implicit synchronization with the compositor is\nrequired to safely re-use the buffer.\n\nNote that clients cannot rely on the release point being always\nsignaled after the acquire point: compositors may release buffers\nwithout ever reading from them. In addition, the compositor may use\ndifferent presentation paths for different commits, which may have\ndifferent release behavior. As a result, the compositor may signal the\nrelease points in a different order than the client committed them.\n\nBecause signaling a timeline point also signals every previous point,\nit is generally not safe to use the same timeline object for the\nrelease points of multiple buffers. The out-of-order signaling\ndescribed above may lead to a release point being signaled before the\ncompositor has finished reading. To avoid this, it is strongly\nrecommended that each buffer should use a separate timeline for its\nrelease points.\n\nThe 64-bit unsigned value combined from point_hi and point_lo is the\npoint value.\n\nThe release point is double-buffered state, and will be applied on the\nnext wl_surface.commit request for the associated surface. Thus, it\napplies only to the buffer that is attached to the surface at commit\ntime.\n\nIf a release point has already been attached during the same commit\ncycle, the new point replaces the old one.\n\nIf the associated wl_surface was destroyed, a no_surface error is\nraised.\n\nIf at surface commit time there is a pending release timeline point set\nbut no pending buffer attached, a no_buffer error is raised. If at\nsurface commit time there is a pending buffer attached but no pending\nrelease timeline point set, the no_release_point protocol error is\nraised.",
+            "summary": "set the release timeline point"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "timeline",
+              "argType": "object",
+              "interface": "wp_linux_drm_syncobj_timeline_v1"
+            },
+            {
+              "type": "arg",
+              "name": "point_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the point value"
+            },
+            {
+              "type": "arg",
+              "name": "point_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the point value"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_surface",
+              "value": "1",
+              "summary": "the associated wl_surface was destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "unsupported_buffer",
+              "value": "2",
+              "summary": "the buffer does not support explicit synchronization"
+            },
+            {
+              "type": "entry",
+              "name": "no_buffer",
+              "value": "3",
+              "summary": "no buffer was attached"
+            },
+            {
+              "type": "entry",
+              "name": "no_acquire_point",
+              "value": "4",
+              "summary": "no acquire timeline point was set"
+            },
+            {
+              "type": "entry",
+              "name": "no_release_point",
+              "value": "5",
+              "summary": "no release timeline point was set"
+            },
+            {
+              "type": "entry",
+              "name": "conflicting_points",
+              "value": "6",
+              "summary": "acquire and release timeline points are in conflict"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

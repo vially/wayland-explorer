@@ -1,1 +1,187 @@
-{"type":"protocol","name":"cosmic_image_source_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2022 Andri Yngvason\n    Copyright © 2024 Simon Ser\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol serves as an intermediary between screen capturing protocols\n    and potential image sources such as outputs and toplevels.\n\n    This protocol may be extended to support more image sources in the future,\n    thereby adding those image sources to other protocols that use the image\n    source object without having to modify those protocols.\n\n    Warning! The protocol described in this file is currently in the testing\n    phase. Backward compatible changes may be added together with the\n    corresponding interface version bump. Backward incompatible changes can\n    only be done by creating a new major version of the extension.","summary":"opaque image source objects"},"interfaces":[{"type":"interface","name":"zcosmic_image_source_v1","version":"1","description":{"type":"description","text":"The image source object is an opaque descriptor for a capturable resource.\n      This resource may be any sort of entity from which an image may be\n      derived.\n\n      Note, because zcosmic_image_source_v1 objects are created from multiple\n      independent factory interfaces, the zcosmic_image_source_v1 interface is\n      frozen at version 1.","summary":"opaque image source object"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the image source. This request may be sent at any time by the\n        client.","summary":"delete this object"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"zcosmic_output_image_source_manager_v1","version":"1","description":{"type":"description","text":"A manager for creating image source objects for wl_output objects.","summary":"image source manager for outputs"},"requests":[{"type":"request","name":"create_source","description":{"type":"description","text":"Creates a source object for an output. Images captured from this source\n        will show the same content as the output. Some elements may be omitted,\n        such as cursors and overlays that have been marked as transparent to\n        capturing.","summary":"create source object for output"},"args":[{"type":"arg","name":"source","argType":"new_id","interface":"zcosmic_image_source_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the manager. This request may be sent at any time by the client\n        and objects created by the manager will remain valid after its\n        destruction.","summary":"delete this object"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"zcosmic_workspace_image_source_manager_v1","version":"1","description":{"type":"description","text":"A manager for creating image source objects for wl_output objects.","summary":"image source manager for outputs"},"requests":[{"type":"request","name":"create_source","description":{"type":"description","text":"Creates a source object for a workspaces. Images captured from this source\n        will show the same content as the workspace. Some elements may be omitted,\n        such as cursors and overlays that have been marked as transparent to\n        capturing.","summary":"create source object for output"},"args":[{"type":"arg","name":"source","argType":"new_id","interface":"zcosmic_image_source_v1"},{"type":"arg","name":"output","argType":"object","interface":"zcosmic_workspace_handle_v1"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the manager. This request may be sent at any time by the client\n        and objects created by the manager will remain valid after its\n        destruction.","summary":"delete this object"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"zcosmic_toplevel_image_source_manager_v1","version":"1","description":{"type":"description","text":"A manager for creating image source objects for\n      zcosmic_toplevel_handle_v1 objects.","summary":"image source manager for toplevels"},"requests":[{"type":"request","name":"create_source","description":{"type":"description","text":"Creates a source object for a toplevel handle. Images captured\n        from this source will show the same content as the toplevel.","summary":"create source object for toplevel"},"args":[{"type":"arg","name":"source","argType":"new_id","interface":"zcosmic_image_source_v1"},{"type":"arg","name":"toplevel_handle","argType":"object","interface":"zcosmic_toplevel_handle_v1"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the manager. This request may be sent at any time by the client\n        and objects created by the manager will remain valid after its\n        destruction.","summary":"delete this object"},"args":[]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "cosmic_image_source_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2022 Andri Yngvason\nCopyright © 2024 Simon Ser\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol serves as an intermediary between screen capturing protocols\nand potential image sources such as outputs and toplevels.\n\nThis protocol may be extended to support more image sources in the future,\nthereby adding those image sources to other protocols that use the image\nsource object without having to modify those protocols.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "opaque image source objects"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_image_source_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The image source object is an opaque descriptor for a capturable resource.\nThis resource may be any sort of entity from which an image may be\nderived.\n\nNote, because zcosmic_image_source_v1 objects are created from multiple\nindependent factory interfaces, the zcosmic_image_source_v1 interface is\nfrozen at version 1.",
+        "summary": "opaque image source object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the image source. This request may be sent at any time by the\nclient.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_output_image_source_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A manager for creating image source objects for wl_output objects.",
+        "summary": "image source manager for outputs"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_source",
+          "description": {
+            "type": "description",
+            "text": "Creates a source object for an output. Images captured from this source\nwill show the same content as the output. Some elements may be omitted,\nsuch as cursors and overlays that have been marked as transparent to\ncapturing.",
+            "summary": "create source object for output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "new_id",
+              "interface": "zcosmic_image_source_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the manager. This request may be sent at any time by the client\nand objects created by the manager will remain valid after its\ndestruction.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_image_source_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A manager for creating image source objects for wl_output objects.",
+        "summary": "image source manager for outputs"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_source",
+          "description": {
+            "type": "description",
+            "text": "Creates a source object for a workspaces. Images captured from this source\nwill show the same content as the workspace. Some elements may be omitted,\nsuch as cursors and overlays that have been marked as transparent to\ncapturing.",
+            "summary": "create source object for output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "new_id",
+              "interface": "zcosmic_image_source_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "zcosmic_workspace_handle_v1",
+              "protocol": "cosmic-workspace-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the manager. This request may be sent at any time by the client\nand objects created by the manager will remain valid after its\ndestruction.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_toplevel_image_source_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A manager for creating image source objects for\nzcosmic_toplevel_handle_v1 objects.",
+        "summary": "image source manager for toplevels"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_source",
+          "description": {
+            "type": "description",
+            "text": "Creates a source object for a toplevel handle. Images captured\nfrom this source will show the same content as the toplevel.",
+            "summary": "create source object for toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "new_id",
+              "interface": "zcosmic_image_source_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel_handle",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the manager. This request may be sent at any time by the client\nand objects created by the manager will remain valid after its\ndestruction.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

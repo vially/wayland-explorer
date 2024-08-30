@@ -1,1 +1,332 @@
-{"type":"protocol","name":"drm_lease_v1","copyright":{"type":"copyright","text":"Copyright © 2018 NXP\n    Copyright © 2019 Status Research & Development GmbH.\n    Copyright © 2021 Xaver Hugl\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"wp_drm_lease_device_v1","version":"1","description":{"type":"description","text":"This protocol is used by Wayland compositors which act as Direct\n      Rendering Manager (DRM) masters to lease DRM resources to Wayland\n      clients.\n\n      The compositor will advertise one wp_drm_lease_device_v1 global for each\n      DRM node. Some time after a client binds to the wp_drm_lease_device_v1\n      global, the compositor will send a drm_fd event followed by zero, one or\n      more connector events. After all currently available connectors have been\n      sent, the compositor will send a wp_drm_lease_device_v1.done event.\n\n      When the list of connectors available for lease changes the compositor\n      will send wp_drm_lease_device_v1.connector events for added connectors and\n      wp_drm_lease_connector_v1.withdrawn events for removed connectors,\n      followed by a wp_drm_lease_device_v1.done event.\n\n      The compositor will indicate when a device is gone by removing the global\n      via a wl_registry.global_remove event. Upon receiving this event, the\n      client should destroy any matching wp_drm_lease_device_v1 object.\n\n      To destroy a wp_drm_lease_device_v1 object, the client must first issue\n      a release request. Upon receiving this request, the compositor will\n      immediately send a released event and destroy the object. The client must\n      continue to process and discard drm_fd and connector events until it\n      receives the released event. Upon receiving the released event, the\n      client can safely cleanup any client-side resources.\n\n      Warning! The protocol described in this file is currently in the testing\n      phase. Backward compatible changes may be added together with the\n      corresponding interface version bump. Backward incompatible changes can\n      only be done by creating a new major version of the extension.","summary":"lease device"},"requests":[{"type":"request","name":"create_lease_request","description":{"type":"description","text":"Creates a lease request object.\n\n        See the documentation for wp_drm_lease_request_v1 for details.","summary":"create a lease request object"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"wp_drm_lease_request_v1"}]},{"type":"request","name":"release","description":{"type":"description","text":"Indicates the client no longer wishes to use this object. In response\n        the compositor will immediately send the released event and destroy\n        this object. It can however not guarantee that the client won't receive\n        connector events before the released event. The client must not send any\n        requests after this one, doing so will raise a wl_display error.\n        Existing connectors, lease request and leases will not be affected.","summary":"release this object"},"args":[]}],"events":[{"type":"event","name":"drm_fd","description":{"type":"description","text":"The compositor will send this event when the wp_drm_lease_device_v1\n        global is bound, although there are no guarantees as to how long this\n        takes - the compositor might need to wait until regaining DRM master.\n        The included fd is a non-master DRM file descriptor opened for this\n        device and the compositor must not authenticate it.\n        The purpose of this event is to give the client the ability to\n        query DRM and discover information which may help them pick the\n        appropriate DRM device or select the appropriate connectors therein.","summary":"open a non-master fd for this DRM node"},"args":[{"type":"arg","name":"fd","argType":"fd","summary":"DRM file descriptor"}]},{"type":"event","name":"connector","description":{"type":"description","text":"The compositor will use this event to advertise connectors available for\n        lease by clients. This object may be passed into a lease request to\n        indicate the client would like to lease that connector, see\n        wp_drm_lease_request_v1.request_connector for details. While the\n        compositor will make a best effort to not send disconnected connectors,\n        no guarantees can be made.\n\n        The compositor must send the drm_fd event before sending connectors.\n        After the drm_fd event it will send all available connectors but may\n        send additional connectors at any time.","summary":"advertise connectors available for leases"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"wp_drm_lease_connector_v1"}]},{"type":"event","name":"done","description":{"type":"description","text":"The compositor will send this event to indicate that it has sent all\n        currently available connectors after the client binds to the global or\n        when it updates the connector list, for example on hotplug, drm master\n        change or when a leased connector becomes available again. It will\n        similarly send this event to group wp_drm_lease_connector_v1.withdrawn\n        events of connectors of this device.","summary":"signals grouping of connectors"},"args":[]},{"type":"event","name":"released","eventType":"destructor","description":{"type":"description","text":"This event is sent in response to the release request and indicates\n        that the compositor is done sending connector events.\n        The compositor will destroy this object immediately after sending the\n        event and it will become invalid. The client should release any\n        resources associated with this device after receiving this event.","summary":"the compositor has finished using the device"},"args":[]}],"enums":[]},{"type":"interface","name":"wp_drm_lease_connector_v1","version":"1","description":{"type":"description","text":"Represents a DRM connector which is available for lease. These objects are\n      created via wp_drm_lease_device_v1.connector events, and should be passed\n      to lease requests via wp_drm_lease_request_v1.request_connector.\n      Immediately after the wp_drm_lease_connector_v1 object is created the\n      compositor will send a name, a description, a connector_id and a done\n      event. When the description is updated the compositor will send a\n      description event followed by a done event.","summary":"a leasable DRM connector"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"The client may send this request to indicate that it will not use this\n        connector. Clients are encouraged to send this after receiving the\n        \"withdrawn\" event so that the server can release the resources\n        associated with this connector offer. Neither existing lease requests\n        nor leases will be affected.","summary":"destroy connector"},"args":[]}],"events":[{"type":"event","name":"name","description":{"type":"description","text":"The compositor sends this event once the connector is created to\n        indicate the name of this connector. This will not change for the\n        duration of the Wayland session, but is not guaranteed to be consistent\n        between sessions.\n\n        If the compositor supports wl_output version 4 and this connector\n        corresponds to a wl_output, the compositor should use the same name as\n        for the wl_output.","summary":"name"},"args":[{"type":"arg","name":"name","argType":"string","summary":"connector name"}]},{"type":"event","name":"description","description":{"type":"description","text":"The compositor sends this event once the connector is created to provide\n        a human-readable description for this connector, which may be presented\n        to the user. The compositor may send this event multiple times over the\n        lifetime of this object to reflect changes in the description.","summary":"description"},"args":[{"type":"arg","name":"description","argType":"string","summary":"connector description"}]},{"type":"event","name":"connector_id","description":{"type":"description","text":"The compositor sends this event once the connector is created to\n        indicate the DRM object ID which represents the underlying connector\n        that is being offered. Note that the final lease may include additional\n        object IDs, such as CRTCs and planes.","summary":"connector_id"},"args":[{"type":"arg","name":"connector_id","argType":"uint","summary":"DRM connector ID"}]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent after all properties of a connector have been sent.\n        This allows changes to the properties to be seen as atomic even if they\n        happen via multiple events.","summary":"all properties have been sent"},"args":[]},{"type":"event","name":"withdrawn","description":{"type":"description","text":"Sent to indicate that the compositor will no longer honor requests for\n        DRM leases which include this connector. The client may still issue a\n        lease request including this connector, but the compositor will send\n        wp_drm_lease_v1.finished without issuing a lease fd. Compositors are\n        encouraged to send this event when they lose access to connector, for\n        example when the connector is hot-unplugged, when the connector gets\n        leased to a client or when the compositor loses DRM master.","summary":"lease offer withdrawn"},"args":[]}],"enums":[]},{"type":"interface","name":"wp_drm_lease_request_v1","version":"1","description":{"type":"description","text":"A client that wishes to lease DRM resources will attach the list of\n      connectors advertised with wp_drm_lease_device_v1.connector that they\n      wish to lease, then use wp_drm_lease_request_v1.submit to submit the\n      request.","summary":"DRM lease request"},"requests":[{"type":"request","name":"request_connector","description":{"type":"description","text":"Indicates that the client would like to lease the given connector.\n        This is only used as a suggestion, the compositor may choose to\n        include any resources in the lease it issues, or change the set of\n        leased resources at any time. Compositors are however encouraged to\n        include the requested connector and other resources necessary\n        to drive the connected output in the lease.\n\n        Requesting a connector that was created from a different lease device\n        than this lease request raises the wrong_device error. Requesting a\n        connector twice will raise the duplicate_connector error.","summary":"request a connector for this lease"},"args":[{"type":"arg","name":"connector","argType":"object","interface":"wp_drm_lease_connector_v1"}]},{"type":"request","name":"submit","requestType":"destructor","description":{"type":"description","text":"Submits the lease request and creates a new wp_drm_lease_v1 object.\n        After calling submit the compositor will immediately destroy this\n        object, issuing any more requests will cause a wl_display error.\n        The compositor doesn't make any guarantees about the events of the\n        lease object, clients cannot expect an immediate response.\n        Not requesting any connectors before submitting the lease request\n        will raise the empty_lease error.","summary":"submit the lease request"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"wp_drm_lease_v1"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"wrong_device","value":"0","summary":"requested a connector from a different lease device"},{"type":"entry","name":"duplicate_connector","value":"1","summary":"requested a connector twice"},{"type":"entry","name":"empty_lease","value":"2","summary":"requested a lease without requesting a connector"}]}]},{"type":"interface","name":"wp_drm_lease_v1","version":"1","description":{"type":"description","text":"A DRM lease object is used to transfer the DRM file descriptor to the\n      client and manage the lifetime of the lease.\n\n      Some time after the wp_drm_lease_v1 object is created, the compositor\n      will reply with the lease request's result. If the lease request is\n      granted, the compositor will send a lease_fd event. If the lease request\n      is denied, the compositor will send a finished event without a lease_fd\n      event.","summary":"a DRM lease"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"The client should send this to indicate that it no longer wishes to use\n        this lease. The compositor should use drmModeRevokeLease on the\n        appropriate file descriptor, if necessary.","summary":"destroys the lease object"},"args":[]}],"events":[{"type":"event","name":"lease_fd","description":{"type":"description","text":"This event returns a file descriptor suitable for use with DRM-related\n        ioctls. The client should use drmModeGetLease to enumerate the DRM\n        objects which have been leased to them. The compositor guarantees it\n        will not use the leased DRM objects itself until it sends the finished\n        event. If the compositor cannot or will not grant a lease for the\n        requested connectors, it will not send this event, instead sending the\n        finished event.\n\n        The compositor will send this event at most once during this objects\n        lifetime.","summary":"shares the DRM file descriptor"},"args":[{"type":"arg","name":"leased_fd","argType":"fd","summary":"leased DRM file descriptor"}]},{"type":"event","name":"finished","description":{"type":"description","text":"The compositor uses this event to either reject a lease request, or if\n        it previously sent a lease_fd, to notify the client that the lease has\n        been revoked. If the client requires a new lease, they should destroy\n        this object and submit a new lease request. The compositor will send\n        no further events for this object after sending the finish event.\n        Compositors should revoke the lease when any of the leased resources\n        become unavailable, namely when a hot-unplug occurs or when the\n        compositor loses DRM master.","summary":"sent when the lease has been revoked"},"args":[]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "drm_lease_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 NXP\nCopyright © 2019 Status Research & Development GmbH.\nCopyright © 2021 Xaver Hugl\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wp_drm_lease_device_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This protocol is used by Wayland compositors which act as Direct\nRendering Manager (DRM) masters to lease DRM resources to Wayland\nclients.\n\nThe compositor will advertise one wp_drm_lease_device_v1 global for each\nDRM node. Some time after a client binds to the wp_drm_lease_device_v1\nglobal, the compositor will send a drm_fd event followed by zero, one or\nmore connector events. After all currently available connectors have been\nsent, the compositor will send a wp_drm_lease_device_v1.done event.\n\nWhen the list of connectors available for lease changes the compositor\nwill send wp_drm_lease_device_v1.connector events for added connectors and\nwp_drm_lease_connector_v1.withdrawn events for removed connectors,\nfollowed by a wp_drm_lease_device_v1.done event.\n\nThe compositor will indicate when a device is gone by removing the global\nvia a wl_registry.global_remove event. Upon receiving this event, the\nclient should destroy any matching wp_drm_lease_device_v1 object.\n\nTo destroy a wp_drm_lease_device_v1 object, the client must first issue\na release request. Upon receiving this request, the compositor will\nimmediately send a released event and destroy the object. The client must\ncontinue to process and discard drm_fd and connector events until it\nreceives the released event. Upon receiving the released event, the\nclient can safely cleanup any client-side resources.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "lease device"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_lease_request",
+          "description": {
+            "type": "description",
+            "text": "Creates a lease request object.\n\nSee the documentation for wp_drm_lease_request_v1 for details.",
+            "summary": "create a lease request object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wp_drm_lease_request_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "description": {
+            "type": "description",
+            "text": "Indicates the client no longer wishes to use this object. In response\nthe compositor will immediately send the released event and destroy\nthis object. It can however not guarantee that the client won't receive\nconnector events before the released event. The client must not send any\nrequests after this one, doing so will raise a wl_display error.\nExisting connectors, lease request and leases will not be affected.",
+            "summary": "release this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "drm_fd",
+          "description": {
+            "type": "description",
+            "text": "The compositor will send this event when the wp_drm_lease_device_v1\nglobal is bound, although there are no guarantees as to how long this\ntakes - the compositor might need to wait until regaining DRM master.\nThe included fd is a non-master DRM file descriptor opened for this\ndevice and the compositor must not authenticate it.\nThe purpose of this event is to give the client the ability to\nquery DRM and discover information which may help them pick the\nappropriate DRM device or select the appropriate connectors therein.",
+            "summary": "open a non-master fd for this DRM node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "DRM file descriptor"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "connector",
+          "description": {
+            "type": "description",
+            "text": "The compositor will use this event to advertise connectors available for\nlease by clients. This object may be passed into a lease request to\nindicate the client would like to lease that connector, see\nwp_drm_lease_request_v1.request_connector for details. While the\ncompositor will make a best effort to not send disconnected connectors,\nno guarantees can be made.\n\nThe compositor must send the drm_fd event before sending connectors.\nAfter the drm_fd event it will send all available connectors but may\nsend additional connectors at any time.",
+            "summary": "advertise connectors available for leases"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wp_drm_lease_connector_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "The compositor will send this event to indicate that it has sent all\ncurrently available connectors after the client binds to the global or\nwhen it updates the connector list, for example on hotplug, drm master\nchange or when a leased connector becomes available again. It will\nsimilarly send this event to group wp_drm_lease_connector_v1.withdrawn\nevents of connectors of this device.",
+            "summary": "signals grouping of connectors"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "released",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This event is sent in response to the release request and indicates\nthat the compositor is done sending connector events.\nThe compositor will destroy this object immediately after sending the\nevent and it will become invalid. The client should release any\nresources associated with this device after receiving this event.",
+            "summary": "the compositor has finished using the device"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "wp_drm_lease_connector_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a DRM connector which is available for lease. These objects are\ncreated via wp_drm_lease_device_v1.connector events, and should be passed\nto lease requests via wp_drm_lease_request_v1.request_connector.\nImmediately after the wp_drm_lease_connector_v1 object is created the\ncompositor will send a name, a description, a connector_id and a done\nevent. When the description is updated the compositor will send a\ndescription event followed by a done event.",
+        "summary": "a leasable DRM connector"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The client may send this request to indicate that it will not use this\nconnector. Clients are encouraged to send this after receiving the\n\"withdrawn\" event so that the server can release the resources\nassociated with this connector offer. Neither existing lease requests\nnor leases will be affected.",
+            "summary": "destroy connector"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "name",
+          "description": {
+            "type": "description",
+            "text": "The compositor sends this event once the connector is created to\nindicate the name of this connector. This will not change for the\nduration of the Wayland session, but is not guaranteed to be consistent\nbetween sessions.\n\nIf the compositor supports wl_output version 4 and this connector\ncorresponds to a wl_output, the compositor should use the same name as\nfor the wl_output.",
+            "summary": "name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "connector name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "description",
+          "description": {
+            "type": "description",
+            "text": "The compositor sends this event once the connector is created to provide\na human-readable description for this connector, which may be presented\nto the user. The compositor may send this event multiple times over the\nlifetime of this object to reflect changes in the description.",
+            "summary": "description"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "connector description"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "connector_id",
+          "description": {
+            "type": "description",
+            "text": "The compositor sends this event once the connector is created to\nindicate the DRM object ID which represents the underlying connector\nthat is being offered. Note that the final lease may include additional\nobject IDs, such as CRTCs and planes.",
+            "summary": "connector_id"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "connector_id",
+              "argType": "uint",
+              "summary": "DRM connector ID"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all properties of a connector have been sent.\nThis allows changes to the properties to be seen as atomic even if they\nhappen via multiple events.",
+            "summary": "all properties have been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "withdrawn",
+          "description": {
+            "type": "description",
+            "text": "Sent to indicate that the compositor will no longer honor requests for\nDRM leases which include this connector. The client may still issue a\nlease request including this connector, but the compositor will send\nwp_drm_lease_v1.finished without issuing a lease fd. Compositors are\nencouraged to send this event when they lose access to connector, for\nexample when the connector is hot-unplugged, when the connector gets\nleased to a client or when the compositor loses DRM master.",
+            "summary": "lease offer withdrawn"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "wp_drm_lease_request_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A client that wishes to lease DRM resources will attach the list of\nconnectors advertised with wp_drm_lease_device_v1.connector that they\nwish to lease, then use wp_drm_lease_request_v1.submit to submit the\nrequest.",
+        "summary": "DRM lease request"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "request_connector",
+          "description": {
+            "type": "description",
+            "text": "Indicates that the client would like to lease the given connector.\nThis is only used as a suggestion, the compositor may choose to\ninclude any resources in the lease it issues, or change the set of\nleased resources at any time. Compositors are however encouraged to\ninclude the requested connector and other resources necessary\nto drive the connected output in the lease.\n\nRequesting a connector that was created from a different lease device\nthan this lease request raises the wrong_device error. Requesting a\nconnector twice will raise the duplicate_connector error.",
+            "summary": "request a connector for this lease"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "connector",
+              "argType": "object",
+              "interface": "wp_drm_lease_connector_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "submit",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Submits the lease request and creates a new wp_drm_lease_v1 object.\nAfter calling submit the compositor will immediately destroy this\nobject, issuing any more requests will cause a wl_display error.\nThe compositor doesn't make any guarantees about the events of the\nlease object, clients cannot expect an immediate response.\nNot requesting any connectors before submitting the lease request\nwill raise the empty_lease error.",
+            "summary": "submit the lease request"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wp_drm_lease_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "wrong_device",
+              "value": "0",
+              "summary": "requested a connector from a different lease device"
+            },
+            {
+              "type": "entry",
+              "name": "duplicate_connector",
+              "value": "1",
+              "summary": "requested a connector twice"
+            },
+            {
+              "type": "entry",
+              "name": "empty_lease",
+              "value": "2",
+              "summary": "requested a lease without requesting a connector"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "wp_drm_lease_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A DRM lease object is used to transfer the DRM file descriptor to the\nclient and manage the lifetime of the lease.\n\nSome time after the wp_drm_lease_v1 object is created, the compositor\nwill reply with the lease request's result. If the lease request is\ngranted, the compositor will send a lease_fd event. If the lease request\nis denied, the compositor will send a finished event without a lease_fd\nevent.",
+        "summary": "a DRM lease"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The client should send this to indicate that it no longer wishes to use\nthis lease. The compositor should use drmModeRevokeLease on the\nappropriate file descriptor, if necessary.",
+            "summary": "destroys the lease object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "lease_fd",
+          "description": {
+            "type": "description",
+            "text": "This event returns a file descriptor suitable for use with DRM-related\nioctls. The client should use drmModeGetLease to enumerate the DRM\nobjects which have been leased to them. The compositor guarantees it\nwill not use the leased DRM objects itself until it sends the finished\nevent. If the compositor cannot or will not grant a lease for the\nrequested connectors, it will not send this event, instead sending the\nfinished event.\n\nThe compositor will send this event at most once during this objects\nlifetime.",
+            "summary": "shares the DRM file descriptor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "leased_fd",
+              "argType": "fd",
+              "summary": "leased DRM file descriptor"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "The compositor uses this event to either reject a lease request, or if\nit previously sent a lease_fd, to notify the client that the lease has\nbeen revoked. If the client requires a new lease, they should destroy\nthis object and submit a new lease request. The compositor will send\nno further events for this object after sending the finish event.\nCompositors should revoke the lease when any of the leased resources\nbecome unavailable, namely when a hot-unplug occurs or when the\ncompositor loses DRM master.",
+            "summary": "sent when the lease has been revoked"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

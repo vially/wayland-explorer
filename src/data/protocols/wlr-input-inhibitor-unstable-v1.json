@@ -1,1 +1,80 @@
-{"type":"protocol","name":"wlr_input_inhibit_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2018 Drew DeVault\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"interfaces":[{"type":"interface","name":"zwlr_input_inhibit_manager_v1","version":"1","description":{"type":"description","text":"Clients can use this interface to prevent input events from being sent to\n      any surfaces but its own, which is useful for example in lock screen\n      software. It is assumed that access to this interface will be locked down\n      to whitelisted clients by the compositor.\n\n      Note! This protocol is deprecated and not intended for production use.\n      For screen lockers, use the ext-session-lock-v1 protocol.","summary":"inhibits input events to other clients"},"requests":[{"type":"request","name":"get_inhibitor","description":{"type":"description","text":"Activates the input inhibitor. As long as the inhibitor is active, the\n        compositor will not send input events to other clients.","summary":"inhibit input to other clients"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_input_inhibitor_v1"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"already_inhibited","value":"0","summary":"an input inhibitor is already in use on the compositor"}]}]},{"type":"interface","name":"zwlr_input_inhibitor_v1","version":"1","description":{"type":"description","text":"While this resource exists, input to clients other than the owner of the\n      inhibitor resource will not receive input events. Any client which\n      previously had focus will receive a leave event and will not be given\n      focus again. The client that owns this resource will receive all input\n      events normally. The compositor will also disable all of its own input\n      processing (such as keyboard shortcuts) while the inhibitor is active.\n\n      The compositor may continue to send input events to selected clients,\n      such as an on-screen keyboard (via the input-method protocol).","summary":"inhibits input to other clients"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the inhibitor and allow other clients to receive input.","summary":"destroy the input inhibitor object"},"args":[]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "wlr_input_inhibit_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 Drew DeVault\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwlr_input_inhibit_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Clients can use this interface to prevent input events from being sent to\nany surfaces but its own, which is useful for example in lock screen\nsoftware. It is assumed that access to this interface will be locked down\nto whitelisted clients by the compositor.\n\nNote! This protocol is deprecated and not intended for production use.\nFor screen lockers, use the ext-session-lock-v1 protocol.",
+        "summary": "inhibits input events to other clients"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_inhibitor",
+          "description": {
+            "type": "description",
+            "text": "Activates the input inhibitor. As long as the inhibitor is active, the\ncompositor will not send input events to other clients.",
+            "summary": "inhibit input to other clients"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_input_inhibitor_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_inhibited",
+              "value": "0",
+              "summary": "an input inhibitor is already in use on the compositor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_input_inhibitor_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "While this resource exists, input to clients other than the owner of the\ninhibitor resource will not receive input events. Any client which\npreviously had focus will receive a leave event and will not be given\nfocus again. The client that owns this resource will receive all input\nevents normally. The compositor will also disable all of its own input\nprocessing (such as keyboard shortcuts) while the inhibitor is active.\n\nThe compositor may continue to send input events to selected clients,\nsuch as an on-screen keyboard (via the input-method protocol).",
+        "summary": "inhibits input to other clients"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the inhibitor and allow other clients to receive input.",
+            "summary": "destroy the input inhibitor object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

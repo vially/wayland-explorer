@@ -1,1 +1,809 @@
-{"type":"protocol","name":"wlr_output_management_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2019 Purism SPC\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"description":{"type":"description","text":"This protocol exposes interfaces to obtain and modify output device\n    configuration.\n\n    Warning! The protocol described in this file is experimental and\n    backward incompatible changes may be made. Backward compatible changes\n    may be added together with the corresponding interface version bump.\n    Backward incompatible changes are done by bumping the version number in\n    the protocol and interface names and resetting the interface version.\n    Once the protocol is to be declared stable, the 'z' prefix and the\n    version number in the protocol and interface names are removed and the\n    interface version number is reset.","summary":"protocol to configure output devices"},"interfaces":[{"type":"interface","name":"zwlr_output_manager_v1","version":"4","description":{"type":"description","text":"This interface is a manager that allows reading and writing the current\n      output device configuration.\n\n      Output devices that display pixels (e.g. a physical monitor or a virtual\n      output in a window) are represented as heads. Heads cannot be created nor\n      destroyed by the client, but they can be enabled or disabled and their\n      properties can be changed. Each head may have one or more available modes.\n\n      Whenever a head appears (e.g. a monitor is plugged in), it will be\n      advertised via the head event. Immediately after the output manager is\n      bound, all current heads are advertised.\n\n      Whenever a head's properties change, the relevant wlr_output_head events\n      will be sent. Not all head properties will be sent: only properties that\n      have changed need to.\n\n      Whenever a head disappears (e.g. a monitor is unplugged), a\n      wlr_output_head.finished event will be sent.\n\n      After one or more heads appear, change or disappear, the done event will\n      be sent. It carries a serial which can be used in a create_configuration\n      request to update heads properties.\n\n      The information obtained from this protocol should only be used for output\n      configuration purposes. This protocol is not designed to be a generic\n      output property advertisement protocol for regular clients. Instead,\n      protocols such as xdg-output should be used.","summary":"output device configuration manager"},"requests":[{"type":"request","name":"create_configuration","description":{"type":"description","text":"Create a new output configuration object. This allows to update head\n        properties.","summary":"create a new output configuration object"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_output_configuration_v1"},{"type":"arg","name":"serial","argType":"uint"}]},{"type":"request","name":"stop","description":{"type":"description","text":"Indicates the client no longer wishes to receive events for output\n        configuration changes. However the compositor may emit further events,\n        until the finished event is emitted.\n\n        The client must not send any more requests after this one.","summary":"stop sending events"},"args":[]}],"events":[{"type":"event","name":"head","description":{"type":"description","text":"This event introduces a new head. This happens whenever a new head\n        appears (e.g. a monitor is plugged in) or after the output manager is\n        bound.","summary":"introduce a new head"},"args":[{"type":"arg","name":"head","argType":"new_id","interface":"zwlr_output_head_v1"}]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent after all information has been sent after binding to\n        the output manager object and after any subsequent changes. This applies\n        to child head and mode objects as well. In other words, this event is\n        sent whenever a head or mode is created or destroyed and whenever one of\n        their properties has been changed. Not all state is re-sent each time\n        the current configuration changes: only the actual changes are sent.\n\n        This allows changes to the output configuration to be seen as atomic,\n        even if they happen via multiple events.\n\n        A serial is sent to be used in a future create_configuration request.","summary":"sent all information about current configuration"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"current configuration serial"}]},{"type":"event","name":"finished","eventType":"destructor","description":{"type":"description","text":"This event indicates that the compositor is done sending manager events.\n        The compositor will destroy the object immediately after sending this\n        event, so it will become invalid and the client should release any\n        resources associated with it.","summary":"the compositor has finished with the manager"},"args":[]}],"enums":[]},{"type":"interface","name":"zwlr_output_head_v1","version":"4","description":{"type":"description","text":"A head is an output device. The difference between a wl_output object and\n      a head is that heads are advertised even if they are turned off. A head\n      object only advertises properties and cannot be used directly to change\n      them.\n\n      A head has some read-only properties: modes, name, description and\n      physical_size. These cannot be changed by clients.\n\n      Other properties can be updated via a wlr_output_configuration object.\n\n      Properties sent via this interface are applied atomically via the\n      wlr_output_manager.done event. No guarantees are made regarding the order\n      in which properties are sent.","summary":"output device"},"requests":[{"type":"request","name":"release","requestType":"destructor","since":"3","description":{"type":"description","text":"This request indicates that the client will no longer use this head\n        object.","summary":"destroy the head object"},"args":[]}],"events":[{"type":"event","name":"name","description":{"type":"description","text":"This event describes the head name.\n\n        The naming convention is compositor defined, but limited to alphanumeric\n        characters and dashes (-). Each name is unique among all wlr_output_head\n        objects, but if a wlr_output_head object is destroyed the same name may\n        be reused later. The names will also remain consistent across sessions\n        with the same hardware and software configuration.\n\n        Examples of names include 'HDMI-A-1', 'WL-1', 'X11-1', etc. However, do\n        not assume that the name is a reflection of an underlying DRM\n        connector, X11 connection, etc.\n\n        If the compositor implements the xdg-output protocol and this head is\n        enabled, the xdg_output.name event must report the same name.\n\n        The name event is sent after a wlr_output_head object is created. This\n        event is only sent once per object, and the name does not change over\n        the lifetime of the wlr_output_head object.","summary":"head name"},"args":[{"type":"arg","name":"name","argType":"string"}]},{"type":"event","name":"description","description":{"type":"description","text":"This event describes a human-readable description of the head.\n\n        The description is a UTF-8 string with no convention defined for its\n        contents. Examples might include 'Foocorp 11\" Display' or 'Virtual X11\n        output via :1'. However, do not assume that the name is a reflection of\n        the make, model, serial of the underlying DRM connector or the display\n        name of the underlying X11 connection, etc.\n\n        If the compositor implements xdg-output and this head is enabled,\n        the xdg_output.description must report the same description.\n\n        The description event is sent after a wlr_output_head object is created.\n        This event is only sent once per object, and the description does not\n        change over the lifetime of the wlr_output_head object.","summary":"head description"},"args":[{"type":"arg","name":"description","argType":"string"}]},{"type":"event","name":"physical_size","description":{"type":"description","text":"This event describes the physical size of the head. This event is only\n        sent if the head has a physical size (e.g. is not a projector or a\n        virtual device).","summary":"head physical size"},"args":[{"type":"arg","name":"width","argType":"int","summary":"width in millimeters of the output"},{"type":"arg","name":"height","argType":"int","summary":"height in millimeters of the output"}]},{"type":"event","name":"mode","description":{"type":"description","text":"This event introduces a mode for this head. It is sent once per\n        supported mode.","summary":"introduce a mode"},"args":[{"type":"arg","name":"mode","argType":"new_id","interface":"zwlr_output_mode_v1"}]},{"type":"event","name":"enabled","description":{"type":"description","text":"This event describes whether the head is enabled. A disabled head is not\n        mapped to a region of the global compositor space.\n\n        When a head is disabled, some properties (current_mode, position,\n        transform and scale) are irrelevant.","summary":"head is enabled or disabled"},"args":[{"type":"arg","name":"enabled","argType":"int","summary":"zero if disabled, non-zero if enabled"}]},{"type":"event","name":"current_mode","description":{"type":"description","text":"This event describes the mode currently in use for this head. It is only\n        sent if the output is enabled.","summary":"current mode"},"args":[{"type":"arg","name":"mode","argType":"object","interface":"zwlr_output_mode_v1"}]},{"type":"event","name":"position","description":{"type":"description","text":"This events describes the position of the head in the global compositor\n        space. It is only sent if the output is enabled.","summary":"current position"},"args":[{"type":"arg","name":"x","argType":"int","summary":"x position within the global compositor space"},{"type":"arg","name":"y","argType":"int","summary":"y position within the global compositor space"}]},{"type":"event","name":"transform","description":{"type":"description","text":"This event describes the transformation currently applied to the head.\n        It is only sent if the output is enabled.","summary":"current transformation"},"args":[{"type":"arg","name":"transform","argType":"int","enum":"wl_output.transform"}]},{"type":"event","name":"scale","description":{"type":"description","text":"This events describes the scale of the head in the global compositor\n        space. It is only sent if the output is enabled.","summary":"current scale"},"args":[{"type":"arg","name":"scale","argType":"fixed"}]},{"type":"event","name":"finished","description":{"type":"description","text":"This event indicates that the head is no longer available. The head\n        object becomes inert. Clients should send a destroy request and release\n        any resources associated with it.","summary":"the head has disappeared"},"args":[]},{"type":"event","name":"make","since":"2","description":{"type":"description","text":"This event describes the manufacturer of the head.\n\n        This must report the same make as the wl_output interface does in its\n        geometry event.\n\n        Together with the model and serial_number events the purpose is to\n        allow clients to recognize heads from previous sessions and for example\n        load head-specific configurations back.\n\n        It is not guaranteed this event will be ever sent. A reason for that\n        can be that the compositor does not have information about the make of\n        the head or the definition of a make is not sensible in the current\n        setup, for example in a virtual session. Clients can still try to\n        identify the head by available information from other events but should\n        be aware that there is an increased risk of false positives.\n\n        It is not recommended to display the make string in UI to users. For\n        that the string provided by the description event should be preferred.","summary":"head manufacturer"},"args":[{"type":"arg","name":"make","argType":"string"}]},{"type":"event","name":"model","since":"2","description":{"type":"description","text":"This event describes the model of the head.\n\n        This must report the same model as the wl_output interface does in its\n        geometry event.\n\n        Together with the make and serial_number events the purpose is to\n        allow clients to recognize heads from previous sessions and for example\n        load head-specific configurations back.\n\n        It is not guaranteed this event will be ever sent. A reason for that\n        can be that the compositor does not have information about the model of\n        the head or the definition of a model is not sensible in the current\n        setup, for example in a virtual session. Clients can still try to\n        identify the head by available information from other events but should\n        be aware that there is an increased risk of false positives.\n\n        It is not recommended to display the model string in UI to users. For\n        that the string provided by the description event should be preferred.","summary":"head model"},"args":[{"type":"arg","name":"model","argType":"string"}]},{"type":"event","name":"serial_number","since":"2","description":{"type":"description","text":"This event describes the serial number of the head.\n\n        Together with the make and model events the purpose is to allow clients\n        to recognize heads from previous sessions and for example load head-\n        specific configurations back.\n\n        It is not guaranteed this event will be ever sent. A reason for that\n        can be that the compositor does not have information about the serial\n        number of the head or the definition of a serial number is not sensible\n        in the current setup. Clients can still try to identify the head by\n        available information from other events but should be aware that there\n        is an increased risk of false positives.\n\n        It is not recommended to display the serial_number string in UI to\n        users. For that the string provided by the description event should be\n        preferred.","summary":"head serial number"},"args":[{"type":"arg","name":"serial_number","argType":"string"}]},{"type":"event","name":"adaptive_sync","since":"4","description":{"type":"description","text":"This event describes whether adaptive sync is currently enabled for\n        the head or not. Adaptive sync is also known as Variable Refresh\n        Rate or VRR.","summary":"current adaptive sync state"},"args":[{"type":"arg","name":"state","argType":"uint","enum":"adaptive_sync_state"}]}],"enums":[{"type":"enum","name":"adaptive_sync_state","since":"4","bitfield":false,"entries":[{"type":"entry","name":"disabled","value":"0","summary":"adaptive sync is disabled"},{"type":"entry","name":"enabled","value":"1","summary":"adaptive sync is enabled"}]}]},{"type":"interface","name":"zwlr_output_mode_v1","version":"3","description":{"type":"description","text":"This object describes an output mode.\n\n      Some heads don't support output modes, in which case modes won't be\n      advertised.\n\n      Properties sent via this interface are applied atomically via the\n      wlr_output_manager.done event. No guarantees are made regarding the order\n      in which properties are sent.","summary":"output mode"},"requests":[{"type":"request","name":"release","requestType":"destructor","since":"3","description":{"type":"description","text":"This request indicates that the client will no longer use this mode\n        object.","summary":"destroy the mode object"},"args":[]}],"events":[{"type":"event","name":"size","description":{"type":"description","text":"This event describes the mode size. The size is given in physical\n        hardware units of the output device. This is not necessarily the same as\n        the output size in the global compositor space. For instance, the output\n        may be scaled or transformed.","summary":"mode size"},"args":[{"type":"arg","name":"width","argType":"int","summary":"width of the mode in hardware units"},{"type":"arg","name":"height","argType":"int","summary":"height of the mode in hardware units"}]},{"type":"event","name":"refresh","description":{"type":"description","text":"This event describes the mode's fixed vertical refresh rate. It is only\n        sent if the mode has a fixed refresh rate.","summary":"mode refresh rate"},"args":[{"type":"arg","name":"refresh","argType":"int","summary":"vertical refresh rate in mHz"}]},{"type":"event","name":"preferred","description":{"type":"description","text":"This event advertises this mode as preferred.","summary":"mode is preferred"},"args":[]},{"type":"event","name":"finished","description":{"type":"description","text":"This event indicates that the mode is no longer available. The mode\n        object becomes inert. Clients should send a destroy request and release\n        any resources associated with it.","summary":"the mode has disappeared"},"args":[]}],"enums":[]},{"type":"interface","name":"zwlr_output_configuration_v1","version":"4","description":{"type":"description","text":"This object is used by the client to describe a full output configuration.\n\n      First, the client needs to setup the output configuration. Each head can\n      be either enabled (and configured) or disabled. It is a protocol error to\n      send two enable_head or disable_head requests with the same head. It is a\n      protocol error to omit a head in a configuration.\n\n      Then, the client can apply or test the configuration. The compositor will\n      then reply with a succeeded, failed or cancelled event. Finally the client\n      should destroy the configuration object.","summary":"output configuration"},"requests":[{"type":"request","name":"enable_head","description":{"type":"description","text":"Enable a head. This request creates a head configuration object that can\n        be used to change the head's properties.","summary":"enable and configure a head"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"a new object to configure the head","interface":"zwlr_output_configuration_head_v1"},{"type":"arg","name":"head","argType":"object","summary":"the head to be enabled","interface":"zwlr_output_head_v1"}]},{"type":"request","name":"disable_head","description":{"type":"description","text":"Disable a head.","summary":"disable a head"},"args":[{"type":"arg","name":"head","argType":"object","summary":"the head to be disabled","interface":"zwlr_output_head_v1"}]},{"type":"request","name":"apply","description":{"type":"description","text":"Apply the new output configuration.\n\n        In case the configuration is successfully applied, there is no guarantee\n        that the new output state matches completely the requested\n        configuration. For instance, a compositor might round the scale if it\n        doesn't support fractional scaling.\n\n        After this request has been sent, the compositor must respond with an\n        succeeded, failed or cancelled event. Sending a request that isn't the\n        destructor is a protocol error.","summary":"apply the configuration"},"args":[]},{"type":"request","name":"test","description":{"type":"description","text":"Test the new output configuration. The configuration won't be applied,\n        but will only be validated.\n\n        Even if the compositor succeeds to test a configuration, applying it may\n        fail.\n\n        After this request has been sent, the compositor must respond with an\n        succeeded, failed or cancelled event. Sending a request that isn't the\n        destructor is a protocol error.","summary":"test the configuration"},"args":[]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Using this request a client can tell the compositor that it is not going\n        to use the configuration object anymore. Any changes to the outputs\n        that have not been applied will be discarded.\n\n        This request also destroys wlr_output_configuration_head objects created\n        via this object.","summary":"destroy the output configuration"},"args":[]}],"events":[{"type":"event","name":"succeeded","description":{"type":"description","text":"Sent after the compositor has successfully applied the changes or\n        tested them.\n\n        Upon receiving this event, the client should destroy this object.\n\n        If the current configuration has changed, events to describe the changes\n        will be sent followed by a wlr_output_manager.done event.","summary":"configuration changes succeeded"},"args":[]},{"type":"event","name":"failed","description":{"type":"description","text":"Sent if the compositor rejects the changes or failed to apply them. The\n        compositor should revert any changes made by the apply request that\n        triggered this event.\n\n        Upon receiving this event, the client should destroy this object.","summary":"configuration changes failed"},"args":[]},{"type":"event","name":"cancelled","description":{"type":"description","text":"Sent if the compositor cancels the configuration because the state of an\n        output changed and the client has outdated information (e.g. after an\n        output has been hotplugged).\n\n        The client can create a new configuration with a newer serial and try\n        again.\n\n        Upon receiving this event, the client should destroy this object.","summary":"configuration has been cancelled"},"args":[]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"already_configured_head","value":"1","summary":"head has been configured twice"},{"type":"entry","name":"unconfigured_head","value":"2","summary":"head has not been configured"},{"type":"entry","name":"already_used","value":"3","summary":"request sent after configuration has been applied or tested"}]}]},{"type":"interface","name":"zwlr_output_configuration_head_v1","version":"4","description":{"type":"description","text":"This object is used by the client to update a single head's configuration.\n\n      It is a protocol error to set the same property twice.","summary":"head configuration"},"requests":[{"type":"request","name":"set_mode","description":{"type":"description","text":"This request sets the head's mode.","summary":"set the mode"},"args":[{"type":"arg","name":"mode","argType":"object","interface":"zwlr_output_mode_v1"}]},{"type":"request","name":"set_custom_mode","description":{"type":"description","text":"This request assigns a custom mode to the head. The size is given in\n        physical hardware units of the output device. If set to zero, the\n        refresh rate is unspecified.\n\n        It is a protocol error to set both a mode and a custom mode.","summary":"set a custom mode"},"args":[{"type":"arg","name":"width","argType":"int","summary":"width of the mode in hardware units"},{"type":"arg","name":"height","argType":"int","summary":"height of the mode in hardware units"},{"type":"arg","name":"refresh","argType":"int","summary":"vertical refresh rate in mHz or zero"}]},{"type":"request","name":"set_position","description":{"type":"description","text":"This request sets the head's position in the global compositor space.","summary":"set the position"},"args":[{"type":"arg","name":"x","argType":"int","summary":"x position in the global compositor space"},{"type":"arg","name":"y","argType":"int","summary":"y position in the global compositor space"}]},{"type":"request","name":"set_transform","description":{"type":"description","text":"This request sets the head's transform.","summary":"set the transform"},"args":[{"type":"arg","name":"transform","argType":"int","enum":"wl_output.transform"}]},{"type":"request","name":"set_scale","description":{"type":"description","text":"This request sets the head's scale.","summary":"set the scale"},"args":[{"type":"arg","name":"scale","argType":"fixed"}]},{"type":"request","name":"set_adaptive_sync","since":"4","description":{"type":"description","text":"This request enables/disables adaptive sync. Adaptive sync is also\n        known as Variable Refresh Rate or VRR.","summary":"enable/disable adaptive sync"},"args":[{"type":"arg","name":"state","argType":"uint","enum":"zwlr_output_head_v1.adaptive_sync_state"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"already_set","value":"1","summary":"property has already been set"},{"type":"entry","name":"invalid_mode","value":"2","summary":"mode doesn't belong to head"},{"type":"entry","name":"invalid_custom_mode","value":"3","summary":"mode is invalid"},{"type":"entry","name":"invalid_transform","value":"4","summary":"transform value outside enum"},{"type":"entry","name":"invalid_scale","value":"5","summary":"scale negative or zero"},{"type":"entry","name":"invalid_adaptive_sync_state","value":"6","summary":"invalid enum value used in the set_adaptive_sync request","since":"4"}]}]}]}
+{
+  "type": "protocol",
+  "name": "wlr_output_management_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2019 Purism SPC\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol exposes interfaces to obtain and modify output device\nconfiguration.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "summary": "protocol to configure output devices"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwlr_output_manager_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager that allows reading and writing the current\noutput device configuration.\n\nOutput devices that display pixels (e.g. a physical monitor or a virtual\noutput in a window) are represented as heads. Heads cannot be created nor\ndestroyed by the client, but they can be enabled or disabled and their\nproperties can be changed. Each head may have one or more available modes.\n\nWhenever a head appears (e.g. a monitor is plugged in), it will be\nadvertised via the head event. Immediately after the output manager is\nbound, all current heads are advertised.\n\nWhenever a head's properties change, the relevant wlr_output_head events\nwill be sent. Not all head properties will be sent: only properties that\nhave changed need to.\n\nWhenever a head disappears (e.g. a monitor is unplugged), a\nwlr_output_head.finished event will be sent.\n\nAfter one or more heads appear, change or disappear, the done event will\nbe sent. It carries a serial which can be used in a create_configuration\nrequest to update heads properties.\n\nThe information obtained from this protocol should only be used for output\nconfiguration purposes. This protocol is not designed to be a generic\noutput property advertisement protocol for regular clients. Instead,\nprotocols such as xdg-output should be used.",
+        "summary": "output device configuration manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_configuration",
+          "description": {
+            "type": "description",
+            "text": "Create a new output configuration object. This allows to update head\nproperties.",
+            "summary": "create a new output configuration object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_output_configuration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "Indicates the client no longer wishes to receive events for output\nconfiguration changes. However the compositor may emit further events,\nuntil the finished event is emitted.\n\nThe client must not send any more requests after this one.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "head",
+          "description": {
+            "type": "description",
+            "text": "This event introduces a new head. This happens whenever a new head\nappears (e.g. a monitor is plugged in) or after the output manager is\nbound.",
+            "summary": "introduce a new head"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "head",
+              "argType": "new_id",
+              "interface": "zwlr_output_head_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all information has been sent after binding to\nthe output manager object and after any subsequent changes. This applies\nto child head and mode objects as well. In other words, this event is\nsent whenever a head or mode is created or destroyed and whenever one of\ntheir properties has been changed. Not all state is re-sent each time\nthe current configuration changes: only the actual changes are sent.\n\nThis allows changes to the output configuration to be seen as atomic,\neven if they happen via multiple events.\n\nA serial is sent to be used in a future create_configuration request.",
+            "summary": "sent all information about current configuration"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "current configuration serial"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor is done sending manager events.\nThe compositor will destroy the object immediately after sending this\nevent, so it will become invalid and the client should release any\nresources associated with it.",
+            "summary": "the compositor has finished with the manager"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_output_head_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "A head is an output device. The difference between a wl_output object and\na head is that heads are advertised even if they are turned off. A head\nobject only advertises properties and cannot be used directly to change\nthem.\n\nA head has some read-only properties: modes, name, description and\nphysical_size. These cannot be changed by clients.\n\nOther properties can be updated via a wlr_output_configuration object.\n\nProperties sent via this interface are applied atomically via the\nwlr_output_manager.done event. No guarantees are made regarding the order\nin which properties are sent.",
+        "summary": "output device"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use this head\nobject.",
+            "summary": "destroy the head object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "name",
+          "description": {
+            "type": "description",
+            "text": "This event describes the head name.\n\nThe naming convention is compositor defined, but limited to alphanumeric\ncharacters and dashes (-). Each name is unique among all wlr_output_head\nobjects, but if a wlr_output_head object is destroyed the same name may\nbe reused later. The names will also remain consistent across sessions\nwith the same hardware and software configuration.\n\nExamples of names include 'HDMI-A-1', 'WL-1', 'X11-1', etc. However, do\nnot assume that the name is a reflection of an underlying DRM\nconnector, X11 connection, etc.\n\nIf the compositor implements the xdg-output protocol and this head is\nenabled, the xdg_output.name event must report the same name.\n\nThe name event is sent after a wlr_output_head object is created. This\nevent is only sent once per object, and the name does not change over\nthe lifetime of the wlr_output_head object.",
+            "summary": "head name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "description",
+          "description": {
+            "type": "description",
+            "text": "This event describes a human-readable description of the head.\n\nThe description is a UTF-8 string with no convention defined for its\ncontents. Examples might include 'Foocorp 11\" Display' or 'Virtual X11\noutput via :1'. However, do not assume that the name is a reflection of\nthe make, model, serial of the underlying DRM connector or the display\nname of the underlying X11 connection, etc.\n\nIf the compositor implements xdg-output and this head is enabled,\nthe xdg_output.description must report the same description.\n\nThe description event is sent after a wlr_output_head object is created.\nThis event is only sent once per object, and the description does not\nchange over the lifetime of the wlr_output_head object.",
+            "summary": "head description"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "physical_size",
+          "description": {
+            "type": "description",
+            "text": "This event describes the physical size of the head. This event is only\nsent if the head has a physical size (e.g. is not a projector or a\nvirtual device).",
+            "summary": "head physical size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width in millimeters of the output"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height in millimeters of the output"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "mode",
+          "description": {
+            "type": "description",
+            "text": "This event introduces a mode for this head. It is sent once per\nsupported mode.",
+            "summary": "introduce a mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "new_id",
+              "interface": "zwlr_output_mode_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "enabled",
+          "description": {
+            "type": "description",
+            "text": "This event describes whether the head is enabled. A disabled head is not\nmapped to a region of the global compositor space.\n\nWhen a head is disabled, some properties (current_mode, position,\ntransform and scale) are irrelevant.",
+            "summary": "head is enabled or disabled"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "enabled",
+              "argType": "int",
+              "summary": "zero if disabled, non-zero if enabled"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "current_mode",
+          "description": {
+            "type": "description",
+            "text": "This event describes the mode currently in use for this head. It is only\nsent if the output is enabled.",
+            "summary": "current mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "object",
+              "interface": "zwlr_output_mode_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "position",
+          "description": {
+            "type": "description",
+            "text": "This events describes the position of the head in the global compositor\nspace. It is only sent if the output is enabled.",
+            "summary": "current position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x position within the global compositor space"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y position within the global compositor space"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "transform",
+          "description": {
+            "type": "description",
+            "text": "This event describes the transformation currently applied to the head.\nIt is only sent if the output is enabled.",
+            "summary": "current transformation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "int",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scale",
+          "description": {
+            "type": "description",
+            "text": "This events describes the scale of the head in the global compositor\nspace. It is only sent if the output is enabled.",
+            "summary": "current scale"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the head is no longer available. The head\nobject becomes inert. Clients should send a destroy request and release\nany resources associated with it.",
+            "summary": "the head has disappeared"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "make",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event describes the manufacturer of the head.\n\nThis must report the same make as the wl_output interface does in its\ngeometry event.\n\nTogether with the model and serial_number events the purpose is to\nallow clients to recognize heads from previous sessions and for example\nload head-specific configurations back.\n\nIt is not guaranteed this event will be ever sent. A reason for that\ncan be that the compositor does not have information about the make of\nthe head or the definition of a make is not sensible in the current\nsetup, for example in a virtual session. Clients can still try to\nidentify the head by available information from other events but should\nbe aware that there is an increased risk of false positives.\n\nIt is not recommended to display the make string in UI to users. For\nthat the string provided by the description event should be preferred.",
+            "summary": "head manufacturer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "make",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "model",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event describes the model of the head.\n\nThis must report the same model as the wl_output interface does in its\ngeometry event.\n\nTogether with the make and serial_number events the purpose is to\nallow clients to recognize heads from previous sessions and for example\nload head-specific configurations back.\n\nIt is not guaranteed this event will be ever sent. A reason for that\ncan be that the compositor does not have information about the model of\nthe head or the definition of a model is not sensible in the current\nsetup, for example in a virtual session. Clients can still try to\nidentify the head by available information from other events but should\nbe aware that there is an increased risk of false positives.\n\nIt is not recommended to display the model string in UI to users. For\nthat the string provided by the description event should be preferred.",
+            "summary": "head model"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "model",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "serial_number",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event describes the serial number of the head.\n\nTogether with the make and model events the purpose is to allow clients\nto recognize heads from previous sessions and for example load head-\nspecific configurations back.\n\nIt is not guaranteed this event will be ever sent. A reason for that\ncan be that the compositor does not have information about the serial\nnumber of the head or the definition of a serial number is not sensible\nin the current setup. Clients can still try to identify the head by\navailable information from other events but should be aware that there\nis an increased risk of false positives.\n\nIt is not recommended to display the serial_number string in UI to\nusers. For that the string provided by the description event should be\npreferred.",
+            "summary": "head serial number"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial_number",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "adaptive_sync",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "This event describes whether adaptive sync is currently enabled for\nthe head or not. Adaptive sync is also known as Variable Refresh\nRate or VRR.",
+            "summary": "current adaptive sync state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "adaptive_sync_state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "adaptive_sync_state",
+          "since": "4",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0",
+              "summary": "adaptive sync is disabled"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1",
+              "summary": "adaptive sync is enabled"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_output_mode_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This object describes an output mode.\n\nSome heads don't support output modes, in which case modes won't be\nadvertised.\n\nProperties sent via this interface are applied atomically via the\nwlr_output_manager.done event. No guarantees are made regarding the order\nin which properties are sent.",
+        "summary": "output mode"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use this mode\nobject.",
+            "summary": "destroy the mode object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "size",
+          "description": {
+            "type": "description",
+            "text": "This event describes the mode size. The size is given in physical\nhardware units of the output device. This is not necessarily the same as\nthe output size in the global compositor space. For instance, the output\nmay be scaled or transformed.",
+            "summary": "mode size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the mode in hardware units"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the mode in hardware units"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "refresh",
+          "description": {
+            "type": "description",
+            "text": "This event describes the mode's fixed vertical refresh rate. It is only\nsent if the mode has a fixed refresh rate.",
+            "summary": "mode refresh rate"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "refresh",
+              "argType": "int",
+              "summary": "vertical refresh rate in mHz"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "preferred",
+          "description": {
+            "type": "description",
+            "text": "This event advertises this mode as preferred.",
+            "summary": "mode is preferred"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the mode is no longer available. The mode\nobject becomes inert. Clients should send a destroy request and release\nany resources associated with it.",
+            "summary": "the mode has disappeared"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_output_configuration_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "This object is used by the client to describe a full output configuration.\n\nFirst, the client needs to setup the output configuration. Each head can\nbe either enabled (and configured) or disabled. It is a protocol error to\nsend two enable_head or disable_head requests with the same head. It is a\nprotocol error to omit a head in a configuration.\n\nThen, the client can apply or test the configuration. The compositor will\nthen reply with a succeeded, failed or cancelled event. Finally the client\nshould destroy the configuration object.",
+        "summary": "output configuration"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "enable_head",
+          "description": {
+            "type": "description",
+            "text": "Enable a head. This request creates a head configuration object that can\nbe used to change the head's properties.",
+            "summary": "enable and configure a head"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "a new object to configure the head",
+              "interface": "zwlr_output_configuration_head_v1"
+            },
+            {
+              "type": "arg",
+              "name": "head",
+              "argType": "object",
+              "summary": "the head to be enabled",
+              "interface": "zwlr_output_head_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "disable_head",
+          "description": {
+            "type": "description",
+            "text": "Disable a head.",
+            "summary": "disable a head"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "head",
+              "argType": "object",
+              "summary": "the head to be disabled",
+              "interface": "zwlr_output_head_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "apply",
+          "description": {
+            "type": "description",
+            "text": "Apply the new output configuration.\n\nIn case the configuration is successfully applied, there is no guarantee\nthat the new output state matches completely the requested\nconfiguration. For instance, a compositor might round the scale if it\ndoesn't support fractional scaling.\n\nAfter this request has been sent, the compositor must respond with an\nsucceeded, failed or cancelled event. Sending a request that isn't the\ndestructor is a protocol error.",
+            "summary": "apply the configuration"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "test",
+          "description": {
+            "type": "description",
+            "text": "Test the new output configuration. The configuration won't be applied,\nbut will only be validated.\n\nEven if the compositor succeeds to test a configuration, applying it may\nfail.\n\nAfter this request has been sent, the compositor must respond with an\nsucceeded, failed or cancelled event. Sending a request that isn't the\ndestructor is a protocol error.",
+            "summary": "test the configuration"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Using this request a client can tell the compositor that it is not going\nto use the configuration object anymore. Any changes to the outputs\nthat have not been applied will be discarded.\n\nThis request also destroys wlr_output_configuration_head objects created\nvia this object.",
+            "summary": "destroy the output configuration"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "succeeded",
+          "description": {
+            "type": "description",
+            "text": "Sent after the compositor has successfully applied the changes or\ntested them.\n\nUpon receiving this event, the client should destroy this object.\n\nIf the current configuration has changed, events to describe the changes\nwill be sent followed by a wlr_output_manager.done event.",
+            "summary": "configuration changes succeeded"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "Sent if the compositor rejects the changes or failed to apply them. The\ncompositor should revert any changes made by the apply request that\ntriggered this event.\n\nUpon receiving this event, the client should destroy this object.",
+            "summary": "configuration changes failed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "cancelled",
+          "description": {
+            "type": "description",
+            "text": "Sent if the compositor cancels the configuration because the state of an\noutput changed and the client has outdated information (e.g. after an\noutput has been hotplugged).\n\nThe client can create a new configuration with a newer serial and try\nagain.\n\nUpon receiving this event, the client should destroy this object.",
+            "summary": "configuration has been cancelled"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_configured_head",
+              "value": "1",
+              "summary": "head has been configured twice"
+            },
+            {
+              "type": "entry",
+              "name": "unconfigured_head",
+              "value": "2",
+              "summary": "head has not been configured"
+            },
+            {
+              "type": "entry",
+              "name": "already_used",
+              "value": "3",
+              "summary": "request sent after configuration has been applied or tested"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_output_configuration_head_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "This object is used by the client to update a single head's configuration.\n\nIt is a protocol error to set the same property twice.",
+        "summary": "head configuration"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_mode",
+          "description": {
+            "type": "description",
+            "text": "This request sets the head's mode.",
+            "summary": "set the mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "object",
+              "interface": "zwlr_output_mode_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_custom_mode",
+          "description": {
+            "type": "description",
+            "text": "This request assigns a custom mode to the head. The size is given in\nphysical hardware units of the output device. If set to zero, the\nrefresh rate is unspecified.\n\nIt is a protocol error to set both a mode and a custom mode.",
+            "summary": "set a custom mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the mode in hardware units"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the mode in hardware units"
+            },
+            {
+              "type": "arg",
+              "name": "refresh",
+              "argType": "int",
+              "summary": "vertical refresh rate in mHz or zero"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_position",
+          "description": {
+            "type": "description",
+            "text": "This request sets the head's position in the global compositor space.",
+            "summary": "set the position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x position in the global compositor space"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y position in the global compositor space"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_transform",
+          "description": {
+            "type": "description",
+            "text": "This request sets the head's transform.",
+            "summary": "set the transform"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "int",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_scale",
+          "description": {
+            "type": "description",
+            "text": "This request sets the head's scale.",
+            "summary": "set the scale"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_adaptive_sync",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "This request enables/disables adaptive sync. Adaptive sync is also\nknown as Variable Refresh Rate or VRR.",
+            "summary": "enable/disable adaptive sync"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "zwlr_output_head_v1.adaptive_sync_state"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_set",
+              "value": "1",
+              "summary": "property has already been set"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_mode",
+              "value": "2",
+              "summary": "mode doesn't belong to head"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_custom_mode",
+              "value": "3",
+              "summary": "mode is invalid"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_transform",
+              "value": "4",
+              "summary": "transform value outside enum"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_scale",
+              "value": "5",
+              "summary": "scale negative or zero"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_adaptive_sync_state",
+              "value": "6",
+              "summary": "invalid enum value used in the set_adaptive_sync request",
+              "since": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "type": "protocol",
+  "name": "aura_output_management",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2024 The Chromium Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zaura_output_manager_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global responsible for propagating atomic output configuration changes\nto clients. An output configuration is a union of added / removed outputs\nand updated output metrics.\n\nAdded outputs arrive at the client as wl_registry.global events, removed\noutputs as wl_registry.global_remove events and updated output metrics as\na sequence of events defined on the zaura_output_manager_v2 interface.\nThis is followed by the manager's done event which signals the end of the\ntransaction.\n\nThe change should be processed by clients in a way that transitions from\none output configuration state to another without exposing the\nintermediate output state to the rest of the application.\n\nParticipating servers should emit the zaura_output_manager_v2 global\nbefore any wl_output globals in the sequence of wl_registry.global events.\n\nParticipating clients should bind the zaura_output_manager_v2 before any\nwl_output globals. This ordering is required to ensure clients receive all\nnecessary output configuration information before receiving any further\nserver events that may reference bound wl_outputs.\n\nClients can expect that all events comprising a configuration change are\nsent synchronously, one after the other, before any other server events\nthat leverage the output as an event param.",
+        "summary": "aura output manager singleton"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "done",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all added, changed and removed output events\nfor a given wl_output have been dispatched to the client.",
+            "summary": "sent all information about the output configuration change"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "display_id",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event describes the 64bit display id assigned to each display by\nChromeOS. The value is opaque and should not be interpreted.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "advertise the output's display id"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "display_id_hi",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "display_id_lo",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "logical_position",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The position event describes the location of the wl_output within the\nglobal compositor space.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "position of the output within the global compositor space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x position within the global compositor space"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y position within the global compositor space"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "logical_size",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The logical_size event describes the logical size of the output in the\nglobal compositor space.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "size of the output in the global compositor space"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width in global compositor space"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height in global compositor space"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "physical_size",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The physical resolution of the display in pixels. The value should not\ninclude any overscan insets or display rotation, except for any panel\norientation adjustment.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "size of the output in pixels"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width in global compositor space"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height in global compositor space"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "work_area_insets",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event describes the work area insets for the output in logical\nscreen coordinates, from which the work area can be calculated.\n\nThe event is sent when binding to the output object and subsequently as\noutput state changes.",
+            "summary": "advertise the work area insets for the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "top",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "left",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "bottom",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "right",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "device_scale_factor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The scale factor of the output device. We reinterpret_cast the float\nscale factor into a 32-bit uint and later cast back into a float. This\nis because wayland does not support native transport of floats. As\ndifferent CPU architectures may use different endian representations for\nIEEE 754 floats, this protocol implicitly assumes that the caller and\nreceiver are the same machine.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "advertise device scale factor for the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "device_scale_factor",
+              "argType": "uint",
+              "summary": "display scale factor, in float format"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "logical_transform",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event describes the logical transform for the output. Whereas\npanel transform corresponds to the display's panel rotation, the logical\ntransform corresponds to the display's logical rotation.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "logical transform of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "int",
+              "summary": "transform that maps framebuffer to output",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "panel_transform",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event describes the panel transform for the output, which is the\nassociated display's panel rotation.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "panel transform of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "int",
+              "summary": "transform that maps framebuffer to output",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "name",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The name is a UTF-8 string with no convention defined for its contents.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "human-readable name of this output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "output name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "description",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The description is a UTF-8 string with no convention defined for its\ncontents.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "human-readable description of this output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "output description"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "overscan_insets",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "This event describes the overscan insets for the output in physical\npixels.\n\nThe event is sent immediately after the wl_registry.global event for the\noutput and subsequently in latter display configuration changes.",
+            "summary": "advertise the overscan insets for the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "top",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "left",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "bottom",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "right",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "activated",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Notifies that this output is now active output. It is typically used as\na target when a new window is created without specific bounds.",
+            "summary": "target display for new windows"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

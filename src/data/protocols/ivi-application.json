@@ -1,1 +1,119 @@
-{"type":"protocol","name":"ivi_application","copyright":{"type":"copyright","text":"Copyright (C) 2013 DENSO CORPORATION\n    Copyright (c) 2013 BMW Car IT GmbH\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"ivi_surface","version":"1","description":{"type":"description","summary":"application interface to surface in ivi compositor"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"This removes the link from ivi_id to wl_surface and destroys ivi_surface.\n        The ID, ivi_id, is free and can be used for surface_create again.","summary":"destroy ivi_surface"},"args":[]}],"events":[{"type":"event","name":"configure","description":{"type":"description","text":"The configure event asks the client to resize its surface.\n\n        The size is a hint, in the sense that the client is free to\n        ignore it if it doesn't resize, pick a smaller size (to\n        satisfy aspect ratio or resize in steps of NxM pixels).\n\n        The client is free to dismiss all but the last configure\n        event it received.\n\n        The width and height arguments specify the size of the window\n        in surface-local coordinates.","summary":"suggest resize"},"args":[{"type":"arg","name":"width","argType":"int"},{"type":"arg","name":"height","argType":"int"}]}],"enums":[]},{"type":"interface","name":"ivi_application","version":"1","description":{"type":"description","text":"This interface is exposed as a global singleton.\n      This interface is implemented by servers that provide IVI-style user interfaces.\n      It allows clients to associate an ivi_surface with wl_surface.","summary":"create ivi-style surfaces"},"requests":[{"type":"request","name":"surface_create","description":{"type":"description","text":"This request gives the wl_surface the role of an IVI Surface. Creating more than\n        one ivi_surface for a wl_surface is not allowed. Note, that this still allows the\n        following example:\n\n         1. create a wl_surface\n         2. create ivi_surface for the wl_surface\n         3. destroy the ivi_surface\n         4. create ivi_surface for the wl_surface (with the same or another ivi_id as before)\n\n        surface_create will create an interface:ivi_surface with numeric ID; ivi_id in\n        ivi compositor. These ivi_ids are defined as unique in the system to identify\n        it inside of ivi compositor. The ivi compositor implements business logic how to\n        set properties of the surface with ivi_id according to the status of the system.\n        E.g. a unique ID for Car Navigation application is used for implementing special\n        logic of the application about where it shall be located.\n        The server regards the following cases as protocol errors and disconnects the client.\n         - wl_surface already has another role.\n         - ivi_id is already assigned to another wl_surface.\n\n        If client destroys ivi_surface or wl_surface which is assigned to the ivi_surface,\n        ivi_id which is assigned to the ivi_surface is free for reuse.","summary":"create ivi_surface with numeric ID in ivi compositor"},"args":[{"type":"arg","name":"ivi_id","argType":"uint"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"id","argType":"new_id","interface":"ivi_surface"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"role","value":"0","summary":"given wl_surface has another role"},{"type":"entry","name":"ivi_id","value":"1","summary":"given ivi_id is assigned to another wl_surface"}]}]}]}
+{
+  "type": "protocol",
+  "name": "ivi_application",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (C) 2013 DENSO CORPORATION\nCopyright (c) 2013 BMW Car IT GmbH\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "ivi_surface",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "summary": "application interface to surface in ivi compositor"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This removes the link from ivi_id to wl_surface and destroys ivi_surface.\nThe ID, ivi_id, is free and can be used for surface_create again.",
+            "summary": "destroy ivi_surface"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "configure",
+          "description": {
+            "type": "description",
+            "text": "The configure event asks the client to resize its surface.\n\nThe size is a hint, in the sense that the client is free to\nignore it if it doesn't resize, pick a smaller size (to\nsatisfy aspect ratio or resize in steps of NxM pixels).\n\nThe client is free to dismiss all but the last configure\nevent it received.\n\nThe width and height arguments specify the size of the window\nin surface-local coordinates.",
+            "summary": "suggest resize"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "ivi_application",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is exposed as a global singleton.\nThis interface is implemented by servers that provide IVI-style user interfaces.\nIt allows clients to associate an ivi_surface with wl_surface.",
+        "summary": "create ivi-style surfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "surface_create",
+          "description": {
+            "type": "description",
+            "text": "This request gives the wl_surface the role of an IVI Surface. Creating more than\none ivi_surface for a wl_surface is not allowed. Note, that this still allows the\nfollowing example:\n\n1. create a wl_surface\n2. create ivi_surface for the wl_surface\n3. destroy the ivi_surface\n4. create ivi_surface for the wl_surface (with the same or another ivi_id as before)\n\nsurface_create will create an interface:ivi_surface with numeric ID; ivi_id in\nivi compositor. These ivi_ids are defined as unique in the system to identify\nit inside of ivi compositor. The ivi compositor implements business logic how to\nset properties of the surface with ivi_id according to the status of the system.\nE.g. a unique ID for Car Navigation application is used for implementing special\nlogic of the application about where it shall be located.\nThe server regards the following cases as protocol errors and disconnects the client.\n- wl_surface already has another role.\n- ivi_id is already assigned to another wl_surface.\n\nIf client destroys ivi_surface or wl_surface which is assigned to the ivi_surface,\nivi_id which is assigned to the ivi_surface is free for reuse.",
+            "summary": "create ivi_surface with numeric ID in ivi compositor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "ivi_id",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "ivi_surface"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "role",
+              "value": "0",
+              "summary": "given wl_surface has another role"
+            },
+            {
+              "type": "entry",
+              "name": "ivi_id",
+              "value": "1",
+              "summary": "given ivi_id is assigned to another wl_surface"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

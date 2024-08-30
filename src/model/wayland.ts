@@ -87,6 +87,8 @@ export interface WaylandArg {
     allowNull?: boolean
     enum?: string
     description?: WaylandDescription
+    // Only set when different from current protocol, used for linking cross-protocol argument types
+    protocol?: string
 }
 
 export enum WaylandArgType {

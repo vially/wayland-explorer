@@ -1,1 +1,442 @@
-{"type":"protocol","name":"pointer_gestures_unstable_v1","interfaces":[{"type":"interface","name":"zwp_pointer_gestures_v1","version":"3","description":{"type":"description","text":"A global interface to provide semantic touchpad gestures for a given\n      pointer.\n\n      Three gestures are currently supported: swipe, pinch, and hold.\n      Pinch and swipe gestures follow a three-stage cycle: begin, update,\n      end, hold gestures follow a two-stage cycle: begin and end. All\n      gestures are identified by a unique id.\n\n      Warning! The protocol described in this file is experimental and\n      backward incompatible changes may be made. Backward compatible changes\n      may be added together with the corresponding interface version bump.\n      Backward incompatible changes are done by bumping the version number in\n      the protocol and interface names and resetting the interface version.\n      Once the protocol is to be declared stable, the 'z' prefix and the\n      version number in the protocol and interface names are removed and the\n      interface version number is reset.","summary":"touchpad gestures"},"requests":[{"type":"request","name":"get_swipe_gesture","description":{"type":"description","text":"Create a swipe gesture object. See the\n\twl_pointer_gesture_swipe interface for details.","summary":"get swipe gesture"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_pointer_gesture_swipe_v1"},{"type":"arg","name":"pointer","argType":"object","interface":"wl_pointer"}]},{"type":"request","name":"get_pinch_gesture","description":{"type":"description","text":"Create a pinch gesture object. See the\n\twl_pointer_gesture_pinch interface for details.","summary":"get pinch gesture"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_pointer_gesture_pinch_v1"},{"type":"arg","name":"pointer","argType":"object","interface":"wl_pointer"}]},{"type":"request","name":"release","requestType":"destructor","since":"2","description":{"type":"description","text":"Destroy the pointer gesture object. Swipe, pinch and hold objects\n\tcreated via this gesture object remain valid.","summary":"destroy the pointer gesture object"},"args":[]},{"type":"request","name":"get_hold_gesture","since":"3","description":{"type":"description","text":"Create a hold gesture object. See the\n\twl_pointer_gesture_hold interface for details.","summary":"get hold gesture"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_pointer_gesture_hold_v1"},{"type":"arg","name":"pointer","argType":"object","interface":"wl_pointer"}]}],"events":[],"enums":[]},{"type":"interface","name":"zwp_pointer_gesture_swipe_v1","version":"2","description":{"type":"description","text":"A swipe gesture object notifies a client about a multi-finger swipe\n      gesture detected on an indirect input device such as a touchpad.\n      The gesture is usually initiated by multiple fingers moving in the\n      same direction but once initiated the direction may change.\n      The precise conditions of when such a gesture is detected are\n      implementation-dependent.\n\n      A gesture consists of three stages: begin, update (optional) and end.\n      There cannot be multiple simultaneous hold, pinch or swipe gestures on a\n      same pointer/seat, how compositors prevent these situations is\n      implementation-dependent.\n\n      A gesture may be cancelled by the compositor or the hardware.\n      Clients should not consider performing permanent or irreversible\n      actions until the end of a gesture has been received.","summary":"a swipe gesture object"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","summary":"destroy the pointer swipe gesture object"},"args":[]}],"events":[{"type":"event","name":"begin","description":{"type":"description","text":"This event is sent when a multi-finger swipe gesture is detected\n\ton the device.","summary":"multi-finger swipe begin"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"fingers","argType":"uint","summary":"number of fingers"}]},{"type":"event","name":"update","description":{"type":"description","text":"This event is sent when a multi-finger swipe gesture changes the\n\tposition of the logical center.\n\n\tThe dx and dy coordinates are relative coordinates of the logical\n\tcenter of the gesture compared to the previous event.","summary":"multi-finger swipe motion"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"dx","argType":"fixed","summary":"delta x coordinate in surface coordinate space"},{"type":"arg","name":"dy","argType":"fixed","summary":"delta y coordinate in surface coordinate space"}]},{"type":"event","name":"end","description":{"type":"description","text":"This event is sent when a multi-finger swipe gesture ceases to\n\tbe valid. This may happen when one or more fingers are lifted or\n\tthe gesture is cancelled.\n\n\tWhen a gesture is cancelled, the client should undo state changes\n\tcaused by this gesture. What causes a gesture to be cancelled is\n\timplementation-dependent.","summary":"multi-finger swipe end"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"cancelled","argType":"int","summary":"1 if the gesture was cancelled, 0 otherwise"}]}],"enums":[]},{"type":"interface","name":"zwp_pointer_gesture_pinch_v1","version":"2","description":{"type":"description","text":"A pinch gesture object notifies a client about a multi-finger pinch\n      gesture detected on an indirect input device such as a touchpad.\n      The gesture is usually initiated by multiple fingers moving towards\n      each other or away from each other, or by two or more fingers rotating\n      around a logical center of gravity. The precise conditions of when\n      such a gesture is detected are implementation-dependent.\n\n      A gesture consists of three stages: begin, update (optional) and end.\n      There cannot be multiple simultaneous hold, pinch or swipe gestures on a\n      same pointer/seat, how compositors prevent these situations is\n      implementation-dependent.\n\n      A gesture may be cancelled by the compositor or the hardware.\n      Clients should not consider performing permanent or irreversible\n      actions until the end of a gesture has been received.","summary":"a pinch gesture object"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","summary":"destroy the pinch gesture object"},"args":[]}],"events":[{"type":"event","name":"begin","description":{"type":"description","text":"This event is sent when a multi-finger pinch gesture is detected\n\ton the device.","summary":"multi-finger pinch begin"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"fingers","argType":"uint","summary":"number of fingers"}]},{"type":"event","name":"update","description":{"type":"description","text":"This event is sent when a multi-finger pinch gesture changes the\n\tposition of the logical center, the rotation or the relative scale.\n\n\tThe dx and dy coordinates are relative coordinates in the\n\tsurface coordinate space of the logical center of the gesture.\n\n\tThe scale factor is an absolute scale compared to the\n\tpointer_gesture_pinch.begin event, e.g. a scale of 2 means the fingers\n\tare now twice as far apart as on pointer_gesture_pinch.begin.\n\n\tThe rotation is the relative angle in degrees clockwise compared to the previous\n\tpointer_gesture_pinch.begin or pointer_gesture_pinch.update event.","summary":"multi-finger pinch motion"},"args":[{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"dx","argType":"fixed","summary":"delta x coordinate in surface coordinate space"},{"type":"arg","name":"dy","argType":"fixed","summary":"delta y coordinate in surface coordinate space"},{"type":"arg","name":"scale","argType":"fixed","summary":"scale relative to the initial finger position"},{"type":"arg","name":"rotation","argType":"fixed","summary":"angle in degrees cw relative to the previous event"}]},{"type":"event","name":"end","description":{"type":"description","text":"This event is sent when a multi-finger pinch gesture ceases to\n\tbe valid. This may happen when one or more fingers are lifted or\n\tthe gesture is cancelled.\n\n\tWhen a gesture is cancelled, the client should undo state changes\n\tcaused by this gesture. What causes a gesture to be cancelled is\n\timplementation-dependent.","summary":"multi-finger pinch end"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"cancelled","argType":"int","summary":"1 if the gesture was cancelled, 0 otherwise"}]}],"enums":[]},{"type":"interface","name":"zwp_pointer_gesture_hold_v1","version":"3","description":{"type":"description","text":"A hold gesture object notifies a client about a single- or\n      multi-finger hold gesture detected on an indirect input device such as\n      a touchpad. The gesture is usually initiated by one or more fingers\n      being held down without significant movement. The precise conditions\n      of when such a gesture is detected are implementation-dependent.\n\n      In particular, this gesture may be used to cancel kinetic scrolling.\n\n      A hold gesture consists of two stages: begin and end. Unlike pinch and\n      swipe there is no update stage.\n      There cannot be multiple simultaneous hold, pinch or swipe gestures on a\n      same pointer/seat, how compositors prevent these situations is\n      implementation-dependent.\n\n      A gesture may be cancelled by the compositor or the hardware.\n      Clients should not consider performing permanent or irreversible\n      actions until the end of a gesture has been received.","summary":"a hold gesture object"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","since":"3","description":{"type":"description","summary":"destroy the hold gesture object"},"args":[]}],"events":[{"type":"event","name":"begin","since":"3","description":{"type":"description","text":"This event is sent when a hold gesture is detected on the device.","summary":"multi-finger hold begin"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"},{"type":"arg","name":"fingers","argType":"uint","summary":"number of fingers"}]},{"type":"event","name":"end","since":"3","description":{"type":"description","text":"This event is sent when a hold gesture ceases to\n\tbe valid. This may happen when the holding fingers are lifted or\n\tthe gesture is cancelled, for example if the fingers move past an\n\timplementation-defined threshold, the finger count changes or the hold\n\tgesture changes into a different type of gesture.\n\n\tWhen a gesture is cancelled, the client may need to undo state changes\n\tcaused by this gesture. What causes a gesture to be cancelled is\n\timplementation-dependent.","summary":"multi-finger hold end"},"args":[{"type":"arg","name":"serial","argType":"uint"},{"type":"arg","name":"time","argType":"uint","summary":"timestamp with millisecond granularity"},{"type":"arg","name":"cancelled","argType":"int","summary":"1 if the gesture was cancelled, 0 otherwise"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "pointer_gestures_unstable_v1",
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwp_pointer_gestures_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "A global interface to provide semantic touchpad gestures for a given\npointer.\n\nThree gestures are currently supported: swipe, pinch, and hold.\nPinch and swipe gestures follow a three-stage cycle: begin, update,\nend. Hold gestures follow a two-stage cycle: begin and end. All\ngestures are identified by a unique id.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+        "summary": "touchpad gestures"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_swipe_gesture",
+          "description": {
+            "type": "description",
+            "text": "Create a swipe gesture object. See the\nwl_pointer_gesture_swipe interface for details.",
+            "summary": "get swipe gesture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_pointer_gesture_swipe_v1"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_pinch_gesture",
+          "description": {
+            "type": "description",
+            "text": "Create a pinch gesture object. See the\nwl_pointer_gesture_pinch interface for details.",
+            "summary": "get pinch gesture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_pointer_gesture_pinch_v1"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroy the pointer gesture object. Swipe, pinch and hold objects\ncreated via this gesture object remain valid.",
+            "summary": "destroy the pointer gesture object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_hold_gesture",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Create a hold gesture object. See the\nwl_pointer_gesture_hold interface for details.",
+            "summary": "get hold gesture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_pointer_gesture_hold_v1"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_pointer_gesture_swipe_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A swipe gesture object notifies a client about a multi-finger swipe\ngesture detected on an indirect input device such as a touchpad.\nThe gesture is usually initiated by multiple fingers moving in the\nsame direction but once initiated the direction may change.\nThe precise conditions of when such a gesture is detected are\nimplementation-dependent.\n\nA gesture consists of three stages: begin, update (optional) and end.\nThere cannot be multiple simultaneous hold, pinch or swipe gestures on a\nsame pointer/seat, how compositors prevent these situations is\nimplementation-dependent.\n\nA gesture may be cancelled by the compositor or the hardware.\nClients should not consider performing permanent or irreversible\nactions until the end of a gesture has been received.",
+        "summary": "a swipe gesture object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the pointer swipe gesture object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "begin",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger swipe gesture is detected\non the device.",
+            "summary": "multi-finger swipe begin"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "fingers",
+              "argType": "uint",
+              "summary": "number of fingers"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "update",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger swipe gesture changes the\nposition of the logical center.\n\nThe dx and dy coordinates are relative coordinates of the logical\ncenter of the gesture compared to the previous event.",
+            "summary": "multi-finger swipe motion"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed",
+              "summary": "delta x coordinate in surface coordinate space"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed",
+              "summary": "delta y coordinate in surface coordinate space"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "end",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger swipe gesture ceases to\nbe valid. This may happen when one or more fingers are lifted or\nthe gesture is cancelled.\n\nWhen a gesture is cancelled, the client should undo state changes\ncaused by this gesture. What causes a gesture to be cancelled is\nimplementation-dependent.",
+            "summary": "multi-finger swipe end"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "cancelled",
+              "argType": "int",
+              "summary": "1 if the gesture was cancelled, 0 otherwise"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_pointer_gesture_pinch_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A pinch gesture object notifies a client about a multi-finger pinch\ngesture detected on an indirect input device such as a touchpad.\nThe gesture is usually initiated by multiple fingers moving towards\neach other or away from each other, or by two or more fingers rotating\naround a logical center of gravity. The precise conditions of when\nsuch a gesture is detected are implementation-dependent.\n\nA gesture consists of three stages: begin, update (optional) and end.\nThere cannot be multiple simultaneous hold, pinch or swipe gestures on a\nsame pointer/seat, how compositors prevent these situations is\nimplementation-dependent.\n\nA gesture may be cancelled by the compositor or the hardware.\nClients should not consider performing permanent or irreversible\nactions until the end of a gesture has been received.",
+        "summary": "a pinch gesture object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the pinch gesture object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "begin",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger pinch gesture is detected\non the device.",
+            "summary": "multi-finger pinch begin"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "fingers",
+              "argType": "uint",
+              "summary": "number of fingers"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "update",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger pinch gesture changes the\nposition of the logical center, the rotation or the relative scale.\n\nThe dx and dy coordinates are relative coordinates in the\nsurface coordinate space of the logical center of the gesture.\n\nThe scale factor is an absolute scale compared to the\npointer_gesture_pinch.begin event, e.g. a scale of 2 means the fingers\nare now twice as far apart as on pointer_gesture_pinch.begin.\n\nThe rotation is the relative angle in degrees clockwise compared to the previous\npointer_gesture_pinch.begin or pointer_gesture_pinch.update event.",
+            "summary": "multi-finger pinch motion"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed",
+              "summary": "delta x coordinate in surface coordinate space"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed",
+              "summary": "delta y coordinate in surface coordinate space"
+            },
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed",
+              "summary": "scale relative to the initial finger position"
+            },
+            {
+              "type": "arg",
+              "name": "rotation",
+              "argType": "fixed",
+              "summary": "angle in degrees cw relative to the previous event"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "end",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a multi-finger pinch gesture ceases to\nbe valid. This may happen when one or more fingers are lifted or\nthe gesture is cancelled.\n\nWhen a gesture is cancelled, the client should undo state changes\ncaused by this gesture. What causes a gesture to be cancelled is\nimplementation-dependent.",
+            "summary": "multi-finger pinch end"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "cancelled",
+              "argType": "int",
+              "summary": "1 if the gesture was cancelled, 0 otherwise"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_pointer_gesture_hold_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "A hold gesture object notifies a client about a single- or\nmulti-finger hold gesture detected on an indirect input device such as\na touchpad. The gesture is usually initiated by one or more fingers\nbeing held down without significant movement. The precise conditions\nof when such a gesture is detected are implementation-dependent.\n\nIn particular, this gesture may be used to cancel kinetic scrolling.\n\nA hold gesture consists of two stages: begin and end. Unlike pinch and\nswipe there is no update stage.\nThere cannot be multiple simultaneous hold, pinch or swipe gestures on a\nsame pointer/seat, how compositors prevent these situations is\nimplementation-dependent.\n\nA gesture may be cancelled by the compositor or the hardware.\nClients should not consider performing permanent or irreversible\nactions until the end of a gesture has been received.",
+        "summary": "a hold gesture object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "destroy the hold gesture object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "begin",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a hold gesture is detected on the device.",
+            "summary": "multi-finger hold begin"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "fingers",
+              "argType": "uint",
+              "summary": "number of fingers"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "end",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a hold gesture ceases to\nbe valid. This may happen when the holding fingers are lifted or\nthe gesture is cancelled, for example if the fingers move past an\nimplementation-defined threshold, the finger count changes or the hold\ngesture changes into a different type of gesture.\n\nWhen a gesture is cancelled, the client may need to undo state changes\ncaused by this gesture. What causes a gesture to be cancelled is\nimplementation-dependent.",
+            "summary": "multi-finger hold end"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            },
+            {
+              "type": "arg",
+              "name": "cancelled",
+              "argType": "int",
+              "summary": "1 if the gesture was cancelled, 0 otherwise"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

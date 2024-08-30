@@ -22,7 +22,7 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-  <interface name="agl_shell" version="7">
+  <interface name="agl_shell" version="11">
     <description summary="user interface for Automotive Grade Linux platform">
       Starting with version 2 of the protocol, the client is required to wait
       for the 'bound_ok' or 'bound_fail' events in order to proceed further.
@@ -65,6 +65,14 @@
       <entry name="terminated" value="1"/>
       <entry name="activated" value="2"/>
       <entry name="deactivated" value="3"/>
+    </enum>
+
+    <enum name="tile_orientation" since="11">
+      <entry name="none" value="0"/>
+      <entry name="left" value="1"/>
+      <entry name="right" value="2"/>
+      <entry name="top" value="3"/>
+      <entry name="bottom" value="4"/>
     </enum>
 
     <request name="ready">
@@ -272,6 +280,149 @@
         description of app_id.
       </description>
       <arg name="app_id" type="string"/>
+    </request>
+
+    <request name="set_app_output" since="8">
+      <description summary="assign an application to a particular output">
+        this would allow the compositor to place an application on a particular
+        output, if that output is indeed available. this can happen before
+        application is started which would make the application start on that
+        particular output. if the application is already started it would
+        move the application to that output.
+
+        there's no persistence of this request, once the application terminated
+        you'll need to issue this request again for that particular app_id.
+
+        see xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+
+    <event name="app_on_output" since="8">
+      <description summary="Event sent as a reponse to set_app_output">
+        Clients can use this event to be notified when an application
+        wants to be displayed on a certain output. This event is sent in
+        response to the set_app_output request.
+
+        See xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="output_name" type="string"/>
+    </event>
+
+    <request name="set_app_position" since="9">
+      <description summary="move window to a specific position">
+        Clients can inform the compositor to position a floating type of window
+        at the specific location, pointed by x and y value. If the window is
+        not a floating type, the request will be discarded. Note that
+        positioning doesn't take output into consideration nor does orientation
+        of the outpus. It is expected that the client knows already where the
+        position is localed in global coordonate space. If the window doesn't
+        exist the compositor will ignore the request. For this request to
+        function properly the window would first to be set as floating and then
+        it can be moved using this request.
+
+        see xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </request>
+
+    <request name="set_app_scale" since="10">
+      <description summary="scale window to a specific rectangle">
+        Clients can inform the compositor to scale a floating type of window
+        to the values specified in width and height. If the window is
+        not a floating type, the request will be discarded. If the window
+        doesn't exist the compositor will ignore the request. For this request
+        to function properly the window would first to be set as floating
+        and then it can be moved using this request.
+
+
+        see xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="width" type="int"/>
+      <arg name="height" type="int"/>
+    </request>
+
+    <request name="set_app_split" since="11">
+      <description summary="set the application with a split orientation">
+        This requests asks the compositor to change the application from the
+        original mode (whatever that might be) to a split, tiled orientation
+        mode defined in the tile orientation enum.
+        Clients need to implement resizing (to handle xdg-shell configure
+        events) for this to work correctly.
+
+        This request only handles a single level of tiling for practical
+        reasons: to keep implementation simple and straight forward. The
+        compositor will ignore requests if there are already two windows
+        present. The client can verify this request succeed by checking the
+        xdg-shell configure event and with it, the states sent
+        by the compositor.
+
+        If there's no app_id with the supplied name, the compositor will add
+        the app to a pending list in order to be applied when an application
+        gets started, or if the application sets its application after the
+        initial wl_surface.commit request.
+
+        Applications can use this approach if they want to be started in a
+        tiled orientation position, before creating the xdg-shell toplevel role.
+
+        A none orientation type would make the window go back to the original
+        maximized mode. If two windows are side by side, returning one of them
+        back the original mode would mean the other one will be made hidden
+        and the one doing the request for the none orientation will become
+        the currently active window. A further activation, using activate_app
+        request for the other window would make that one active.
+
+        Closing the window in the tiled orientation state implies that either
+        the background surface will displayed, or in case there was another
+        applications being shown at that time, will make that application be
+        returned to the original, maximized state.
+
+        The tiled orientation could be applied independently of each other,
+        such that a client can transition from one tiled orientation to
+        another. Note that any other window already present would literally
+        take the opposite orientation with the one currently being changed. So
+        tiled orientation modification automatically implies a tile orientation
+        for any other application already present/active at that time.
+
+        In case there's already a client active at that time, it will be
+        attributed automatically the opposite tiled orientation, such that two
+        concurrent applications can be displayed at the same time.
+
+        The orientation tiles can not be combined, and only state at a time
+        can be active. Only horizontal and vertical tiling is possible. A
+        horizontal and vertical tile orientation simultaneously is not
+        possible.
+
+        Input focus is being delivered to the last started/activated window,
+        such that users can cycle between that one or the other, assumes there's
+        another window in the first place.
+
+        A width size can also be specified for the split window. Note that this
+        width can't exceed the output width value, or the compositor can choose
+        to ignore this value.
+
+        Making the split window sticky would inform the compositor that the
+        window should always be active when switching or when activating between
+        other windows. This would allow navigating, starting and activating other
+        windows while keeping the current window always in a split state.
+
+        See xdg_toplevel.set_app_id from the xdg-shell protocol for a
+        description of app_id.
+      </description>
+      <arg name="app_id" type="string"/>
+      <arg name="orientation" type="uint" enum="tile_orientation"/>
+      <arg name="width" type="int" summary="width of the window being split"/>
+      <arg name="sticky" type="int" summary="make the split window stiky"/>
+      <arg name="output" type="object" interface="wl_output"/>
     </request>
   </interface>
 

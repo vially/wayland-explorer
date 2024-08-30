@@ -1,1 +1,237 @@
-{"type":"protocol","name":"shadow","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2015 Martin Gräßlin\n\n    SPDX-License-Identifier: LGPL-2.1-or-later\n  "},"interfaces":[{"type":"interface","name":"org_kde_kwin_shadow_manager","version":"2","requests":[{"type":"request","name":"create","args":[{"type":"arg","name":"id","argType":"new_id","interface":"org_kde_kwin_shadow"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]},{"type":"request","name":"unset","args":[{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]},{"type":"request","name":"destroy","requestType":"destructor","since":"2","description":{"type":"description","text":"Destroy the org_kde_kwin_shadow_manager object.","summary":"Destroy the org_kde_kwin_shadow_manager"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"org_kde_kwin_shadow","version":"2","requests":[{"type":"request","name":"commit","args":[]},{"type":"request","name":"attach_left","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_top_left","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_top","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_top_right","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_right","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_bottom_right","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_bottom","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"attach_bottom_left","args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"set_left_offset","args":[{"type":"arg","name":"offset","argType":"fixed"}]},{"type":"request","name":"set_top_offset","args":[{"type":"arg","name":"offset","argType":"fixed"}]},{"type":"request","name":"set_right_offset","args":[{"type":"arg","name":"offset","argType":"fixed"}]},{"type":"request","name":"set_bottom_offset","args":[{"type":"arg","name":"offset","argType":"fixed"}]},{"type":"request","name":"destroy","requestType":"destructor","since":"2","description":{"type":"description","text":"Destroy the org_kde_kwin_shadow object. If the org_kde_kwin_shadow is\n              still set on a wl_surface the shadow will be immediately removed.\n              Prefer to first call the request unset on the org_kde_kwin_shadow_manager and\n              commit the wl_surface to apply the change.","summary":"Destroy the org_kde_kwin_shadow"},"args":[]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "shadow",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2015 Martin Gräßlin\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_shadow_manager",
+      "version": "2",
+      "requests": [
+        {
+          "type": "request",
+          "name": "create",
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "org_kde_kwin_shadow"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroy the org_kde_kwin_shadow_manager object.",
+            "summary": "Destroy the org_kde_kwin_shadow_manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "org_kde_kwin_shadow",
+      "version": "2",
+      "requests": [
+        {
+          "type": "request",
+          "name": "commit",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "attach_left",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_top_left",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_top",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_top_right",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_right",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_bottom_right",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_bottom",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "attach_bottom_left",
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_left_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_top_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_right_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_bottom_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroy the org_kde_kwin_shadow object. If the org_kde_kwin_shadow is\nstill set on a wl_surface the shadow will be immediately removed.\nPrefer to first call the request unset on the org_kde_kwin_shadow_manager and\ncommit the wl_surface to apply the change.",
+            "summary": "Destroy the org_kde_kwin_shadow"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

@@ -1,1 +1,98 @@
-{"type":"protocol","name":"xwayland_keyboard_grab_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2017 Red Hat Inc.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol is application-specific to meet the needs of the X11\nprotocol through Xwayland. It provides a way for Xwayland to request\nall keyboard events to be forwarded to a surface even when the\nsurface does not have keyboard focus.\n\nIn the X11 protocol, a client may request an \"active grab\" on the\nkeyboard. On success, all key events are reported only to the\ngrabbing X11 client. For details, see XGrabKeyboard(3).\n\nThe core Wayland protocol does not have a notion of an active\nkeyboard grab. When running in Xwayland, X11 applications may\nacquire an active grab inside Xwayland but that cannot be translated\nto the Wayland compositor who may set the input focus to some other\nsurface. In doing so, it breaks the X11 client assumption that all\nkey events are reported to the grabbing client.\n\nThis protocol specifies a way for Xwayland to request all keyboard\nbe directed to the given surface. The protocol does not guarantee\nthat the compositor will honor this request and it does not\nprescribe user interfaces on how to handle the respond. For example,\na compositor may inform the user that all key events are now\nforwarded to the given client surface, or it may ask the user for\npermission to do so.\n\nCompositors are required to restrict access to this application\nspecific protocol to Xwayland alone.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible\nchanges may be added together with the corresponding interface\nversion bump.\nBackward incompatible changes are done by bumping the version\nnumber in the protocol and interface names and resetting the\ninterface version. Once the protocol is to be declared stable,\nthe 'z' prefix and the version number in the protocol and\ninterface names are removed and the interface version number is\nreset.","summary":"Protocol for grabbing the keyboard from Xwayland"},"interfaces":[{"type":"interface","name":"zwp_xwayland_keyboard_grab_manager_v1","version":"1","description":{"type":"description","text":"A global interface used for grabbing the keyboard.","summary":"context object for keyboard grab manager"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the keyboard grab manager.","summary":"destroy the keyboard grab manager"},"args":[]},{"type":"request","name":"grab_keyboard","description":{"type":"description","text":"The grab_keyboard request asks for a grab of the keyboard, forcing\nthe keyboard focus for the given seat upon the given surface.\n\nThe protocol provides no guarantee that the grab is ever satisfied,\nand does not require the compositor to send an error if the grab\ncannot ever be satisfied. It is thus possible to request a keyboard\ngrab that will never be effective.\n\nThe protocol:\n\n* does not guarantee that the grab itself is applied for a surface,\nthe grab request may be silently ignored by the compositor,\n* does not guarantee that any events are sent to this client even\nif the grab is applied to a surface,\n* does not guarantee that events sent to this client are exhaustive,\na compositor may filter some events for its own consumption,\n* does not guarantee that events sent to this client are continuous,\na compositor may change and reroute keyboard events while the grab\nis nominally active.","summary":"grab the keyboard to a surface"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_xwayland_keyboard_grab_v1"},{"type":"arg","name":"surface","argType":"object","summary":"surface to report keyboard events to","interface":"wl_surface"},{"type":"arg","name":"seat","argType":"object","summary":"the seat for which the keyboard should be grabbed","interface":"wl_seat"}]}],"events":[],"enums":[]},{"type":"interface","name":"zwp_xwayland_keyboard_grab_v1","version":"1","description":{"type":"description","text":"A global interface used for grabbing the keyboard.","summary":"interface for grabbing the keyboard"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the grabbed keyboard object. If applicable, the compositor\nwill ungrab the keyboard.","summary":"destroy the grabbed keyboard object"},"args":[]}],"events":[],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "xwayland_keyboard_grab_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2017 Red Hat Inc.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol is application-specific to meet the needs of the X11\nprotocol through Xwayland. It provides a way for Xwayland to request\nall keyboard events to be forwarded to a surface even when the\nsurface does not have keyboard focus.\n\nIn the X11 protocol, a client may request an \"active grab\" on the\nkeyboard. On success, all key events are reported only to the\ngrabbing X11 client. For details, see XGrabKeyboard(3).\n\nThe core Wayland protocol does not have a notion of an active\nkeyboard grab. When running in Xwayland, X11 applications may\nacquire an active grab inside Xwayland but that cannot be translated\nto the Wayland compositor who may set the input focus to some other\nsurface. In doing so, it breaks the X11 client assumption that all\nkey events are reported to the grabbing client.\n\nThis protocol specifies a way for Xwayland to request all keyboard\nbe directed to the given surface. The protocol does not guarantee\nthat the compositor will honor this request and it does not\nprescribe user interfaces on how to handle the respond. For example,\na compositor may inform the user that all key events are now\nforwarded to the given client surface, or it may ask the user for\npermission to do so.\n\nCompositors are required to restrict access to this application\nspecific protocol to Xwayland alone.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible\nchanges may be added together with the corresponding interface\nversion bump.\nBackward incompatible changes are done by bumping the version\nnumber in the protocol and interface names and resetting the\ninterface version. Once the protocol is to be declared stable,\nthe 'z' prefix and the version number in the protocol and\ninterface names are removed and the interface version number is\nreset.",
+    "summary": "Protocol for grabbing the keyboard from Xwayland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwp_xwayland_keyboard_grab_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global interface used for grabbing the keyboard.",
+        "summary": "context object for keyboard grab manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the keyboard grab manager.",
+            "summary": "destroy the keyboard grab manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "grab_keyboard",
+          "description": {
+            "type": "description",
+            "text": "The grab_keyboard request asks for a grab of the keyboard, forcing\nthe keyboard focus for the given seat upon the given surface.\n\nThe protocol provides no guarantee that the grab is ever satisfied,\nand does not require the compositor to send an error if the grab\ncannot ever be satisfied. It is thus possible to request a keyboard\ngrab that will never be effective.\n\nThe protocol:\n\n* does not guarantee that the grab itself is applied for a surface,\nthe grab request may be silently ignored by the compositor,\n* does not guarantee that any events are sent to this client even\nif the grab is applied to a surface,\n* does not guarantee that events sent to this client are exhaustive,\na compositor may filter some events for its own consumption,\n* does not guarantee that events sent to this client are continuous,\na compositor may change and reroute keyboard events while the grab\nis nominally active.",
+            "summary": "grab the keyboard to a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_xwayland_keyboard_grab_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface to report keyboard events to",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "the seat for which the keyboard should be grabbed",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_xwayland_keyboard_grab_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global interface used for grabbing the keyboard.",
+        "summary": "interface for grabbing the keyboard"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the grabbed keyboard object. If applicable, the compositor\nwill ungrab the keyboard.",
+            "summary": "destroy the grabbed keyboard object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

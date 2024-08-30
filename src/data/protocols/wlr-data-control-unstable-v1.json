@@ -1,1 +1,380 @@
-{"type":"protocol","name":"wlr_data_control_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2018 Simon Ser\n    Copyright © 2019 Ivan Molodetskikh\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"description":{"type":"description","text":"This protocol allows a privileged client to control data devices. In\n    particular, the client will be able to manage the current selection and take\n    the role of a clipboard manager.\n\n    Warning! The protocol described in this file is experimental and\n    backward incompatible changes may be made. Backward compatible changes\n    may be added together with the corresponding interface version bump.\n    Backward incompatible changes are done by bumping the version number in\n    the protocol and interface names and resetting the interface version.\n    Once the protocol is to be declared stable, the 'z' prefix and the\n    version number in the protocol and interface names are removed and the\n    interface version number is reset.","summary":"control data devices"},"interfaces":[{"type":"interface","name":"zwlr_data_control_manager_v1","version":"2","description":{"type":"description","text":"This interface is a manager that allows creating per-seat data device\n      controls.","summary":"manager to control data devices"},"requests":[{"type":"request","name":"create_data_source","description":{"type":"description","text":"Create a new data source.","summary":"create a new data source"},"args":[{"type":"arg","name":"id","argType":"new_id","summary":"data source to create","interface":"zwlr_data_control_source_v1"}]},{"type":"request","name":"get_data_device","description":{"type":"description","text":"Create a data device that can be used to manage a seat's selection.","summary":"get a data device for a seat"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_data_control_device_v1"},{"type":"arg","name":"seat","argType":"object","interface":"wl_seat"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"All objects created by the manager will still remain valid, until their\n        appropriate destroy request has been called.","summary":"destroy the manager"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"zwlr_data_control_device_v1","version":"2","description":{"type":"description","text":"This interface allows a client to manage a seat's selection.\n\n      When the seat is destroyed, this object becomes inert.","summary":"manage a data device for a seat"},"requests":[{"type":"request","name":"set_selection","description":{"type":"description","text":"This request asks the compositor to set the selection to the data from\n        the source on behalf of the client.\n\n        The given source may not be used in any further set_selection or\n        set_primary_selection requests. Attempting to use a previously used\n        source is a protocol error.\n\n        To unset the selection, set the source to NULL.","summary":"copy data to the selection"},"args":[{"type":"arg","name":"source","argType":"object","interface":"zwlr_data_control_source_v1","allowNull":"true"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the data device object.","summary":"destroy this data device"},"args":[]},{"type":"request","name":"set_primary_selection","since":"2","description":{"type":"description","text":"This request asks the compositor to set the primary selection to the\n        data from the source on behalf of the client.\n\n        The given source may not be used in any further set_selection or\n        set_primary_selection requests. Attempting to use a previously used\n        source is a protocol error.\n\n        To unset the primary selection, set the source to NULL.\n\n        The compositor will ignore this request if it does not support primary\n        selection.","summary":"copy data to the primary selection"},"args":[{"type":"arg","name":"source","argType":"object","interface":"zwlr_data_control_source_v1","allowNull":"true"}]}],"events":[{"type":"event","name":"data_offer","description":{"type":"description","text":"The data_offer event introduces a new wlr_data_control_offer object,\n        which will subsequently be used in either the\n        wlr_data_control_device.selection event (for the regular clipboard\n        selections) or the wlr_data_control_device.primary_selection event (for\n        the primary clipboard selections). Immediately following the\n        wlr_data_control_device.data_offer event, the new data_offer object\n        will send out wlr_data_control_offer.offer events to describe the MIME\n        types it offers.","summary":"introduce a new wlr_data_control_offer"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_data_control_offer_v1"}]},{"type":"event","name":"selection","description":{"type":"description","text":"The selection event is sent out to notify the client of a new\n        wlr_data_control_offer for the selection for this device. The\n        wlr_data_control_device.data_offer and the wlr_data_control_offer.offer\n        events are sent out immediately before this event to introduce the data\n        offer object. The selection event is sent to a client when a new\n        selection is set. The wlr_data_control_offer is valid until a new\n        wlr_data_control_offer or NULL is received. The client must destroy the\n        previous selection wlr_data_control_offer, if any, upon receiving this\n        event.\n\n        The first selection event is sent upon binding the\n        wlr_data_control_device object.","summary":"advertise new selection"},"args":[{"type":"arg","name":"id","argType":"object","interface":"zwlr_data_control_offer_v1","allowNull":"true"}]},{"type":"event","name":"finished","description":{"type":"description","text":"This data control object is no longer valid and should be destroyed by\n        the client.","summary":"this data control is no longer valid"},"args":[]},{"type":"event","name":"primary_selection","since":"2","description":{"type":"description","text":"The primary_selection event is sent out to notify the client of a new\n        wlr_data_control_offer for the primary selection for this device. The\n        wlr_data_control_device.data_offer and the wlr_data_control_offer.offer\n        events are sent out immediately before this event to introduce the data\n        offer object. The primary_selection event is sent to a client when a\n        new primary selection is set. The wlr_data_control_offer is valid until\n        a new wlr_data_control_offer or NULL is received. The client must\n        destroy the previous primary selection wlr_data_control_offer, if any,\n        upon receiving this event.\n\n        If the compositor supports primary selection, the first\n        primary_selection event is sent upon binding the\n        wlr_data_control_device object.","summary":"advertise new primary selection"},"args":[{"type":"arg","name":"id","argType":"object","interface":"zwlr_data_control_offer_v1","allowNull":"true"}]}],"enums":[{"type":"enum","name":"error","since":"2","bitfield":false,"entries":[{"type":"entry","name":"used_source","value":"1","summary":"source given to set_selection or set_primary_selection was already used before"}]}]},{"type":"interface","name":"zwlr_data_control_source_v1","version":"1","description":{"type":"description","text":"The wlr_data_control_source object is the source side of a\n      wlr_data_control_offer. It is created by the source client in a data\n      transfer and provides a way to describe the offered data and a way to\n      respond to requests to transfer the data.","summary":"offer to transfer data"},"requests":[{"type":"request","name":"offer","description":{"type":"description","text":"This request adds a MIME type to the set of MIME types advertised to\n        targets. Can be called several times to offer multiple types.\n\n        Calling this after wlr_data_control_device.set_selection is a protocol\n        error.","summary":"add an offered MIME type"},"args":[{"type":"arg","name":"mime_type","argType":"string","summary":"MIME type offered by the data source"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the data source object.","summary":"destroy this source"},"args":[]}],"events":[{"type":"event","name":"send","description":{"type":"description","text":"Request for data from the client. Send the data as the specified MIME\n        type over the passed file descriptor, then close it.","summary":"send the data"},"args":[{"type":"arg","name":"mime_type","argType":"string","summary":"MIME type for the data"},{"type":"arg","name":"fd","argType":"fd","summary":"file descriptor for the data"}]},{"type":"event","name":"cancelled","description":{"type":"description","text":"This data source is no longer valid. The data source has been replaced\n        by another data source.\n\n        The client should clean up and destroy this data source.","summary":"selection was cancelled"},"args":[]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_offer","value":"1","summary":"offer sent after wlr_data_control_device.set_selection"}]}]},{"type":"interface","name":"zwlr_data_control_offer_v1","version":"1","description":{"type":"description","text":"A wlr_data_control_offer represents a piece of data offered for transfer\n      by another client (the source client). The offer describes the different\n      MIME types that the data can be converted to and provides the mechanism\n      for transferring the data directly from the source client.","summary":"offer to transfer data"},"requests":[{"type":"request","name":"receive","description":{"type":"description","text":"To transfer the offered data, the client issues this request and\n        indicates the MIME type it wants to receive. The transfer happens\n        through the passed file descriptor (typically created with the pipe\n        system call). The source client writes the data in the MIME type\n        representation requested and then closes the file descriptor.\n\n        The receiving client reads from the read end of the pipe until EOF and\n        then closes its end, at which point the transfer is complete.\n\n        This request may happen multiple times for different MIME types.","summary":"request that the data is transferred"},"args":[{"type":"arg","name":"mime_type","argType":"string","summary":"MIME type desired by receiver"},{"type":"arg","name":"fd","argType":"fd","summary":"file descriptor for data transfer"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the data offer object.","summary":"destroy this offer"},"args":[]}],"events":[{"type":"event","name":"offer","description":{"type":"description","text":"Sent immediately after creating the wlr_data_control_offer object.\n        One event per offered MIME type.","summary":"advertise offered MIME type"},"args":[{"type":"arg","name":"mime_type","argType":"string","summary":"offered MIME type"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "wlr_data_control_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2018 Simon Ser\nCopyright © 2019 Ivan Molodetskikh\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a privileged client to control data devices. In\nparticular, the client will be able to manage the current selection and take\nthe role of a clipboard manager.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "summary": "control data devices"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwlr_data_control_manager_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager that allows creating per-seat data device\ncontrols.",
+        "summary": "manager to control data devices"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_data_source",
+          "description": {
+            "type": "description",
+            "text": "Create a new data source.",
+            "summary": "create a new data source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "data source to create",
+              "interface": "zwlr_data_control_source_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_data_device",
+          "description": {
+            "type": "description",
+            "text": "Create a data device that can be used to manage a seat's selection.",
+            "summary": "get a data device for a seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_data_control_device_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their\nappropriate destroy request has been called.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_data_control_device_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to manage a seat's selection.\n\nWhen the seat is destroyed, this object becomes inert.",
+        "summary": "manage a data device for a seat"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_selection",
+          "description": {
+            "type": "description",
+            "text": "This request asks the compositor to set the selection to the data from\nthe source on behalf of the client.\n\nThe given source may not be used in any further set_selection or\nset_primary_selection requests. Attempting to use a previously used\nsource is a protocol error.\n\nTo unset the selection, set the source to NULL.",
+            "summary": "copy data to the selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "object",
+              "interface": "zwlr_data_control_source_v1",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the data device object.",
+            "summary": "destroy this data device"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_primary_selection",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This request asks the compositor to set the primary selection to the\ndata from the source on behalf of the client.\n\nThe given source may not be used in any further set_selection or\nset_primary_selection requests. Attempting to use a previously used\nsource is a protocol error.\n\nTo unset the primary selection, set the source to NULL.\n\nThe compositor will ignore this request if it does not support primary\nselection.",
+            "summary": "copy data to the primary selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "object",
+              "interface": "zwlr_data_control_source_v1",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "data_offer",
+          "description": {
+            "type": "description",
+            "text": "The data_offer event introduces a new wlr_data_control_offer object,\nwhich will subsequently be used in either the\nwlr_data_control_device.selection event (for the regular clipboard\nselections) or the wlr_data_control_device.primary_selection event (for\nthe primary clipboard selections). Immediately following the\nwlr_data_control_device.data_offer event, the new data_offer object\nwill send out wlr_data_control_offer.offer events to describe the MIME\ntypes it offers.",
+            "summary": "introduce a new wlr_data_control_offer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_data_control_offer_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "selection",
+          "description": {
+            "type": "description",
+            "text": "The selection event is sent out to notify the client of a new\nwlr_data_control_offer for the selection for this device. The\nwlr_data_control_device.data_offer and the wlr_data_control_offer.offer\nevents are sent out immediately before this event to introduce the data\noffer object. The selection event is sent to a client when a new\nselection is set. The wlr_data_control_offer is valid until a new\nwlr_data_control_offer or NULL is received. The client must destroy the\nprevious selection wlr_data_control_offer, if any, upon receiving this\nevent.\n\nThe first selection event is sent upon binding the\nwlr_data_control_device object.",
+            "summary": "advertise new selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "object",
+              "interface": "zwlr_data_control_offer_v1",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This data control object is no longer valid and should be destroyed by\nthe client.",
+            "summary": "this data control is no longer valid"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "primary_selection",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "The primary_selection event is sent out to notify the client of a new\nwlr_data_control_offer for the primary selection for this device. The\nwlr_data_control_device.data_offer and the wlr_data_control_offer.offer\nevents are sent out immediately before this event to introduce the data\noffer object. The primary_selection event is sent to a client when a\nnew primary selection is set. The wlr_data_control_offer is valid until\na new wlr_data_control_offer or NULL is received. The client must\ndestroy the previous primary selection wlr_data_control_offer, if any,\nupon receiving this event.\n\nIf the compositor supports primary selection, the first\nprimary_selection event is sent upon binding the\nwlr_data_control_device object.",
+            "summary": "advertise new primary selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "object",
+              "interface": "zwlr_data_control_offer_v1",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "used_source",
+              "value": "1",
+              "summary": "source given to set_selection or set_primary_selection was already used before"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_data_control_source_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The wlr_data_control_source object is the source side of a\nwlr_data_control_offer. It is created by the source client in a data\ntransfer and provides a way to describe the offered data and a way to\nrespond to requests to transfer the data.",
+        "summary": "offer to transfer data"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "offer",
+          "description": {
+            "type": "description",
+            "text": "This request adds a MIME type to the set of MIME types advertised to\ntargets. Can be called several times to offer multiple types.\n\nCalling this after wlr_data_control_device.set_selection is a protocol\nerror.",
+            "summary": "add an offered MIME type"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mime_type",
+              "argType": "string",
+              "summary": "MIME type offered by the data source"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the data source object.",
+            "summary": "destroy this source"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "send",
+          "description": {
+            "type": "description",
+            "text": "Request for data from the client. Send the data as the specified MIME\ntype over the passed file descriptor, then close it.",
+            "summary": "send the data"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mime_type",
+              "argType": "string",
+              "summary": "MIME type for the data"
+            },
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "file descriptor for the data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cancelled",
+          "description": {
+            "type": "description",
+            "text": "This data source is no longer valid. The data source has been replaced\nby another data source.\n\nThe client should clean up and destroy this data source.",
+            "summary": "selection was cancelled"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_offer",
+              "value": "1",
+              "summary": "offer sent after wlr_data_control_device.set_selection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_data_control_offer_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A wlr_data_control_offer represents a piece of data offered for transfer\nby another client (the source client). The offer describes the different\nMIME types that the data can be converted to and provides the mechanism\nfor transferring the data directly from the source client.",
+        "summary": "offer to transfer data"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "receive",
+          "description": {
+            "type": "description",
+            "text": "To transfer the offered data, the client issues this request and\nindicates the MIME type it wants to receive. The transfer happens\nthrough the passed file descriptor (typically created with the pipe\nsystem call). The source client writes the data in the MIME type\nrepresentation requested and then closes the file descriptor.\n\nThe receiving client reads from the read end of the pipe until EOF and\nthen closes its end, at which point the transfer is complete.\n\nThis request may happen multiple times for different MIME types.",
+            "summary": "request that the data is transferred"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mime_type",
+              "argType": "string",
+              "summary": "MIME type desired by receiver"
+            },
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "file descriptor for data transfer"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the data offer object.",
+            "summary": "destroy this offer"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "offer",
+          "description": {
+            "type": "description",
+            "text": "Sent immediately after creating the wlr_data_control_offer object.\nOne event per offered MIME type.",
+            "summary": "advertise offered MIME type"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mime_type",
+              "argType": "string",
+              "summary": "offered MIME type"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

@@ -1,1 +1,562 @@
-{"type":"protocol","name":"input_method_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2012, 2013 Intel Corporation\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"zwp_input_method_context_v1","version":"1","description":{"type":"description","text":"Corresponds to a text input on the input method side. An input method context\n      is created on text input activation on the input method side. It allows\n      receiving information about the text input from the application via events.\n      Input method contexts do not keep state after deactivation and should be\n      destroyed after deactivation is handled.\n\n      Text is generally UTF-8 encoded, indices and lengths are in bytes.\n\n      Serials are used to synchronize the state between the text input and\n      an input method. New serials are sent by the text input in the\n      commit_state request and are used by the input method to indicate\n      the known text input state in events like preedit_string, commit_string,\n      and keysym. The text input can then ignore events from the input method\n      which are based on an outdated state (for example after a reset).\n\n      Warning! The protocol described in this file is experimental and\n      backward incompatible changes may be made. Backward compatible changes\n      may be added together with the corresponding interface version bump.\n      Backward incompatible changes are done by bumping the version number in\n      the protocol and interface names and resetting the interface version.\n      Once the protocol is to be declared stable, the 'z' prefix and the\n      version number in the protocol and interface names are removed and the\n      interface version number is reset.","summary":"input method context"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","args":[]},{"type":"request","name":"commit_string","description":{"type":"description","text":"Send the commit string text for insertion to the application.\n\n\tThe text to commit could be either just a single character after a key\n\tpress or the result of some composing (pre-edit). It could be also an\n\tempty text when some text should be removed (see\n\tdelete_surrounding_text) or when the input cursor should be moved (see\n\tcursor_position).\n\n\tAny previously set composing text will be removed.","summary":"commit string"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of the latest known text input state"},{"type":"arg","name":"text","argType":"string"}]},{"type":"request","name":"preedit_string","description":{"type":"description","text":"Send the pre-edit string text to the application text input.\n\n\tThe commit text can be used to replace the pre-edit text on reset (for\n\texample on unfocus).\n\n\tPreviously sent preedit_style and preedit_cursor requests are also\n\tprocessed by the text_input.","summary":"pre-edit string"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of the latest known text input state"},{"type":"arg","name":"text","argType":"string"},{"type":"arg","name":"commit","argType":"string"}]},{"type":"request","name":"preedit_styling","description":{"type":"description","text":"Set the styling information on composing text. The style is applied for\n\tlength in bytes from index relative to the beginning of\n\tthe composing text (as byte offset). Multiple styles can\n\tbe applied to a composing text.\n\n\tThis request should be sent before sending a preedit_string request.","summary":"pre-edit styling"},"args":[{"type":"arg","name":"index","argType":"uint"},{"type":"arg","name":"length","argType":"uint"},{"type":"arg","name":"style","argType":"uint"}]},{"type":"request","name":"preedit_cursor","description":{"type":"description","text":"Set the cursor position inside the composing text (as byte offset)\n\trelative to the start of the composing text.\n\n\tWhen index is negative no cursor should be displayed.\n\n\tThis request should be sent before sending a preedit_string request.","summary":"pre-edit cursor"},"args":[{"type":"arg","name":"index","argType":"int"}]},{"type":"request","name":"delete_surrounding_text","description":{"type":"description","text":"Remove the surrounding text.\n\n\tThis request will be handled on the text_input side directly following\n\ta commit_string request.","summary":"delete text"},"args":[{"type":"arg","name":"index","argType":"int"},{"type":"arg","name":"length","argType":"uint"}]},{"type":"request","name":"cursor_position","description":{"type":"description","text":"Set the cursor and anchor to a new position. Index is the new cursor\n\tposition in bytes (when >= 0 this is relative to the end of the inserted text,\n\totherwise it is relative to the beginning of the inserted text). Anchor is\n\tthe new anchor position in bytes (when >= 0 this is relative to the end of the\n\tinserted text, otherwise it is relative to the beginning of the inserted\n\ttext). When there should be no selected text, anchor should be the same\n\tas index.\n\n\tThis request will be handled on the text_input side directly following\n\ta commit_string request.","summary":"set cursor to a new position"},"args":[{"type":"arg","name":"index","argType":"int"},{"type":"arg","name":"anchor","argType":"int"}]},{"type":"request","name":"modifiers_map","args":[{"type":"arg","name":"map","argType":"array"}]},{"type":"request","name":"keysym","description":{"type":"description","text":"Notify when a key event was sent. Key events should not be used for\n\tnormal text input operations, which should be done with commit_string,\n\tdelete_surrounding_text, etc. The key event follows the wl_keyboard key\n\tevent convention. Sym is an XKB keysym, state is a wl_keyboard key_state.","summary":"keysym"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of the latest known text input state"},{"type":"arg","name":"time","argType":"uint"},{"type":"arg","name":"sym","argType":"uint"},{"type":"arg","name":"state","argType":"uint"},{"type":"arg","name":"modifiers","argType":"uint"}]},{"type":"request","name":"grab_keyboard","description":{"type":"description","text":"Allow an input method to receive hardware keyboard input and process\n\tkey events to generate text events (with pre-edit) over the wire. This\n\tallows input methods which compose multiple key events for inputting\n\ttext like it is done for CJK languages.","summary":"grab hardware keyboard"},"args":[{"type":"arg","name":"keyboard","argType":"new_id","interface":"wl_keyboard"}]},{"type":"request","name":"key","description":{"type":"description","text":"Forward a wl_keyboard::key event to the client that was not processed\n\tby the input method itself. Should be used when filtering key events\n\twith grab_keyboard.  The arguments should be the ones from the\n\twl_keyboard::key event.\n\n\tFor generating custom key events use the keysym request instead.","summary":"forward key event"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial from wl_keyboard::key"},{"type":"arg","name":"time","argType":"uint","summary":"time from wl_keyboard::key"},{"type":"arg","name":"key","argType":"uint","summary":"key from wl_keyboard::key"},{"type":"arg","name":"state","argType":"uint","summary":"state from wl_keyboard::key"}]},{"type":"request","name":"modifiers","description":{"type":"description","text":"Forward a wl_keyboard::modifiers event to the client that was not\n\tprocessed by the input method itself.  Should be used when filtering\n\tkey events with grab_keyboard. The arguments should be the ones\n\tfrom the wl_keyboard::modifiers event.","summary":"forward modifiers event"},"args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial from wl_keyboard::modifiers"},{"type":"arg","name":"mods_depressed","argType":"uint","summary":"mods_depressed from wl_keyboard::modifiers"},{"type":"arg","name":"mods_latched","argType":"uint","summary":"mods_latched from wl_keyboard::modifiers"},{"type":"arg","name":"mods_locked","argType":"uint","summary":"mods_locked from wl_keyboard::modifiers"},{"type":"arg","name":"group","argType":"uint","summary":"group from wl_keyboard::modifiers"}]},{"type":"request","name":"language","args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of the latest known text input state"},{"type":"arg","name":"language","argType":"string"}]},{"type":"request","name":"text_direction","args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of the latest known text input state"},{"type":"arg","name":"direction","argType":"uint"}]}],"events":[{"type":"event","name":"surrounding_text","description":{"type":"description","text":"The plain surrounding text around the input position. Cursor is the\n\tposition in bytes within the surrounding text relative to the beginning\n\tof the text. Anchor is the position in bytes of the selection anchor\n\twithin the surrounding text relative to the beginning of the text. If\n\tthere is no selected text then anchor is the same as cursor.","summary":"surrounding text event"},"args":[{"type":"arg","name":"text","argType":"string"},{"type":"arg","name":"cursor","argType":"uint"},{"type":"arg","name":"anchor","argType":"uint"}]},{"type":"event","name":"reset","args":[]},{"type":"event","name":"content_type","args":[{"type":"arg","name":"hint","argType":"uint"},{"type":"arg","name":"purpose","argType":"uint"}]},{"type":"event","name":"invoke_action","args":[{"type":"arg","name":"button","argType":"uint"},{"type":"arg","name":"index","argType":"uint"}]},{"type":"event","name":"commit_state","args":[{"type":"arg","name":"serial","argType":"uint","summary":"serial of text input state"}]},{"type":"event","name":"preferred_language","args":[{"type":"arg","name":"language","argType":"string"}]}],"enums":[]},{"type":"interface","name":"zwp_input_method_v1","version":"1","description":{"type":"description","text":"An input method object is responsible for composing text in response to\n      input from hardware or virtual keyboards. There is one input method\n      object per seat. On activate there is a new input method context object\n      created which allows the input method to communicate with the text input.","summary":"input method"},"requests":[],"events":[{"type":"event","name":"activate","description":{"type":"description","text":"A text input was activated. Creates an input method context object\n\twhich allows communication with the text input.","summary":"activate event"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_input_method_context_v1"}]},{"type":"event","name":"deactivate","description":{"type":"description","text":"The text input corresponding to the context argument was deactivated.\n\tThe input method context should be destroyed after deactivation is\n\thandled.","summary":"deactivate event"},"args":[{"type":"arg","name":"context","argType":"object","interface":"zwp_input_method_context_v1"}]}],"enums":[]},{"type":"interface","name":"zwp_input_panel_v1","version":"1","description":{"type":"description","text":"Only one client can bind this interface at a time.","summary":"interface for implementing keyboards"},"requests":[{"type":"request","name":"get_input_panel_surface","args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwp_input_panel_surface_v1"},{"type":"arg","name":"surface","argType":"object","interface":"wl_surface"}]}],"events":[],"enums":[]},{"type":"interface","name":"zwp_input_panel_surface_v1","version":"1","requests":[{"type":"request","name":"set_toplevel","description":{"type":"description","text":"Set the input_panel_surface type to keyboard.\n\n\tA keyboard surface is only shown when a text input is active.","summary":"set the surface type as a keyboard"},"args":[{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"position","argType":"uint"}]},{"type":"request","name":"set_overlay_panel","description":{"type":"description","text":"Set the input_panel_surface to be an overlay panel.\n\n\tThis is shown near the input cursor above the application window when\n\ta text input is active.","summary":"set the surface type as an overlay panel"},"args":[]}],"events":[],"enums":[{"type":"enum","name":"position","bitfield":false,"entries":[{"type":"entry","name":"center_bottom","value":"0"}]}]}]}
+{
+  "type": "protocol",
+  "name": "input_method_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2012, 2013 Intel Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwp_input_method_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Corresponds to a text input on the input method side. An input method context\nis created on text input activation on the input method side. It allows\nreceiving information about the text input from the application via events.\nInput method contexts do not keep state after deactivation and should be\ndestroyed after deactivation is handled.\n\nText is generally UTF-8 encoded, indices and lengths are in bytes.\n\nSerials are used to synchronize the state between the text input and\nan input method. New serials are sent by the text input in the\ncommit_state request and are used by the input method to indicate\nthe known text input state in events like preedit_string, commit_string,\nand keysym. The text input can then ignore events from the input method\nwhich are based on an outdated state (for example after a reset).\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+        "summary": "input method context"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "commit_string",
+          "description": {
+            "type": "description",
+            "text": "Send the commit string text for insertion to the application.\n\nThe text to commit could be either just a single character after a key\npress or the result of some composing (pre-edit). It could be also an\nempty text when some text should be removed (see\ndelete_surrounding_text) or when the input cursor should be moved (see\ncursor_position).\n\nAny previously set composing text will be removed.",
+            "summary": "commit string"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the latest known text input state"
+            },
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "preedit_string",
+          "description": {
+            "type": "description",
+            "text": "Send the pre-edit string text to the application text input.\n\nThe commit text can be used to replace the pre-edit text on reset (for\nexample on unfocus).\n\nPreviously sent preedit_style and preedit_cursor requests are also\nprocessed by the text_input.",
+            "summary": "pre-edit string"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the latest known text input state"
+            },
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "commit",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "preedit_styling",
+          "description": {
+            "type": "description",
+            "text": "Set the styling information on composing text. The style is applied for\nlength in bytes from index relative to the beginning of\nthe composing text (as byte offset). Multiple styles can\nbe applied to a composing text.\n\nThis request should be sent before sending a preedit_string request.",
+            "summary": "pre-edit styling"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "length",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "style",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "preedit_cursor",
+          "description": {
+            "type": "description",
+            "text": "Set the cursor position inside the composing text (as byte offset)\nrelative to the start of the composing text.\n\nWhen index is negative no cursor should be displayed.\n\nThis request should be sent before sending a preedit_string request.",
+            "summary": "pre-edit cursor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "delete_surrounding_text",
+          "description": {
+            "type": "description",
+            "text": "Remove the surrounding text.\n\nThis request will be handled on the text_input side directly following\na commit_string request.",
+            "summary": "delete text"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "length",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "cursor_position",
+          "description": {
+            "type": "description",
+            "text": "Set the cursor and anchor to a new position. Index is the new cursor\nposition in bytes (when >= 0 this is relative to the end of the inserted text,\notherwise it is relative to the beginning of the inserted text). Anchor is\nthe new anchor position in bytes (when >= 0 this is relative to the end of the\ninserted text, otherwise it is relative to the beginning of the inserted\ntext). When there should be no selected text, anchor should be the same\nas index.\n\nThis request will be handled on the text_input side directly following\na commit_string request.",
+            "summary": "set cursor to a new position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "modifiers_map",
+          "args": [
+            {
+              "type": "arg",
+              "name": "map",
+              "argType": "array"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "keysym",
+          "description": {
+            "type": "description",
+            "text": "Notify when a key event was sent. Key events should not be used for\nnormal text input operations, which should be done with commit_string,\ndelete_surrounding_text, etc. The key event follows the wl_keyboard key\nevent convention. Sym is an XKB keysym, state is a wl_keyboard key_state.",
+            "summary": "keysym"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the latest known text input state"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "sym",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "grab_keyboard",
+          "description": {
+            "type": "description",
+            "text": "Allow an input method to receive hardware keyboard input and process\nkey events to generate text events (with pre-edit) over the wire. This\nallows input methods which compose multiple key events for inputting\ntext like it is done for CJK languages.",
+            "summary": "grab hardware keyboard"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "keyboard",
+              "argType": "new_id",
+              "interface": "wl_keyboard",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "key",
+          "description": {
+            "type": "description",
+            "text": "Forward a wl_keyboard::key event to the client that was not processed\nby the input method itself. Should be used when filtering key events\nwith grab_keyboard.  The arguments should be the ones from the\nwl_keyboard::key event.\n\nFor generating custom key events use the keysym request instead.",
+            "summary": "forward key event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial from wl_keyboard::key"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "time from wl_keyboard::key"
+            },
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "uint",
+              "summary": "key from wl_keyboard::key"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "state from wl_keyboard::key"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "modifiers",
+          "description": {
+            "type": "description",
+            "text": "Forward a wl_keyboard::modifiers event to the client that was not\nprocessed by the input method itself.  Should be used when filtering\nkey events with grab_keyboard. The arguments should be the ones\nfrom the wl_keyboard::modifiers event.",
+            "summary": "forward modifiers event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial from wl_keyboard::modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "mods_depressed",
+              "argType": "uint",
+              "summary": "mods_depressed from wl_keyboard::modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "mods_latched",
+              "argType": "uint",
+              "summary": "mods_latched from wl_keyboard::modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "mods_locked",
+              "argType": "uint",
+              "summary": "mods_locked from wl_keyboard::modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "group",
+              "argType": "uint",
+              "summary": "group from wl_keyboard::modifiers"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "language",
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the latest known text input state"
+            },
+            {
+              "type": "arg",
+              "name": "language",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "text_direction",
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the latest known text input state"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "surrounding_text",
+          "description": {
+            "type": "description",
+            "text": "The plain surrounding text around the input position. Cursor is the\nposition in bytes within the surrounding text relative to the beginning\nof the text. Anchor is the position in bytes of the selection anchor\nwithin the surrounding text relative to the beginning of the text. If\nthere is no selected text then anchor is the same as cursor.",
+            "summary": "surrounding text event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "reset",
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "content_type",
+          "args": [
+            {
+              "type": "arg",
+              "name": "hint",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "purpose",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "invoke_action",
+          "args": [
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "commit_state",
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of text input state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "preferred_language",
+          "args": [
+            {
+              "type": "arg",
+              "name": "language",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_input_method_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An input method object is responsible for composing text in response to\ninput from hardware or virtual keyboards. There is one input method\nobject per seat. On activate there is a new input method context object\ncreated which allows the input method to communicate with the text input.",
+        "summary": "input method"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "A text input was activated. Creates an input method context object\nwhich allows communication with the text input.",
+            "summary": "activate event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_input_method_context_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "deactivate",
+          "description": {
+            "type": "description",
+            "text": "The text input corresponding to the context argument was deactivated.\nThe input method context should be destroyed after deactivation is\nhandled.",
+            "summary": "deactivate event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "context",
+              "argType": "object",
+              "interface": "zwp_input_method_context_v1"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_input_panel_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Only one client can bind this interface at a time.",
+        "summary": "interface for implementing keyboards"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_input_panel_surface",
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwp_input_panel_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwp_input_panel_surface_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Set the input_panel_surface type to keyboard.\n\nA keyboard surface is only shown when a text input is active.",
+            "summary": "set the surface type as a keyboard"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "position",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_overlay_panel",
+          "description": {
+            "type": "description",
+            "text": "Set the input_panel_surface to be an overlay panel.\n\nThis is shown near the input cursor above the application window when\na text input is active.",
+            "summary": "set the surface type as an overlay panel"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "position",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "center_bottom",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

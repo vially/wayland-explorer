@@ -1,1 +1,196 @@
-{"type":"protocol","name":"xdg_toplevel_icon_v1","copyright":{"type":"copyright","text":"Copyright © 2023-2024 Matthias Klumpp\n    Copyright ©      2024 David Edmundson\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol allows clients to set icons for their toplevel surfaces\n    either via the XDG icon stock (using an icon name), or from pixel data.\n\n    A toplevel icon represents the individual toplevel (unlike the application\n    or launcher icon, which represents the application as a whole), and may be\n    shown in window switchers, window overviews and taskbars that list\n    individual windows.\n\n    This document adheres to RFC 2119 when using words like \"must\",\n    \"should\", \"may\", etc.\n\n    Warning! The protocol described in this file is currently in the testing\n    phase. Backward compatible changes may be added together with the\n    corresponding interface version bump. Backward incompatible changes can\n    only be done by creating a new major version of the extension.","summary":"protocol to assign icons to toplevels"},"interfaces":[{"type":"interface","name":"xdg_toplevel_icon_manager_v1","version":"1","description":{"type":"description","text":"This interface allows clients to create toplevel window icons and set\n      them on toplevel windows to be displayed to the user.","summary":"interface to manage toplevel icons"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the toplevel icon manager.\n        This does not destroy objects created with the manager.","summary":"destroy the toplevel icon manager"},"args":[]},{"type":"request","name":"create_icon","description":{"type":"description","text":"Creates a new icon object. This icon can then be attached to a\n        xdg_toplevel via the 'set_icon' request.","summary":"create a new icon instance"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"xdg_toplevel_icon_v1"}]},{"type":"request","name":"set_icon","description":{"type":"description","text":"This request assigns the icon 'icon' to 'toplevel', or clears the\n        toplevel icon if 'icon' was null.\n        This state is double-buffered and is applied on the next\n        wl_surface.commit of the toplevel.\n\n        After making this call, the xdg_toplevel_icon_v1 provided as 'icon'\n        can be destroyed by the client without 'toplevel' losing its icon.\n        The xdg_toplevel_icon_v1 is immutable from this point, and any\n        future attempts to change it must raise the\n        'xdg_toplevel_icon_v1.immutable' protocol error.\n\n        The compositor must set the toplevel icon from either the pixel data\n        the icon provides, or by loading a stock icon using the icon name.\n        See the description of 'xdg_toplevel_icon_v1' for details.\n\n        If 'icon' is set to null, the icon of the respective toplevel is reset\n        to its default icon (usually the icon of the application, derived from\n        its desktop-entry file, or a placeholder icon).\n        If this request is passed an icon with no pixel buffers or icon name\n        assigned, the icon must be reset just like if 'icon' was null.","summary":"set an icon on a toplevel window"},"args":[{"type":"arg","name":"toplevel","argType":"object","summary":"the toplevel to act on","interface":"xdg_toplevel"},{"type":"arg","name":"icon","argType":"object","interface":"xdg_toplevel_icon_v1","allowNull":"true"}]}],"events":[{"type":"event","name":"icon_size","description":{"type":"description","text":"This event indicates an icon size the compositor prefers to be\n        available if the client has scalable icons and can render to any size.\n\n        When the 'xdg_toplevel_icon_manager_v1' object is created, the\n        compositor may send one or more 'icon_size' events to describe the list\n        of preferred icon sizes. If the compositor has no size preference, it\n        may not send any 'icon_size' event, and it is up to the client to\n        decide a suitable icon size.\n\n        A sequence of 'icon_size' events must be finished with a 'done' event.\n        If the compositor has no size preferences, it must still send the\n        'done' event, without any preceding 'icon_size' events.","summary":"describes a supported & preferred icon size"},"args":[{"type":"arg","name":"size","argType":"int","summary":"the edge size of the square icon in surface-local coordinates, e.g. 64"}]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent after all 'icon_size' events have been sent.","summary":"all information has been sent"},"args":[]}],"enums":[]},{"type":"interface","name":"xdg_toplevel_icon_v1","version":"1","description":{"type":"description","text":"This interface defines a toplevel icon.\n      An icon can have a name, and multiple buffers.\n      In order to be applied, the icon must have either a name, or at least\n      one buffer assigned. Applying an empty icon (with no buffer or name) to\n      a toplevel should reset its icon to the default icon.\n\n      It is up to compositor policy whether to prefer using a buffer or loading\n      an icon via its name. See 'set_name' and 'add_buffer' for details.","summary":"a toplevel window icon"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the 'xdg_toplevel_icon_v1' object.\n        The icon must still remain set on every toplevel it was assigned to,\n        until the toplevel icon is reset explicitly.","summary":"destroy the icon object"},"args":[]},{"type":"request","name":"set_name","description":{"type":"description","text":"This request assigns an icon name to this icon.\n        Any previously set name is overridden.\n\n        The compositor must resolve 'icon_name' according to the lookup rules\n        described in the XDG icon theme specification[1] using the\n        environment's current icon theme.\n\n        If the compositor does not support icon names or cannot resolve\n        'icon_name' according to the XDG icon theme specification it must\n        fall back to using pixel buffer data instead.\n\n        If this request is made after the icon has been assigned to a toplevel\n        via 'set_icon', a 'immutable' error must be raised.\n\n        [1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html","summary":"set an icon name"},"args":[{"type":"arg","name":"icon_name","argType":"string"}]},{"type":"request","name":"add_buffer","description":{"type":"description","text":"This request adds pixel data supplied as wl_buffer to the icon.\n\n        The client should add pixel data for all icon sizes and scales that\n        it can provide, or which are explicitly requested by the compositor\n        via 'icon_size' events on xdg_toplevel_icon_manager_v1.\n\n        The wl_buffer supplying pixel data as 'buffer' must be backed by wl_shm\n        and must be a square (width and height being equal).\n        If any of these buffer requirements are not fulfilled, a 'invalid_buffer'\n        error must be raised.\n\n        If this icon instance already has a buffer of the same size and scale\n        from a previous 'add_buffer' request, data from the last request\n        overrides the preexisting pixel data.\n\n        The wl_buffer must be kept alive for as long as the xdg_toplevel_icon\n        it is associated with is not destroyed. The buffer contents must not be\n        modified after it was assigned to the icon.\n\n        If this request is made after the icon has been assigned to a toplevel\n        via 'set_icon', a 'immutable' error must be raised.","summary":"add icon data from a pixel buffer"},"args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"},{"type":"arg","name":"scale","argType":"int","summary":"the scaling factor of the icon, e.g. 1"}]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_buffer","value":"1","summary":"the provided buffer does not satisfy requirements"},{"type":"entry","name":"immutable","value":"2","summary":"the icon has already been assigned to a toplevel and must not be changed"}]}]}]}
+{
+  "type": "protocol",
+  "name": "xdg_toplevel_icon_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2023-2024 Matthias Klumpp\nCopyright ©      2024 David Edmundson\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to set icons for their toplevel surfaces\neither via the XDG icon stock (using an icon name), or from pixel data.\n\nA toplevel icon represents the individual toplevel (unlike the application\nor launcher icon, which represents the application as a whole), and may be\nshown in window switchers, window overviews and taskbars that list\nindividual windows.\n\nThis document adheres to RFC 2119 when using words like \"must\",\n\"should\", \"may\", etc.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "protocol to assign icons to toplevels"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_icon_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to create toplevel window icons and set\nthem on toplevel windows to be displayed to the user.",
+        "summary": "interface to manage toplevel icons"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the toplevel icon manager.\nThis does not destroy objects created with the manager.",
+            "summary": "destroy the toplevel icon manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_icon",
+          "description": {
+            "type": "description",
+            "text": "Creates a new icon object. This icon can then be attached to a\nxdg_toplevel via the 'set_icon' request.",
+            "summary": "create a new icon instance"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xdg_toplevel_icon_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_icon",
+          "description": {
+            "type": "description",
+            "text": "This request assigns the icon 'icon' to 'toplevel', or clears the\ntoplevel icon if 'icon' was null.\nThis state is double-buffered and is applied on the next\nwl_surface.commit of the toplevel.\n\nAfter making this call, the xdg_toplevel_icon_v1 provided as 'icon'\ncan be destroyed by the client without 'toplevel' losing its icon.\nThe xdg_toplevel_icon_v1 is immutable from this point, and any\nfuture attempts to change it must raise the\n'xdg_toplevel_icon_v1.immutable' protocol error.\n\nThe compositor must set the toplevel icon from either the pixel data\nthe icon provides, or by loading a stock icon using the icon name.\nSee the description of 'xdg_toplevel_icon_v1' for details.\n\nIf 'icon' is set to null, the icon of the respective toplevel is reset\nto its default icon (usually the icon of the application, derived from\nits desktop-entry file, or a placeholder icon).\nIf this request is passed an icon with no pixel buffers or icon name\nassigned, the icon must be reset just like if 'icon' was null.",
+            "summary": "set an icon on a toplevel window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "summary": "the toplevel to act on",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "icon",
+              "argType": "object",
+              "interface": "xdg_toplevel_icon_v1",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "icon_size",
+          "description": {
+            "type": "description",
+            "text": "This event indicates an icon size the compositor prefers to be\navailable if the client has scalable icons and can render to any size.\n\nWhen the 'xdg_toplevel_icon_manager_v1' object is created, the\ncompositor may send one or more 'icon_size' events to describe the list\nof preferred icon sizes. If the compositor has no size preference, it\nmay not send any 'icon_size' event, and it is up to the client to\ndecide a suitable icon size.\n\nA sequence of 'icon_size' events must be finished with a 'done' event.\nIf the compositor has no size preferences, it must still send the\n'done' event, without any preceding 'icon_size' events.",
+            "summary": "describes a supported & preferred icon size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "int",
+              "summary": "the edge size of the square icon in surface-local coordinates, e.g. 64"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all 'icon_size' events have been sent.",
+            "summary": "all information has been sent"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_icon_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface defines a toplevel icon.\nAn icon can have a name, and multiple buffers.\nIn order to be applied, the icon must have either a name, or at least\none buffer assigned. Applying an empty icon (with no buffer or name) to\na toplevel should reset its icon to the default icon.\n\nIt is up to compositor policy whether to prefer using a buffer or loading\nan icon via its name. See 'set_name' and 'add_buffer' for details.",
+        "summary": "a toplevel window icon"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the 'xdg_toplevel_icon_v1' object.\nThe icon must still remain set on every toplevel it was assigned to,\nuntil the toplevel icon is reset explicitly.",
+            "summary": "destroy the icon object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_name",
+          "description": {
+            "type": "description",
+            "text": "This request assigns an icon name to this icon.\nAny previously set name is overridden.\n\nThe compositor must resolve 'icon_name' according to the lookup rules\ndescribed in the XDG icon theme specification[1] using the\nenvironment's current icon theme.\n\nIf the compositor does not support icon names or cannot resolve\n'icon_name' according to the XDG icon theme specification it must\nfall back to using pixel buffer data instead.\n\nIf this request is made after the icon has been assigned to a toplevel\nvia 'set_icon', a 'immutable' error must be raised.\n\n[1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html",
+            "summary": "set an icon name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "icon_name",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "add_buffer",
+          "description": {
+            "type": "description",
+            "text": "This request adds pixel data supplied as wl_buffer to the icon.\n\nThe client should add pixel data for all icon sizes and scales that\nit can provide, or which are explicitly requested by the compositor\nvia 'icon_size' events on xdg_toplevel_icon_manager_v1.\n\nThe wl_buffer supplying pixel data as 'buffer' must be backed by wl_shm\nand must be a square (width and height being equal).\nIf any of these buffer requirements are not fulfilled, a 'invalid_buffer'\nerror must be raised.\n\nIf this icon instance already has a buffer of the same size and scale\nfrom a previous 'add_buffer' request, data from the last request\noverrides the preexisting pixel data.\n\nThe wl_buffer must be kept alive for as long as the xdg_toplevel_icon\nit is associated with is not destroyed. The buffer contents must not be\nmodified after it was assigned to the icon.\n\nIf this request is made after the icon has been assigned to a toplevel\nvia 'set_icon', a 'immutable' error must be raised.",
+            "summary": "add icon data from a pixel buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "int",
+              "summary": "the scaling factor of the icon, e.g. 1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_buffer",
+              "value": "1",
+              "summary": "the provided buffer does not satisfy requirements"
+            },
+            {
+              "type": "entry",
+              "name": "immutable",
+              "value": "2",
+              "summary": "the icon has already been assigned to a toplevel and must not be changed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

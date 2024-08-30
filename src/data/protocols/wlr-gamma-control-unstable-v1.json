@@ -1,1 +1,148 @@
-{"type":"protocol","name":"wlr_gamma_control_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2015 Giulio camuffo\n    Copyright © 2018 Simon Ser\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"description":{"type":"description","text":"This protocol allows a privileged client to set the gamma tables for\n    outputs.\n\n    Warning! The protocol described in this file is experimental and\n    backward incompatible changes may be made. Backward compatible changes\n    may be added together with the corresponding interface version bump.\n    Backward incompatible changes are done by bumping the version number in\n    the protocol and interface names and resetting the interface version.\n    Once the protocol is to be declared stable, the 'z' prefix and the\n    version number in the protocol and interface names are removed and the\n    interface version number is reset.","summary":"manage gamma tables of outputs"},"interfaces":[{"type":"interface","name":"zwlr_gamma_control_manager_v1","version":"1","description":{"type":"description","text":"This interface is a manager that allows creating per-output gamma\n      controls.","summary":"manager to create per-output gamma controls"},"requests":[{"type":"request","name":"get_gamma_control","description":{"type":"description","text":"Create a gamma control that can be used to adjust gamma tables for the\n        provided output.","summary":"get a gamma control for an output"},"args":[{"type":"arg","name":"id","argType":"new_id","interface":"zwlr_gamma_control_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"All objects created by the manager will still remain valid, until their\n        appropriate destroy request has been called.","summary":"destroy the manager"},"args":[]}],"events":[],"enums":[]},{"type":"interface","name":"zwlr_gamma_control_v1","version":"1","description":{"type":"description","text":"This interface allows a client to adjust gamma tables for a particular\n      output.\n\n      The client will receive the gamma size, and will then be able to set gamma\n      tables. At any time the compositor can send a failed event indicating that\n      this object is no longer valid.\n\n      There can only be at most one gamma control object per output, which\n      has exclusive access to this particular output. When the gamma control\n      object is destroyed, the gamma table is restored to its original value.","summary":"adjust gamma tables for an output"},"requests":[{"type":"request","name":"set_gamma","description":{"type":"description","text":"Set the gamma table. The file descriptor can be memory-mapped to provide\n        the raw gamma table, which contains successive gamma ramps for the red,\n        green and blue channels. Each gamma ramp is an array of 16-byte unsigned\n        integers which has the same length as the gamma size.\n\n        The file descriptor data must have the same length as three times the\n        gamma size.","summary":"set the gamma table"},"args":[{"type":"arg","name":"fd","argType":"fd","summary":"gamma table file descriptor"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the gamma control object. If the object is still valid, this\n        restores the original gamma tables.","summary":"destroy this control"},"args":[]}],"events":[{"type":"event","name":"gamma_size","description":{"type":"description","text":"Advertise the size of each gamma ramp.\n\n        This event is sent immediately when the gamma control object is created.","summary":"size of gamma ramps"},"args":[{"type":"arg","name":"size","argType":"uint","summary":"number of elements in a ramp"}]},{"type":"event","name":"failed","description":{"type":"description","text":"This event indicates that the gamma control is no longer valid. This\n        can happen for a number of reasons, including:\n        - The output doesn't support gamma tables\n        - Setting the gamma tables failed\n        - Another client already has exclusive gamma control for this output\n        - The compositor has transferred gamma control to another client\n\n        Upon receiving this event, the client should destroy this object.","summary":"object no longer valid"},"args":[]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_gamma","value":"1","summary":"invalid gamma tables"}]}]}]}
+{
+  "type": "protocol",
+  "name": "wlr_gamma_control_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2015 Giulio camuffo\nCopyright © 2018 Simon Ser\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a privileged client to set the gamma tables for\noutputs.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "summary": "manage gamma tables of outputs"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zwlr_gamma_control_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager that allows creating per-output gamma\ncontrols.",
+        "summary": "manager to create per-output gamma controls"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_gamma_control",
+          "description": {
+            "type": "description",
+            "text": "Create a gamma control that can be used to adjust gamma tables for the\nprovided output.",
+            "summary": "get a gamma control for an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zwlr_gamma_control_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their\nappropriate destroy request has been called.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zwlr_gamma_control_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to adjust gamma tables for a particular\noutput.\n\nThe client will receive the gamma size, and will then be able to set gamma\ntables. At any time the compositor can send a failed event indicating that\nthis object is no longer valid.\n\nThere can only be at most one gamma control object per output, which\nhas exclusive access to this particular output. When the gamma control\nobject is destroyed, the gamma table is restored to its original value.",
+        "summary": "adjust gamma tables for an output"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_gamma",
+          "description": {
+            "type": "description",
+            "text": "Set the gamma table. The file descriptor can be memory-mapped to provide\nthe raw gamma table, which contains successive gamma ramps for the red,\ngreen and blue channels. Each gamma ramp is an array of 16-byte unsigned\nintegers which has the same length as the gamma size.\n\nThe file descriptor data must have the same length as three times the\ngamma size.",
+            "summary": "set the gamma table"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "gamma table file descriptor"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the gamma control object. If the object is still valid, this\nrestores the original gamma tables.",
+            "summary": "destroy this control"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "gamma_size",
+          "description": {
+            "type": "description",
+            "text": "Advertise the size of each gamma ramp.\n\nThis event is sent immediately when the gamma control object is created.",
+            "summary": "size of gamma ramps"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint",
+              "summary": "number of elements in a ramp"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the gamma control is no longer valid. This\ncan happen for a number of reasons, including:\n- The output doesn't support gamma tables\n- Setting the gamma tables failed\n- Another client already has exclusive gamma control for this output\n- The compositor has transferred gamma control to another client\n\nUpon receiving this event, the client should destroy this object.",
+            "summary": "object no longer valid"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_gamma",
+              "value": "1",
+              "summary": "invalid gamma tables"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

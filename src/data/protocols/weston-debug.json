@@ -1,1 +1,146 @@
-{"type":"protocol","name":"weston_debug","copyright":{"type":"copyright","text":"Copyright © 2017 Pekka Paalanen pq@iki.fi\n    Copyright © 2018 Zodiac Inflight Innovations\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"interfaces":[{"type":"interface","name":"weston_debug_v1","version":"1","description":{"type":"description","text":"This is a generic debugging interface for Weston internals, the global\n      object advertized through wl_registry.\n\n      WARNING: This interface by design allows a denial-of-service attack. It\n      should not be offered in production, or proper authorization mechanisms\n      must be enforced.\n\n      The idea is for a client to provide a file descriptor that the server\n      uses for printing debug information. The server uses the file\n      descriptor in blocking writes mode, which exposes the denial-of-service\n      risk. The blocking mode is necessary to ensure all debug messages can\n      be easily printed in place. It also ensures message ordering if a\n      client subscribes to more than one debug stream.\n\n      The available debugging features depend on the server.\n\n      A debug stream can be one-shot where the server prints the requested\n      information and then closes it, or continuous where server keeps on\n      printing until the client stops it. Or anything in between.","summary":"weston internal debugging"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the factory object, but does not affect any other objects.","summary":"destroy factory object"},"args":[]},{"type":"request","name":"subscribe","description":{"type":"description","text":"Subscribe to a named debug stream. The server will start printing\n\tto the given file descriptor.\n\n\tIf the named debug stream is a one-shot dump, the server will send\n\tweston_debug_stream_v1.complete event once all requested data has\n\tbeen printed. Otherwise, the server will continue streaming debug\n\tprints until the subscription object is destroyed.\n\n\tIf the debug stream name is unknown to the server, the server will\n\timmediately respond with weston_debug_stream_v1.failure event.","summary":"subscribe to a debug stream"},"args":[{"type":"arg","name":"name","argType":"string","summary":"debug stream name","allowNull":"false"},{"type":"arg","name":"streamfd","argType":"fd","summary":"write stream file descriptor"},{"type":"arg","name":"stream","argType":"new_id","summary":"created debug stream object","interface":"weston_debug_stream_v1"}]}],"events":[{"type":"event","name":"available","description":{"type":"description","text":"Advertises an available debug scope which the client may be able to\n        bind to. No information is provided by the server about the content\n        contained within the debug streams provided by the scope, once a\n        client has subscribed.","summary":"advertise available debug scope"},"args":[{"type":"arg","name":"name","argType":"string","summary":"debug stream name","allowNull":"false"},{"type":"arg","name":"description","argType":"string","summary":"human-readable description of the debug scope","allowNull":"true"}]}],"enums":[]},{"type":"interface","name":"weston_debug_stream_v1","version":"1","description":{"type":"description","text":"Represents one subscribed debug stream, created with\n      weston_debug_v1.subscribe. When the object is created, it is associated\n      with a given file descriptor. The server will continue writing to the\n      file descriptor until the object is destroyed or the server sends an\n      event through the object.","summary":"A subscribed debug stream"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the object, which causes the server to stop writing into\n\tand closes the associated file descriptor if it was not closed\n\talready.\n\n\tUse a wl_display.sync if the clients needs to guarantee the file\n\tdescriptor is closed before continuing.","summary":"close a debug stream"},"args":[]}],"events":[{"type":"event","name":"complete","description":{"type":"description","text":"The server has successfully finished writing to and has closed the\n\tassociated file descriptor.\n\n\tThis event is delivered only for one-shot debug streams where the\n\tserver dumps some data and stop. This is never delivered for\n\tcontinuous debbug streams because they by definition never complete.","summary":"server completed the debug stream"},"args":[]},{"type":"event","name":"failure","description":{"type":"description","text":"The server has stopped writing to and has closed the\n\tassociated file descriptor. The data already written to the file\n\tdescriptor is correct, but it may be truncated.\n\n\tThis event may be delivered at any time and for any kind of debug\n\tstream. It may be due to a failure in or shutdown of the server.\n\tThe message argument may provide a hint of the reason.","summary":"server cannot continue the debug stream"},"args":[{"type":"arg","name":"message","argType":"string","summary":"human readable reason","allowNull":"true"}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "weston_debug",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2017 Pekka Paalanen pq@iki.fi\nCopyright © 2018 Zodiac Inflight Innovations\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "weston_debug_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This is a generic debugging interface for Weston internals, the global\nobject advertized through wl_registry.\n\nWARNING: This interface by design allows a denial-of-service attack. It\nshould not be offered in production, or proper authorization mechanisms\nmust be enforced.\n\nThe idea is for a client to provide a file descriptor that the server\nuses for printing debug information. The server uses the file\ndescriptor in blocking writes mode, which exposes the denial-of-service\nrisk. The blocking mode is necessary to ensure all debug messages can\nbe easily printed in place. It also ensures message ordering if a\nclient subscribes to more than one debug stream.\n\nThe available debugging features depend on the server.\n\nA debug stream can be one-shot where the server prints the requested\ninformation and then closes it, or continuous where server keeps on\nprinting until the client stops it. Or anything in between.",
+        "summary": "weston internal debugging"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the factory object, but does not affect any other objects.",
+            "summary": "destroy factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "subscribe",
+          "description": {
+            "type": "description",
+            "text": "Subscribe to a named debug stream. The server will start printing\nto the given file descriptor.\n\nIf the named debug stream is a one-shot dump, the server will send\nweston_debug_stream_v1.complete event once all requested data has\nbeen printed. Otherwise, the server will continue streaming debug\nprints until the subscription object is destroyed.\n\nIf the debug stream name is unknown to the server, the server will\nimmediately respond with weston_debug_stream_v1.failure event.",
+            "summary": "subscribe to a debug stream"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "debug stream name",
+              "allowNull": "false"
+            },
+            {
+              "type": "arg",
+              "name": "streamfd",
+              "argType": "fd",
+              "summary": "write stream file descriptor"
+            },
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "summary": "created debug stream object",
+              "interface": "weston_debug_stream_v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "available",
+          "description": {
+            "type": "description",
+            "text": "Advertises an available debug scope which the client may be able to\nbind to. No information is provided by the server about the content\ncontained within the debug streams provided by the scope, once a\nclient has subscribed.",
+            "summary": "advertise available debug scope"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "debug stream name",
+              "allowNull": "false"
+            },
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "human-readable description of the debug scope",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "weston_debug_stream_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents one subscribed debug stream, created with\nweston_debug_v1.subscribe. When the object is created, it is associated\nwith a given file descriptor. The server will continue writing to the\nfile descriptor until the object is destroyed or the server sends an\nevent through the object.",
+        "summary": "A subscribed debug stream"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the object, which causes the server to stop writing into\nand closes the associated file descriptor if it was not closed\nalready.\n\nUse a wl_display.sync if the clients needs to guarantee the file\ndescriptor is closed before continuing.",
+            "summary": "close a debug stream"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "complete",
+          "description": {
+            "type": "description",
+            "text": "The server has successfully finished writing to and has closed the\nassociated file descriptor.\n\nThis event is delivered only for one-shot debug streams where the\nserver dumps some data and stop. This is never delivered for\ncontinuous debbug streams because they by definition never complete.",
+            "summary": "server completed the debug stream"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "failure",
+          "description": {
+            "type": "description",
+            "text": "The server has stopped writing to and has closed the\nassociated file descriptor. The data already written to the file\ndescriptor is correct, but it may be truncated.\n\nThis event may be delivered at any time and for any kind of debug\nstream. It may be due to a failure in or shutdown of the server.\nThe message argument may provide a hint of the reason.",
+            "summary": "server cannot continue the debug stream"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "message",
+              "argType": "string",
+              "summary": "human readable reason",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

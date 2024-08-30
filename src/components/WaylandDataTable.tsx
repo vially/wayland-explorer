@@ -129,7 +129,7 @@ const ArgEnum: React.FC<{ interfaceName: string; argEnum: string }> = ({
 }) => {
     let enumName = argEnum
     if (enumName.includes('.')) {
-        ;[interfaceName, enumName] = enumName.split('.')
+        [interfaceName, enumName] = enumName.split('.')
     }
 
     return (

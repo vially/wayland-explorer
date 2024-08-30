@@ -1,1 +1,671 @@
-{"type":"protocol","name":"ext_image_copy_capture_v1","copyright":{"type":"copyright","text":"Copyright © 2021-2023 Andri Yngvason\n    Copyright © 2024 Simon Ser\n\n    Permission is hereby granted, free of charge, to any person obtaining a\n    copy of this software and associated documentation files (the \"Software\"),\n    to deal in the Software without restriction, including without limitation\n    the rights to use, copy, modify, merge, publish, distribute, sublicense,\n    and/or sell copies of the Software, and to permit persons to whom the\n    Software is furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice (including the next\n    paragraph) shall be included in all copies or substantial portions of the\n    Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\n    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\n    DEALINGS IN THE SOFTWARE."},"description":{"type":"description","text":"This protocol allows clients to ask the compositor to capture image sources\n    such as outputs and toplevels into user submitted buffers.\n\n    Warning! The protocol described in this file is currently in the testing\n    phase. Backward compatible changes may be added together with the\n    corresponding interface version bump. Backward incompatible changes can\n    only be done by creating a new major version of the extension.","summary":"image capturing into client buffers"},"interfaces":[{"type":"interface","name":"ext_image_copy_capture_manager_v1","version":"1","description":{"type":"description","text":"This object is a manager which offers requests to start capturing from a\n      source.","summary":"manager to inform clients and begin capturing"},"requests":[{"type":"request","name":"create_session","description":{"type":"description","text":"Create a capturing session for an image capture source.\n\n        If the paint_cursors option is set, cursors shall be composited onto\n        the captured frame. The cursor must not be composited onto the frame\n        if this flag is not set.\n\n        If the options bitfield is invalid, the invalid_option protocol error\n        is sent.","summary":"capture an image capture source"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"ext_image_copy_capture_session_v1"},{"type":"arg","name":"source","argType":"object","interface":"ext_image_capture_source_v1"},{"type":"arg","name":"options","argType":"uint","enum":"options"}]},{"type":"request","name":"create_pointer_cursor_session","description":{"type":"description","text":"Create a cursor capturing session for the pointer of an image capture\n        source.","summary":"capture the pointer cursor of an image capture source"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"ext_image_copy_capture_cursor_session_v1"},{"type":"arg","name":"source","argType":"object","interface":"ext_image_capture_source_v1"},{"type":"arg","name":"pointer","argType":"object","interface":"wl_pointer"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the manager object.\n\n        Other objects created via this interface are unaffected.","summary":"destroy the manager"},"args":[]}],"events":[],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"invalid_option","value":"1","summary":"invalid option flag"}]},{"type":"enum","name":"options","bitfield":true,"entries":[{"type":"entry","name":"paint_cursors","value":"1","summary":"paint cursors onto captured frames"}]}]},{"type":"interface","name":"ext_image_copy_capture_session_v1","version":"1","description":{"type":"description","text":"This object represents an active image copy capture session.\n\n      After a capture session is created, buffer constraint events will be\n      emitted from the compositor to tell the client which buffer types and\n      formats are supported for reading from the session. The compositor may\n      re-send buffer constraint events whenever they change.\n\n      The advertise buffer constraints, the compositor must send in no\n      particular order: zero or more shm_format and dmabuf_format events, zero\n      or one dmabuf_device event, and exactly one buffer_size event. Then the\n      compositor must send a done event.\n\n      When the client has received all the buffer constraints, it can create a\n      buffer accordingly, attach it to the capture session using the\n      attach_buffer request, set the buffer damage using the damage_buffer\n      request and then send the capture request.","summary":"image copy capture session"},"requests":[{"type":"request","name":"create_frame","description":{"type":"description","text":"Create a capture frame for this session.\n\n        At most one frame object can exist for a given session at any time. If\n        a client sends a create_frame request before a previous frame object\n        has been destroyed, the duplicate_frame protocol error is raised.","summary":"create a frame"},"args":[{"type":"arg","name":"frame","argType":"new_id","interface":"ext_image_copy_capture_frame_v1"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the session. This request can be sent at any time by the\n        client.\n\n        This request doesn't affect ext_image_copy_capture_frame_v1 objects created by\n        this object.","summary":"delete this object"},"args":[]}],"events":[{"type":"event","name":"buffer_size","description":{"type":"description","text":"Provides the dimensions of the source image in buffer pixel coordinates.\n\n        The client must attach buffers that match this size.","summary":"image capture source dimensions"},"args":[{"type":"arg","name":"width","argType":"uint","summary":"buffer width"},{"type":"arg","name":"height","argType":"uint","summary":"buffer height"}]},{"type":"event","name":"shm_format","description":{"type":"description","text":"Provides the format that must be used for shared-memory buffers.\n\n        This event may be emitted multiple times, in which case the client may\n        choose any given format.","summary":"shm buffer format"},"args":[{"type":"arg","name":"format","argType":"uint","summary":"shm format","enum":"wl_shm.format"}]},{"type":"event","name":"dmabuf_device","description":{"type":"description","text":"This event advertises the device buffers must be allocated on for\n        dma-buf buffers.\n\n        In general the device is a DRM node. The DRM node type (primary vs.\n        render) is unspecified. Clients must not rely on the compositor sending\n        a particular node type. Clients cannot check two devices for equality\n        by comparing the dev_t value.","summary":"dma-buf device"},"args":[{"type":"arg","name":"device","argType":"array","summary":"device dev_t value"}]},{"type":"event","name":"dmabuf_format","description":{"type":"description","text":"Provides the format that must be used for dma-buf buffers.\n\n        The client may choose any of the modifiers advertised in the array of\n        64-bit unsigned integers.\n\n        This event may be emitted multiple times, in which case the client may\n        choose any given format.","summary":"dma-buf format"},"args":[{"type":"arg","name":"format","argType":"uint","summary":"drm format code"},{"type":"arg","name":"modifiers","argType":"array","summary":"drm format modifiers"}]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent once when all buffer constraint events have been\n        sent.\n\n        The compositor must always end a batch of buffer constraint events with\n        this event, regardless of whether it sends the initial constraints or\n        an update.","summary":"all constraints have been sent"},"args":[]},{"type":"event","name":"stopped","description":{"type":"description","text":"This event indicates that the capture session has stopped and is no\n        longer available. This can happen in a number of cases, e.g. when the\n        underlying source is destroyed, if the user decides to end the image\n        capture, or if an unrecoverable runtime error has occurred.\n\n        The client should destroy the session after receiving this event.","summary":"session is no longer available"},"args":[]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"duplicate_frame","value":"1","summary":"create_frame sent before destroying previous frame"}]}]},{"type":"interface","name":"ext_image_copy_capture_frame_v1","version":"1","description":{"type":"description","text":"This object represents an image capture frame.\n\n      The client should attach a buffer, damage the buffer, and then send a\n      capture request.\n\n      If the capture is successful, the compositor must send the frame metadata\n      (transform, damage, presentation_time in any order) followed by the ready\n      event.\n\n      If the capture fails, the compositor must send the failed event.","summary":"image capture frame"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the session. This request can be sent at any time by the\n        client.","summary":"destroy this object"},"args":[]},{"type":"request","name":"attach_buffer","description":{"type":"description","text":"Attach a buffer to the session.\n\n        The wl_buffer.release request is unused.\n\n        The new buffer replaces any previously attached buffer.\n\n        This request must not be sent after capture, or else the\n        already_captured protocol error is raised.","summary":"attach buffer to session"},"args":[{"type":"arg","name":"buffer","argType":"object","interface":"wl_buffer"}]},{"type":"request","name":"damage_buffer","description":{"type":"description","text":"Apply damage to the buffer which is to be captured next. This request\n        may be sent multiple times to describe a region.\n\n        The client indicates the accumulated damage since this wl_buffer was\n        last captured. During capture, the compositor will update the buffer\n        with at least the union of the region passed by the client and the\n        region advertised by ext_image_copy_capture_frame_v1.damage.\n\n        When a wl_buffer is captured for the first time, or when the client\n        doesn't track damage, the client must damage the whole buffer.\n\n        This is for optimisation purposes. The compositor may use this\n        information to reduce copying.\n\n        These coordinates originate from the upper left corner of the buffer.\n\n        If x or y are strictly negative, or if width or height are negative or\n        zero, the invalid_buffer_damage protocol error is raised.\n\n        This request must not be sent after capture, or else the\n        already_captured protocol error is raised.","summary":"damage buffer"},"args":[{"type":"arg","name":"x","argType":"int","summary":"region x coordinate"},{"type":"arg","name":"y","argType":"int","summary":"region y coordinate"},{"type":"arg","name":"width","argType":"int","summary":"region width"},{"type":"arg","name":"height","argType":"int","summary":"region height"}]},{"type":"request","name":"capture","description":{"type":"description","text":"Capture a frame.\n\n        Unless this is the first successful captured frame performed in this\n        session, the compositor may wait an indefinite amount of time for the\n        source content to change before performing the copy.\n\n        This request may only be sent once, or else the already_captured\n        protocol error is raised. A buffer must be attached before this request\n        is sent, or else the no_buffer protocol error is raised.","summary":"capture a frame"},"args":[]}],"events":[{"type":"event","name":"transform","description":{"type":"description","text":"This event is sent before the ready event and holds the transform that\n        the compositor has applied to the buffer contents.","summary":"buffer transform"},"args":[{"type":"arg","name":"transform","argType":"uint","enum":"wl_output.transform"}]},{"type":"event","name":"damage","description":{"type":"description","text":"This event is sent before the ready event. It may be generated multiple\n        times to describe a region.\n\n        The first captured frame in a session will always carry full damage.\n        Subsequent frames' damaged regions describe which parts of the buffer\n        have changed since the last ready event.\n\n        These coordinates originate in the upper left corner of the buffer.","summary":"buffer damaged region"},"args":[{"type":"arg","name":"x","argType":"int","summary":"damage x coordinate"},{"type":"arg","name":"y","argType":"int","summary":"damage y coordinate"},{"type":"arg","name":"width","argType":"int","summary":"damage width"},{"type":"arg","name":"height","argType":"int","summary":"damage height"}]},{"type":"event","name":"presentation_time","description":{"type":"description","text":"This event indicates the time at which the frame is presented to the\n        output in system monotonic time. This event is sent before the ready\n        event.\n\n        The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\n        each component being an unsigned 32-bit value. Whole seconds are in\n        tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\n        and the additional fractional part in tv_nsec as nanoseconds. Hence,\n        for valid timestamps tv_nsec must be in [0, 999999999].","summary":"presentation time of the frame"},"args":[{"type":"arg","name":"tv_sec_hi","argType":"uint","summary":"high 32 bits of the seconds part of the timestamp"},{"type":"arg","name":"tv_sec_lo","argType":"uint","summary":"low 32 bits of the seconds part of the timestamp"},{"type":"arg","name":"tv_nsec","argType":"uint","summary":"nanoseconds part of the timestamp"}]},{"type":"event","name":"ready","description":{"type":"description","text":"Called as soon as the frame is copied, indicating it is available\n        for reading.\n\n        The buffer may be re-used by the client after this event.\n\n        After receiving this event, the client must destroy the object.","summary":"frame is available for reading"},"args":[]},{"type":"event","name":"failed","description":{"type":"description","text":"This event indicates that the attempted frame copy has failed.\n\n        After receiving this event, the client must destroy the object.","summary":"capture failed"},"args":[{"type":"arg","name":"reason","argType":"uint","enum":"failure_reason"}]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"no_buffer","value":"1","summary":"capture sent without attach_buffer"},{"type":"entry","name":"invalid_buffer_damage","value":"2","summary":"invalid buffer damage"},{"type":"entry","name":"already_captured","value":"3","summary":"capture request has been sent"}]},{"type":"enum","name":"failure_reason","bitfield":false,"entries":[{"type":"entry","name":"unknown","value":"0","description":{"type":"description","text":"An unspecified runtime error has occurred. The client may retry.","summary":"unknown runtime error"}},{"type":"entry","name":"buffer_constraints","value":"1","description":{"type":"description","text":"The buffer submitted by the client doesn't match the latest session\n          constraints. The client should re-allocate its buffers and retry.","summary":"buffer constraints mismatch"}},{"type":"entry","name":"stopped","value":"2","description":{"type":"description","text":"The session has stopped. See ext_image_copy_capture_session_v1.stopped.","summary":"session is no longer available"}}]}]},{"type":"interface","name":"ext_image_copy_capture_cursor_session_v1","version":"1","description":{"type":"description","text":"This object represents a cursor capture session. It extends the base\n      capture session with cursor-specific metadata.","summary":"cursor capture session"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the session. This request can be sent at any time by the\n        client.\n\n        This request doesn't affect ext_image_copy_capture_frame_v1 objects created by\n        this object.","summary":"delete this object"},"args":[]},{"type":"request","name":"get_capture_session","description":{"type":"description","text":"Gets the image copy capture session for this cursor session.\n\n        The session will produce frames of the cursor image. The compositor may\n        pause the session when the cursor leaves the captured area.\n\n        This request must not be sent more than once, or else the\n        duplicate_session protocol error is raised.","summary":"get image copy captuerer session"},"args":[{"type":"arg","name":"session","argType":"new_id","interface":"ext_image_copy_capture_session_v1"}]}],"events":[{"type":"event","name":"enter","description":{"type":"description","text":"Sent when a cursor enters the captured area. It shall be generated\n        before the \"position\" and \"hotspot\" events when and only when a cursor\n        enters the area.\n\n        The cursor enters the captured area when the cursor image intersects\n        with the captured area. Note, this is different from e.g.\n        wl_pointer.enter.","summary":"cursor entered captured area"},"args":[]},{"type":"event","name":"leave","description":{"type":"description","text":"Sent when a cursor leaves the captured area. No \"position\" or \"hotspot\"\n        event is generated for the cursor until the cursor enters the captured\n        area again.","summary":"cursor left captured area"},"args":[]},{"type":"event","name":"position","description":{"type":"description","text":"Cursors outside the image capture source do not get captured and no\n        event will be generated for them.\n\n        The given position is the position of the cursor's hotspot and it is\n        relative to the main buffer's top left corner in transformed buffer\n        pixel coordinates. The coordinates may be negative or greater than the\n        main buffer size.","summary":"position changed"},"args":[{"type":"arg","name":"x","argType":"int","summary":"position x coordinates"},{"type":"arg","name":"y","argType":"int","summary":"position y coordinates"}]},{"type":"event","name":"hotspot","description":{"type":"description","text":"The hotspot describes the offset between the cursor image and the\n        position of the input device.\n\n        The given coordinates are the hotspot's offset from the origin in\n        buffer coordinates.\n\n        Clients should not apply the hotspot immediately: the hotspot becomes\n        effective when the next ext_image_copy_capture_frame_v1.ready event is received.\n\n        Compositors may delay this event until the client captures a new frame.","summary":"hotspot changed"},"args":[{"type":"arg","name":"x","argType":"int","summary":"hotspot x coordinates"},{"type":"arg","name":"y","argType":"int","summary":"hotspot y coordinates"}]}],"enums":[{"type":"enum","name":"error","bitfield":false,"entries":[{"type":"entry","name":"duplicate_session","value":"1","summary":"get_captuerer_session sent twice"}]}]}]}
+{
+  "type": "protocol",
+  "name": "ext_image_copy_capture_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2021-2023 Andri Yngvason\nCopyright © 2024 Simon Ser\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to ask the compositor to capture image sources\nsuch as outputs and toplevels into user submitted buffers.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "image capturing into client buffers"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "ext_image_copy_capture_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to start capturing from a\nsource.",
+        "summary": "manager to inform clients and begin capturing"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_session",
+          "description": {
+            "type": "description",
+            "text": "Create a capturing session for an image capture source.\n\nIf the paint_cursors option is set, cursors shall be composited onto\nthe captured frame. The cursor must not be composited onto the frame\nif this flag is not set.\n\nIf the options bitfield is invalid, the invalid_option protocol error\nis sent.",
+            "summary": "capture an image capture source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "ext_image_copy_capture_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "object",
+              "interface": "ext_image_capture_source_v1",
+              "protocol": "ext-image-capture-source-v1"
+            },
+            {
+              "type": "arg",
+              "name": "options",
+              "argType": "uint",
+              "enum": "options"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_pointer_cursor_session",
+          "description": {
+            "type": "description",
+            "text": "Create a cursor capturing session for the pointer of an image capture\nsource.",
+            "summary": "capture the pointer cursor of an image capture source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "ext_image_copy_capture_cursor_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "object",
+              "interface": "ext_image_capture_source_v1",
+              "protocol": "ext-image-capture-source-v1"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object.\n\nOther objects created via this interface are unaffected.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_option",
+              "value": "1",
+              "summary": "invalid option flag"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "options",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "paint_cursors",
+              "value": "1",
+              "summary": "paint cursors onto captured frames"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "ext_image_copy_capture_session_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents an active image copy capture session.\n\nAfter a capture session is created, buffer constraint events will be\nemitted from the compositor to tell the client which buffer types and\nformats are supported for reading from the session. The compositor may\nre-send buffer constraint events whenever they change.\n\nThe advertise buffer constraints, the compositor must send in no\nparticular order: zero or more shm_format and dmabuf_format events, zero\nor one dmabuf_device event, and exactly one buffer_size event. Then the\ncompositor must send a done event.\n\nWhen the client has received all the buffer constraints, it can create a\nbuffer accordingly, attach it to the capture session using the\nattach_buffer request, set the buffer damage using the damage_buffer\nrequest and then send the capture request.",
+        "summary": "image copy capture session"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_frame",
+          "description": {
+            "type": "description",
+            "text": "Create a capture frame for this session.\n\nAt most one frame object can exist for a given session at any time. If\na client sends a create_frame request before a previous frame object\nhas been destroyed, the duplicate_frame protocol error is raised.",
+            "summary": "create a frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame",
+              "argType": "new_id",
+              "interface": "ext_image_copy_capture_frame_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the session. This request can be sent at any time by the\nclient.\n\nThis request doesn't affect ext_image_copy_capture_frame_v1 objects created by\nthis object.",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "buffer_size",
+          "description": {
+            "type": "description",
+            "text": "Provides the dimensions of the source image in buffer pixel coordinates.\n\nThe client must attach buffers that match this size.",
+            "summary": "image capture source dimensions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "buffer width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "buffer height"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "shm_format",
+          "description": {
+            "type": "description",
+            "text": "Provides the format that must be used for shared-memory buffers.\n\nThis event may be emitted multiple times, in which case the client may\nchoose any given format.",
+            "summary": "shm buffer format"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "shm format",
+              "enum": "wl_shm.format",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dmabuf_device",
+          "description": {
+            "type": "description",
+            "text": "This event advertises the device buffers must be allocated on for\ndma-buf buffers.\n\nIn general the device is a DRM node. The DRM node type (primary vs.\nrender) is unspecified. Clients must not rely on the compositor sending\na particular node type. Clients cannot check two devices for equality\nby comparing the dev_t value.",
+            "summary": "dma-buf device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "device",
+              "argType": "array",
+              "summary": "device dev_t value"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dmabuf_format",
+          "description": {
+            "type": "description",
+            "text": "Provides the format that must be used for dma-buf buffers.\n\nThe client may choose any of the modifiers advertised in the array of\n64-bit unsigned integers.\n\nThis event may be emitted multiple times, in which case the client may\nchoose any given format.",
+            "summary": "dma-buf format"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "drm format code"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "array",
+              "summary": "drm format modifiers"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once when all buffer constraint events have been\nsent.\n\nThe compositor must always end a batch of buffer constraint events with\nthis event, regardless of whether it sends the initial constraints or\nan update.",
+            "summary": "all constraints have been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "stopped",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the capture session has stopped and is no\nlonger available. This can happen in a number of cases, e.g. when the\nunderlying source is destroyed, if the user decides to end the image\ncapture, or if an unrecoverable runtime error has occurred.\n\nThe client should destroy the session after receiving this event.",
+            "summary": "session is no longer available"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "duplicate_frame",
+              "value": "1",
+              "summary": "create_frame sent before destroying previous frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "ext_image_copy_capture_frame_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents an image capture frame.\n\nThe client should attach a buffer, damage the buffer, and then send a\ncapture request.\n\nIf the capture is successful, the compositor must send the frame metadata\n(transform, damage, presentation_time in any order) followed by the ready\nevent.\n\nIf the capture fails, the compositor must send the failed event.",
+        "summary": "image capture frame"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the session. This request can be sent at any time by the\nclient.",
+            "summary": "destroy this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "attach_buffer",
+          "description": {
+            "type": "description",
+            "text": "Attach a buffer to the session.\n\nThe wl_buffer.release request is unused.\n\nThe new buffer replaces any previously attached buffer.\n\nThis request must not be sent after capture, or else the\nalready_captured protocol error is raised.",
+            "summary": "attach buffer to session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "damage_buffer",
+          "description": {
+            "type": "description",
+            "text": "Apply damage to the buffer which is to be captured next. This request\nmay be sent multiple times to describe a region.\n\nThe client indicates the accumulated damage since this wl_buffer was\nlast captured. During capture, the compositor will update the buffer\nwith at least the union of the region passed by the client and the\nregion advertised by ext_image_copy_capture_frame_v1.damage.\n\nWhen a wl_buffer is captured for the first time, or when the client\ndoesn't track damage, the client must damage the whole buffer.\n\nThis is for optimisation purposes. The compositor may use this\ninformation to reduce copying.\n\nThese coordinates originate from the upper left corner of the buffer.\n\nIf x or y are strictly negative, or if width or height are negative or\nzero, the invalid_buffer_damage protocol error is raised.\n\nThis request must not be sent after capture, or else the\nalready_captured protocol error is raised.",
+            "summary": "damage buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "region x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "region y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "region width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "region height"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "capture",
+          "description": {
+            "type": "description",
+            "text": "Capture a frame.\n\nUnless this is the first successful captured frame performed in this\nsession, the compositor may wait an indefinite amount of time for the\nsource content to change before performing the copy.\n\nThis request may only be sent once, or else the already_captured\nprotocol error is raised. A buffer must be attached before this request\nis sent, or else the no_buffer protocol error is raised.",
+            "summary": "capture a frame"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "transform",
+          "description": {
+            "type": "description",
+            "text": "This event is sent before the ready event and holds the transform that\nthe compositor has applied to the buffer contents.",
+            "summary": "buffer transform"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transform",
+              "argType": "uint",
+              "enum": "wl_output.transform",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "damage",
+          "description": {
+            "type": "description",
+            "text": "This event is sent before the ready event. It may be generated multiple\ntimes to describe a region.\n\nThe first captured frame in a session will always carry full damage.\nSubsequent frames' damaged regions describe which parts of the buffer\nhave changed since the last ready event.\n\nThese coordinates originate in the upper left corner of the buffer.",
+            "summary": "buffer damaged region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "damage x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "damage y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "damage width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "damage height"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "presentation_time",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the time at which the frame is presented to the\noutput in system monotonic time. This event is sent before the ready\nevent.\n\nThe timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\neach component being an unsigned 32-bit value. Whole seconds are in\ntv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\nand the additional fractional part in tv_nsec as nanoseconds. Hence,\nfor valid timestamps tv_nsec must be in [0, 999999999].",
+            "summary": "presentation time of the frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of the timestamp"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "Called as soon as the frame is copied, indicating it is available\nfor reading.\n\nThe buffer may be re-used by the client after this event.\n\nAfter receiving this event, the client must destroy the object.",
+            "summary": "frame is available for reading"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the attempted frame copy has failed.\n\nAfter receiving this event, the client must destroy the object.",
+            "summary": "capture failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "failure_reason"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_buffer",
+              "value": "1",
+              "summary": "capture sent without attach_buffer"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_buffer_damage",
+              "value": "2",
+              "summary": "invalid buffer damage"
+            },
+            {
+              "type": "entry",
+              "name": "already_captured",
+              "value": "3",
+              "summary": "capture request has been sent"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "failure_reason",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "0",
+              "description": {
+                "type": "description",
+                "text": "An unspecified runtime error has occurred. The client may retry.",
+                "summary": "unknown runtime error"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "buffer_constraints",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "The buffer submitted by the client doesn't match the latest session\nconstraints. The client should re-allocate its buffers and retry.",
+                "summary": "buffer constraints mismatch"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "stopped",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "The session has stopped. See ext_image_copy_capture_session_v1.stopped.",
+                "summary": "session is no longer available"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "ext_image_copy_capture_cursor_session_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents a cursor capture session. It extends the base\ncapture session with cursor-specific metadata.",
+        "summary": "cursor capture session"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the session. This request can be sent at any time by the\nclient.\n\nThis request doesn't affect ext_image_copy_capture_frame_v1 objects created by\nthis object.",
+            "summary": "delete this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_capture_session",
+          "description": {
+            "type": "description",
+            "text": "Gets the image copy capture session for this cursor session.\n\nThe session will produce frames of the cursor image. The compositor may\npause the session when the cursor leaves the captured area.\n\nThis request must not be sent more than once, or else the\nduplicate_session protocol error is raised.",
+            "summary": "get image copy captuerer session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "ext_image_copy_capture_session_v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "enter",
+          "description": {
+            "type": "description",
+            "text": "Sent when a cursor enters the captured area. It shall be generated\nbefore the \"position\" and \"hotspot\" events when and only when a cursor\nenters the area.\n\nThe cursor enters the captured area when the cursor image intersects\nwith the captured area. Note, this is different from e.g.\nwl_pointer.enter.",
+            "summary": "cursor entered captured area"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "leave",
+          "description": {
+            "type": "description",
+            "text": "Sent when a cursor leaves the captured area. No \"position\" or \"hotspot\"\nevent is generated for the cursor until the cursor enters the captured\narea again.",
+            "summary": "cursor left captured area"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "position",
+          "description": {
+            "type": "description",
+            "text": "Cursors outside the image capture source do not get captured and no\nevent will be generated for them.\n\nThe given position is the position of the cursor's hotspot and it is\nrelative to the main buffer's top left corner in transformed buffer\npixel coordinates. The coordinates may be negative or greater than the\nmain buffer size.",
+            "summary": "position changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "position x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "position y coordinates"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "hotspot",
+          "description": {
+            "type": "description",
+            "text": "The hotspot describes the offset between the cursor image and the\nposition of the input device.\n\nThe given coordinates are the hotspot's offset from the origin in\nbuffer coordinates.\n\nClients should not apply the hotspot immediately: the hotspot becomes\neffective when the next ext_image_copy_capture_frame_v1.ready event is received.\n\nCompositors may delay this event until the client captures a new frame.",
+            "summary": "hotspot changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "hotspot x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "hotspot y coordinates"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "duplicate_session",
+              "value": "1",
+              "summary": "get_captuerer_session sent twice"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

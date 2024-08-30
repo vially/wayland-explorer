@@ -1,1 +1,62 @@
-{"type":"protocol","name":"kde_output_order_v1","copyright":{"type":"copyright","text":"\n    SPDX-FileCopyrightText: 2022 Xaver Hugl <xaver.hugl@gmail.com>\n\n    SPDX-License-Identifier: MIT-CMU\n    "},"interfaces":[{"type":"interface","name":"kde_output_order_v1","version":"1","description":{"type":"description","text":"Announce the order in which desktop environment components should be placed on outputs.\n        The compositor will send the list of outputs when the global is bound and whenever there is a change.","summary":"announce order of outputs"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","summary":"Destroy the output order notifier."},"args":[]}],"events":[{"type":"event","name":"output","description":{"type":"description","text":"Specifies the output identified by their wl_output.name.","summary":"output name"},"args":[{"type":"arg","name":"output_name","argType":"string","summary":"the name of the output"}]},{"type":"event","name":"done","description":{"type":"description","text":"Specifies that the output list is complete. On the next output event, a new list begins.","summary":"done"},"args":[]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "kde_output_order_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2022 Xaver Hugl <xaver.hugl@gmail.com>\n\nSPDX-License-Identifier: MIT-CMU\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "kde_output_order_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Announce the order in which desktop environment components should be placed on outputs.\nThe compositor will send the list of outputs when the global is bound and whenever there is a change.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
+        "summary": "announce order of outputs"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "Destroy the output order notifier."
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "output",
+          "description": {
+            "type": "description",
+            "text": "Specifies the output identified by their wl_output.name.",
+            "summary": "output name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string",
+              "summary": "the name of the output"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "Specifies that the output list is complete. On the next output event, a new list begins.",
+            "summary": "done"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

@@ -1,1 +1,283 @@
-{"type":"protocol","name":"zkde_screencast_unstable_v1","copyright":{"type":"copyright","text":"\n      SPDX-FileCopyrightText: 2020-2021 Aleix Pol Gonzalez <aleixpol@kde.org>\n\n    SPDX-License-Identifier: LGPL-2.1-or-later\n  "},"interfaces":[{"type":"interface","name":"zkde_screencast_unstable_v1","version":"3","description":{"type":"description","summary":"Protocol for managing PipeWire feeds of the different displays and windows."},"requests":[{"type":"request","name":"stream_output","description":{"type":"description","summary":"requests a feed from a given source"},"args":[{"type":"arg","name":"stream","argType":"new_id","interface":"zkde_screencast_stream_unstable_v1"},{"type":"arg","name":"output","argType":"object","interface":"wl_output"},{"type":"arg","name":"pointer","argType":"uint","summary":"Requested pointer mode"}]},{"type":"request","name":"stream_window","description":{"type":"description","summary":"requests a feed from a given source"},"args":[{"type":"arg","name":"stream","argType":"new_id","interface":"zkde_screencast_stream_unstable_v1"},{"type":"arg","name":"window_uuid","argType":"string","summary":"window Identifier"},{"type":"arg","name":"pointer","argType":"uint","summary":"Requested pointer mode"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroy the zkde_screencast_unstable_v1 object.","summary":"Destroy the zkde_screencast_unstable_v1"},"args":[]},{"type":"request","name":"stream_virtual_output","since":"2","description":{"type":"description","summary":"requests a feed from a new virtual output"},"args":[{"type":"arg","name":"stream","argType":"new_id","interface":"zkde_screencast_stream_unstable_v1"},{"type":"arg","name":"name","argType":"string","summary":"name of the created output"},{"type":"arg","name":"width","argType":"int","summary":"Logical width resolution"},{"type":"arg","name":"height","argType":"int","summary":"Logical height resolution"},{"type":"arg","name":"scale","argType":"fixed","summary":"Scaling factor of the display where it's to be displayed"},{"type":"arg","name":"pointer","argType":"uint","summary":"Requested pointer mode"}]},{"type":"request","name":"stream_region","since":"3","description":{"type":"description","summary":"requests a feed from region in the workspace"},"args":[{"type":"arg","name":"stream","argType":"new_id","interface":"zkde_screencast_stream_unstable_v1"},{"type":"arg","name":"x","argType":"int","summary":"Logical left position"},{"type":"arg","name":"y","argType":"int","summary":"Logical top position"},{"type":"arg","name":"width","argType":"uint","summary":"Logical width resolution"},{"type":"arg","name":"height","argType":"uint","summary":"Logical height resolution"},{"type":"arg","name":"scale","argType":"fixed","summary":"Scaling factor of the output recording"},{"type":"arg","name":"pointer","argType":"uint","summary":"Requested pointer mode"}]}],"events":[],"enums":[{"type":"enum","name":"pointer","bitfield":false,"description":{"type":"description","summary":"Stream consumer attachment attributes"},"entries":[{"type":"entry","name":"hidden","value":"1","summary":"No cursor"},{"type":"entry","name":"embedded","value":"2","summary":"Render the cursor on the stream"},{"type":"entry","name":"metadata","value":"4","summary":"Send metadata about where the cursor is through PipeWire"}]}]},{"type":"interface","name":"zkde_screencast_stream_unstable_v1","version":"3","requests":[{"type":"request","name":"close","requestType":"destructor","description":{"type":"description","summary":"Indicates we are done with the stream and the communication is over."},"args":[]}],"events":[{"type":"event","name":"closed","description":{"type":"description","summary":"Notifies that the server has stopped the stream. Clients should now call close."},"args":[]},{"type":"event","name":"created","description":{"type":"description","summary":"Notifies about a pipewire feed being created"},"args":[{"type":"arg","name":"node","argType":"uint","summary":"node of the pipewire buffer"}]},{"type":"event","name":"failed","description":{"type":"description","summary":"Offers an error message so the client knows the created event will not arrive, and the client should close the resource."},"args":[{"type":"arg","name":"error","argType":"string","summary":"A human readable translated error message."}]}],"enums":[]}]}
+{
+  "type": "protocol",
+  "name": "zkde_screencast_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2020-2021 Aleix Pol Gonzalez <aleixpol@kde.org>\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zkde_screencast_unstable_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "Warning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
+        "summary": "Protocol for managing PipeWire feeds of the different displays and windows"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stream_output",
+          "description": {
+            "type": "description",
+            "summary": "requests a feed from a given source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "interface": "zkde_screencast_stream_unstable_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "uint",
+              "summary": "Requested pointer mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "stream_window",
+          "description": {
+            "type": "description",
+            "summary": "requests a feed from a given source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "interface": "zkde_screencast_stream_unstable_v1"
+            },
+            {
+              "type": "arg",
+              "name": "window_uuid",
+              "argType": "string",
+              "summary": "window Identifier"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "uint",
+              "summary": "Requested pointer mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the zkde_screencast_unstable_v1 object.",
+            "summary": "Destroy the zkde_screencast_unstable_v1"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "stream_virtual_output",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "requests a feed from a new virtual output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "interface": "zkde_screencast_stream_unstable_v1"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the created output"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "Logical width resolution"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "Logical height resolution"
+            },
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed",
+              "summary": "Scaling factor of the display where it's to be displayed"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "uint",
+              "summary": "Requested pointer mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "stream_region",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "requests a feed from region in the workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "interface": "zkde_screencast_stream_unstable_v1"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "Logical left position"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "Logical top position"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "Logical width resolution"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "Logical height resolution"
+            },
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed",
+              "summary": "Scaling factor of the output recording"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "uint",
+              "summary": "Requested pointer mode"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "pointer",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "Stream consumer attachment attributes"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "hidden",
+              "value": "1",
+              "summary": "No cursor"
+            },
+            {
+              "type": "entry",
+              "name": "embedded",
+              "value": "2",
+              "summary": "Render the cursor on the stream"
+            },
+            {
+              "type": "entry",
+              "name": "metadata",
+              "value": "4",
+              "summary": "Send metadata about where the cursor is through PipeWire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zkde_screencast_stream_unstable_v1",
+      "version": "3",
+      "requests": [
+        {
+          "type": "request",
+          "name": "close",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "Indicates we are done with the stream and the communication is over."
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "summary": "Notifies that the server has stopped the stream. Clients should now call close."
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "created",
+          "description": {
+            "type": "description",
+            "summary": "Notifies about a pipewire feed being created"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "node",
+              "argType": "uint",
+              "summary": "node of the pipewire buffer"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "summary": "Offers an error message so the client knows the created event will not arrive, and the client should close the resource."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "error",
+              "argType": "string",
+              "summary": "A human readable translated error message."
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

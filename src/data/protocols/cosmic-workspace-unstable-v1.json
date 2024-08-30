@@ -1,1 +1,502 @@
-{"type":"protocol","name":"cosmic_workspace_unstable_v1","copyright":{"type":"copyright","text":"Copyright © 2019 Christopher Billington\n    Copyright © 2020 Ilia Bozhinov\n    Copyright © 2022 Victoria Brekenfeld\n\n    Permission to use, copy, modify, distribute, and sell this\n    software and its documentation for any purpose is hereby granted\n    without fee, provided that the above copyright notice appear in\n    all copies and that both that copyright notice and this permission\n    notice appear in supporting documentation, and that the name of\n    the copyright holders not be used in advertising or publicity\n    pertaining to distribution of the software without specific,\n    written prior permission.  The copyright holders make no\n    representations about the suitability of this software for any\n    purpose.  It is provided \"as is\" without express or implied\n    warranty.\n\n    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\n    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\n    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\n    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\n    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\n    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\n    THIS SOFTWARE."},"interfaces":[{"type":"interface","name":"zcosmic_workspace_manager_v1","version":"2","description":{"type":"description","text":"Workspaces, also called virtual desktops, are groups of surfaces. A\n      compositor with a concept of workspaces may only show some such groups of\n      surfaces (those of 'active' workspaces) at a time. 'Activating' a\n      workspace is a request for the compositor to display that workspace's\n      surfaces as normal, whereas the compositor may hide or otherwise\n      de-emphasise surfaces that are associated only with 'inactive' workspaces.\n      Workspaces are grouped by which sets of outputs they correspond to, and\n      may contain surfaces only from those outputs. In this way, it is possible\n      for each output to have its own set of workspaces, or for all outputs (or\n      any other arbitrary grouping) to share workspaces. Compositors may\n      optionally conceptually arrange each group of workspaces in an\n      N-dimensional grid.\n\n      The purpose of this protocol is to enable the creation of taskbars and\n      docks by providing them with a list of workspaces and their properties,\n      and allowing them to activate and deactivate workspaces.\n\n      After a client binds the zcosmic_workspace_manager_v1, each workspace will be\n      sent via the workspace event.","summary":"list and control workspaces"},"requests":[{"type":"request","name":"commit","description":{"type":"description","text":"The client must send this request after it has finished sending other\n        requests. The compositor must process a series of requests preceding a\n        commit request atomically.\n\n        This allows changes to the workspace properties to be seen as atomic,\n        even if they happen via multiple events, and even if they involve\n        multiple zcosmic_workspace_handle_v1 objects, for example, deactivating one\n        workspace and activating another.","summary":"all requests about the workspaces have been sent"},"args":[]},{"type":"request","name":"stop","description":{"type":"description","text":"Indicates the client no longer wishes to receive events for new\n        workspace groups. However the compositor may emit further workspace\n        events, until the finished event is emitted.\n\n        The client must not send any more requests after this one.","summary":"stop sending events"},"args":[]}],"events":[{"type":"event","name":"workspace_group","description":{"type":"description","text":"This event is emitted whenever a new workspace group has been created.\n\n        All initial details of the workspace group (workspaces, outputs) will be\n        sent immediately after this event via the corresponding events in\n        zcosmic_workspace_group_handle_v1.","summary":"a workspace group has been created"},"args":[{"type":"arg","name":"workspace_group","argType":"new_id","interface":"zcosmic_workspace_group_handle_v1"}]},{"type":"event","name":"done","description":{"type":"description","text":"This event is sent after all changes in all workspace groups have been\n        sent.\n\n        This allows changes to one or more zcosmic_workspace_group_handle_v1\n        properties and zcosmic_workspace_handle_v1 properties to be seen as atomic,\n        even if they happen via multiple events.\n        In particular, an output moving from one workspace group to\n        another sends an output_enter event and an output_leave event to the two\n        zcosmic_workspace_group_handle_v1 objects in question. The compositor sends\n        the done event only after updating the output information in both\n        workspace groups.","summary":"all information about the workspace groups has been sent"},"args":[]},{"type":"event","name":"finished","description":{"type":"description","text":"This event indicates that the compositor is done sending events to the\n        zcosmic_workspace_manager_v1. The server will destroy the object\n        immediately after sending this request, so it will become invalid and\n        the client should free any resources associated with it.","summary":"the compositor has finished with the workspace_manager"},"args":[]}],"enums":[]},{"type":"interface","name":"zcosmic_workspace_group_handle_v1","version":"2","description":{"type":"description","text":"A zcosmic_workspace_group_handle_v1 object represents a a workspace group\n      that is assigned a set of outputs and contains a number of workspaces.\n\n      The set of outputs assigned to the workspace group is conveyed to the client via\n      output_enter and output_leave events, and its workspaces are conveyed with\n      workspace events.\n\n      For example, a compositor which has a set of workspaces for each output may\n      advertise a workspace group (and its workspaces) per output, whereas a compositor\n      where a workspace spans all outputs may advertise a single workspace group for all\n      outputs.","summary":"a workspace group assigned to a set of outputs"},"requests":[{"type":"request","name":"create_workspace","description":{"type":"description","text":"Request that the compositor create a new workspace with the given name.\n\n        There is no guarantee that the compositor will create a new workspace,\n        or that the created workspace will have the provided name.","summary":"create a new workspace"},"args":[{"type":"arg","name":"workspace","argType":"string"}]},{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the zcosmic_workspace_group_handle_v1 object.\n\n        This request should be called either when the client does not want to\n        use the workspace object any more or after the remove event to finalize\n        the destruction of the object.","summary":"destroy the zcosmic_workspace_group_handle_v1 object"},"args":[]}],"events":[{"type":"event","name":"capabilities","description":{"type":"description","text":"This event advertises the capabilities supported by the compositor. If\n        a capability isn't supported, clients should hide or disable the UI\n        elements that expose this functionality. For instance, if the\n        compositor doesn't advertise support for creating workspaces, a button\n        triggering the create_workspace request should not be displayed.\n\n        The compositor will ignore requests it doesn't support. For instance,\n        a compositor which doesn't advertise support for creating workspaces will ignore\n        create_workspace requests.\n\n        Compositors must send this event once after creation of an\n        zcosmic_workspace_group_handle_v1 . When the capabilities change, compositors\n        must send this event again.\n\n        The capabilities are sent as an array of 32-bit unsigned integers in\n        native endianness.","summary":"compositor capabilities"},"args":[{"type":"arg","name":"capabilities","argType":"array","summary":"array of 32-bit capabilities"}]},{"type":"event","name":"output_enter","description":{"type":"description","text":"This event is emitted whenever an output is assigned to the workspace\n        group.","summary":"output assigned to workspace group"},"args":[{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"event","name":"output_leave","description":{"type":"description","text":"This event is emitted whenever an output is removed from the workspace\n        group.","summary":"output removed from workspace group"},"args":[{"type":"arg","name":"output","argType":"object","interface":"wl_output"}]},{"type":"event","name":"workspace","description":{"type":"description","text":"This event is emitted whenever a new workspace has been created.\n        A workspace can only be a member of a single workspace group and cannot\n        be re-assigned.\n\n        All initial details of the workspace (name, coordinates, state) will\n        be sent immediately after this event via the corresponding events in\n        zcosmic_workspace_handle_v1.","summary":"workspace added to workspace group"},"args":[{"type":"arg","name":"workspace","argType":"new_id","interface":"zcosmic_workspace_handle_v1"}]},{"type":"event","name":"remove","description":{"type":"description","text":"This event means the zcosmic_workspace_group_handle_v1 has been destroyed.\n        It is guaranteed there won't be any more events for this\n        zcosmic_workspace_group_handle_v1. The zext_workspace_group_handle_v1 becomes\n        inert so any requests will be ignored except the destroy request.\n\n        The compositor must remove all workspaces belonging to a workspace group\n        before removing the workspace group.","summary":"this workspace group has been destroyed"},"args":[]}],"enums":[{"type":"enum","name":"zcosmic_workspace_group_capabilities_v1","bitfield":false,"entries":[{"type":"entry","name":"create_workspace","value":"1","summary":"create_workspace request is available"}]}]},{"type":"interface","name":"zcosmic_workspace_handle_v1","version":"2","description":{"type":"description","text":"A zcosmic_workspace_handle_v1 object represents a a workspace that handles a\n      group of surfaces.\n\n      Each workspace has a name, conveyed to the client with the name event; a\n      list of states, conveyed to the client with the state event; and\n      optionally a set of coordinates, conveyed to the client with the\n      coordinates event. The client may request that the compositor activate or\n      deactivate the workspace.\n\n      Each workspace can belong to only a single workspace group.\n      Depepending on the compositor policy, there might be workspaces with\n      the same name in different workspace groups, but these workspaces are still\n      separate (e.g. one of them might be active while the other is not).","summary":"a workspace handing a group of surfaces"},"requests":[{"type":"request","name":"destroy","requestType":"destructor","description":{"type":"description","text":"Destroys the zcosmic_workspace_handle_v1 object.\n\n        This request should be called either when the client does not want to\n        use the workspace object any more or after the remove event to finalize\n        the destruction of the object.","summary":"destroy the zcosmic_workspace_handle_v1 object"},"args":[]},{"type":"request","name":"activate","description":{"type":"description","text":"Request that this workspace be activated.\n\n        There is no guarantee the workspace will be actually activated, and\n        behaviour may be compositor-dependent. For example, activating a\n        workspace may or may not deactivate all other workspaces in the same\n        group.","summary":"activate the workspace"},"args":[]},{"type":"request","name":"deactivate","description":{"type":"description","text":"Request that this workspace be deactivated.\n\n        There is no guarantee the workspace will be actually deactivated.","summary":"activate the workspace"},"args":[]},{"type":"request","name":"remove","description":{"type":"description","text":"Request that this workspace be removed.\n\n        There is no guarantee the workspace will be actually removed.","summary":"remove the workspace"},"args":[]},{"type":"request","name":"rename","since":"2","description":{"type":"description","text":"Request that this workspace is renamed.\n\n        There is no guarantee the workspace will actually be renamed.","summary":"rename this workspace"},"args":[{"type":"arg","name":"name","argType":"string","summary":"new name of the workspace"}]},{"type":"request","name":"set_tiling_state","since":"2","description":{"type":"description","text":"Request that this workspace's tiling state is changed.\n\n        There is no guarantee the workspace will actually change it's tiling state.","summary":"change the tiling state of this workspace"},"args":[{"type":"arg","name":"state","argType":"uint","summary":"the new tiling state of the workspace","enum":"tiling_state"}]}],"events":[{"type":"event","name":"name","description":{"type":"description","text":"This event is emitted immediately after the zcosmic_workspace_handle_v1 is\n        created and whenever the name of the workspace changes.","summary":"workspace name changed"},"args":[{"type":"arg","name":"name","argType":"string"}]},{"type":"event","name":"coordinates","description":{"type":"description","text":"This event is used to organize workspaces into an N-dimensional grid\n        within a workspace group, and if supported, is emitted immediately after\n        the zcosmic_workspace_handle_v1 is created and whenever the coordinates of\n        the workspace change. Compositors may not send this event if they do not\n        conceptually arrange workspaces in this way. If compositors simply\n        number workspaces, without any geometric interpretation, they may send\n        1D coordinates, which clients should not interpret as implying any\n        geometry. Sending an empty array means that the compositor no longer\n        orders the workspace geometrically.\n\n        Coordinates have an arbitrary number of dimensions N with an uint32\n        position along each dimension. By convention if N > 1, the first\n        dimension is X, the second Y, the third Z, and so on. The compositor may\n        chose to utilize these events for a more novel workspace layout\n        convention, however. No guarantee is made about the grid being filled or\n        bounded; there may be a workspace at coordinate 1 and another at\n        coordinate 1000 and none in between. Within a workspace group, however,\n        workspaces must have unique coordinates of equal dimensionality.","summary":"workspace coordinates changed"},"args":[{"type":"arg","name":"coordinates","argType":"array"}]},{"type":"event","name":"state","description":{"type":"description","text":"This event is emitted immediately after the zcosmic_workspace_handle_v1 is\n        created and each time the workspace state changes, either because of a\n        compositor action or because of a request in this protocol.","summary":"the state of the workspace changed"},"args":[{"type":"arg","name":"state","argType":"array"}]},{"type":"event","name":"capabilities","description":{"type":"description","text":"This event advertises the capabilities supported by the compositor. If\n        a capability isn't supported, clients should hide or disable the UI\n        elements that expose this functionality. For instance, if the\n        compositor doesn't advertise support for removing workspaces, a button\n        triggering the remove request should not be displayed.\n\n        The compositor will ignore requests it doesn't support. For instance,\n        a compositor which doesn't advertise support for remove will ignore\n        remove requests.\n\n        Compositors must send this event once after creation of an\n        zcosmic_workspace_handle_v1 . When the capabilities change, compositors\n        must send this event again.\n\n        The capabilities are sent as an array of 32-bit unsigned integers in\n        native endianness.","summary":"compositor capabilities"},"args":[{"type":"arg","name":"capabilities","argType":"array","summary":"array of 32-bit capabilities"}]},{"type":"event","name":"remove","description":{"type":"description","text":"This event means the zcosmic_workspace_handle_v1 has been destroyed. It is\n        guaranteed there won't be any more events for this\n        zcosmic_workspace_handle_v1. The zext_workspace_handle_v1 becomes inert so\n        any requests will be ignored except the destroy request.","summary":"this workspace has been destroyed"},"args":[]},{"type":"event","name":"tiling_state","since":"2","description":{"type":"description","text":"This event is emitted immediately after the zcosmic_workspace_handle_v1 is created\n        and each time the workspace tiling state changes, either because of a\n        compositor action or because of a request in this protocol.","summary":"indicates if tiling behavior is enabled for this workspace"},"args":[{"type":"arg","name":"state","argType":"uint","enum":"tiling_state"}]}],"enums":[{"type":"enum","name":"state","bitfield":false,"description":{"type":"description","text":"The different states that a workspace can have.","summary":"types of states on the workspace"},"entries":[{"type":"entry","name":"active","value":"0","summary":"the workspace is active"},{"type":"entry","name":"urgent","value":"1","summary":"the workspace requests attention"},{"type":"entry","name":"hidden","value":"2","description":{"type":"description","text":"The workspace is not visible in its workspace group, and clients\n          attempting to visualize the compositor workspace state should not\n          display such workspaces.","summary":"the workspace is not visible"}}]},{"type":"enum","name":"zcosmic_workspace_capabilities_v1","bitfield":false,"entries":[{"type":"entry","name":"activate","value":"1","summary":"activate request is available"},{"type":"entry","name":"deactivate","value":"2","summary":"deactivate request is available"},{"type":"entry","name":"remove","value":"3","summary":"remove request is available"},{"type":"entry","name":"rename","value":"4","summary":"rename request is available","since":"2"},{"type":"entry","name":"set_tiling_state","value":"5","summary":"set_tiling_state request is available","since":"2"}]},{"type":"enum","name":"tiling_state","since":"2","bitfield":false,"description":{"type":"description","summary":"types of tiling state a workspace may have"},"entries":[{"type":"entry","name":"floating_only","value":"0","summary":"The workspace has no active tiling properties"},{"type":"entry","name":"tiling_enabled","value":"1","summary":"Tiling behavior is enabled for the workspace"}]}]}]}
+{
+  "type": "protocol",
+  "name": "cosmic_workspace_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2019 Christopher Billington\nCopyright © 2020 Ilia Bozhinov\nCopyright © 2022 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_manager_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "Workspaces, also called virtual desktops, are groups of surfaces. A\ncompositor with a concept of workspaces may only show some such groups of\nsurfaces (those of 'active' workspaces) at a time. 'Activating' a\nworkspace is a request for the compositor to display that workspace's\nsurfaces as normal, whereas the compositor may hide or otherwise\nde-emphasise surfaces that are associated only with 'inactive' workspaces.\nWorkspaces are grouped by which sets of outputs they correspond to, and\nmay contain surfaces only from those outputs. In this way, it is possible\nfor each output to have its own set of workspaces, or for all outputs (or\nany other arbitrary grouping) to share workspaces. Compositors may\noptionally conceptually arrange each group of workspaces in an\nN-dimensional grid.\n\nThe purpose of this protocol is to enable the creation of taskbars and\ndocks by providing them with a list of workspaces and their properties,\nand allowing them to activate and deactivate workspaces.\n\nAfter a client binds the zcosmic_workspace_manager_v1, each workspace will be\nsent via the workspace event.",
+        "summary": "list and control workspaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "The client must send this request after it has finished sending other\nrequests. The compositor must process a series of requests preceding a\ncommit request atomically.\n\nThis allows changes to the workspace properties to be seen as atomic,\neven if they happen via multiple events, and even if they involve\nmultiple zcosmic_workspace_handle_v1 objects, for example, deactivating one\nworkspace and activating another.",
+            "summary": "all requests about the workspaces have been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "Indicates the client no longer wishes to receive events for new\nworkspace groups. However the compositor may emit further workspace\nevents, until the finished event is emitted.\n\nThe client must not send any more requests after this one.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "workspace_group",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever a new workspace group has been created.\n\nAll initial details of the workspace group (workspaces, outputs) will be\nsent immediately after this event via the corresponding events in\nzcosmic_workspace_group_handle_v1.",
+            "summary": "a workspace group has been created"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "workspace_group",
+              "argType": "new_id",
+              "interface": "zcosmic_workspace_group_handle_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all changes in all workspace groups have been\nsent.\n\nThis allows changes to one or more zcosmic_workspace_group_handle_v1\nproperties and zcosmic_workspace_handle_v1 properties to be seen as atomic,\neven if they happen via multiple events.\nIn particular, an output moving from one workspace group to\nanother sends an output_enter event and an output_leave event to the two\nzcosmic_workspace_group_handle_v1 objects in question. The compositor sends\nthe done event only after updating the output information in both\nworkspace groups.",
+            "summary": "all information about the workspace groups has been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor is done sending events to the\nzcosmic_workspace_manager_v1. The server will destroy the object\nimmediately after sending this request, so it will become invalid and\nthe client should free any resources associated with it.",
+            "summary": "the compositor has finished with the workspace_manager"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_group_handle_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A zcosmic_workspace_group_handle_v1 object represents a a workspace group\nthat is assigned a set of outputs and contains a number of workspaces.\n\nThe set of outputs assigned to the workspace group is conveyed to the client via\noutput_enter and output_leave events, and its workspaces are conveyed with\nworkspace events.\n\nFor example, a compositor which has a set of workspaces for each output may\nadvertise a workspace group (and its workspaces) per output, whereas a compositor\nwhere a workspace spans all outputs may advertise a single workspace group for all\noutputs.",
+        "summary": "a workspace group assigned to a set of outputs"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_workspace",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor create a new workspace with the given name.\n\nThere is no guarantee that the compositor will create a new workspace,\nor that the created workspace will have the provided name.",
+            "summary": "create a new workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the zcosmic_workspace_group_handle_v1 object.\n\nThis request should be called either when the client does not want to\nuse the workspace object any more or after the remove event to finalize\nthe destruction of the object.",
+            "summary": "destroy the zcosmic_workspace_group_handle_v1 object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "capabilities",
+          "description": {
+            "type": "description",
+            "text": "This event advertises the capabilities supported by the compositor. If\na capability isn't supported, clients should hide or disable the UI\nelements that expose this functionality. For instance, if the\ncompositor doesn't advertise support for creating workspaces, a button\ntriggering the create_workspace request should not be displayed.\n\nThe compositor will ignore requests it doesn't support. For instance,\na compositor which doesn't advertise support for creating workspaces will ignore\ncreate_workspace requests.\n\nCompositors must send this event once after creation of an\nzcosmic_workspace_group_handle_v1 . When the capabilities change, compositors\nmust send this event again.\n\nThe capabilities are sent as an array of 32-bit unsigned integers in\nnative endianness.",
+            "summary": "compositor capabilities"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "capabilities",
+              "argType": "array",
+              "summary": "array of 32-bit capabilities"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_enter",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever an output is assigned to the workspace\ngroup.",
+            "summary": "output assigned to workspace group"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_leave",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever an output is removed from the workspace\ngroup.",
+            "summary": "output removed from workspace group"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "workspace",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever a new workspace has been created.\nA workspace can only be a member of a single workspace group and cannot\nbe re-assigned.\n\nAll initial details of the workspace (name, coordinates, state) will\nbe sent immediately after this event via the corresponding events in\nzcosmic_workspace_handle_v1.",
+            "summary": "workspace added to workspace group"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "new_id",
+              "interface": "zcosmic_workspace_handle_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "remove",
+          "description": {
+            "type": "description",
+            "text": "This event means the zcosmic_workspace_group_handle_v1 has been destroyed.\nIt is guaranteed there won't be any more events for this\nzcosmic_workspace_group_handle_v1. The zext_workspace_group_handle_v1 becomes\ninert so any requests will be ignored except the destroy request.\n\nThe compositor must remove all workspaces belonging to a workspace group\nbefore removing the workspace group.",
+            "summary": "this workspace group has been destroyed"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "zcosmic_workspace_group_capabilities_v1",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "create_workspace",
+              "value": "1",
+              "summary": "create_workspace request is available"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_handle_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A zcosmic_workspace_handle_v1 object represents a a workspace that handles a\ngroup of surfaces.\n\nEach workspace has a name, conveyed to the client with the name event; a\nlist of states, conveyed to the client with the state event; and\noptionally a set of coordinates, conveyed to the client with the\ncoordinates event. The client may request that the compositor activate or\ndeactivate the workspace.\n\nEach workspace can belong to only a single workspace group.\nDepepending on the compositor policy, there might be workspaces with\nthe same name in different workspace groups, but these workspaces are still\nseparate (e.g. one of them might be active while the other is not).",
+        "summary": "a workspace handing a group of surfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the zcosmic_workspace_handle_v1 object.\n\nThis request should be called either when the client does not want to\nuse the workspace object any more or after the remove event to finalize\nthe destruction of the object.",
+            "summary": "destroy the zcosmic_workspace_handle_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace be activated.\n\nThere is no guarantee the workspace will be actually activated, and\nbehaviour may be compositor-dependent. For example, activating a\nworkspace may or may not deactivate all other workspaces in the same\ngroup.",
+            "summary": "activate the workspace"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "deactivate",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace be deactivated.\n\nThere is no guarantee the workspace will be actually deactivated.",
+            "summary": "activate the workspace"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "remove",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace be removed.\n\nThere is no guarantee the workspace will be actually removed.",
+            "summary": "remove the workspace"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "rename",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace is renamed.\n\nThere is no guarantee the workspace will actually be renamed.",
+            "summary": "rename this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "new name of the workspace"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tiling_state",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace's tiling state is changed.\n\nThere is no guarantee the workspace will actually change it's tiling state.",
+            "summary": "change the tiling state of this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the new tiling state of the workspace",
+              "enum": "tiling_state"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "name",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the zcosmic_workspace_handle_v1 is\ncreated and whenever the name of the workspace changes.",
+            "summary": "workspace name changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "coordinates",
+          "description": {
+            "type": "description",
+            "text": "This event is used to organize workspaces into an N-dimensional grid\nwithin a workspace group, and if supported, is emitted immediately after\nthe zcosmic_workspace_handle_v1 is created and whenever the coordinates of\nthe workspace change. Compositors may not send this event if they do not\nconceptually arrange workspaces in this way. If compositors simply\nnumber workspaces, without any geometric interpretation, they may send\n1D coordinates, which clients should not interpret as implying any\ngeometry. Sending an empty array means that the compositor no longer\norders the workspace geometrically.\n\nCoordinates have an arbitrary number of dimensions N with an uint32\nposition along each dimension. By convention if N > 1, the first\ndimension is X, the second Y, the third Z, and so on. The compositor may\nchose to utilize these events for a more novel workspace layout\nconvention, however. No guarantee is made about the grid being filled or\nbounded; there may be a workspace at coordinate 1 and another at\ncoordinate 1000 and none in between. Within a workspace group, however,\nworkspaces must have unique coordinates of equal dimensionality.",
+            "summary": "workspace coordinates changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "coordinates",
+              "argType": "array"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "state",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the zcosmic_workspace_handle_v1 is\ncreated and each time the workspace state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "summary": "the state of the workspace changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "array"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "capabilities",
+          "description": {
+            "type": "description",
+            "text": "This event advertises the capabilities supported by the compositor. If\na capability isn't supported, clients should hide or disable the UI\nelements that expose this functionality. For instance, if the\ncompositor doesn't advertise support for removing workspaces, a button\ntriggering the remove request should not be displayed.\n\nThe compositor will ignore requests it doesn't support. For instance,\na compositor which doesn't advertise support for remove will ignore\nremove requests.\n\nCompositors must send this event once after creation of an\nzcosmic_workspace_handle_v1 . When the capabilities change, compositors\nmust send this event again.\n\nThe capabilities are sent as an array of 32-bit unsigned integers in\nnative endianness.",
+            "summary": "compositor capabilities"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "capabilities",
+              "argType": "array",
+              "summary": "array of 32-bit capabilities"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "remove",
+          "description": {
+            "type": "description",
+            "text": "This event means the zcosmic_workspace_handle_v1 has been destroyed. It is\nguaranteed there won't be any more events for this\nzcosmic_workspace_handle_v1. The zext_workspace_handle_v1 becomes inert so\nany requests will be ignored except the destroy request.",
+            "summary": "this workspace has been destroyed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "tiling_state",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the zcosmic_workspace_handle_v1 is created\nand each time the workspace tiling state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "summary": "indicates if tiling behavior is enabled for this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "tiling_state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The different states that a workspace can have.",
+            "summary": "types of states on the workspace"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "active",
+              "value": "0",
+              "summary": "the workspace is active"
+            },
+            {
+              "type": "entry",
+              "name": "urgent",
+              "value": "1",
+              "summary": "the workspace requests attention"
+            },
+            {
+              "type": "entry",
+              "name": "hidden",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "The workspace is not visible in its workspace group, and clients\nattempting to visualize the compositor workspace state should not\ndisplay such workspaces.",
+                "summary": "the workspace is not visible"
+              }
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "zcosmic_workspace_capabilities_v1",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "activate",
+              "value": "1",
+              "summary": "activate request is available"
+            },
+            {
+              "type": "entry",
+              "name": "deactivate",
+              "value": "2",
+              "summary": "deactivate request is available"
+            },
+            {
+              "type": "entry",
+              "name": "remove",
+              "value": "3",
+              "summary": "remove request is available"
+            },
+            {
+              "type": "entry",
+              "name": "rename",
+              "value": "4",
+              "summary": "rename request is available",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "set_tiling_state",
+              "value": "5",
+              "summary": "set_tiling_state request is available",
+              "since": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tiling_state",
+          "since": "2",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "types of tiling state a workspace may have"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "floating_only",
+              "value": "0",
+              "summary": "The workspace has no active tiling properties"
+            },
+            {
+              "type": "entry",
+              "name": "tiling_enabled",
+              "value": "1",
+              "summary": "Tiling behavior is enabled for the workspace"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
