@@ -8,6 +8,21 @@ import {
 } from '../../model/wayland-protocol-metadata'
 import { SidebarNavLink } from './SidebarNavLink'
 
+const SectionTitle: React.FC<{ title: string; icon?: string }> = ({
+    title,
+    icon,
+}) => (
+    <h3
+        className="px-4 pb-2 text-xs font-semibold text-gray-700 uppercase tracking-wider truncate dark:text-gray-600"
+        title={title}
+    >
+        <div className="flex items-center">
+            {icon ? <span className={`codicon codicon-${icon} mr-1`} /> : null}
+            {title}
+        </div>
+    </h3>
+)
+
 export const WaylandProtocolLinks: React.FC = () => (
     <nav
         aria-label="Sidebar"
@@ -15,12 +30,7 @@ export const WaylandProtocolLinks: React.FC = () => (
     >
         {groupProtocolsIntoSections().map((section) => (
             <div key={section.name}>
-                <h3
-                    className="px-4 pb-2 text-xs font-semibold text-gray-700 uppercase tracking-wider truncate dark:text-gray-600"
-                    title={section.name}
-                >
-                    {section.name}
-                </h3>
+                <SectionTitle title={section.name} />
 
                 <div className="grow flex flex-col">
                     <div className="flex-1 space-y-1">
@@ -37,6 +47,21 @@ export const WaylandProtocolLinks: React.FC = () => (
                 </div>
             </div>
         ))}
+
+        <div>
+            <SectionTitle title="Merge Requests" icon="git-pull-request" />
+
+            <div className="grow flex flex-col">
+                <div className="flex-1 space-y-1">
+                    <SidebarNavLink
+                        href="/wayland-protocols"
+                        title="wayland-protocols"
+                    >
+                        wayland-protocols
+                    </SidebarNavLink>
+                </div>
+            </div>
+        </div>
     </nav>
 )
 
