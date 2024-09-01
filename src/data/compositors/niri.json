@@ -31,10 +31,6 @@
       "version": 4
     },
     {
-      "interface": "wl_output",
-      "version": 4
-    },
-    {
       "interface": "wl_seat",
       "version": 9
     },
