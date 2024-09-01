@@ -197,13 +197,6 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/alpha-modifier-v1.json'),
     },
     {
-        id: 'color-management-v1',
-        name: 'Color management v1',
-        source: WaylandProtocolSource.WaylandCore,
-        stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/color-management-v1.json'),
-    },
-    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
