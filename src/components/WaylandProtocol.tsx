@@ -1,5 +1,5 @@
 import { WaylandProtocolMetadata } from '../model/wayland-protocol-metadata'
-import { Breadcrumbs } from './breadcrumbs/Breadcrumbs'
+import { WaylandBreadcrumbs } from './breadcrumbs/Breadcrumbs'
 import { WaylandProtocolModel } from './common'
 import { usePageTitle } from './common/hooks-utils'
 import { WaylandCopyright } from './WaylandCopyright'
@@ -27,7 +27,7 @@ export const WaylandProtocol: React.FC<{
                     </h1>
                 </div>
 
-                <Breadcrumbs metadata={metadata} />
+                <WaylandBreadcrumbs metadata={metadata} />
 
                 {element.description && (
                     <div className="mt-6">
