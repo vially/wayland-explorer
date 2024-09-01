@@ -6,12 +6,13 @@ import { WaylandProtocol } from './components/WaylandProtocol'
 import { waylandProtocolRegistry } from './data/protocol-registry'
 import { NotFound } from './pages/404'
 import { Homepage } from './pages/Homepage'
-import { GitLab } from './pages/GitLab'
+import { GitLab, GitLabMrList } from './pages/GitLab'
 
 function App() {
     let contentView = <Homepage />
     let outlineView = null
 
+    const [isGitlabMrList] = useRoute<{ iid: string }>('/wayland-protocols')
     const [isGitlab, gitlabParams] = useRoute<{ iid: string }>('/wayland-protocols/:iid')
 
     const [match, params] = useRoute<{ protocolId: string }>('/:protocolId')
@@ -19,7 +20,9 @@ function App() {
 
     useAnalytics().trackPageview()
 
-    if (isGitlab && gitlabParams?.iid) {
+    if (isGitlabMrList) {
+        return <GitLabMrList />
+    } else if (isGitlab && gitlabParams?.iid) {
         return <GitLab iid={gitlabParams?.iid}></GitLab>
     } else if (match && params?.protocolId) {
         const protocolWithMetadata = match
