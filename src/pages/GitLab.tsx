@@ -3,141 +3,27 @@ import { WaylandProtocolOutline } from '../components/outline/WaylandProtocolOut
 import { WaylandProtocol } from '../components/WaylandProtocol'
 import { useEffect, useState } from 'react'
 
-import { XMLParser } from 'fast-xml-parser'
-import {
-    WaylandElementType,
-    WaylandProtocol as WaylandProtocolModel,
-} from '../model/wayland'
-import { transformXMLElement } from '../lib/xml-protocol-transformers'
 import {
     WaylandProtocolSource,
     WaylandProtocolStability,
 } from '../model/wayland-protocol-metadata'
-
-interface GitLabFile {
-    name: string
-    webPath: string
-    path: string
-    protocol: WaylandProtocolModel | undefined
-}
-
-async function getMergeRequestFiles(
-    mr: GitLabMergeRequest
-): Promise<GitLabFile[]> {
-    const paths = mr.diffStats
-        .filter((diff) => diff.path.endsWith('.xml'))
-        .map(({ path }) => path)
-
-    const data = JSON.stringify({
-        query: `{
-      project(fullPath: "${mr.sourceProject.fullPath}") {
-        repository {
-          blobs(ref: "${mr.sourceBranch}", paths: ${JSON.stringify(paths)}) {
-            nodes {
-              name
-              webPath
-              path
-              rawBlob
-            }
-          }
-        }
-      }
-    }`,
-    })
-
-    const response = await fetch('https://gitlab.freedesktop.org/api/graphql', {
-        method: 'post',
-        body: data,
-        headers: new Headers({
-            'Content-Type': 'application/json',
-            'Content-Length': data.length.toString(),
-        }),
-    })
-
-    const nodes: {
-        name: string
-        webPath: string
-        path: string
-        rawBlob: string
-    }[] = (await response.json()).data.project.repository.blobs.nodes
-
-    return nodes.map((node) => {
-        const parser = new XMLParser({
-            ignoreAttributes: false,
-            attributeNamePrefix: '',
-        })
-        const xmlData = parser.parse(node.rawBlob)
-        const protocol = transformXMLElement<WaylandProtocolModel>(
-            xmlData['protocol'],
-            WaylandElementType.Protocol
-        )
-
-        return {
-            name: node.name,
-            webPath: node.webPath,
-            path: node.path,
-            protocol,
-        }
-    })
-}
-
-interface GitLabMergeRequest {
-    iid: number
-    title: string
-    author: { name: string }
-    sourceProject: { fullPath: string }
-    sourceBranch: string
-    diffStats: { path: string }[]
-}
-
-async function getMergeRequest(iid: string): Promise<GitLabMergeRequest> {
-    const data = JSON.stringify({
-        query: `{
-        project(fullPath: "wayland/wayland-protocols") {
-          mergeRequests ( iids: ["${iid}"] ) {
-            nodes {
-              iid
-              title
-              author { name }
-              sourceProject { fullPath }
-              sourceBranch
-              diffStats { path }
-            }
-          }
-        }
-      }`,
-    })
-
-    const response = await fetch('https://gitlab.freedesktop.org/api/graphql', {
-        method: 'post',
-        body: data,
-        headers: new Headers({
-            'Content-Type': 'application/json',
-            'Content-Length': data.length.toString(),
-        }),
-    })
-
-    const json = await response.json()
-    return json.data.project.mergeRequests.nodes[0]
-}
+import {
+    getMergeRequest,
+    getMergeRequestFiles,
+    GitLabFile,
+} from '../gitlab-api'
 
 export const GitLab: React.FC<{ iid: string }> = ({ iid }) => {
     const [files, setFiles] = useState<GitLabFile[] | null>(null)
 
     useEffect(() => {
-        getMergeRequest(iid).then(async (mr) => {
-            mr.diffStats = mr.diffStats.filter(({ path }) =>
-                path.endsWith('.xml')
-            )
-
-            const protocols = (await getMergeRequestFiles(mr)).filter(
-                (file) => file.protocol !== undefined
-            )
-
-            setFiles(protocols)
-        }).catch((_) => {
-            setFiles([])
-        })
+        getMergeRequest(iid)
+            .then(getMergeRequestFiles)
+            .then(protocols => {
+                setFiles(protocols)
+            }).catch((_) => {
+                setFiles([])
+            })
     }, [iid])
 
     const contentView = files ? (
@@ -145,12 +31,10 @@ export const GitLab: React.FC<{ iid: string }> = ({ iid }) => {
             {files.map((file) => (
                 <div key={file.path} id={file.name}>
                     <WaylandProtocol
-                        element={file.protocol as any}
+                        element={file.protocol}
                         metadata={{
                             id: file.name.substring(0, file.name.length - 4),
-                            name: file.protocol?.name
-                                ? file.protocol.name
-                                : file.name,
+                            name: file.protocol.name,
                             source: WaylandProtocolSource.External,
                             stability: WaylandProtocolStability.Unstable,
                             externalUrl: `https://gitlab.freedesktop.org${file.webPath}`,
@@ -186,7 +70,7 @@ export const GitLab: React.FC<{ iid: string }> = ({ iid }) => {
                     ) : null}
                     <WaylandProtocolOutline
                         key={file.name}
-                        element={file.protocol as any}
+                        element={file.protocol}
                     />
                 </div>
             ))}
