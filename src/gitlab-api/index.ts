@@ -75,6 +75,19 @@ export async function getMergeRequestFiles(
         const parser = new XMLParser({
             ignoreAttributes: false,
             attributeNamePrefix: '',
+            tagValueProcessor: (
+                tagname,
+                tagValue,
+                jPath,
+                hasAttributes,
+                isLeadNode
+            ) => {
+                if (!isLeadNode || typeof tagValue !== 'string') return null
+                return tagValue
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .join('\n')
+            },
         })
         const xmlData = parser.parse(node.rawBlob)
         const protocol = transformXMLElement<WaylandProtocolModel>(

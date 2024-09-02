@@ -51,6 +51,19 @@ async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '',
+        tagValueProcessor: (
+            tagname,
+            tagValue,
+            jPath,
+            hasAttributes,
+            isLeadNode
+        ) => {
+            if (!isLeadNode || typeof tagValue !== 'string') return null
+            return tagValue
+                .split('\n')
+                .map((line) => line.trim())
+                .join('\n')
+        },
     })
     const xmlData = parser.parse(fileData)
     const protocol = transformXMLElement(
