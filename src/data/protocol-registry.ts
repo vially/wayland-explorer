@@ -238,9 +238,18 @@ const protocols: WaylandProtocolRegistryItem[] = [
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/linux-explicit-synchronization-unstable-v1.json'),
         deprecated: [
-            { name: 'zwp_linux_explicit_synchronization_v1', reason: 'Superseded by linux-drm-syncobj' },
-            { name: 'zwp_linux_surface_synchronization_v1', reason: 'Superseded by linux-drm-syncobj' },
-            { name: 'zwp_linux_buffer_release_v1', reason: 'Superseded by linux-drm-syncobj' },
+            {
+                name: 'zwp_linux_explicit_synchronization_v1',
+                reason: 'Superseded by linux-drm-syncobj',
+            },
+            {
+                name: 'zwp_linux_surface_synchronization_v1',
+                reason: 'Superseded by linux-drm-syncobj',
+            },
+            {
+                name: 'zwp_linux_buffer_release_v1',
+                reason: 'Superseded by linux-drm-syncobj',
+            },
         ],
     },
     {
@@ -435,7 +444,10 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/kde-idle.json'),
         deprecated: [
             { name: 'org_kde_kwin_idle', reason: 'Use ext-idle-notify' },
-            { name: 'org_kde_kwin_idle_timeout', reason: 'Use ext-idle-notify' },
+            {
+                name: 'org_kde_kwin_idle_timeout',
+                reason: 'Use ext-idle-notify',
+            },
         ],
     },
     {

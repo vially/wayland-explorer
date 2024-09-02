@@ -7,11 +7,11 @@ const relativeProtocolDirs = [
     path.join('protocols', 'wlr', 'unstable'),
 ]
 
-const protocolItemFor = (source: string, stability: string) => (
-    protocolXmlFile: string
-): string => {
-    const protocolId = path.basename(protocolXmlFile, '.xml')
-    return `
+const protocolItemFor =
+    (source: string, stability: string) =>
+    (protocolXmlFile: string): string => {
+        const protocolId = path.basename(protocolXmlFile, '.xml')
+        return `
     {
         id: '${protocolId}',
         name: '',
@@ -19,18 +19,15 @@ const protocolItemFor = (source: string, stability: string) => (
         stability: WaylandProtocolStability.${stability},
         protocol: require('./protocols/${protocolId}.json'),
     },`
-}
+    }
 
 async function main() {
     const protocolDirs = relativeProtocolDirs.map((waylandDir) =>
         path.resolve(__dirname, '../../', waylandDir)
     )
 
-    const [
-        waylandStableFiles,
-        waylandUnstableFiles,
-        wlrUnstableFiles,
-    ] = await Promise.all(protocolDirs.map(findXMLFiles))
+    const [waylandStableFiles, waylandUnstableFiles, wlrUnstableFiles] =
+        await Promise.all(protocolDirs.map(findXMLFiles))
 
     const protocolItems = [
         protocolItemFor('WaylandCore', 'Stable')('wayland.xml'),

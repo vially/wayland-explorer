@@ -48,7 +48,9 @@ const useGitLabMrList = () => {
     }, [mrs, page, isLoading])
 
     useEffect(
-        () => { load_more() },
+        () => {
+            load_more()
+        },
         // eslint-disable-next-line
         []
     )
@@ -223,38 +225,41 @@ export const GitLab: React.FC<{ iid: string }> = ({ iid }) => {
                     />
                 </div>
             ))}
-            {files.length === 0 ? <h1 className="text-center text-2xl mt-5">Not found</h1> : null}
+            {files.length === 0 ? (
+                <h1 className="text-center text-2xl mt-5">Not found</h1>
+            ) : null}
         </div>
     ) : (
         <LoadingPill />
     )
 
-    const outlineView = files && files.length !== 0 ? (
-        <div>
-            {files.map((file) => (
-                <div key={file.name}>
-                    {files.length > 1 ? (
-                        <a
-                            href={`#${file.name}`}
-                            className="
+    const outlineView =
+        files && files.length !== 0 ? (
+            <div>
+                {files.map((file) => (
+                    <div key={file.name}>
+                        {files.length > 1 ? (
+                            <a
+                                href={`#${file.name}`}
+                                className="
                                 group flex items-center text-sm font-medium
                                 bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800
                                 border-l-4 border-black dark:border-white
                                 hover:text-purple-500 hover:border-purple-600
                                 py-2 px-3 mt-2 mb-2
                             "
-                        >
-                            <span className="truncate">{file.name}</span>
-                        </a>
-                    ) : null}
-                    <WaylandProtocolOutline
-                        key={file.name}
-                        element={file.protocol}
-                    />
-                </div>
-            ))}
-        </div>
-    ) : null
+                            >
+                                <span className="truncate">{file.name}</span>
+                            </a>
+                        ) : null}
+                        <WaylandProtocolOutline
+                            key={file.name}
+                            element={file.protocol}
+                        />
+                    </div>
+                ))}
+            </div>
+        ) : null
 
     const errorCard = error && <ErrorCard error={error} />
 

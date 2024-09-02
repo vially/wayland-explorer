@@ -50,8 +50,7 @@ const sourceRepositoryUrls: Record<
             'https://invent.kde.org/libraries/plasma-wayland-protocols/-/blob/master/src/protocols/${protocol}.xml',
     },
     [WaylandProtocolSource.CosmicProtocols]: {
-        repositoryUrl:
-            'https://github.com/pop-os/cosmic-protocols',
+        repositoryUrl: 'https://github.com/pop-os/cosmic-protocols',
         stabilityUrl:
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/pop-os/cosmic-protocols/tree/main/${stability}',
@@ -91,12 +90,13 @@ function sourceUrlBuilderFor(source: WaylandProtocolSource): SourceUrlBuilder {
         protocolUrlFor: (metadata: WaylandProtocolMetadata) => {
             const protocolId =
                 metadata.source === WaylandProtocolSource.WaylandProtocols
-                    ? `${waylandProtocolDirectoryNameFor(metadata)}/${metadata.id
-                    }`
+                    ? `${waylandProtocolDirectoryNameFor(metadata)}/${
+                          metadata.id
+                      }`
                     : metadata.source === WaylandProtocolSource.KDEProtocols &&
-                        !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
-                        ? metadata.id.substring(4)
-                        : metadata.id
+                      !kdeProtocolsWithHardcodedPrefix.includes(metadata.id)
+                    ? metadata.id.substring(4)
+                    : metadata.id
 
             return (
                 config.protocolUrl
@@ -134,7 +134,9 @@ function waylandProtocolDirectoryNameFor(
 ): string {
     if (metadata.stability === WaylandProtocolStability.Stable) {
         // Remove version suffix (e.g.: for `linux-dmabuf-v1`)
-        return (metadata.id.endsWith('-v1') || metadata.id.endsWith('-v2')) ? metadata.id.substring(0, metadata.id.length - 3) : metadata.id
+        return metadata.id.endsWith('-v1') || metadata.id.endsWith('-v2')
+            ? metadata.id.substring(0, metadata.id.length - 3)
+            : metadata.id
     } else if (metadata.stability === WaylandProtocolStability.Staging) {
         // Remove version suffix (e.g.: '-v1')
         return metadata.id.substring(0, metadata.id.length - 3)

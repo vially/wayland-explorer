@@ -14,7 +14,7 @@ export const WaylandProtocolOutline: React.FC<
                 title="Compositor support"
                 className="flex items-center"
             >
-                <span className={`codicon codicon-debug-disconnect mr-1`}></span>
+                <span className="codicon codicon-debug-disconnect mr-1"></span>
                 <span className="truncate">compositor support</span>
             </a>
         </div>

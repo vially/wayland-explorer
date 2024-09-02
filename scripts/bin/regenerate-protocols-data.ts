@@ -43,7 +43,7 @@ const deprecatedProtocols = [
     /**
      * Unused libwayland protocol
      */
-    'tests.xml'
+    'tests.xml',
 ]
 
 async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {

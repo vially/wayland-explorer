@@ -26,7 +26,10 @@ export const WaylandArg: React.FC<{
         {element.interface && (
             <span>
                 {'<'}
-                <a href={`${element.protocol ?? ""}#${element.interface}`} className={`text-blue-300`}>
+                <a
+                    href={`${element.protocol ?? ''}#${element.interface}`}
+                    className="text-blue-300"
+                >
                     {element.interface}
                 </a>
                 {'>'}
@@ -35,25 +38,29 @@ export const WaylandArg: React.FC<{
         {element.enum && (
             <span>
                 {'<'}
-            <ArgEnum argEnum={element.enum} interfaceName={interfaceName} protocol={element.protocol} />
+                <ArgEnum
+                    argEnum={element.enum}
+                    interfaceName={interfaceName}
+                    protocol={element.protocol}
+                />
                 {'>'}
             </span>
         )}
     </span>
 )
 
-const ArgEnum: React.FC<{ interfaceName: string; argEnum: string; protocol?: string }> = ({
-    argEnum,
-    interfaceName,
-    protocol,
-}) => {
+const ArgEnum: React.FC<{
+    interfaceName: string
+    argEnum: string
+    protocol?: string
+}> = ({ argEnum, interfaceName, protocol }) => {
     let enumName = argEnum
     if (enumName.includes('.')) {
-        [interfaceName, enumName] = enumName.split('.')
+        ;[interfaceName, enumName] = enumName.split('.')
     }
 
     return (
-        <a href={`${protocol ?? ""}#${interfaceName}:enum:${enumName}`}>
+        <a href={`${protocol ?? ''}#${interfaceName}:enum:${enumName}`}>
             <span className={`text-blue-300`}>{interfaceName}</span>.
             <span className={colors.Enum}>{enumName}</span>
         </a>

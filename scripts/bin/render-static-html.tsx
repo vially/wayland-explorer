@@ -45,13 +45,12 @@ function allPageDescriptors(): StaticPageDescriptor[] {
         },
     ]
 
-    const protocolPages: StaticPageDescriptor[] = waylandProtocolRegistry.protocols.map(
-        (protocol) => ({
+    const protocolPages: StaticPageDescriptor[] =
+        waylandProtocolRegistry.protocols.map((protocol) => ({
             routerPath: `/${protocol.id}`,
             fileName: `${protocol.id}.html`,
             pageTitle: `${protocol.name} protocol | Wayland Explorer`,
-        })
-    )
+        }))
 
     return [...staticPages, ...protocolPages]
 }
