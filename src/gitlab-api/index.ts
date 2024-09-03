@@ -1,9 +1,8 @@
-import { XMLParser } from 'fast-xml-parser'
 import {
     WaylandElementType,
     WaylandProtocol as WaylandProtocolModel,
 } from '../model/wayland'
-import { transformXMLElement } from '../lib/xml-protocol-transformers'
+import { transformXMLElement, xmlParser } from '../lib/xml-protocol-transformers'
 
 export interface GitLabFile {
     name: string
@@ -72,24 +71,7 @@ export async function getMergeRequestFiles(
     }[] = (await response.json()).data.project.repository.blobs.nodes
 
     return nodes.reduce<GitLabFile[]>((out, node) => {
-        const parser = new XMLParser({
-            ignoreAttributes: false,
-            attributeNamePrefix: '',
-            tagValueProcessor: (
-                tagname,
-                tagValue,
-                jPath,
-                hasAttributes,
-                isLeadNode
-            ) => {
-                if (!isLeadNode || typeof tagValue !== 'string') return null
-                return tagValue
-                    .split('\n')
-                    .map((line) => line.trim())
-                    .join('\n')
-            },
-        })
-        const xmlData = parser.parse(node.rawBlob)
+        const xmlData = xmlParser.parse(node.rawBlob)
         const protocol = transformXMLElement<WaylandProtocolModel>(
             xmlData['protocol'],
             WaylandElementType.Protocol

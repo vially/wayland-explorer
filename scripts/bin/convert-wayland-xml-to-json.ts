@@ -1,4 +1,3 @@
-import { XMLParser } from 'fast-xml-parser'
 import { readFileSync, readdirSync, readlinkSync } from 'fs'
 import path from 'path'
 import { argv } from 'process'
@@ -9,29 +8,12 @@ import {
     WaylandProtocol,
     WaylandRequest,
 } from '../../src/model/wayland'
-import { transformXMLElement } from '../../src/lib/xml-protocol-transformers'
+import { transformXMLElement, xmlParser } from '../../src/lib/xml-protocol-transformers'
 import { jsonFileNameFor } from '../lib/utils'
 
 async function main(fileName: string) {
     const fileData = readFileSync(fileName, 'utf-8')
-    const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        tagValueProcessor: (
-            tagname,
-            tagValue,
-            jPath,
-            hasAttributes,
-            isLeadNode
-        ) => {
-            if (!isLeadNode || typeof tagValue !== 'string') return null
-            return tagValue
-                .split('\n')
-                .map((line) => line.trim())
-                .join('\n')
-        },
-    })
-    const xmlData = parser.parse(fileData)
+    const xmlData = xmlParser.parse(fileData)
     const protocol = transformXMLElement<WaylandProtocol>(
         xmlData['protocol'],
         WaylandElementType.Protocol

@@ -1,9 +1,8 @@
-import { XMLParser } from 'fast-xml-parser'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { WaylandElementType } from '../../src/model/wayland'
 import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
-import { transformXMLElement } from '../../src/lib/xml-protocol-transformers'
+import { transformXMLElement, xmlParser } from '../../src/lib/xml-protocol-transformers'
 
 const relativeProtocolDirs = [
     path.join('protocols', 'libwayland', 'protocol'),
@@ -48,24 +47,7 @@ const deprecatedProtocols = [
 
 async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
     const fileData = await fs.readFile(srcFileName, 'utf-8')
-    const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        tagValueProcessor: (
-            tagname,
-            tagValue,
-            jPath,
-            hasAttributes,
-            isLeadNode
-        ) => {
-            if (!isLeadNode || typeof tagValue !== 'string') return null
-            return tagValue
-                .split('\n')
-                .map((line) => line.trim())
-                .join('\n')
-        },
-    })
-    const xmlData = parser.parse(fileData)
+    const xmlData = xmlParser.parse(fileData)
     const protocol = transformXMLElement(
         xmlData['protocol'],
         WaylandElementType.Protocol

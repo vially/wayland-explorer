@@ -1,3 +1,4 @@
+import { XMLParser } from 'fast-xml-parser'
 import {
     WaylandArg,
     WaylandCopyright,
@@ -11,6 +12,24 @@ import {
     WaylandProtocol,
     WaylandRequest,
 } from '../../src/model/wayland'
+
+export const xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '',
+    tagValueProcessor: (
+        tagname,
+        tagValue,
+        jPath,
+        hasAttributes,
+        isLeadNode
+    ) => {
+        if (!isLeadNode || typeof tagValue !== 'string') return null
+        return tagValue
+            .split('\n')
+            .map((line) => line.trim())
+            .join('\n')
+    },
+})
 
 export function coerceArray<T = any>(value: T | T[]): T[] {
     if (value === null || value === undefined) return []
