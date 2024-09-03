@@ -8,6 +8,7 @@
     "dependencies": {
         "@headlessui/react": "^1.4.1",
         "@vscode/codicons": "^0.0.21",
+        "fast-xml-parser": "^4.5.0",
         "plausible-tracker": "^0.3.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
@@ -62,7 +63,6 @@
         "@types/react": "^17.0.0",
         "@types/react-dom": "^17.0.0",
         "autoprefixer": "^10.4.2",
-        "fast-xml-parser": "^4.0.1",
         "html-minifier": "^4.0.0",
         "husky": "^7.0.2",
         "lint-staged": "^12.3.1",
