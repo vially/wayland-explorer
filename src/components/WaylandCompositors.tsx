@@ -132,7 +132,7 @@ const CanIUseTable: React.FC<{
                                     {comp.icon && (
                                         <img
                                             alt={comp.name}
-                                            src={`logos/${comp.icon}.svg`}
+                                            src={`/protocols/logos/${comp.icon}.svg`}
                                             className="dark:invert h-5 m-auto"
                                         />
                                     )}
