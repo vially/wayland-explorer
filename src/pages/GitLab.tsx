@@ -220,7 +220,7 @@ export const GitLab: React.FC<{ iid: string }> = ({ iid }) => {
                             name: file.protocol.name,
                             source: WaylandProtocolSource.External,
                             stability: WaylandProtocolStability.Unstable,
-                            externalUrl: `https://gitlab.freedesktop.org${file.webPath}`,
+                            externalUrl: `https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/${iid}`,
                         }}
                     />
                 </div>
