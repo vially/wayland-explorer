@@ -58,6 +58,14 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/pop-os/cosmic-protocols/blob/main/${stability}/${protocol}.xml',
     },
+    [WaylandProtocolSource.FrogProtocols]: {
+        repositoryUrl: 'https://github.com/misyltoad/frog-protocols',
+        stabilityUrl:
+            'https://github.com/misyltoad/frog-protocols/tree/main/frog-protocols',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/misyltoad/frog-protocols/blob/main/frog-protocols/${protocol}.xml',
+    },
     [WaylandProtocolSource.WestonProtocols]: {
         repositoryUrl: 'https://gitlab.freedesktop.org/wayland/weston',
         stabilityUrl:
