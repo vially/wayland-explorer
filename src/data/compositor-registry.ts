@@ -70,4 +70,9 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'Steam_Deck',
         info: require('./compositors/gamescope.json'),
     },
+    {
+        id: 'jay',
+        name: 'Jay',
+        info: require('./compositors/jay.json'),
+    },
 ]
