@@ -1,13 +1,25 @@
 {
-  "generationTimestamp": 1728720747574,
-  "version": "1.6.1",
+  "generationTimestamp": 1729843799447,
+  "version": "1.7.0",
   "globals": [
+    {
+      "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_foreign_toplevel_list_v1",
       "version": 1
     },
     {
       "interface": "ext_idle_notifier_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -20,10 +32,14 @@
     },
     {
       "interface": "jay_compositor",
-      "version": 10
+      "version": 12
     },
     {
       "interface": "jay_damage_tracking",
+      "version": 1
+    },
+    {
+      "interface": "jay_tray_v1",
       "version": 1
     },
     {
@@ -63,6 +79,10 @@
       "version": 1
     },
     {
+      "interface": "wp_commit_timing_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_content_type_manager_v1",
       "version": 1
     },
@@ -75,6 +95,10 @@
       "version": 1
     },
     {
+      "interface": "wp_fifo_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_fractional_scale_manager_v1",
       "version": 1
     },
@@ -84,7 +108,7 @@
     },
     {
       "interface": "wp_presentation",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
