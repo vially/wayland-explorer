@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1720526163245,
-  "version": "3.14.22",
+  "generationTimestamp": 1730471003624,
+  "version": "3.15.14",
   "globals": [
     {
       "interface": "gamescope_control",
@@ -16,6 +16,10 @@
     },
     {
       "interface": "gamescope_private",
+      "version": 1
+    },
+    {
+      "interface": "gamescope_reshade",
       "version": 1
     },
     {
@@ -44,7 +48,7 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_linux_drm_syncobj_manager_v1",
