@@ -1,4 +1,8 @@
-import { isWaylandArgElement, isWaylandEntryElement } from '../model/wayland'
+import {
+    isWaylandArgElement,
+    isWaylandEntryElement,
+    WaylandArgType,
+} from '../model/wayland'
 import {
     WaylandArgModel,
     WaylandEntryModel,
@@ -122,6 +126,32 @@ export const WaylandDataTable: React.FC<{
                 ))}
             </tbody>
         </table>
+
+        {elements.find(
+            (entry) =>
+                isWaylandArgElement(entry) &&
+                entry.argType === WaylandArgType.NewId &&
+                !entry.interface
+        ) && (
+            <div className="border-l-4 border-blue-500 px-4 py-1 my-2">
+                <p className="text-blue-500 flex items-center">
+                    <span className="codicon codicon-info mr-1"></span>Note
+                </p>
+                <p>
+                    <span>Keep in mind that </span>
+                    <span className="bg-gray-100 dark:bg-gray-800 rounded p-1">
+                        new_id
+                    </span>
+                    <span> without defined interface has </span>
+                    <a
+                        className="text-blue-500"
+                        href="https://wayland.freedesktop.org/docs/html/ch04.html#sect-Protocol-Wire-Format"
+                    >
+                        custom serialization rules
+                    </a>
+                </p>
+            </div>
+        )}
     </div>
 )
 
