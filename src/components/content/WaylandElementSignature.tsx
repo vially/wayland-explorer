@@ -14,7 +14,7 @@ export const WaylandElementSignature: React.FC<{
     interfaceName: string
 }> = ({ element, interfaceName }) => (
     <div className="my-4 p-2 rounded-sm text-gray-100 overflow-hidden bg-gray-800">
-        <pre className="overflow-x-auto">
+        <pre className="overflow-x-auto" style={{colorScheme: "dark"}}>
             <span className={colorFor(element.type)}>{element.name}</span>
             {isWaylandEnumElement(element) ? (
                 <span>
