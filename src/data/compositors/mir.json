@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1730289156289,
-  "version": "2.18",
+  "generationTimestamp": 1733165065880,
+  "version": "2.19",
   "globals": [
     {
       "interface": "ext_session_lock_manager_v1",
@@ -48,6 +48,10 @@
     },
     {
       "interface": "wp_viewporter",
+      "version": 1
+    },
+    {
+      "interface": "xdg_activation_v1",
       "version": 1
     },
     {
