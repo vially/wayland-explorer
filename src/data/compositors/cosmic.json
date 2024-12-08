@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1733684748166,
-  "version": "0.1~1733420229~24.04~7829e76",
+  "version": "0.1",
   "globals": [
     {
       "interface": "cosmic_atspi_manager_v1",
