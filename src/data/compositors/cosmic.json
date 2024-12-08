@@ -31,6 +31,10 @@
       "version": 3
     },
     {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
       "interface": "wl_output",
       "version": 4
     },
@@ -149,6 +153,10 @@
     {
       "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 5
     },
     {
       "interface": "zwp_pointer_constraints_v1",
