@@ -1,7 +1,15 @@
 {
-  "generationTimestamp": 1724690454296,
+  "generationTimestamp": 1733684748166,
   "version": "1.0.0",
   "globals": [
+    {
+      "interface": "cosmic_atspi_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_list_v1",
+      "version": 1
+    },
     {
       "interface": "ext_idle_notifier_v1",
       "version": 1
@@ -23,10 +31,6 @@
       "version": 3
     },
     {
-      "interface": "wl_drm",
-      "version": 2
-    },
-    {
       "interface": "wl_output",
       "version": 4
     },
@@ -36,7 +40,7 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_subcompositor",
@@ -44,6 +48,10 @@
     },
     {
       "interface": "wp_alpha_modifier_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_cursor_shape_manager_v1",
       "version": 1
     },
     {
@@ -56,10 +64,14 @@
     },
     {
       "interface": "wp_presentation",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_single_pixel_buffer_manager_v1",
       "version": 1
     },
     {
@@ -80,6 +92,10 @@
     },
     {
       "interface": "zcosmic_output_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zcosmic_overlap_notify_v1",
       "version": 1
     },
     {
@@ -92,11 +108,11 @@
     },
     {
       "interface": "zcosmic_toplevel_info_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "zcosmic_toplevel_manager_v1",
-      "version": 2
+      "version": 3
     },
     {
       "interface": "zcosmic_workspace_image_source_manager_v1",
@@ -107,12 +123,20 @@
       "version": 2
     },
     {
+      "interface": "zwlr_data_control_manager_v1",
+      "version": 2
+    },
+    {
       "interface": "zwlr_layer_shell_v1",
       "version": 4
     },
     {
       "interface": "zwlr_output_manager_v1",
       "version": 4
+    },
+    {
+      "interface": "zwlr_output_power_manager_v1",
+      "version": 1
     },
     {
       "interface": "zwp_idle_inhibit_manager_v1",
@@ -125,10 +149,6 @@
     {
       "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
       "version": 1
-    },
-    {
-      "interface": "zwp_linux_dmabuf_v1",
-      "version": 5
     },
     {
       "interface": "zwp_pointer_constraints_v1",
@@ -160,6 +180,14 @@
     },
     {
       "interface": "zxdg_decoration_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_exporter_v2",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v2",
       "version": 1
     },
     {
