@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1724804860208,
-  "version": "0.1.8",
+  "generationTimestamp": 1734268508168,
+  "version": "0.1.10",
   "globals": [
     {
       "interface": "ext_idle_notifier_v1",
@@ -8,6 +8,14 @@
     },
     {
       "interface": "ext_session_lock_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "mutter_x11_interop",
+      "version": 1
+    },
+    {
+      "interface": "org_kde_kwin_server_decoration_manager",
       "version": 1
     },
     {
@@ -23,8 +31,8 @@
       "version": 2
     },
     {
-      "interface": "wl_eglstream_display",
-      "version": 1
+      "interface": "wl_output",
+      "version": 4
     },
     {
       "interface": "wl_output",
@@ -36,7 +44,7 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_subcompositor",
@@ -136,6 +144,10 @@
     },
     {
       "interface": "zwp_virtual_keyboard_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_decoration_manager_v1",
       "version": 1
     },
     {
