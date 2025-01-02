@@ -1,0 +1,153 @@
+{
+  "type": "protocol",
+  "name": "commit_timing_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2023 Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wp_commit_timing_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "When a compositor latches on to new content updates it will check for\nany number of requirements of the available content updates (such as\nfences of all buffers being signalled) to consider the update ready.\n\nThis protocol provides a method for adding a time constraint to surface\ncontent. This constraint indicates to the compositor that a content\nupdate should be presented as closely as possible to, but not before,\na specified time.\n\nThis protocol does not change the Wayland property that content\nupdates are applied in the order they are received, even when some\ncontent updates contain timestamps and others do not.\n\nTo provide timestamps, this global factory interface must be used to\nacquire a wp_commit_timing_v1 object for a surface, which may then be\nused to provide timestamp information for commits.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "commit timing"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will no longer be using\nthis protocol object. Existing objects created by this object\nare not affected.",
+            "summary": "unbind from the commit timing interface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_timer",
+          "description": {
+            "type": "description",
+            "text": "Establish a timing controller for a surface.\n\nOnly one commit timer can be created for a surface, or a\ncommit_timer_exists protocol error will be generated.",
+            "summary": "request commit timer interface for surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "wp_commit_timer_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "commit_timer_exists",
+              "value": "0",
+              "summary": "commit timer already exists for surface"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "wp_commit_timer_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An object to set a time constraint for a content update on a surface.",
+        "summary": "Surface commit timer"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_timestamp",
+          "description": {
+            "type": "description",
+            "text": "Provide a timing constraint for a surface content update.\n\nA set_timestamp request may be made before a wl_surface.commit to\ntell the compositor that the content is intended to be presented\nas closely as possible to, but not before, the specified time.\nThe time is in the domain of the compositor's presentation clock.\n\nAn invalid_timestamp error will be generated for invalid tv_nsec.\n\nIf a timestamp already exists on the surface, a timestamp_exists\nerror is generated.\n\nRequesting set_timestamp after the commit_timer object's surface is\ndestroyed will generate a \"surface_destroyed\" error.",
+            "summary": "Specify time the following commit takes effect"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of target time"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of target time"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of target time"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will no longer be using\nthis protocol object.\n\nExisting timing constraints are not affected by the destruction.",
+            "summary": "Destroy the timer"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_timestamp",
+              "value": "0",
+              "summary": "timestamp contains an invalid value"
+            },
+            {
+              "type": "entry",
+              "name": "timestamp_exists",
+              "value": "1",
+              "summary": "timestamp exists"
+            },
+            {
+              "type": "entry",
+              "name": "surface_destroyed",
+              "value": "2",
+              "summary": "the associated surface no longer exists"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

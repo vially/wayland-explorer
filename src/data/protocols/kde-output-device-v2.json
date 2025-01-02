@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "9",
+      "version": "11",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -503,6 +503,41 @@
               "summary": "brightness in 0-10000"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "color_power_tradeoff",
+          "since": "10",
+          "description": {
+            "type": "description",
+            "summary": "the preferred color/power tradeoff"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "preference",
+              "argType": "uint",
+              "enum": "color_power_tradeoff"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dimming",
+          "since": "11",
+          "description": {
+            "type": "description",
+            "text": "This is the dimming multiplier of the output. This is similar to\nthe brightness setting, except it's meant to be a temporary setting\nonly, not persistent and may be implemented differently depending\non the display.\n0 is the minimum dimming factor (not completely dark) and 10000\nmeans the output is not dimmed.",
+            "summary": "dimming multiplier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "multiplier",
+              "argType": "uint",
+              "summary": "multiplier in 0-10000"
+            }
+          ]
         }
       ],
       "enums": [
@@ -769,6 +804,30 @@
               "type": "entry",
               "name": "EDID",
               "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "color_power_tradeoff",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The compositor can do a lot of things that trade between\nperformance, power and color accuracy. This setting describes\na high level preference from the user about in which direction\nthat tradeoff should be made.",
+            "summary": "tradeoff between power and accuracy"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "efficiency",
+              "value": "0",
+              "summary": "prefer efficiency and performance"
+            },
+            {
+              "type": "entry",
+              "name": "accuracy",
+              "value": "1",
+              "summary": "prefer accuracy"
             }
           ]
         }

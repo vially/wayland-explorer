@@ -149,7 +149,7 @@
           "name": "add_buffer",
           "description": {
             "type": "description",
-            "text": "This request adds pixel data supplied as wl_buffer to the icon.\n\nThe client should add pixel data for all icon sizes and scales that\nit can provide, or which are explicitly requested by the compositor\nvia 'icon_size' events on xdg_toplevel_icon_manager_v1.\n\nThe wl_buffer supplying pixel data as 'buffer' must be backed by wl_shm\nand must be a square (width and height being equal).\nIf any of these buffer requirements are not fulfilled, a 'invalid_buffer'\nerror must be raised.\n\nIf this icon instance already has a buffer of the same size and scale\nfrom a previous 'add_buffer' request, data from the last request\noverrides the preexisting pixel data.\n\nThe wl_buffer must be kept alive for as long as the xdg_toplevel_icon\nit is associated with is not destroyed. The buffer contents must not be\nmodified after it was assigned to the icon.\n\nIf this request is made after the icon has been assigned to a toplevel\nvia 'set_icon', a 'immutable' error must be raised.",
+            "text": "This request adds pixel data supplied as wl_buffer to the icon.\n\nThe client should add pixel data for all icon sizes and scales that\nit can provide, or which are explicitly requested by the compositor\nvia 'icon_size' events on xdg_toplevel_icon_manager_v1.\n\nThe wl_buffer supplying pixel data as 'buffer' must be backed by wl_shm\nand must be a square (width and height being equal).\nIf any of these buffer requirements are not fulfilled, a 'invalid_buffer'\nerror must be raised.\n\nIf this icon instance already has a buffer of the same size and scale\nfrom a previous 'add_buffer' request, data from the last request\noverrides the preexisting pixel data.\n\nThe wl_buffer must be kept alive for as long as the xdg_toplevel_icon\nit is associated with is not destroyed, otherwise a 'no_buffer' error\nis raised. The buffer contents must not be modified after it was\nassigned to the icon. As a result, the region of the wl_shm_pool's\nbacking storage used for the wl_buffer must not be modified after this\nrequest is sent. The wl_buffer.release event is unused.\n\nIf this request is made after the icon has been assigned to a toplevel\nvia 'set_icon', a 'immutable' error must be raised.",
             "summary": "add icon data from a pixel buffer"
           },
           "args": [
@@ -187,6 +187,12 @@
               "name": "immutable",
               "value": "2",
               "summary": "the icon has already been assigned to a toplevel and must not be changed"
+            },
+            {
+              "type": "entry",
+              "name": "no_buffer",
+              "value": "3",
+              "summary": "the provided buffer has been destroyed before the toplevel icon"
             }
           ]
         }

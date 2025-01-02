@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_unstable_v1",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "Warning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -183,6 +183,59 @@
               "summary": "Requested pointer mode"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "stream_virtual_output_with_description",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "summary": "requests a feed from a new virtual output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "stream",
+              "argType": "new_id",
+              "interface": "zkde_screencast_stream_unstable_v1"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the created output"
+            },
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "user visible description of the created output"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "Logical width resolution"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "Logical height resolution"
+            },
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed",
+              "summary": "Scaling factor of the display where it's to be displayed"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "uint",
+              "summary": "Requested pointer mode"
+            }
+          ]
         }
       ],
       "events": [],
@@ -221,7 +274,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_stream_unstable_v1",
-      "version": "3",
+      "version": "4",
       "requests": [
         {
           "type": "request",

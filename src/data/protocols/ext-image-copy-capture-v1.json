@@ -130,7 +130,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This object represents an active image copy capture session.\n\nAfter a capture session is created, buffer constraint events will be\nemitted from the compositor to tell the client which buffer types and\nformats are supported for reading from the session. The compositor may\nre-send buffer constraint events whenever they change.\n\nThe advertise buffer constraints, the compositor must send in no\nparticular order: zero or more shm_format and dmabuf_format events, zero\nor one dmabuf_device event, and exactly one buffer_size event. Then the\ncompositor must send a done event.\n\nWhen the client has received all the buffer constraints, it can create a\nbuffer accordingly, attach it to the capture session using the\nattach_buffer request, set the buffer damage using the damage_buffer\nrequest and then send the capture request.",
+        "text": "This object represents an active image copy capture session.\n\nAfter a capture session is created, buffer constraint events will be\nemitted from the compositor to tell the client which buffer types and\nformats are supported for reading from the session. The compositor may\nre-send buffer constraint events whenever they change.\n\nTo advertise buffer constraints, the compositor must send in no\nparticular order: zero or more shm_format and dmabuf_format events, zero\nor one dmabuf_device event, and exactly one buffer_size event. Then the\ncompositor must send a done event.\n\nWhen the client has received all the buffer constraints, it can create a\nbuffer accordingly, attach it to the capture session using the\nattach_buffer request, set the buffer damage using the damage_buffer\nrequest and then send the capture request.",
         "summary": "image copy capture session"
       },
       "requests": [
@@ -299,7 +299,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Destroys the session. This request can be sent at any time by the\nclient.",
+            "text": "Destroys the frame. This request can be sent at any time by the\nclient.",
             "summary": "destroy this object"
           },
           "args": []
@@ -571,7 +571,7 @@
           "description": {
             "type": "description",
             "text": "Gets the image copy capture session for this cursor session.\n\nThe session will produce frames of the cursor image. The compositor may\npause the session when the cursor leaves the captured area.\n\nThis request must not be sent more than once, or else the\nduplicate_session protocol error is raised.",
-            "summary": "get image copy captuerer session"
+            "summary": "get image copy capturer session"
           },
           "args": [
             {
@@ -661,7 +661,7 @@
               "type": "entry",
               "name": "duplicate_session",
               "value": "1",
-              "summary": "get_captuerer_session sent twice"
+              "summary": "get_capture_session sent twice"
             }
           ]
         }

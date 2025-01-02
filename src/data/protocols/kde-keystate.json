@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_kwin_keystate",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "Keeps track of the states of the different keys that have a state attached to it.",
@@ -71,6 +71,36 @@
               "type": "entry",
               "name": "scrolllock",
               "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "alt",
+              "value": "3",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "control",
+              "value": "4",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "shift",
+              "value": "5",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "meta",
+              "value": "6",
+              "since": "5"
+            },
+            {
+              "type": "entry",
+              "name": "altgr",
+              "value": "7",
+              "since": "5"
             }
           ]
         },
@@ -93,6 +123,12 @@
               "type": "entry",
               "name": "locked",
               "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "pressed",
+              "value": "3",
+              "since": "5"
             }
           ]
         }

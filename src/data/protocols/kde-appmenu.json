@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_kwin_appmenu_manager",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows a client to link a window (or wl_surface) to an com.canonical.dbusmenu\ninterface registered on DBus.",
@@ -34,6 +34,17 @@
               "protocol": "wayland"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "destroy the org_kde_kwin_appmenu_manager object"
+          },
+          "args": []
         }
       ],
       "events": [],
@@ -42,7 +53,7 @@
     {
       "type": "interface",
       "name": "org_kde_kwin_appmenu",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The DBus service name and object path where the appmenu interface is present\nThe object should be registered on the session bus before sending this request.\nIf not applicable, clients should remove this object.",

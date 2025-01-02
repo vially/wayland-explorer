@@ -2717,7 +2717,7 @@
           "since": "5",
           "description": {
             "type": "description",
-            "text": "The x and y arguments specify the location of the new pending\nbuffer's upper left corner, relative to the current buffer's upper\nleft corner, in surface-local coordinates. In other words, the\nx and y, combined with the new surface size define in which\ndirections the surface's size changes.\n\nSurface location offset is double-buffered state, see\nwl_surface.commit.\n\nThis request is semantically equivalent to and the replaces the x and y\narguments in the wl_surface.attach request in wl_surface versions prior\nto 5. See wl_surface.attach for details.",
+            "text": "The x and y arguments specify the location of the new pending\nbuffer's upper left corner, relative to the current buffer's upper\nleft corner, in surface-local coordinates. In other words, the\nx and y, combined with the new surface size define in which\ndirections the surface's size changes.\n\nThe exact semantics of wl_surface.offset are role-specific. Refer to\nthe documentation of specific roles for more information.\n\nSurface location offset is double-buffered state, see\nwl_surface.commit.\n\nThis request is semantically equivalent to and the replaces the x and y\narguments in the wl_surface.attach request in wl_surface versions prior\nto 5. See wl_surface.attach for details.",
             "summary": "set the surface contents offset"
           },
           "args": [
@@ -2859,7 +2859,7 @@
     {
       "type": "interface",
       "name": "wl_seat",
-      "version": "9",
+      "version": "10",
       "description": {
         "type": "description",
         "text": "A seat is a group of keyboards, pointer and touch devices. This\nobject is published as a global during start up, or when such a\ndevice is hot plugged.  A seat typically has a pointer and\nmaintains a keyboard focus and a pointer focus.",
@@ -3025,7 +3025,7 @@
     {
       "type": "interface",
       "name": "wl_pointer",
-      "version": "9",
+      "version": "10",
       "description": {
         "type": "description",
         "text": "The wl_pointer interface represents one or more input devices,\nsuch as mice, which control the pointer location and pointer_focus\nof a seat.\n\nThe wl_pointer interface generates motion, enter and leave\nevents for the surfaces that the pointer is located over,\nand button and axis events for button presses, button releases\nand scrolling.",
@@ -3499,7 +3499,7 @@
     {
       "type": "interface",
       "name": "wl_keyboard",
-      "version": "9",
+      "version": "10",
       "description": {
         "type": "description",
         "text": "The wl_keyboard interface represents one or more keyboards\nassociated with a seat.\n\nEach wl_keyboard has the following logical state:\n\n- an active surface (possibly null),\n- the keys currently logically down,\n- the active modifiers,\n- the active group.\n\nBy default, the active surface is null, the keys currently logically down\nare empty, the active modifiers and the active group are 0.",
@@ -3554,7 +3554,7 @@
           "name": "enter",
           "description": {
             "type": "description",
-            "text": "Notification that this seat's keyboard focus is on a certain\nsurface.\n\nThe compositor must send the wl_keyboard.modifiers event after this\nevent.\n\nIn the wl_keyboard logical state, this event sets the active surface to\nthe surface argument and the keys currently logically down to the keys\nin the keys argument. The compositor must not send this event if the\nwl_keyboard already had an active surface immediately before this event.",
+            "text": "Notification that this seat's keyboard focus is on a certain\nsurface.\n\nThe compositor must send the wl_keyboard.modifiers event after this\nevent.\n\nIn the wl_keyboard logical state, this event sets the active surface to\nthe surface argument and the keys currently logically down to the keys\nin the keys argument. The compositor must not send this event if the\nwl_keyboard already had an active surface immediately before this event.\n\nClients should not use the list of pressed keys to emulate key-press\nevents. The order of keys in the list is unspecified.",
             "summary": "enter event"
           },
           "args": [
@@ -3608,7 +3608,7 @@
           "name": "key",
           "description": {
             "type": "description",
-            "text": "A key was pressed or released.\nThe time argument is a timestamp with millisecond\ngranularity, with an undefined base.\n\nThe key is a platform-specific key code that can be interpreted\nby feeding it to the keyboard mapping (see the keymap event).\n\nIf this event produces a change in modifiers, then the resulting\nwl_keyboard.modifiers event must be sent after this event.\n\nIn the wl_keyboard logical state, this event adds the key to the keys\ncurrently logically down (if the state argument is pressed) or removes\nthe key from the keys currently logically down (if the state argument is\nreleased). The compositor must not send this event if the wl_keyboard\ndid not have an active surface immediately before this event. The\ncompositor must not send this event if state is pressed (resp. released)\nand the key was already logically down (resp. was not logically down)\nimmediately before this event.",
+            "text": "A key was pressed or released.\nThe time argument is a timestamp with millisecond\ngranularity, with an undefined base.\n\nThe key is a platform-specific key code that can be interpreted\nby feeding it to the keyboard mapping (see the keymap event).\n\nIf this event produces a change in modifiers, then the resulting\nwl_keyboard.modifiers event must be sent after this event.\n\nIn the wl_keyboard logical state, this event adds the key to the keys\ncurrently logically down (if the state argument is pressed) or removes\nthe key from the keys currently logically down (if the state argument is\nreleased). The compositor must not send this event if the wl_keyboard\ndid not have an active surface immediately before this event. The\ncompositor must not send this event if state is pressed (resp. released)\nand the key was already logically down (resp. was not logically down)\nimmediately before this event.\n\nSince version 10, compositors may send key events with the \"repeated\"\nkey state when a wl_keyboard.repeat_info event with a rate argument of\n0 has been received. This allows the compositor to take over the\nresponsibility of key repetition.",
             "summary": "key event"
           },
           "args": [
@@ -3736,7 +3736,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "Describes the physical state of a key that produced the key event.",
+            "text": "Describes the physical state of a key that produced the key event.\n\nSince version 10, the key can be in a \"repeated\" pseudo-state which\nmeans the same as \"pressed\", but is used to signal repetition in the\nkey event.\n\nThe key may only enter the repeated state after entering the pressed\nstate and before entering the released state. This event may be\ngenerated multiple times while the key is down.",
             "summary": "physical key state"
           },
           "entries": [
@@ -3751,6 +3751,13 @@
               "name": "pressed",
               "value": "1",
               "summary": "key is pressed"
+            },
+            {
+              "type": "entry",
+              "name": "repeated",
+              "value": "2",
+              "summary": "key was repeated",
+              "since": "10"
             }
           ]
         }
@@ -3759,7 +3766,7 @@
     {
       "type": "interface",
       "name": "wl_touch",
-      "version": "9",
+      "version": "10",
       "description": {
         "type": "description",
         "text": "The wl_touch interface represents a touchscreen\nassociated with a seat.\n\nTouch interactions can consist of one or more contacts.\nFor each contact, a series of events is generated, starting\nwith a down event, followed by zero or more motion events,\nand ending with an up event. Events relating to the same\ncontact point can be identified by the ID of the sequence.",
@@ -4579,6 +4586,48 @@
           ]
         }
       ]
+    },
+    {
+      "type": "interface",
+      "name": "wl_fixes",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global fixes problems with other core-protocol interfaces that\ncannot be fixed in these interfaces themselves.",
+        "summary": "wayland protocol fixes"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroys this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy_registry",
+          "description": {
+            "type": "description",
+            "text": "This request destroys a wl_registry object.\n\nThe client should no longer use the wl_registry after making this\nrequest.\n\nThe compositor will emit a wl_display.delete_id event with the object ID\nof the registry and will no longer emit any events on the registry. The\nclient should re-use the object ID once it receives the\nwl_display.delete_id event.",
+            "summary": "destroy a wl_registry"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "registry",
+              "argType": "object",
+              "summary": "the registry to destroy",
+              "interface": "wl_registry"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
     }
   ]
 }

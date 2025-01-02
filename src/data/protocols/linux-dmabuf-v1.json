@@ -93,6 +93,7 @@
         {
           "type": "event",
           "name": "format",
+          "deprecatedSince": "4",
           "description": {
             "type": "description",
             "text": "This event advertises one buffer format that the server supports.\nAll the supported formats are advertised once when the client\nbinds to this interface. A roundtrip after binding guarantees\nthat the client has received all supported formats.\n\nFor the definition of the format codes, see the\nzwp_linux_buffer_params_v1::create request.\n\nStarting version 4, the format event is deprecated and must not be\nsent by compositors. Instead, use get_default_feedback or\nget_surface_feedback.",
@@ -111,6 +112,7 @@
           "type": "event",
           "name": "modifier",
           "since": "3",
+          "deprecatedSince": "4",
           "description": {
             "type": "description",
             "text": "This event advertises the formats that the server supports, along with\nthe modifiers supported for each format. All the supported modifiers\nfor all the supported formats are advertised once when the client\nbinds to this interface. A roundtrip after binding guarantees that\nthe client has received all supported format-modifier pairs.\n\nFor legacy support, DRM_FORMAT_MOD_INVALID (that is, modifier_hi ==\n0x00ffffff and modifier_lo == 0xffffffff) is allowed in this event.\nIt indicates that the server can support the format with an implicit\nmodifier. When a plane has DRM_FORMAT_MOD_INVALID as its modifier, it\nis as if no explicit modifier is specified. The effective modifier\nwill be derived from the dmabuf.\n\nA compositor that sends valid modifiers and DRM_FORMAT_MOD_INVALID for\na given format supports both explicit modifiers and implicit modifiers.\n\nFor the definition of the format and modifier codes, see the\nzwp_linux_buffer_params_v1::create and zwp_linux_buffer_params_v1::add\nrequests.\n\nStarting version 4, the modifier event is deprecated and must not be\nsent by compositors. Instead, use get_default_feedback or\nget_surface_feedback.",

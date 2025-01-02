@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_external_brightness_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Some brightness control mechanisms are somewhat unstable, or require root\nprivileges, so putting them inside of the compositor is not desired.\nThis protocol is for outsourcing the actual brightness-setting to a\nprocess outside of the compositor.",
@@ -49,10 +49,10 @@
     {
       "type": "interface",
       "name": "kde_external_brightness_device_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
-        "text": "After creating this object, the client should issue all relevant setup requests\n(set_internal, set_edid, set_max_brightness) and finish the sequence with commit.\nAfterwards, for each change in values, the client must call commit again.",
+        "text": "After creating this object, the client should issue all relevant setup requests\n(set_internal, set_edid, set_max_brightness, optionally set_observed_brightness)\nand finish the sequence with commit.\nAfterwards, for each change in values, the client must call commit again.",
         "summary": "brightness control device"
       },
       "requests": [
@@ -122,6 +122,24 @@
             "summary": "notifies the compositor that all relevant identifiers and values have been sent"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_observed_brightness",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "The client can set this to notify the compositor of the device's initial brightness.\nIt can also set this again after the initial commit to notify the compositor that\nthe brightness level has changed due to external factors.\nThe compositor is free to use or ignore this value as it sees fit.",
+            "summary": "notifies the compositor of the brightness that was read from this device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "uint",
+              "summary": "the observed value that was read"
+            }
+          ]
         }
       ],
       "events": [
@@ -130,7 +148,7 @@
           "name": "requested_brightness",
           "description": {
             "type": "description",
-            "text": "The client must ensure that if the brightness level changes due to external factors,\nthat it overwrites those changes with what the compositor last requested.",
+            "text": "The client must ensure that if the brightness level changes due to external factors,\nthat it either overwrites those changes with what the compositor last requested,\nor commit again with set_observed_brightness specifying the changed brightness.",
             "summary": "requests the client to change the brightness to this value"
           },
           "args": [

@@ -132,6 +132,7 @@
         {
           "type": "event",
           "name": "done",
+          "deprecatedSince": "3",
           "description": {
             "type": "description",
             "text": "This event is sent after all other properties of an xdg_output\nhave been sent.\n\nThis allows changes to the xdg_output properties to be seen as\natomic, even if they happen via multiple events.\n\nFor objects version 3 onwards, this event is deprecated. Compositors\nare not required to send it anymore and must send wl_output.done\ninstead.",

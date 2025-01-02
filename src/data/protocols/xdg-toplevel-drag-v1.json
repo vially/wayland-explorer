@@ -94,7 +94,7 @@
           "name": "attach",
           "description": {
             "type": "description",
-            "text": "Request that the window will be moved with the cursor during the drag\noperation. The offset is a hint to the compositor how the toplevel\nshould be positioned relative to the cursor hotspot in surface local\ncoordinates. For example it might only be used when an unmapped window\nis attached. The attached window does not participate in the selection\nof the drag target.\n\nIf the toplevel is unmapped while it is attached, it is automatically\ndetached from the drag. In this case this request has to be called again\nif the window should be attached after it is remapped.\n\nThis request can be called multiple times but issuing it while a\ntoplevel with an active role is attached raises a toplevel_attached\nerror.",
+            "text": "Request that the window will be moved with the cursor during the drag\noperation. The offset is a hint to the compositor how the toplevel\nshould be positioned relative to the cursor hotspot in surface local\ncoordinates and relative to the geometry of the toplevel being attached.\nSee xdg_surface.set_window_geometry. For example it might only\nbe used when an unmapped window is attached. The attached window\ndoes not participate in the selection of the drag target.\n\nIf the toplevel is unmapped while it is attached, it is automatically\ndetached from the drag. In this case this request has to be called again\nif the window should be attached after it is remapped.\n\nThis request can be called multiple times but issuing it while a\ntoplevel with an active role is attached raises a toplevel_attached\nerror.",
             "summary": "Move a toplevel with the drag operation"
           },
           "args": [

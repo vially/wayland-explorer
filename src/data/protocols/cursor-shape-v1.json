@@ -32,7 +32,7 @@
           "name": "get_pointer",
           "description": {
             "type": "description",
-            "text": "Obtain a wp_cursor_shape_device_v1 for a wl_pointer object.",
+            "text": "Obtain a wp_cursor_shape_device_v1 for a wl_pointer object.\n\nWhen the pointer capability is removed from the wl_seat, the\nwp_cursor_shape_device_v1 object becomes inert.",
             "summary": "manage the cursor shape of a pointer device"
           },
           "args": [
@@ -56,7 +56,7 @@
           "name": "get_tablet_tool_v2",
           "description": {
             "type": "description",
-            "text": "Obtain a wp_cursor_shape_device_v1 for a zwp_tablet_tool_v2 object.",
+            "text": "Obtain a wp_cursor_shape_device_v1 for a zwp_tablet_tool_v2 object.\n\nWhen the zwp_tablet_tool_v2 is removed, the wp_cursor_shape_device_v1\nobject becomes inert.",
             "summary": "manage the cursor shape of a tablet tool device"
           },
           "args": [

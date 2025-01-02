@@ -32,7 +32,7 @@
           "name": "create_listener",
           "description": {
             "type": "description",
-            "text": "Creates a new security context with a socket listening FD.\n\nThe compositor will accept new client connections on listen_fd.\nlisten_fd must be ready to accept new connections when this request is\nsent by the client. In other words, the client must call bind(2) and\nlisten(2) before sending the FD.\n\nclose_fd is a FD closed by the client when the compositor should stop\naccepting new connections on listen_fd.\n\nThe compositor must continue to accept connections on listen_fd when\nthe Wayland client which created the security context disconnects.\n\nAfter sending this request, closing listen_fd and close_fd remains the\nonly valid operation on them.",
+            "text": "Creates a new security context with a socket listening FD.\n\nThe compositor will accept new client connections on listen_fd.\nlisten_fd must be ready to accept new connections when this request is\nsent by the client. In other words, the client must call bind(2) and\nlisten(2) before sending the FD.\n\nclose_fd is a FD that will signal hangup when the compositor should stop\naccepting new connections on listen_fd.\n\nThe compositor must continue to accept connections on listen_fd when\nthe Wayland client which created the security context disconnects.\n\nAfter sending this request, closing listen_fd and close_fd remains the\nonly valid operation on them.",
             "summary": "create a new security context"
           },
           "args": [
@@ -52,7 +52,7 @@
               "type": "arg",
               "name": "close_fd",
               "argType": "fd",
-              "summary": "FD closed when done"
+              "summary": "FD signaling when done"
             }
           ]
         }

@@ -81,7 +81,7 @@
           "name": "set_mode",
           "description": {
             "type": "description",
-            "text": "Set the toplevel surface decoration mode. This informs the compositor\nthat the client prefers the provided decoration mode.\n\nAfter requesting a decoration mode, the compositor will respond by\nemitting an xdg_surface.configure event. The client should then update\nits content, drawing it without decorations if the received mode is\nserver-side decorations. The client must also acknowledge the configure\nwhen committing the new content (see xdg_surface.ack_configure).\n\nThe compositor can decide not to use the client's mode and enforce a\ndifferent mode instead.\n\nClients whose decoration mode depend on the xdg_toplevel state may send\na set_mode request in response to an xdg_surface.configure event and wait\nfor the next xdg_surface.configure event to prevent unwanted state.\nSuch clients are responsible for preventing configure loops and must\nmake sure not to send multiple successive set_mode requests with the\nsame decoration mode.",
+            "text": "Set the toplevel surface decoration mode. This informs the compositor\nthat the client prefers the provided decoration mode.\n\nAfter requesting a decoration mode, the compositor will respond by\nemitting an xdg_surface.configure event. The client should then update\nits content, drawing it without decorations if the received mode is\nserver-side decorations. The client must also acknowledge the configure\nwhen committing the new content (see xdg_surface.ack_configure).\n\nThe compositor can decide not to use the client's mode and enforce a\ndifferent mode instead.\n\nClients whose decoration mode depend on the xdg_toplevel state may send\na set_mode request in response to an xdg_surface.configure event and wait\nfor the next xdg_surface.configure event to prevent unwanted state.\nSuch clients are responsible for preventing configure loops and must\nmake sure not to send multiple successive set_mode requests with the\nsame decoration mode.\n\nIf an invalid mode is supplied by the client, the invalid_mode protocol\nerror is raised by the compositor.",
             "summary": "set the decoration mode"
           },
           "args": [
@@ -148,6 +148,12 @@
               "name": "orphaned",
               "value": "2",
               "summary": "xdg_toplevel destroyed before the decoration object"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_mode",
+              "value": "3",
+              "summary": "invalid mode"
             }
           ]
         },

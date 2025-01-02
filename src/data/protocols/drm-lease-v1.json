@@ -192,7 +192,7 @@
           "name": "withdrawn",
           "description": {
             "type": "description",
-            "text": "Sent to indicate that the compositor will no longer honor requests for\nDRM leases which include this connector. The client may still issue a\nlease request including this connector, but the compositor will send\nwp_drm_lease_v1.finished without issuing a lease fd. Compositors are\nencouraged to send this event when they lose access to connector, for\nexample when the connector is hot-unplugged, when the connector gets\nleased to a client or when the compositor loses DRM master.",
+            "text": "Sent to indicate that the compositor will no longer honor requests for\nDRM leases which include this connector. The client may still issue a\nlease request including this connector, but the compositor will send\nwp_drm_lease_v1.finished without issuing a lease fd. Compositors are\nencouraged to send this event when they lose access to connector, for\nexample when the connector is hot-unplugged, when the connector gets\nleased to a client or when the compositor loses DRM master.\n\nIf a client holds a lease for the connector, the status of the lease\nremains the same. The client should destroy the object after receiving\nthis event.",
             "summary": "lease offer withdrawn"
           },
           "args": []
@@ -291,7 +291,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "The client should send this to indicate that it no longer wishes to use\nthis lease. The compositor should use drmModeRevokeLease on the\nappropriate file descriptor, if necessary.",
+            "text": "The client should send this to indicate that it no longer wishes to use\nthis lease. The compositor should use drmModeRevokeLease on the\nappropriate file descriptor, if necessary.\n\nUpon destruction, the compositor should advertise the connector for\nleasing again by sending the connector event through the\nwp_drm_lease_device_v1 interface.",
             "summary": "destroys the lease object"
           },
           "args": []
@@ -320,7 +320,7 @@
           "name": "finished",
           "description": {
             "type": "description",
-            "text": "The compositor uses this event to either reject a lease request, or if\nit previously sent a lease_fd, to notify the client that the lease has\nbeen revoked. If the client requires a new lease, they should destroy\nthis object and submit a new lease request. The compositor will send\nno further events for this object after sending the finish event.\nCompositors should revoke the lease when any of the leased resources\nbecome unavailable, namely when a hot-unplug occurs or when the\ncompositor loses DRM master.",
+            "text": "The compositor uses this event to either reject a lease request, or if\nit previously sent a lease_fd, to notify the client that the lease has\nbeen revoked. If the client requires a new lease, they should destroy\nthis object and submit a new lease request. The compositor will send\nno further events for this object after sending the finish event.\nCompositors should revoke the lease when any of the leased resources\nbecome unavailable, namely when a hot-unplug occurs or when the\ncompositor loses DRM master. Compositors may advertise the connector\nfor leasing again, if the resource is available, by sending the\nconnector event through the wp_drm_lease_device_v1 interface.",
             "summary": "sent when the lease has been revoked"
           },
           "args": []
