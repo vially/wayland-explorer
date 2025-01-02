@@ -52,10 +52,10 @@ async function main(fileName: string) {
         }
         const protocolRef = interfaceMap.get(ref)
         if (protocolRef === undefined) {
-            console.error(`Missing protocol refrence in argument: ${ref}`)
+            console.error(`Missing protocol reference in argument: ${ref}`)
             continue
         }
-        console.warn(`Successfully linked protocol refrence: ${ref}`)
+        console.warn(`Successfully linked protocol reference: ${ref}`)
         arg.protocol = protocolRef
     }
 
