@@ -13,3 +13,6 @@
 [submodule "protocols/libwayland"]
 	path = protocols/libwayland
 	url = https://gitlab.freedesktop.org/wayland/wayland.git
+[submodule "protocols/hyprland"]
+	path = protocols/hyprland
+	url = https://github.com/hyprwm/hyprland-protocols.git

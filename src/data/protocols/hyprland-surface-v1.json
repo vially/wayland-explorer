@@ -1,0 +1,139 @@
+{
+  "type": "protocol",
+  "name": "hyprland_surface_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 outfoxxed\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol exposes hyprland-specific wl_surface properties.",
+    "summary": "hyprland-specific wl_surface extensions"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_surface_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to create hyprland surface objects.",
+        "summary": "manager for hyprland surface objects"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_hyprland_surface",
+          "description": {
+            "type": "description",
+            "text": "Create a hyprland surface object for the given wayland surface.\n\nIf the wl_surface already has an associated hyprland_surface_v1 object,\neven from a different manager, creation is a protocol error.",
+            "summary": "create a hyprland surface object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "hyprland_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the surface manager.\nThis does not destroy existing surface objects.",
+            "summary": "destroy the hyprland surface manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_constructed",
+              "value": "0",
+              "summary": "wl_surface already has a hyprland surface object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_surface_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows access to hyprland-specific properties of a wl_surface.\n\nOnce the wl_surface has been destroyed, the hyprland surface object must be\ndestroyed as well. All other operations are a protocol error.",
+        "summary": "hyprland-specific wl_surface properties"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_opacity",
+          "description": {
+            "type": "description",
+            "text": "Sets a multiplier for the overall opacity of the surface.\nThis multiplier applies to visual effects such as blur behind the surface\nin addition to the surface's content.\n\nThe default value is 1.0.\nSetting a value outside of the range 0.0 - 1.0 (inclusive) is a protocol error.\nDoes not take effect until wl_surface.commit is called.",
+            "summary": "set the overall opacity of the surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "opacity",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the hyprland surface object, resetting properties provided\nby this interface to their default values on the next wl_surface.commit.",
+            "summary": "destroy the hyprland surface interface"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_surface",
+              "value": "0",
+              "summary": "wl_surface was destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "out_of_range",
+              "value": "1",
+              "summary": "given opacity was not in the range 0.0 - 1.0 (inclusive)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

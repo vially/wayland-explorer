@@ -49,6 +49,15 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://invent.kde.org/libraries/plasma-wayland-protocols/-/blob/master/src/protocols/${protocol}.xml',
     },
+    [WaylandProtocolSource.HyprlandProtocols]: {
+        repositoryUrl: 'https://github.com/hyprwm/hyprland-protocols',
+        stabilityUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/hyprwm/hyprland-protocols/tree/main/protocols',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/hyprwm/hyprland-protocols/blob/main/protocols/${protocol}.xml',
+    },
     [WaylandProtocolSource.CosmicProtocols]: {
         repositoryUrl: 'https://github.com/pop-os/cosmic-protocols',
         stabilityUrl:

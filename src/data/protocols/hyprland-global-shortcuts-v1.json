@@ -1,0 +1,179 @@
+{
+  "type": "protocol",
+  "name": "hyprland_global_shortcuts_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2022 Vaxry\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a client to register triggerable actions,\nmeant to be global shortcuts.",
+    "summary": "registering global shortcuts"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_global_shortcuts_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to create global shortcuts.",
+        "summary": "manager to register global shortcuts"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "register_shortcut",
+          "description": {
+            "type": "description",
+            "text": "Register a new global shortcut.\n\nA global shortcut is anonymous, meaning the app does not know what key(s) trigger it.\n\nThe shortcut's keybinding shall be dealt with by the compositor.\n\nIn the case of a duplicate app_id + id combination, the already_taken protocol error is raised.",
+            "summary": "register a shortcut"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "shortcut",
+              "argType": "new_id",
+              "interface": "hyprland_global_shortcut_v1"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "string",
+              "summary": "a unique id for the shortcut"
+            },
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "summary": "the app_id of the application requesting the shortcut"
+            },
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "user-readable text describing what the shortcut does."
+            },
+            {
+              "type": "arg",
+              "name": "trigger_description",
+              "argType": "string",
+              "summary": "user-readable text describing how to trigger the shortcut for the client to render."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their\nappropriate destroy request has been called.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_taken",
+              "value": "0",
+              "summary": "the app_id + id combination has already been registered."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_global_shortcut_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents a single shortcut.",
+        "summary": "a shortcut"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the shortcut. Can be sent at any time by the client.",
+            "summary": "delete this object, used or not"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "pressed",
+          "description": {
+            "type": "description",
+            "text": "The keystroke was pressed.\n\ntv_ values hold the timestamp of the occurrence.",
+            "summary": "keystroke pressed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of the timestamp"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "released",
+          "description": {
+            "type": "description",
+            "text": "The keystroke was released.\n\ntv_ values hold the timestamp of the occurrence.",
+            "summary": "keystroke released"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of the timestamp"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

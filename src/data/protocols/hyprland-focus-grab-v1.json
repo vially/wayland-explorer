@@ -1,0 +1,139 @@
+{
+  "type": "protocol",
+  "name": "hyprland_focus_grab_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 outfoxxed\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to limit input focus to a specific set\nof surfaces and receive a notification when the limiter is removed as\ndetailed below.",
+    "summary": "limit input focus to a set of surfaces"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_focus_grab_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to create surface grab objects.",
+        "summary": "manager for focus grab objects"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_grab",
+          "description": {
+            "type": "description",
+            "text": "Create a surface grab object.",
+            "summary": "create a focus grab object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "grab",
+              "argType": "new_id",
+              "interface": "hyprland_focus_grab_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the focus grab manager.\nThis doesn't destroy existing focus grab objects.",
+            "summary": "destroy the focus grab manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_focus_grab_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface restricts input focus to a specified whitelist of\nsurfaces as long as the focus grab object exists and has at least\none comitted surface.\n\nMouse and touch events inside a whitelisted surface will be passed\nto the surface normally, while events outside of a whitelisted surface\nwill clear the grab object. Keyboard events will be passed to the client\nand a compositor-picked surface in the whitelist will receive a\nwl_keyboard::enter event if a whitelisted surface is not already entered.\n\nUpon meeting implementation-defined criteria usually meaning a mouse or\ntouch input outside of any whitelisted surfaces, the compositor will\nclear the whitelist, rendering the grab inert and sending the cleared\nevent. The same will happen if another focus grab or similar action\nis started at the compositor's discretion.",
+        "summary": "input focus limiter"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "add_surface",
+          "description": {
+            "type": "description",
+            "text": "Add a surface to the whitelist. Destroying the surface is treated the\nsame as an explicit call to remove_surface and duplicate additions are\nignored.\n\nDoes not take effect until commit is called.",
+            "summary": "add a surface to the focus whitelist"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "remove_surface",
+          "description": {
+            "type": "description",
+            "text": "Remove a surface from the whitelist. Destroying the surface is treated\nthe same as an explicit call to this function.\n\nIf the grab was active and the removed surface was entered by the\nkeyboard, another surface will be entered on commit.\n\nDoes not take effect until commit is called.",
+            "summary": "remove a surface from the focus whitelist"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Commit pending changes to the surface whitelist.\n\nIf the list previously had no entries and now has at least one, the grab\nwill start. If it previously had entries and now has none, the grab will\nbecome inert.",
+            "summary": "commit the focus whitelist"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the grab object and remove the grab if active.",
+            "summary": "destroy the focus grab"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "cleared",
+          "description": {
+            "type": "description",
+            "text": "Sent when an active grab is cancelled by the compositor,\nregardless of cause.",
+            "summary": "the focus grab was cleared"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

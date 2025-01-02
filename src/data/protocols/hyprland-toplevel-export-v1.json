@@ -1,0 +1,352 @@
+{
+  "type": "protocol",
+  "name": "hyprland_toplevel_export_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2022 Vaxry\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to ask for exporting another toplevel's\nsurface(s) to a buffer.\n\nParticularly useful for sharing a single window.",
+    "summary": "capturing the contents of toplevel windows"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_toplevel_export_manager_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to start capturing from a\nsource.",
+        "summary": "manager to inform clients and begin capturing"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "capture_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Capture the next frame of a toplevel. (window)\n\nThe captured frame will not contain any server-side decorations and will\nignore the compositor-set geometry, like e.g. rounded corners.\n\nIt will contain all the subsurfaces and popups, however the latter will be clipped\nto the geometry of the base surface.\n\nThe handle parameter refers to the address of the window as seen in `hyprctl clients`.\nFor example, for d161e7b0 it would be 3512854448.",
+            "summary": "capture a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame",
+              "argType": "new_id",
+              "interface": "hyprland_toplevel_export_frame_v1"
+            },
+            {
+              "type": "arg",
+              "name": "overlay_cursor",
+              "argType": "int",
+              "summary": "composite cursor onto the frame"
+            },
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "uint",
+              "summary": "the handle of the toplevel (window) to be captured"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their\nappropriate destroy request has been called.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "capture_toplevel_with_wlr_toplevel_handle",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Same as capture_toplevel, but with a zwlr_foreign_toplevel_handle_v1 handle.",
+            "summary": "capture a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame",
+              "argType": "new_id",
+              "interface": "hyprland_toplevel_export_frame_v1"
+            },
+            {
+              "type": "arg",
+              "name": "overlay_cursor",
+              "argType": "int",
+              "summary": "composite cursor onto the frame"
+            },
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "object",
+              "summary": "the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured",
+              "interface": "zwlr_foreign_toplevel_handle_v1",
+              "allowNull": "false",
+              "protocol": "wlr-foreign-toplevel-management-unstable-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_toplevel_export_frame_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This object represents a single frame.\n\nWhen created, a series of buffer events will be sent, each representing a\nsupported buffer type. The \"buffer_done\" event is sent afterwards to\nindicate that all supported buffer types have been enumerated. The client\nwill then be able to send a \"copy\" request. If the capture is successful,\nthe compositor will send a \"flags\" followed by a \"ready\" event.\n\nwl_shm buffers are always supported, ie. the \"buffer\" event is guaranteed to be sent.\n\nIf the capture failed, the \"failed\" event is sent. This can happen anytime\nbefore the \"ready\" event.\n\nOnce either a \"ready\" or a \"failed\" event is received, the client should\ndestroy the frame.",
+        "summary": "a frame ready for copy"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "copy",
+          "description": {
+            "type": "description",
+            "text": "Copy the frame to the supplied buffer. The buffer must have the\ncorrect size, see hyprland_toplevel_export_frame_v1.buffer and\nhyprland_toplevel_export_frame_v1.linux_dmabuf. The buffer needs to have a\nsupported format.\n\nIf the frame is successfully copied, a \"flags\" and a \"ready\" event is\nsent. Otherwise, a \"failed\" event is sent.\n\nThis event will wait for appropriate damage to be copied, unless the ignore_damage\narg is set to a non-zero value.",
+            "summary": "copy the frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "ignore_damage",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the frame. This request can be sent at any time by the client.",
+            "summary": "delete this object, used or not"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "buffer",
+          "description": {
+            "type": "description",
+            "text": "Provides information about wl_shm buffer parameters that need to be\nused for this frame. This event is sent once after the frame is created\nif wl_shm buffers are supported.",
+            "summary": "wl_shm buffer information"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "buffer format",
+              "enum": "wl_shm.format",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "buffer width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "buffer height"
+            },
+            {
+              "type": "arg",
+              "name": "stride",
+              "argType": "uint",
+              "summary": "buffer stride"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "damage",
+          "description": {
+            "type": "description",
+            "text": "This event is sent right before the ready event when ignore_damage was\nnot set. It may be generated multiple times for each copy\nrequest.\n\nThe arguments describe a box around an area that has changed since the\nlast copy request that was derived from the current screencopy manager\ninstance.\n\nThe union of all regions received between the call to copy\nand a ready event is the total damage since the prior ready event.",
+            "summary": "carries the coordinates of the damaged region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "uint",
+              "summary": "damaged x coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "uint",
+              "summary": "damaged y coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "current width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "current height"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "flags",
+          "description": {
+            "type": "description",
+            "text": "Provides flags about the frame. This event is sent once before the\n\"ready\" event.",
+            "summary": "frame flags"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "frame flags",
+              "enum": "flags"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "Called as soon as the frame is copied, indicating it is available\nfor reading. This event includes the time at which presentation happened\nat.\n\nThe timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\neach component being an unsigned 32-bit value. Whole seconds are in\ntv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\nand the additional fractional part in tv_nsec as nanoseconds. Hence,\nfor valid timestamps tv_nsec must be in [0, 999999999]. The seconds part\nmay have an arbitrary offset at start.\n\nAfter receiving this event, the client should destroy the object.",
+            "summary": "indicates frame is available for reading"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the seconds part of the timestamp"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "nanoseconds part of the timestamp"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the attempted frame copy has failed.\n\nAfter receiving this event, the client should destroy the object.",
+            "summary": "frame copy failed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "linux_dmabuf",
+          "description": {
+            "type": "description",
+            "text": "Provides information about linux-dmabuf buffer parameters that need to\nbe used for this frame. This event is sent once after the frame is\ncreated if linux-dmabuf buffers are supported.",
+            "summary": "linux-dmabuf buffer information"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "fourcc pixel format"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "buffer width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "buffer height"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "buffer_done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once after all buffer events have been sent.\n\nThe client should proceed to create a buffer of one of the supported\ntypes, and send a \"copy\" request.",
+            "summary": "all buffer types reported"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_used",
+              "value": "0",
+              "summary": "the object has already been used to copy a wl_buffer"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_buffer",
+              "value": "1",
+              "summary": "buffer attributes are invalid"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "flags",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "y_invert",
+              "value": "1",
+              "summary": "contents are y-inverted"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

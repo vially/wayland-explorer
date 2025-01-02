@@ -122,6 +122,15 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const hyprlandProtocolsUnstable: Section = {
+        name: 'Hyprland unstable',
+        items: protocols.filter(
+            ({ source, stability }) =>
+                source === WaylandProtocolSource.HyprlandProtocols &&
+                stability === WaylandProtocolStability.Unstable
+        ),
+    }
+
     const cosmicProtocolsUnstable: Section = {
         name: 'Cosmic unstable',
         items: protocols.filter(
@@ -154,6 +163,7 @@ function groupProtocolsIntoSections(): Section[] {
         waylandProtocolsUnstable,
         wlrProtocolsUnstable,
         kdeProtocolsUnstable,
+        hyprlandProtocolsUnstable,
         cosmicProtocolsUnstable,
         westonProtocolsUnstable,
         externalProtocols,

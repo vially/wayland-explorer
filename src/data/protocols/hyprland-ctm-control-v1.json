@@ -1,0 +1,127 @@
+{
+  "type": "protocol",
+  "name": "hyprland_ctm_control_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 Vaxry\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a client to control outputs' color transform matrix (CTM).\n\nThis protocol is privileged and should not be exposed to unprivileged clients.",
+    "summary": "controlling outputs' color transform matrix"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_ctm_control_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to control CTMs.\n\nIf any changes are done, once this object is destroyed, CTMs are reset back to\nan identity matrix.",
+        "summary": "manager to control CTMs"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_ctm_for_output",
+          "description": {
+            "type": "description",
+            "text": "Set a CTM for a wl_output.\n\nThis state is not applied immediately; clients must call .commit to\napply any pending changes.\n\nThe provided values describe a 3x3 Row-Major CTM with values in the range of [0, ∞)\n\nPassing values outside of the range will raise an invalid_matrix error.\n\nThe default value of the CTM is an identity matrix.\n\nIf an output doesn't get a CTM set with set_ctm_for_output and commit is called,\nthat output will get its CTM reset to an identity matrix.",
+            "summary": "set the CTM of an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "mat0",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat1",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat2",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat3",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat4",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat5",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat6",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat7",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "mat8",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Commits the pending state(s) set by set_ctm_for_output.",
+            "summary": "commit the pending state"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their\nappropriate destroy request has been called.\n\nThe CTMs of all outputs will be reset to an identity matrix.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_matrix",
+              "value": "0",
+              "summary": "the matrix values are invalid."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
