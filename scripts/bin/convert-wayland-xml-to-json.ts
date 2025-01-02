@@ -2,14 +2,10 @@ import { readFileSync, readdirSync, readlinkSync } from 'fs'
 import path from 'path'
 import { argv } from 'process'
 import {
-    WaylandElement,
-    WaylandElementType,
-    WaylandEvent,
-    WaylandProtocol,
-    WaylandRequest,
-} from '../../src/model/wayland'
-import { transformXMLElement, xmlParser } from '../../src/lib/xml-protocol-transformers'
-import { jsonFileNameFor } from '../lib/utils'
+    transformXMLElement,
+    xmlParser,
+} from '../../src/lib/xml-protocol-transformers'
+import { WaylandElementType, WaylandProtocol } from '../../src/model/wayland'
 
 async function main(fileName: string) {
     const fileData = readFileSync(fileName, 'utf-8')

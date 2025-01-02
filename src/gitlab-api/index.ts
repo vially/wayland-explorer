@@ -2,7 +2,10 @@ import {
     WaylandElementType,
     WaylandProtocol as WaylandProtocolModel,
 } from '../model/wayland'
-import { transformXMLElement, xmlParser } from '../lib/xml-protocol-transformers'
+import {
+    transformXMLElement,
+    xmlParser,
+} from '../lib/xml-protocol-transformers'
 
 export interface GitLabFile {
     name: string
