@@ -11,6 +11,7 @@ export enum WaylandProtocolSource {
     KDEProtocols = 'kde-protocols',
     HyprlandProtocols = 'hyprland-protocols',
     CosmicProtocols = 'cosmic-protocols',
+    FrogProtocols = 'frog-protocols',
     WestonProtocols = 'weston-protocols',
     External = 'external',
 }

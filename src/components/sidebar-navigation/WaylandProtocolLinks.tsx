@@ -140,6 +140,14 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const frogProtocols: Section = {
+        name: 'Frog',
+        items: protocols.filter(
+            ({ source }) => 
+                source === WaylandProtocolSource.FrogProtocols
+        ),
+    }
+
     const westonProtocolsUnstable: Section = {
         name: 'Weston unstable',
         items: protocols.filter(
@@ -165,6 +173,7 @@ function groupProtocolsIntoSections(): Section[] {
         kdeProtocolsUnstable,
         hyprlandProtocolsUnstable,
         cosmicProtocolsUnstable,
+        frogProtocols,
         westonProtocolsUnstable,
         externalProtocols,
     ]
