@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1734268508168,
-  "version": "0.1.10",
+  "generationTimestamp": 1736867913010,
+  "version": "25.01",
   "globals": [
     {
       "interface": "ext_idle_notifier_v1",
@@ -64,7 +64,7 @@
     },
     {
       "interface": "wp_presentation",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
