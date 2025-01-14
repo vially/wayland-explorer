@@ -1,5 +1,6 @@
 {
   "generationTimestamp": 1736883418169,
+  "version": "47.3",
   "globals": [
     {
       "interface": "gtk_shell1",
