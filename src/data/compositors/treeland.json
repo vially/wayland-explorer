@@ -1,0 +1,147 @@
+{
+  "generationTimestamp": 1737439436773,
+  "version": "0.5.17",
+  "globals": [
+    {
+      "interface": "treeland_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_dde_shell_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_foreign_toplevel_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_output_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_personalization_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_shortcut_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_virtual_output_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_wallpaper_color_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_window_management_v1",
+      "version": 1
+    },
+    {
+      "interface": "wl_compositor",
+      "version": 6
+    },
+    {
+      "interface": "wl_data_device_manager",
+      "version": 3
+    },
+    {
+      "interface": "wl_output",
+      "version": 4
+    },
+    {
+      "interface": "wl_seat",
+      "version": 9
+    },
+    {
+      "interface": "wl_shm",
+      "version": 2
+    },
+    {
+      "interface": "wl_subcompositor",
+      "version": 1
+    },
+    {
+      "interface": "wp_cursor_shape_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_fractional_scale_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_viewporter",
+      "version": 1
+    },
+    {
+      "interface": "xdg_wm_base",
+      "version": 5
+    },
+    {
+      "interface": "zwlr_data_control_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zwlr_foreign_toplevel_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "zwlr_gamma_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 4
+    },
+    {
+      "interface": "zwlr_output_manager_v1",
+      "version": 4
+    },
+    {
+      "interface": "zwlr_screencopy_manager_v1",
+      "version": 3
+    },
+    {
+      "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 4
+    },
+    {
+      "interface": "zwp_pointer_gestures_v1",
+      "version": 3
+    },
+    {
+      "interface": "zwp_primary_selection_device_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v3",
+      "version": 1
+    },
+    {
+      "interface": "zwp_virtual_keyboard_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_decoration_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_output_manager_v1",
+      "version": 3
+    }
+  ]
+}
+
