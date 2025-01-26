@@ -33,7 +33,7 @@
           "description": {
             "type": "description",
             "text": "Create a new alpha modifier surface object associated with the\ngiven wl_surface. If there is already such an object associated with\nthe wl_surface, the already_constructed error will be raised.",
-            "summary": "create a new toplevel decoration object"
+            "summary": "create a new alpha modifier surface object"
           },
           "args": [
             {

@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "ext_idle_notifier_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows clients to monitor user idle status.\n\nAfter binding to this global, clients can create ext_idle_notification_v1\nobjects to get notified when the user is idle for a given amount of time.",
@@ -56,6 +56,37 @@
               "protocol": "wayland"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "get_input_idle_notification",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Create a new idle notification object to track input from the\nuser, such as keyboard and mouse movement. Because this object is\nmeant to track user input alone, it ignores idle inhibitors.\n\nThe notification object has a minimum timeout duration and is tied to a\nseat. The client will be notified if the seat is inactive for at least\nthe provided timeout. See ext_idle_notification_v1 for more details.\n\nA zero timeout is valid and means the client wants to be notified as\nsoon as possible when the seat is inactive.",
+            "summary": "create a notification object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "ext_idle_notification_v1"
+            },
+            {
+              "type": "arg",
+              "name": "timeout",
+              "argType": "uint",
+              "summary": "minimum idle timeout in msec"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
         }
       ],
       "events": [],
@@ -64,10 +95,10 @@
     {
       "type": "interface",
       "name": "ext_idle_notification_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
-        "text": "This interface is used by the compositor to send idle notification events\nto clients.\n\nInitially the notification object is not idle. The notification object\nbecomes idle when no user activity has happened for at least the timeout\nduration, starting from the creation of the notification object. User\nactivity may include input events or a presence sensor, but is\ncompositor-specific. If an idle inhibitor is active (e.g. another client\nhas created a zwp_idle_inhibitor_v1 on a visible surface), the compositor\nmust not make the notification object idle.\n\nWhen the notification object becomes idle, an idled event is sent. When\nuser activity starts again, the notification object stops being idle,\na resumed event is sent and the timeout is restarted.",
+        "text": "This interface is used by the compositor to send idle notification events\nto clients.\n\nInitially the notification object is not idle. The notification object\nbecomes idle when no user activity has happened for at least the timeout\nduration, starting from the creation of the notification object. User\nactivity may include input events or a presence sensor, but is\ncompositor-specific.\n\nHow this notification responds to idle inhibitors depends on how\nit was constructed. If constructed from the\nget_idle_notification request, then if an idle inhibitor is\nactive (e.g. another client has created a zwp_idle_inhibitor_v1\non a visible surface), the compositor must not make the\nnotification object idle. However, if constructed from the\nget_input_idle_notification request, then idle inhibitors are\nignored, and only input from the user, e.g. from a keyboard or\nmouse, counts as activity.\n\nWhen the notification object becomes idle, an idled event is sent. When\nuser activity starts again, the notification object stops being idle,\na resumed event is sent and the timeout is restarted.",
         "summary": "idle notification"
       },
       "requests": [

@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "hyprland_surface_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows a client to create hyprland surface objects.",
@@ -77,7 +77,7 @@
     {
       "type": "interface",
       "name": "hyprland_surface_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows access to hyprland-specific properties of a wl_surface.\n\nOnce the wl_surface has been destroyed, the hyprland surface object must be\ndestroyed as well. All other operations are a protocol error.",
@@ -110,6 +110,26 @@
             "summary": "destroy the hyprland surface interface"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_visible_region",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This request sets the region of the surface that contains visible content.\nVisible content refers to content that has an alpha value greater than zero.\n\nThe visible region is an optimization hint for the compositor that lets it\navoid drawing parts of the surface that are not visible. Setting a visible region\nthat does not contain all content in the surface may result in missing content\nnot being drawn.\n\nThe visible region is specified in buffer-local coordinates.\n\nThe compositor ignores the parts of the visible region that fall outside of the surface.\nWhen all parts of the region fall outside of the buffer geometry, the compositor may\navoid rendering the surface entirely.\n\nThe initial value for the visible region is empty. Setting the\nvisible region has copy semantics, and the wl_region object can be destroyed immediately.\nA NULL wl_region causes the visible region to be set to empty.\n\nDoes not take effect until wl_surface.commit is called.",
+            "summary": "set the visible region of the surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "region",
+              "argType": "object",
+              "interface": "wl_region",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
         }
       ],
       "events": [],

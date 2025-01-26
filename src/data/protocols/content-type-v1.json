@@ -33,7 +33,7 @@
           "description": {
             "type": "description",
             "text": "Create a new content type object associated with the given surface.\n\nCreating a wp_content_type_v1 from a wl_surface which already has one\nattached is a client error: already_constructed.",
-            "summary": "create a new toplevel decoration object"
+            "summary": "create a new content type object"
           },
           "args": [
             {

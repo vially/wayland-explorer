@@ -650,6 +650,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/hyprland-toplevel-export-v1.json'),
     },
     {
+        id: 'hyprland-lock-notify-v1',
+        name: 'Hyprland lock notify',
+        source: WaylandProtocolSource.HyprlandProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/hyprland-lock-notify-v1.json'),
+    },
+    {
         id: 'cosmic-image-source-unstable-v1',
         name: 'COSMIC image source',
         source: WaylandProtocolSource.CosmicProtocols,

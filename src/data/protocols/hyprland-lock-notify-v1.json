@@ -1,0 +1,98 @@
+{
+  "type": "protocol",
+  "name": "hyprland_lock_notify_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 Maximilian Seidler\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_lock_notifier_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to monitor whether the wayland session is\nlocked or unlocked.",
+        "summary": "lock notification manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object. All objects created via this interface\nremain valid.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_lock_notification",
+          "description": {
+            "type": "description",
+            "text": "Create a new lock notification object.\n\nIf the session is already locked when calling this method,\nthe locked event shall be sent immediately.",
+            "summary": "create a notification object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "hyprland_lock_notification_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_lock_notification_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is used by the compositor to send lock notification events\nto clients.\n\nTypically the \"locked\" and \"unlocked\" events are emitted when a client\nlocks/unlocks the session via ext-session-lock, but the compositor may\nchoose to send notifications for any other locking mechanisms.\n\nThe compositor must notfiy after possible transition periods\nbetween locked and unlocked states of the session.\nIn the context of ext-session-lock, that means the \"locked\" event is\nexpected to be sent after the session-lock client has presented\na lock screen frame on every output, which corresponds to the \"locked\"\nevent of ext-session-lock.",
+        "summary": "lock notification"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the notification object.",
+            "summary": "destroy the notification object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "locked",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the wayland session is locked.\n\nIt's a compositor protocol error to send this event twice without an\nunlock event in-between.",
+            "summary": "session is locked"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unlocked",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the wayland session is unlocked.\n\nIt's a compositor protocol error to send this event twice without an\nlocked event in-between. It's a compositor protocol error to send this\nevent prior to any locked event.",
+            "summary": "session is no longer locked"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}
