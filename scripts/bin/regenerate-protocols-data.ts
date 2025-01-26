@@ -1,11 +1,11 @@
 import { promises as fs } from 'fs'
 import path from 'path'
-import { WaylandElementType } from '../../src/model/wayland'
-import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
 import {
     transformXMLElement,
     xmlParser,
 } from '../../src/lib/xml-protocol-transformers'
+import { WaylandElementType } from '../../src/model/wayland'
+import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
 
 const relativeProtocolDirs = [
     path.join('protocols', 'libwayland', 'protocol'),
@@ -14,6 +14,7 @@ const relativeProtocolDirs = [
     path.join('protocols', 'wayland', 'unstable'),
     path.join('protocols', 'wlr', 'unstable'),
     path.join('protocols', 'kde', 'src', 'protocols'),
+    path.join('protocols', 'hyprland', 'protocols'),
     path.join('protocols', 'weston', 'protocol'),
     path.join('protocols', 'external'),
 ]
