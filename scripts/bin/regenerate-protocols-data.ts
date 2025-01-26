@@ -27,7 +27,9 @@ const jsonFilePathFor = (srcFileName: string): string =>
     )
 
 const deprecatedProtocols = [
+    'linux-dmabuf-unstable-v1.xml',
     'tablet-unstable-v1.xml',
+    'tablet-unstable-v2.xml',
     'text-input-unstable-v1.xml',
     'xdg-foreign-unstable-v1.xml',
     'xdg-shell-unstable-v5.xml',
@@ -47,6 +49,12 @@ const deprecatedProtocols = [
      * Unused libwayland protocol
      */
     'tests.xml',
+    /**
+     * Temporarily ignore the *Weston* `color-management-v1` protocol until it
+     * gets merged upstream:
+     * https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/14
+     */
+    'color-management-v1.xml',
 ]
 
 async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
