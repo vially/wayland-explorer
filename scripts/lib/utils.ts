@@ -30,8 +30,17 @@ export async function findXMLFiles(rootDirectory: string): Promise<string[]> {
     return xmlFiles.flat()
 }
 
-export function jsonFileNameFor(srcFileName: string): string {
-    const baseName = path.basename(srcFileName, '.xml')
+export function protocolIdFor(srcFileName: string): string {
+    let baseName = path.basename(srcFileName, '.xml')
+
+    // Strip `org-` prefix from some KDE protocol file names (e.g.:
+    // `org-kde-plasma-virtual-desktop`)
+    if (
+        path.dirname(srcFileName).endsWith('/kde/src/protocols') &&
+        baseName.startsWith('org-kde-')
+    ) {
+        baseName = baseName.substring('org-'.length)
+    }
 
     // Add `kde-` prefix to KDE protocol file names to avoid potential future name clashes
     const prefix =
@@ -40,5 +49,5 @@ export function jsonFileNameFor(srcFileName: string): string {
             ? 'kde-'
             : ''
 
-    return `${prefix}${baseName}.json`
+    return `${prefix}${baseName}`
 }

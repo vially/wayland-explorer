@@ -4,8 +4,8 @@ import {
     transformXMLElement,
     xmlParser,
 } from '../../src/lib/xml-protocol-transformers'
-import { WaylandElementType } from '../../src/model/wayland'
-import { findXMLFiles, jsonFileNameFor } from '../lib/utils'
+import { WaylandElementType, WaylandProtocol } from '../../src/model/wayland'
+import { findXMLFiles, protocolIdFor } from '../lib/utils'
 
 const relativeProtocolDirs = [
     path.join('protocols', 'libwayland', 'protocol'),
@@ -19,12 +19,8 @@ const relativeProtocolDirs = [
     path.join('protocols', 'external'),
 ]
 
-const jsonFilePathFor = (srcFileName: string): string =>
-    path.resolve(
-        __dirname,
-        '../../src/data/protocols',
-        jsonFileNameFor(srcFileName)
-    )
+const jsonFilePathFor = (protocolId: string): string =>
+    path.resolve(__dirname, '../../src/data/protocols', `${protocolId}.json`)
 
 const deprecatedProtocols = [
     'linux-dmabuf-unstable-v1.xml',
@@ -57,17 +53,89 @@ const deprecatedProtocols = [
     'color-management-v1.xml',
 ]
 
-async function parseProtocolAndWriteToJSON(srcFileName: string): Promise<void> {
+interface WaylandProtocolWithId extends WaylandProtocol {
+    id: string
+}
+
+async function parseProtocol(
+    srcFileName: string
+): Promise<WaylandProtocolWithId> {
     const fileData = await fs.readFile(srcFileName, 'utf-8')
     const xmlData = xmlParser.parse(fileData)
     const protocol = transformXMLElement(
         xmlData['protocol'],
         WaylandElementType.Protocol
+    ) as WaylandProtocol
+
+    const protocolId = protocolIdFor(srcFileName)
+
+    return { id: protocolId, ...protocol }
+}
+
+const fixCrossProtocolReferencesFor =
+    (interfaceToProtocolMapping: Map<string, string>) =>
+    (protocol: WaylandProtocolWithId) => {
+        const args = protocol.interfaces
+            .flatMap(({ requests, events }) => [
+                ...(requests ?? []),
+                ...(events ?? []),
+            ])
+            .flatMap((item) => item.args)
+
+        const isLocalInterface = (interfaceName: string) =>
+            protocol.interfaces.some((inter) => inter.name === interfaceName)
+
+        for (const arg of args) {
+            const argEnumInterface = arg.enum?.includes('.')
+                ? arg.enum.split('.')[0]
+                : undefined
+            const argInterfaceName = arg.interface ?? argEnumInterface
+
+            if (!argInterfaceName || isLocalInterface(argInterfaceName)) {
+                continue
+            }
+
+            const protocolName =
+                interfaceToProtocolMapping.get(argInterfaceName)
+            if (!protocolName) {
+                console.error(
+                    `[${protocol.id}] Missing protocol reference in argument: ${argInterfaceName}`
+                )
+                continue
+            }
+            arg.protocol = protocolName
+        }
+    }
+
+async function writeToJSONFile(protocolWithId: WaylandProtocolWithId) {
+    const { id: protocolId, ...protocol } = protocolWithId
+    await fs.writeFile(
+        jsonFilePathFor(protocolId),
+        JSON.stringify(protocol, undefined, 2) + '\n'
     )
 
-    const dstFileName = jsonFilePathFor(srcFileName)
-    await fs.writeFile(dstFileName, JSON.stringify(protocol, undefined, 2))
-    console.log(`✔ ${path.basename(dstFileName)}`)
+    console.log(`✔ ${protocolId}.json`)
+}
+
+function generateInterfaceToProtocolMapping(
+    protocols: WaylandProtocolWithId[]
+): Map<string, string> {
+    return protocols.reduce((mapping, protocol) => {
+        protocol.interfaces.forEach((inter) => {
+            const existingProtocolId = mapping.get(inter.name)
+            if (existingProtocolId) {
+                console.warn(
+                    'Interface name found in multiple protocols:',
+                    `${existingProtocolId}.${inter.name}`,
+                    `${protocol.id}.${inter.name}`
+                )
+            } else {
+                mapping.set(inter.name, protocol.id)
+            }
+        })
+
+        return mapping
+    }, new Map<string, string>())
 }
 
 async function main() {
@@ -82,7 +150,14 @@ async function main() {
         .flat()
         .filter(isNotDeprecated)
 
-    await Promise.all(xmlFileNames.map(parseProtocolAndWriteToJSON))
+    const protocols = await Promise.all(xmlFileNames.map(parseProtocol))
+
+    const interfaceToProtocolMapping =
+        generateInterfaceToProtocolMapping(protocols)
+
+    protocols.forEach(fixCrossProtocolReferencesFor(interfaceToProtocolMapping))
+
+    protocols.map(writeToJSONFile)
 }
 
 main()
