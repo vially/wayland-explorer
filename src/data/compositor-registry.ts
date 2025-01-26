@@ -76,6 +76,11 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/jay.json'),
     },
     {
+        id: 'labwc',
+        name: 'Labwc',
+        info: require('./compositors/labwc.json'),
+    },
+    {
         id: 'treeland',
         name: 'Treeland',
         info: require('./compositors/treeland.json'),
