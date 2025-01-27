@@ -1,22 +1,42 @@
 {
-  "generationTimestamp": 1709750464116,
-  "version": "13",
+  "generationTimestamp": 1737939500990,
+  "version": "0.14",
   "globals": [
+    {
+      "interface": "weston_capture_v1",
+      "version": 1
+    },
+    {
+      "interface": "weston_desktop_shell",
+      "version": 1
+    },
     {
       "interface": "wl_compositor",
       "version": 5
     },
     {
+      "interface": "wl_data_device_manager",
+      "version": 3
+    },
+    {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
+      "interface": "wl_output",
+      "version": 4
+    },
+    {
+      "interface": "wl_seat",
+      "version": 7
+    },
+    {
+      "interface": "wl_shm",
+      "version": 2
+    },
+    {
       "interface": "wl_subcompositor",
       "version": 1
-    },
-    {
-      "interface": "wp_viewporter",
-      "version": 1
-    },
-    {
-      "interface": "zxdg_output_manager_v1",
-      "version": 2
     },
     {
       "interface": "wp_presentation",
@@ -31,67 +51,7 @@
       "version": 1
     },
     {
-      "interface": "zwp_relative_pointer_manager_v1",
-      "version": 1
-    },
-    {
-      "interface": "zwp_pointer_constraints_v1",
-      "version": 1
-    },
-    {
-      "interface": "zwp_input_timestamps_manager_v1",
-      "version": 1
-    },
-    {
-      "interface": "weston_capture_v1",
-      "version": 1
-    },
-    {
-      "interface": "wl_data_device_manager",
-      "version": 3
-    },
-    {
-      "interface": "wl_shm",
-      "version": 1
-    },
-    {
-      "interface": "wl_drm",
-      "version": 2
-    },
-    {
-      "interface": "wl_seat",
-      "version": 7
-    },
-    {
-      "interface": "zwp_linux_dmabuf_v1",
-      "version": 4
-    },
-    {
-      "interface": "weston_direct_display_v1",
-      "version": 1
-    },
-    {
-      "interface": "zwp_linux_explicit_synchronization_v1",
-      "version": 2
-    },
-    {
-      "interface": "weston_content_protection",
-      "version": 1
-    },
-    {
-      "interface": "wl_output",
-      "version": 4
-    },
-    {
-      "interface": "zwp_input_panel_v1",
-      "version": 1
-    },
-    {
-      "interface": "zwp_input_method_v1",
-      "version": 1
-    },
-    {
-      "interface": "zwp_text_input_manager_v1",
+      "interface": "wp_viewporter",
       "version": 1
     },
     {
@@ -99,8 +59,36 @@
       "version": 5
     },
     {
-      "interface": "weston_desktop_shell",
+      "interface": "zwp_input_method_v1",
       "version": 1
+    },
+    {
+      "interface": "zwp_input_panel_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_timestamps_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
+      "version": 5
+    },
+    {
+      "interface": "zwp_pointer_constraints_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_relative_pointer_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_text_input_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_output_manager_v1",
+      "version": 2
     }
   ]
 }

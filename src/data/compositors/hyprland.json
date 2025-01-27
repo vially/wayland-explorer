@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1723742497160,
-  "version": "0.42.0",
+  "generationTimestamp": 1737939451762,
+  "version": "0.44",
   "globals": [
     {
       "interface": "ext_foreign_toplevel_list_v1",
@@ -83,6 +83,10 @@
       "version": 1
     },
     {
+      "interface": "wp_single_pixel_buffer_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_tearing_control_manager_v1",
       "version": 1
     },
@@ -92,6 +96,10 @@
     },
     {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_dialog_v1",
       "version": 1
     },
     {
