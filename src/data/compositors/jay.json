@@ -1,7 +1,11 @@
 {
-  "generationTimestamp": 1729843799447,
-  "version": "1.7.0",
+  "generationTimestamp": 1737971421887,
+  "version": "1.9.0",
   "globals": [
+    {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
       "version": 1
@@ -12,7 +16,7 @@
     },
     {
       "interface": "ext_idle_notifier_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "ext_image_copy_capture_manager_v1",
@@ -31,8 +35,12 @@
       "version": 1
     },
     {
+      "interface": "ext_workspace_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "jay_compositor",
-      "version": 12
+      "version": 13
     },
     {
       "interface": "jay_damage_tracking",
@@ -57,6 +65,10 @@
     {
       "interface": "wl_drm",
       "version": 2
+    },
+    {
+      "interface": "wl_fixes",
+      "version": 1
     },
     {
       "interface": "wl_output",
