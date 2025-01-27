@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1737939500990,
-  "version": "0.14",
+  "version": "14",
   "globals": [
     {
       "interface": "weston_capture_v1",
