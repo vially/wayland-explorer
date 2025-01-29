@@ -87,4 +87,9 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'deepin',
         info: require('./compositors/treeland.json'),
     },
+    {
+        id: 'louvre',
+        name: 'Louvre',
+        info: require('./compositors/louvre.json'),
+    },
 ]
