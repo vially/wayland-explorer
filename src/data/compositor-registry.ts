@@ -90,6 +90,7 @@ export const compositorRegistry: CompositorRegistryItem[] = [
     {
         id: 'louvre',
         name: 'Louvre',
+        icon: 'louvre',
         info: require('./compositors/louvre.json'),
     },
 ]
