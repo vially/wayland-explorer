@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1738178000142,
-  "version": "2.14.0",
+  "version": "2.14.1",
   "globals": [
     {
       "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
@@ -33,6 +33,10 @@
     {
       "interface": "wl_drm",
       "version": 2
+    },
+    {
+      "interface": "wp_drm_lease_device_v1",
+      "version": 1
     },
     {
       "interface": "wl_eglstream_display",
@@ -96,6 +100,10 @@
     },
     {
       "interface": "zwlr_layer_shell_v1",
+      "version": 5
+    },
+    {
+      "interface": "zwp_linux_dmabuf_v1",
       "version": 5
     },
     {
