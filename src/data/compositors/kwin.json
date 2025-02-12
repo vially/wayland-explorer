@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1730641507766,
-  "version": "6.2",
+  "generationTimestamp": 1739378942698,
+  "version": "6.3",
   "globals": [
     {
       "interface": "ext_idle_notifier_v1",
@@ -12,19 +12,15 @@
     },
     {
       "interface": "kde_external_brightness_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "kde_output_device_v2",
-      "version": 9
-    },
-    {
-      "interface": "kde_output_device_v2",
-      "version": 9
+      "version": 11
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 9
+      "version": 12
     },
     {
       "interface": "kde_output_order_v1",
@@ -36,7 +32,7 @@
     },
     {
       "interface": "org_kde_kwin_appmenu_manager",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "org_kde_kwin_blur_manager",
@@ -132,7 +128,7 @@
     },
     {
       "interface": "wp_presentation",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
@@ -151,7 +147,15 @@
       "version": 1
     },
     {
+      "interface": "xdg_system_bell_v1",
+      "version": 1
+    },
+    {
       "interface": "xdg_toplevel_drag_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_toplevel_icon_manager_v1",
       "version": 1
     },
     {
