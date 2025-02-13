@@ -44,13 +44,7 @@ const deprecatedProtocols = [
     /**
      * Unused libwayland protocol
      */
-    'tests.xml',
-    /**
-     * Temporarily ignore the *Weston* `color-management-v1` protocol until it
-     * gets merged upstream:
-     * https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/14
-     */
-    'color-management-v1.xml',
+    'tests.xml'
 ]
 
 interface WaylandProtocolWithId extends WaylandProtocol {
@@ -146,9 +140,17 @@ async function main() {
     const isNotDeprecated = (fileName: string) =>
         !deprecatedProtocols.includes(path.basename(fileName))
 
+    /*
+    Weston has a protocol with the same same than as a standardized protocol.
+    So we need this filter to make sure the standardized protocol is used.
+    */
+    const colorManagementFilter = (fileName: string) =>
+        !(path.basename(fileName) === "color-management-v1.xml" && path.basename(path.dirname(fileName)) !== "color-management")
+
     const xmlFileNames = (await Promise.all(protocolDirs.map(findXMLFiles)))
         .flat()
         .filter(isNotDeprecated)
+        .filter(colorManagementFilter)
 
     const protocols = await Promise.all(xmlFileNames.map(parseProtocol))
 
