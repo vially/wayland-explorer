@@ -232,6 +232,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-workspace-v1.json'),
     },
     {
+        id: 'color-management-v1',
+        name: 'Color management',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/color-management-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
