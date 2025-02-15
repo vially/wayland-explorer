@@ -82,6 +82,11 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/labwc.json'),
     },
     {
+        id: 'wayfire',
+        name: 'Wayfire',
+        info: require('./compositors/wayfire.json'),
+    },
+    {
         id: 'treeland',
         name: 'Treeland',
         icon: 'deepin',
