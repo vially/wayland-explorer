@@ -1,0 +1,91 @@
+{
+  "type": "protocol",
+  "name": "treeland_shortcut_manager_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_shortcut_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to get some shell's info.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "shortcut manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "register_shortcut_context",
+          "description": {
+            "type": "description",
+            "text": "The format of the shortcut key is 'Modify+Key', such as 'Ctrl+Alt+T'.\nIf the format is wrong, the synthesizer will give a \"format error\". If the shortcut\nkey is already registered,\nthe compositor will give a \"register error\" and issue a destruction to the context.",
+            "summary": "register shortcut key"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_shortcut_context_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_shortcut_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to listen a shortcut action.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "client shortcut context"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "shortcut",
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "register_failed",
+              "value": "1",
+              "summary": "shortcut register failed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

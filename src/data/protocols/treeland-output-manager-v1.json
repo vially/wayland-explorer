@@ -1,0 +1,70 @@
+{
+  "type": "protocol",
+  "name": "treeland_output_manager_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_output_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Protocol for telling which is the primary display among the selection of enabled\noutputs.",
+        "summary": "expose which is the primary display"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_primary_output",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "Select which primary output to use"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "allowNull": "false"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "Destroy the primary output notifier."
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "primary_output",
+          "description": {
+            "type": "description",
+            "text": "Specifies which output is the primary one identified by their name.",
+            "summary": "Provide the current primary output's name"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string",
+              "summary": "the name of the output"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

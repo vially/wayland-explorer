@@ -1,0 +1,641 @@
+{
+  "type": "protocol",
+  "name": "treeland_capture_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows authorized application to capture output contents or window\ncontents(useful for window streaming).",
+    "summary": "protocol for capturing output contents or window contents"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_capture_session_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Unreferences the frame. This request must be called as soon as it's no longer valid.",
+            "summary": "delete this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "start",
+          "description": {
+            "type": "description",
+            "text": "Start session and keeps sending frame.",
+            "summary": "start session"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "frame_done",
+          "description": {
+            "type": "description",
+            "text": "This is the ACK to the current \"ready\" event. The next \"frame\" event will be sent only when current\n\"ready\" event is acknowledged. The timestamp should be the same as the one sent in \"ready\" event.\nIf the frame has the \"transient\" flag, all objects sent before become invalid after this event.",
+            "summary": "Indicates current frame is done."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "tv_usec",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "frame",
+          "description": {
+            "type": "description",
+            "text": "Main event supplying the client with information about the frame. If the capture didn't fail, this event is always\nemitted first before any other events.\nWhen mask is provided, x and y should be offset relative to mask surface origin. Otherwise offset_x and offset_y should always\nbe zero.",
+            "summary": "supply the client with information about the frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset_x",
+              "argType": "int",
+              "summary": "crop offset x"
+            },
+            {
+              "type": "arg",
+              "name": "offset_y",
+              "argType": "int",
+              "summary": "crop offset y"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "buffer_flags",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "enum": "treeland_capture_session_v1.flags"
+            },
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "mod_high",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "mod_low",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "num_objects",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "object",
+          "description": {
+            "type": "description",
+            "summary": "supply the client with object fd"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd"
+            },
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "stride",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "plane_index",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "This event is sent as soon as the frame is presented, indicating it is available for reading. This event\nincludes the time at which presentation happened at.",
+            "summary": "indicates frame is available for reading"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec_hi",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "tv_sec_lo",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cancel",
+          "description": {
+            "type": "description",
+            "text": "If the capture failed or if the frame is no longer valid after the \"frame\" event has been emitted, this\nevent will be used to inform the client to scrap the frame.",
+            "summary": "Notifies current frame is no longer valid."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "treeland_capture_session_v1.cancel_reason"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "cancel_reason",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "temporary",
+              "value": "0",
+              "summary": "temporary error, source will produce more frames"
+            },
+            {
+              "type": "entry",
+              "name": "permanent",
+              "value": "1",
+              "summary": "fatal error, source will not produce frames"
+            },
+            {
+              "type": "entry",
+              "name": "resizing",
+              "value": "2",
+              "summary": "temporary error, source will produce more frames"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "flags",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "transient",
+              "value": "0x1",
+              "summary": "clients should copy frame before processing"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_capture_frame_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the context. This request can be sent at any time by the client.",
+            "summary": "delete this object, used or not"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "copy",
+          "description": {
+            "type": "description",
+            "text": "Copy capture contents to provided buffer",
+            "summary": "copy capture contents"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "buffer",
+          "description": {
+            "type": "description",
+            "text": "Inform client to prepare buffer.",
+            "summary": "inform client to prepare buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "enum": "wl_shm.format",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "stride",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "buffer_done",
+          "description": {
+            "type": "description",
+            "text": "Inform client that all buffer formats supported are emitted.",
+            "summary": "all buffer formats have done"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "flags",
+          "description": {
+            "type": "description",
+            "text": "Provides flags about the frame. This event is sent once before the\n\"ready\" event.",
+            "summary": "frame flags"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "frame flags",
+              "enum": "treeland_capture_once_context_v1.flags"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "Inform that buffer is ready for reading",
+            "summary": "buffer is copied"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "Inform that frame copy fails.",
+            "summary": "frame copy failed"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "flags",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "y_inverted",
+              "value": "0x1",
+              "summary": "contents are y-inverted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_capture_context_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the context. This request can be sent at any time by the client.",
+            "summary": "delete this object, used or not"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "select_source",
+          "description": {
+            "type": "description",
+            "text": "Selector is provided by compositor. Client can provide source hint to hint compositor\nto provide certain kinds of source.",
+            "summary": "select source interactively"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source_hint",
+              "argType": "uint",
+              "enum": "source_type"
+            },
+            {
+              "type": "arg",
+              "name": "freeze",
+              "argType": "uint",
+              "summary": "freeze compositing or not"
+            },
+            {
+              "type": "arg",
+              "name": "with_cursor",
+              "argType": "uint",
+              "summary": "whether source content contains cursor or not"
+            },
+            {
+              "type": "arg",
+              "name": "mask",
+              "argType": "object",
+              "summary": "this mask is guaranteed to be at the top most",
+              "interface": "wl_surface",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "capture",
+          "description": {
+            "type": "description",
+            "text": "This event can be called just once. A second call might result in a protocol error cause\nwe just provide transient",
+            "summary": "capture one frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame",
+              "argType": "new_id",
+              "interface": "treeland_capture_frame_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_session",
+          "description": {
+            "type": "description",
+            "text": "Often used by a screen recorder.",
+            "summary": "create a persistent session for capturing"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "treeland_capture_session_v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "source_ready",
+          "description": {
+            "type": "description",
+            "text": "This event supplies the client some information about the capture source, including\nthe capture region relative to mask and source type.",
+            "summary": "notify client that source is ready"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "region_x",
+              "argType": "int",
+              "summary": "offset x of capture region relative to mask for capture contents"
+            },
+            {
+              "type": "arg",
+              "name": "region_y",
+              "argType": "int",
+              "summary": "offset y of capture region relative to mask for capture contents"
+            },
+            {
+              "type": "arg",
+              "name": "region_width",
+              "argType": "uint",
+              "summary": "width of capture region"
+            },
+            {
+              "type": "arg",
+              "name": "region_height",
+              "argType": "uint",
+              "summary": "height of capture region"
+            },
+            {
+              "type": "arg",
+              "name": "source_type",
+              "argType": "uint",
+              "summary": "final capture source type",
+              "enum": "source_type"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "source_failed",
+          "description": {
+            "type": "description",
+            "text": "There could a lot of reasons but the most common one is that selector is busy",
+            "summary": "notify client that source selection is failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "source_failure"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "source_type",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "output",
+              "value": "0x1",
+              "summary": "output source type"
+            },
+            {
+              "type": "entry",
+              "name": "window",
+              "value": "0x2",
+              "summary": "window source type"
+            },
+            {
+              "type": "entry",
+              "name": "region",
+              "value": "0x4",
+              "summary": "region source type"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "source_failure",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "source failure reason"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "selector_busy",
+              "value": "1",
+              "summary": "selector is occupied by other context"
+            },
+            {
+              "type": "entry",
+              "name": "user_cancel",
+              "value": "2",
+              "summary": "User cancel this context from compositor"
+            },
+            {
+              "type": "entry",
+              "name": "source_destroyed",
+              "value": "3",
+              "summary": "Source has been destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "other",
+              "value": "4",
+              "summary": "other failure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_capture_manager_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_capture_manager_v1 object.",
+            "summary": "destroy the capture manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_context",
+          "description": {
+            "type": "description",
+            "summary": "get a capture context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "context",
+              "argType": "new_id",
+              "interface": "treeland_capture_context_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "type": "protocol",
+  "name": "treeland_virtual_output_manager_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_virtual_output_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager that allows the creation of copied output.",
+        "summary": "Manager creates virtual output"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_virtual_output",
+          "description": {
+            "type": "description",
+            "text": "Create virtual output that can be used when setting screen copy mode for use\non multiple screens. Virtual outputs are created to mirror multiple wl_output\noutputs.\n\nThe element of the array is the name of the screen.\n\nThe first element of the array outputs is the screen to be copied, and\nthe subsequent elements are the screens to be mirrored.\n\nThe client calling this interface will not generate an additional wl_output\nobject on the client.",
+            "summary": "Create a virtual output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_virtual_output_v1"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "The name of the user readable virtual output"
+            },
+            {
+              "type": "arg",
+              "name": "outputs",
+              "argType": "array",
+              "summary": "Screen name array"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_virtual_output_list",
+          "description": {
+            "type": "description",
+            "text": "Gets a list of virtual output names.",
+            "summary": "Gets a list of virtual output names"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_virtual_output",
+          "description": {
+            "type": "description",
+            "text": "The client obtains the corresponding virtual_output_v1 object\nthrough the virtual output name.",
+            "summary": "Get virtual output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "The name of the user readable virtual output"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_virtual_output_v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "virtual_output_list",
+          "description": {
+            "type": "description",
+            "text": "Sends a list of virtual output names to the client.",
+            "summary": "Send a list of virtual output names"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "names",
+              "argType": "array",
+              "summary": "List of virtual output names"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_virtual_output_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A treeland_virtual_output_v1 represents a set virtual screen output object.",
+        "summary": "screen output object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the output.",
+            "summary": "destroy the output"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "outputs",
+          "description": {
+            "type": "description",
+            "text": "This event is sent to the client when any screen in the array changes.\n\nThe element of the array is the name of the screen.\n\nThe first element of the array outputs is the screen to be copied, and\nthe subsequent elements are the screens to be mirrored.\n\nWhen the primary screen (the screen being copied) is removed, a successor\nis selected from the queue as the primary screen, and the queue information\nis updated.",
+            "summary": "screen output changes"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "The name of the user readable virtual output"
+            },
+            {
+              "type": "arg",
+              "name": "outputs",
+              "argType": "array",
+              "summary": "Screen name array"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "error",
+          "description": {
+            "type": "description",
+            "text": "When an error occurs, an error event is emitted, terminating the replication\nmode request issued by the client.",
+            "summary": "Screen copy mode error event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "code",
+              "argType": "uint",
+              "summary": "error code"
+            },
+            {
+              "type": "arg",
+              "name": "message",
+              "argType": "string",
+              "summary": "error description"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_group_name",
+              "value": "0",
+              "summary": "Group name is empty"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_screen_number",
+              "value": "1",
+              "summary": "The number of screens applying for copy mode is less than 2"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_output",
+              "value": "2",
+              "summary": "Output does not exist"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

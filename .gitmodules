@@ -16,3 +16,6 @@
 [submodule "protocols/hyprland"]
 	path = protocols/hyprland
 	url = https://github.com/hyprwm/hyprland-protocols.git
+[submodule "protocols/treeland"]
+	path = protocols/treeland
+	url = https://github.com/linuxdeepin/treeland-protocols.git
