@@ -1,0 +1,87 @@
+{
+  "type": "protocol",
+  "name": "treeland_wallpaper_color_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_wallpaper_color_manager_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "watch",
+          "description": {
+            "type": "description",
+            "text": "Monitor the wallpaper color of a given screen.",
+            "summary": "watch wallpaper color"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "summary": "system output name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unwatch",
+          "description": {
+            "type": "description",
+            "text": "Stop monitor the wallpaper color for the given screen.",
+            "summary": "unwatch wallpaper color"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "summary": "system output name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The client no longer cares about wallpaper_color.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "output_color",
+          "description": {
+            "type": "description",
+            "text": "Tell the client that the wallpaper color of the screen it is monitoring has changed.\nThis event will also be sent immediately when the client requests a watch.",
+            "summary": "output color changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "summary": "system output name"
+            },
+            {
+              "type": "arg",
+              "name": "isdark",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

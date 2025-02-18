@@ -1,0 +1,1166 @@
+{
+  "type": "protocol",
+  "name": "treeland_personalization_manager_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_personalization_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to customized display effects.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "personalization manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_window_context",
+          "description": {
+            "type": "description",
+            "text": "set window background, shadow based on context",
+            "summary": "get personalization window context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_personalization_window_context_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_wallpaper_context",
+          "description": {
+            "type": "description",
+            "text": "custom user wallpaper",
+            "summary": "custom wallpaper context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_personalization_wallpaper_context_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_cursor_context",
+          "description": {
+            "type": "description",
+            "text": "custom user cursor",
+            "summary": "custom wallpaper context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_personalization_cursor_context_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_font_context",
+          "description": {
+            "type": "description",
+            "text": "custom treeland and window global font context",
+            "summary": "custom treeland and window global font context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_personalization_font_context_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_appearance_context",
+          "description": {
+            "type": "description",
+            "text": "custom user treeland window appearance global",
+            "summary": "custom treeland window global settings context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_personalization_appearance_context_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_personalization_wallpaper_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client personalization wallpaper.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "client custom wallpaper context"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_fd",
+          "description": {
+            "type": "description",
+            "summary": "set the current user's wallpaper fd"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "wallpaper file fd"
+            },
+            {
+              "type": "arg",
+              "name": "metadata",
+              "argType": "string",
+              "summary": "file related metadata information"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_identifier",
+          "description": {
+            "type": "description",
+            "summary": "identifier for the application window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "string",
+              "summary": "Identifier for the application window"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_output",
+          "description": {
+            "type": "description",
+            "summary": "configure xdg desktop portal options"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "summary": "system output name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_on",
+          "description": {
+            "type": "description",
+            "summary": "configure xdg desktop portal options"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "options",
+              "argType": "uint",
+              "summary": "xdg desktop portal options",
+              "enum": "options"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_isdark",
+          "description": {
+            "type": "description",
+            "summary": "Set whether the current wallpaper is dark"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "isdark",
+              "argType": "uint",
+              "summary": "is dark"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "summary": "commit configuration"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_metadata",
+          "description": {
+            "type": "description",
+            "text": "get the current user's wallpaper",
+            "summary": "get user save meta data"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "metadata",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after getting the user's wallpaper.",
+            "summary": "get metadata event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "metadata",
+              "argType": "string",
+              "summary": "user meta data"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "options",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "xdg desktop portal supported keys"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "preview",
+              "value": "1",
+              "summary": "whether to show a preview of the picture"
+            },
+            {
+              "type": "entry",
+              "name": "background",
+              "value": "2",
+              "summary": "configure screen background"
+            },
+            {
+              "type": "entry",
+              "name": "lockscreen",
+              "value": "4",
+              "summary": "configure screen wallpaper"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_personalization_cursor_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client personalization cursor.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "client custom cursor context"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_theme",
+          "description": {
+            "type": "description",
+            "summary": "set system cursor theme"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "cursor theme name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_theme",
+          "description": {
+            "type": "description",
+            "summary": "get system cursor theme"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_size",
+          "description": {
+            "type": "description",
+            "summary": "set system cursor size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint",
+              "summary": "cursor size"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_size",
+          "description": {
+            "type": "description",
+            "summary": "get system cursor size"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "if only one commit fails validation, the commit will fail",
+            "summary": "commit configure"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "verfity",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after commit cursor configure.",
+            "summary": "verfity event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "success",
+              "argType": "int",
+              "summary": "check whether the configuration is successful"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "theme",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after system cursor theme changed.",
+            "summary": "cursor theme changed event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "cursor theme name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "size",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after system cursor size changed.",
+            "summary": "cursor size changed event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint",
+              "summary": "cursor size"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_personalization_window_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client personalization window.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "client custom window context"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_blend_mode",
+          "description": {
+            "type": "description",
+            "text": "Set window background blend mode",
+            "summary": "set window background blend mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "int",
+              "enum": "window_blend_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_round_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "This request will set window round corner radius, invoking this request means user\nwant to\nmanage window round corner radius by itself. If not invoked, window round corner\nradius will\nbe decided by compositor.",
+            "summary": "set window round corner radius"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_shadow",
+          "description": {
+            "type": "description",
+            "text": "Set window shadow's radius, offset and color, invoking this request indicates that\nclient want to manage\nthe window shadow by itself. If not invoked, window shadow will be decided by the\ncompositor",
+            "summary": "set window shadow"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "offset_x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "offset_y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "a",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_border",
+          "description": {
+            "type": "description",
+            "text": "Set window border width and color",
+            "summary": "set window border"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "a",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_titlebar",
+          "description": {
+            "type": "description",
+            "text": "Set if system titlebar is enabled",
+            "summary": "set if system titlebar is enabled"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "int",
+              "enum": "enable_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "blend_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Window blend mode defines how compositor composite window's surface over other\nsurfaces.",
+            "summary": "window blend mode"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "transparent",
+              "value": "0",
+              "summary": "Normal blend mode, just composite over background with alpha channel"
+            },
+            {
+              "type": "entry",
+              "name": "wallpaper",
+              "value": "1",
+              "summary": "Composite window over wallpaper"
+            },
+            {
+              "type": "entry",
+              "name": "blur",
+              "value": "2",
+              "summary": "Blur the content of the window background"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "enable_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Set window enable mode",
+            "summary": "window enable mode"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "enable",
+              "value": "0",
+              "summary": "force enable titlebar"
+            },
+            {
+              "type": "entry",
+              "name": "disable",
+              "value": "1",
+              "summary": "force disable titlebar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_personalization_font_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows set treeland window global font settings.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "treeland window global font settings"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_font_size",
+          "description": {
+            "type": "description",
+            "text": "Set the system font size",
+            "summary": "set system font size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint",
+              "summary": "font size"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_font_size",
+          "description": {
+            "type": "description",
+            "text": "Get the system font size",
+            "summary": "get system font size"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_font",
+          "description": {
+            "type": "description",
+            "text": "Set the system font",
+            "summary": "set system font"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "font name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_font",
+          "description": {
+            "type": "description",
+            "text": "Get the system font",
+            "summary": "get system font"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_monospace_font",
+          "description": {
+            "type": "description",
+            "text": "Set the system monospace font",
+            "summary": "set system monospace font"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "monospace font name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_monospace_font",
+          "description": {
+            "type": "description",
+            "text": "Get the system monospace font",
+            "summary": "get system monospace font"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "font",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system font.",
+            "summary": "font event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "font name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "monospace_font",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system monospace font.",
+            "summary": "monospace font event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "monospace font name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "font_size",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system font size.",
+            "summary": "font size"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_size",
+              "argType": "uint",
+              "summary": "font size"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_personalization_appearance_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows set treeland window global appearance settings.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "treeland window global appearance settings"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_round_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Set window round corner radius",
+            "summary": "set window round corner radius"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_round_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Get window round corner radius",
+            "summary": "get window round corner radius"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_icon_theme",
+          "description": {
+            "type": "description",
+            "text": "Set the system icon theme",
+            "summary": "set system icon theme"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "theme",
+              "argType": "string",
+              "summary": "icon theme"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_icon_theme",
+          "description": {
+            "type": "description",
+            "text": "Get the system icon theme",
+            "summary": "get system icon theme"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_active_color",
+          "description": {
+            "type": "description",
+            "text": "Set the system active color",
+            "summary": "set system active color"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "color",
+              "argType": "string",
+              "summary": "rgb"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_active_color",
+          "description": {
+            "type": "description",
+            "text": "Get the system active color",
+            "summary": "get system active color"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_window_opacity",
+          "description": {
+            "type": "description",
+            "text": "Set the window window opacity",
+            "summary": "set window window opacity"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "opacity",
+              "argType": "uint",
+              "summary": "opacity"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_window_opacity",
+          "description": {
+            "type": "description",
+            "text": "Get the window window opacity",
+            "summary": "get window window opacity"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_window_theme_type",
+          "description": {
+            "type": "description",
+            "text": "Set the window theme.",
+            "summary": "set window theme type"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "window theme type",
+              "enum": "theme_type"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_window_theme_type",
+          "description": {
+            "type": "description",
+            "text": "Get the window theme type",
+            "summary": "get window theme type"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_window_titlebar_height",
+          "description": {
+            "type": "description",
+            "text": "Set the window titlebar height",
+            "summary": "set window titlebar height"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "window titlebar height"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_window_titlebar_height",
+          "description": {
+            "type": "description",
+            "text": "Get the window titlebar height",
+            "summary": "get window titlebar height"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "round_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the round corner radius.",
+            "summary": "round corner radius event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "int",
+              "summary": "round corner radius"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "icon_theme",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system icon theme.",
+            "summary": "icon theme event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "theme_name",
+              "argType": "string",
+              "summary": "icon theme name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "active_color",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system active color",
+            "summary": "active color"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "active_color",
+              "argType": "string",
+              "summary": "active color"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "window_opacity",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system active color",
+            "summary": "window opacity"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "opacity",
+              "argType": "uint",
+              "summary": "window opacity"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "window_theme_type",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the system theme",
+            "summary": "window theme"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "window theme type",
+              "enum": "theme_type"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "window_titlebar_height",
+          "description": {
+            "type": "description",
+            "text": "Send this signal after setting the window titlebar height",
+            "summary": "window titlebar height"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "window titlebar height"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "theme_type",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "window theme type"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "auto",
+              "value": "1",
+              "summary": "window auto theme"
+            },
+            {
+              "type": "entry",
+              "name": "light",
+              "value": "2",
+              "summary": "window light theme"
+            },
+            {
+              "type": "entry",
+              "name": "dark",
+              "value": "4",
+              "summary": "window dark theme"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_round_corner_radius",
+              "value": "0",
+              "summary": "Wrong round corner radius"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_icon_theme",
+              "value": "1",
+              "summary": "Wrong icon theme"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_active_color",
+              "value": "2",
+              "summary": "Wrong active color"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_window_opacity",
+              "value": "4",
+              "summary": "Wrong window opacity"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_window_theme_type",
+              "value": "8",
+              "summary": "Wrong theme type"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_window_titlebar_height",
+              "value": "16",
+              "summary": "Wrong window titlebar height"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

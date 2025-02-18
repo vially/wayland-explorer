@@ -1,0 +1,696 @@
+{
+  "type": "protocol",
+  "name": "treeland_dde_shell_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_dde_shell_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows DDE change some treeland function.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "dde shell manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_window_overlap_checker",
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_window_overlap_checker"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_shell_surface",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Create a shell surface for an existing wl_surface.\n\nOnly one shell surface can be associated with a given surface.\n\nRecommended for use with xdg_surface.",
+            "summary": "create a shell surface from a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_dde_shell_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_treeland_dde_active",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Create a new dde active for a given seat.",
+            "summary": "create a new dde active"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_dde_active_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat associated with the dde_active",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_treeland_multitaskview",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Create a new multitaskview context for toggle.",
+            "summary": "create a new multitaskview context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_multitaskview_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_treeland_window_picker",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Create a new window picker to pick window.",
+            "summary": "create a new window picker"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_window_picker_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_treeland_lockscreen",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Create a new lockscreen context for toggle.",
+            "summary": "create a new lockscreen context"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_lockscreen_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_window_overlap_checker",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A treeland_dde_shell_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "An opened toplevel"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "update",
+          "description": {
+            "type": "description",
+            "text": "This interface is used to receive the detected surface.\nWhen the xdgshell window in the workspace overlaps with the detected window,\nan event will be sent to notify the client to process it.\nThe window position will only be recorded when this interface is called.\nIf the window moves, this interface needs to be called again.",
+            "summary": "Register the detected surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "uint",
+              "enum": "anchor"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "allowNull": "false",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the treeland_window_overlap_checker object.\n\nThis request should be called either when the client does not want to\nuse the toplevel anymore or after the closed event to finalize the\ndestruction of the object.",
+            "summary": "destroy the treeland_window_overlap_checker object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "enter",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when windows overlapped.\nThis event is sent only once.",
+            "summary": "Window has overlapped"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "leave",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when windows not overlapped.\nThis event is sent only once.",
+            "summary": "Window not has overlapped"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "anchor",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "same layershell",
+            "summary": "same layershell"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1",
+              "summary": "the top edge of the anchor rectangle"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2",
+              "summary": "the bottom edge of the anchor rectangle"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "4",
+              "summary": "the left edge of the anchor rectangle"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "8",
+              "summary": "the right edge of the anchor rectangle"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_dde_shell_surface_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An interface that may be implemented by a wl_surface, for\nimplementations that provide the shell user interface.\n\nIt provides requests to set surface role, set skip, set the position\nset auto placement in output coordinates.\n\nOn the server side the object is automatically destroyed when\nthe related wl_surface is destroyed.  On client side,\ntreeland_dde_shell_surface_v1.destroy() must be called before\ndestroying the wl_surface object.",
+        "summary": "metadata interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "The treeland_dde_shell_surface_v1 interface is removed from the\nwl_surface object that was turned into a shell surface with the\ntreeland_shell_v1.get_treeland_dde_shell_surface request.\n\nThe shell surface role is lost and wl_surface is unmapped.",
+            "summary": "destroy the treeland_dde_shell_surface_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_surface_position",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Move the surface to new coordinates.\n\nCoordinates are global, for example 50,50 for a 1920,0+1920x1080 output\nis 1970,50 in global coordinates space.",
+            "summary": "change the shell surface position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x coordinate in global space"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y coordinate in global space"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_role",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Assign a role to a shell surface.",
+            "summary": "assign a role to this surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "role",
+              "argType": "uint",
+              "enum": "treeland_dde_shell_surface_v1.role"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_auto_placement",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Set the vertical alignment of the surface within the cursor width.\n\nDo not use it together with set_surface_position to avoid exceptions.\n\nThe position of the surface will be controlled by the compositor after the\nrequest, including preventing it from being displayed beyond the edge of\nthe output.",
+            "summary": "Place the surface at the bottom of the cursor area"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "y_offset",
+              "argType": "uint",
+              "summary": "y position is relative to the cursor bottom"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_skip_switcher",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Setting this bit will indicate that the window prefers not to be listed in a switcher.",
+            "summary": "make the window not appear in a switcher"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "skip",
+              "argType": "uint",
+              "summary": "Boolean value that sets whether to skip the window switcher."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_skip_dock_preview",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Setting this bit will indicate that the window prefers not to be listed in a dock preview.",
+            "summary": "make the window not appear in a dock preview"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "skip",
+              "argType": "uint",
+              "summary": "Boolean value that sets whether to skip the dock preview."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_skip_muti_task_view",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Setting this bit will indicate that the window prefers not to be listed in a mutitask view.",
+            "summary": "make the window not appear in a mutitask view"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "skip",
+              "argType": "uint",
+              "summary": "Boolean value that sets whether to skip the mutitask view."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_accept_keyboard_focus",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Setting this will determine whether the surface can receive keyboard focus.\nWhen set to 0, the surface will not receive keyboard focus even when clicked or activated.\nWhen set to 1 (default), the surface will receive keyboard focus normally.",
+            "summary": "control whether the surface accepts keyboard focus"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "accept",
+              "argType": "uint",
+              "summary": "Boolean value that sets whether to accept keyboard focus"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "role",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These values indicate which roles a surface can be rendered in, They\nare ordered by z depth.\n\nDisplayed below wlr-layer-shell, at the overlay level of the workspace.\n\nMultiple surfaces can share a single role, and ordering within a single\nrole is undefined.",
+            "summary": "available roles for surfaces"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "overlay",
+              "value": "1",
+              "since": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_dde_active_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An interface used to monitor special events.",
+        "summary": "metadata interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the treeland_dde_active_v1 object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "active_in",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "activeIn event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "treeland_dde_active_v1.reason"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "active_out",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "activeOut event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "enum": "treeland_dde_active_v1.reason"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "start_drag",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "sent when the compositor starts a drag operation"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "drop",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "sent when the compositor drop operation"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "event reason"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "mouse",
+              "value": "0",
+              "since": "1"
+            },
+            {
+              "type": "entry",
+              "name": "wheel",
+              "value": "1",
+              "since": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_multitaskview_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An interface used to control multitaskview.",
+        "summary": "multitaskview context interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the treeland_multitaskview_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "toggle",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Show or hide the multitaskview.",
+            "summary": "toggle multitaskview"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_window_picker_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An interface used to pick window and return credentials.",
+        "summary": "window picker interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the treeland_window_picker_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "pick",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Pick a window to get information.",
+            "summary": "pick a window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "hint",
+              "argType": "string",
+              "summary": "Hint of pick process"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "window",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Picked window information.",
+            "summary": "window picked"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "pid",
+              "argType": "int",
+              "summary": "Pid of picked window"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_lockscreen_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An interface used to operate lockscreen.",
+        "summary": "lockscreen interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "destroy the treeland_lockscreen_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "lock",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Lock the screen.",
+            "summary": "lock screen"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "shutdown",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Show shutdown.",
+            "summary": "show shutdown"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "switch_user",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Switch user.",
+            "summary": "switch user"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

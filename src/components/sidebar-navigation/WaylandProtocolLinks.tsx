@@ -149,6 +149,15 @@ function groupProtocolsIntoSections(): Section[] {
         ),
     }
 
+    const treelandProtocolsUnstable: Section = {
+        name: 'Treeland unstable',
+        items: protocols.filter(
+            ({ source, stability }) =>
+                source === WaylandProtocolSource.TreelandProtocols &&
+                stability === WaylandProtocolStability.Unstable
+        ),
+    }
+
     const externalProtocols: Section = {
         name: 'External',
         items: protocols.filter(
@@ -166,6 +175,7 @@ function groupProtocolsIntoSections(): Section[] {
         hyprlandProtocolsUnstable,
         cosmicProtocolsUnstable,
         westonProtocolsUnstable,
+        treelandProtocolsUnstable,
         externalProtocols,
     ]
 }

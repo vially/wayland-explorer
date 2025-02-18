@@ -12,6 +12,7 @@ export enum WaylandProtocolSource {
     HyprlandProtocols = 'hyprland-protocols',
     CosmicProtocols = 'cosmic-protocols',
     WestonProtocols = 'weston-protocols',
+    TreelandProtocols ='treeland-protocols',
     External = 'external',
 }
 

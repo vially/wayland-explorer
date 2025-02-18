@@ -1,0 +1,92 @@
+{
+  "type": "protocol",
+  "name": "treeland_window_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_window_management_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.",
+        "summary": "application windows management"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_desktop",
+          "description": {
+            "type": "description",
+            "text": "Tell the compositor to show/hide the desktop.",
+            "summary": "show/hide the desktop"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "requested state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the window manager object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "show_desktop",
+          "description": {
+            "type": "description",
+            "text": "This event will be sent whenever the show desktop mode changes. E.g. when it is\nentered\nor left.\n\nOn binding the interface the current state is sent.",
+            "summary": "notify the client when the show desktop mode is entered/left"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "new state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "desktop_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "normal",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "show",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "preview_show",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

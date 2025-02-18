@@ -75,6 +75,14 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://gitlab.freedesktop.org/wayland/weston/-/blob/main/protocol/${protocol}.xml',
     },
+    [WaylandProtocolSource.TreelandProtocols]: {
+        repositoryUrl: 'https://github.com/linuxdeepin/treeland-protocols',
+        stabilityUrl:
+            'https://github.com/linuxdeepin/treeland-protocols/tree/master/xml',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/linuxdeepin/treeland-protocols/tree/master/xml/${protocol}.xml',
+    },    
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',
         stabilityUrl: '',

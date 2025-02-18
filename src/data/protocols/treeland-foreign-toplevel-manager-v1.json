@@ -1,0 +1,596 @@
+{
+  "type": "protocol",
+  "name": "treeland_foreign_toplevel_manager_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_foreign_toplevel_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a client to get toplevel some info.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "foreign toplevel manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "Indicates the client no longer wishes to receive events for new toplevels.\nHowever the compositor may emit further toplevel_created events, until\nthe finished event is emitted.\n\nThe client must not send any more requests after this one.",
+            "summary": "Stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_dock_preview_context",
+          "args": [
+            {
+              "type": "arg",
+              "name": "relative_surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_dock_preview_context_v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "toplevel",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever a new toplevel window is created. It\nis emitted for all toplevels, regardless of the app that has created\nthem.\n\nAll initial details of the toplevel(title, app_id, states, etc.) will\nbe sent immediately after this event via the corresponding events in\ntreeland_foreign_toplevel_handle_v1.",
+            "summary": "a toplevel has been created"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "new_id",
+              "interface": "treeland_foreign_toplevel_handle_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor is done sending events to the\ntreeland_foreign_toplevel_manager_v1. The server will destroy the object\nimmediately after sending this request, so it will become invalid and\nthe client should free any resources associated with it.",
+            "summary": "the compositor has finished with the toplevel manager"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_foreign_toplevel_handle_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A treeland_foreign_toplevel_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "An opened toplevel"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_maximized",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be maximized. If the maximized state actually\nchanges, this will be indicated by the state event.",
+            "summary": "requests that the toplevel be maximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unset_maximized",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be unmaximized. If the maximized state actually\nchanges, this will be indicated by the state event.",
+            "summary": "requests that the toplevel be unmaximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_minimized",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be minimized. If the minimized state actually\nchanges, this will be indicated by the state event.",
+            "summary": "requests that the toplevel be minimized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unset_minimized",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be unminimized. If the minimized state actually\nchanges, this will be indicated by the state event.",
+            "summary": "requests that the toplevel be unminimized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "Request that this toplevel be activated on the given seat.\nThere is no guarantee the toplevel will be actually activated.",
+            "summary": "activate the toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "Send a request to the toplevel to close itself. The compositor would\ntypically use a shell-specific method to carry out this request, for\nexample by sending the xdg_toplevel.close event. However, this gives\nno guarantees the toplevel will actually be destroyed. If and when\nthis happens, the treeland_foreign_toplevel_handle_v1.closed event will\nbe emitted.",
+            "summary": "request that the toplevel be closed"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_rectangle",
+          "description": {
+            "type": "description",
+            "text": "The rectangle of the surface specified in this request corresponds to\nthe place where the app using this protocol represents the given toplevel.\nIt can be used by the compositor as a hint for some operations, e.g\nminimizing. The client is however not required to set this, in which\ncase the compositor is free to decide some default value.\n\nIf the client specifies more than one rectangle, only the last one is\nconsidered.\n\nThe dimensions are given in surface-local coordinates.\nSetting width=height=0 removes the already-set rectangle.",
+            "summary": "the rectangle which represents the toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the treeland_foreign_toplevel_handle_v1 object.\n\nThis request should be called either when the client does not want to\nuse the toplevel anymore or after the closed event to finalize the\ndestruction of the object.",
+            "summary": "destroy the treeland_foreign_toplevel_handle_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be fullscreened on the given output. If the\nfullscreen state and/or the outputs the toplevel is visible on actually\nchange, this will be indicated by the state and output_enter/leave\nevents.\n\nThe output parameter is only a hint to the compositor. Also, if output\nis NULL, the compositor should decide which output the toplevel will be\nfullscreened on, if at all.",
+            "summary": "request that the toplevel be fullscreened"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Requests that the toplevel be unfullscreened. If the fullscreen state\nactually changes, this will be indicated by the state event.",
+            "summary": "request that the toplevel be unfullscreened"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "pid",
+          "description": {
+            "type": "description",
+            "text": "This event will be sent when the compositor has set the process id this window\nbelongs to. This should be set once before the initial_state is sent.",
+            "summary": "Process id of application owning the window has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "pid",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "title",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the title of the toplevel changes.",
+            "summary": "title change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "title",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_id",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the app-id of the toplevel changes.",
+            "summary": "app-id change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "identifier",
+          "description": {
+            "type": "description",
+            "text": "The identifier of each top level and its handle must be unique.\nTwo different top layers cannot have the same identifier.\nThis identifier is only valid as long as the top level is mapped.\nIdentifiers must not be reused if the top level is not mapped.\nThe compositor must not reuse identifiers to ensure there are no races when\nidentifiers are shared between processes.",
+            "summary": "a stable identifier for a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_enter",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the toplevel becomes visible on\nthe given output. A toplevel may be visible on multiple outputs.",
+            "summary": "toplevel entered an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_leave",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the toplevel stops being visible on\nthe given output. It is guaranteed that an entered-output event\nwith the same output has been emitted before this event.",
+            "summary": "toplevel left an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "state",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the treeland_foreign_toplevel_handle_v1\nis created and each time the toplevel state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "summary": "the toplevel state changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "array"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all changes in the toplevel state have been\nsent.\n\nThis allows changes to the treeland_foreign_toplevel_handle_v1 properties\nto be seen as atomic, even if they happen via multiple events.",
+            "summary": "all information about the toplevel has been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "text": "This event means the toplevel has been destroyed. It is guaranteed there\nwon't be any more events for this treeland_foreign_toplevel_handle_v1. The\ntoplevel itself becomes inert so any requests will be ignored except the\ndestroy request.",
+            "summary": "this toplevel has been destroyed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "parent",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the parent of the toplevel changes.\n\nNo event is emitted when the parent handle is destroyed by the client.",
+            "summary": "parent change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "parent",
+              "argType": "object",
+              "interface": "treeland_foreign_toplevel_handle_v1",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The different states that a toplevel can have. These have the same meaning\nas the states with the same names defined in xdg-toplevel",
+            "summary": "types of states on the toplevel"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "maximized",
+              "value": "0",
+              "summary": "the toplevel is maximized"
+            },
+            {
+              "type": "entry",
+              "name": "minimized",
+              "value": "1",
+              "summary": "the toplevel is minimized"
+            },
+            {
+              "type": "entry",
+              "name": "activated",
+              "value": "2",
+              "summary": "the toplevel is active"
+            },
+            {
+              "type": "entry",
+              "name": "fullscreen",
+              "value": "3",
+              "summary": "the toplevel is fullscreen"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_rectangle",
+              "value": "0",
+              "summary": "the provided rectangle is invalid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_dock_preview_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows dock set windows preview.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "handle dock preview"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "show",
+          "description": {
+            "type": "description",
+            "text": "X and Y are relative to the relative_surface.\nsurfaces wl_array is identifiers.",
+            "summary": "set preview surfaces"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surfaces",
+              "argType": "array"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "show_tooltip",
+          "args": [
+            {
+              "type": "arg",
+              "name": "tooltip",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "close preview box",
+            "summary": "close preview box"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context object.",
+            "summary": "destroy the context object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "enter",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after mouse enter preview box.",
+            "summary": "enter preview box"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "leave",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after mouse leave preview box.",
+            "summary": "leave preview box"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "direction",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "types of direction on the dock preview"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "0",
+              "summary": "top"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "1",
+              "summary": "right"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2",
+              "summary": "bottom"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3",
+              "summary": "left"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
