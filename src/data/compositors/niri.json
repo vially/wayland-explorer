@@ -1,10 +1,14 @@
 {
-  "generationTimestamp": 1736867913010,
-  "version": "25.01",
+  "generationTimestamp": 1740336770862,
+  "version": "25.02",
   "globals": [
     {
-      "interface": "ext_idle_notifier_v1",
+      "interface": "ext_data_control_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "ext_idle_notifier_v1",
+      "version": 2
     },
     {
       "interface": "ext_session_lock_manager_v1",
@@ -107,11 +111,19 @@
       "version": 3
     },
     {
+      "interface": "zwlr_virtual_pointer_manager_v1",
+      "version": 2
+    },
+    {
       "interface": "zwp_idle_inhibit_manager_v1",
       "version": 1
     },
     {
       "interface": "zwp_input_method_manager_v2",
+      "version": 1
+    },
+    {
+      "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
       "version": 1
     },
     {
