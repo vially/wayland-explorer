@@ -84,6 +84,7 @@ export const compositorRegistry: CompositorRegistryItem[] = [
     {
         id: 'wayfire',
         name: 'Wayfire',
+        icon: 'wayfire',
         info: require('./compositors/wayfire.json'),
     },
     {
