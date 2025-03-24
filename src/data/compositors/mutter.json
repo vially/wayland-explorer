@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1736883418169,
-  "version": "47.3",
+  "generationTimestamp": 1742841447969,
+  "version": "48.rc",
   "globals": [
     {
       "interface": "gtk_shell1",
@@ -35,7 +35,19 @@
       "version": 1
     },
     {
+      "interface": "wp_color_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_commit_timing_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_drm_lease_device_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_fifo_manager_v1",
       "version": 1
     },
     {
@@ -48,7 +60,7 @@
     },
     {
       "interface": "wp_presentation",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_single_pixel_buffer_manager_v1",
@@ -60,6 +72,14 @@
     },
     {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_system_bell_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_toplevel_drag_manager_v1",
       "version": 1
     },
     {
