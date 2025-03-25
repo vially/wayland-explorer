@@ -55,6 +55,10 @@
       "version": 1
     },
     {
+      "interface": "wp_drm_lease_device_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_fractional_scale_manager_v1",
       "version": 1
     },
