@@ -84,7 +84,9 @@ export const WaylandDataTable: React.FC<{
                                 )}
                                 {element.interface && (
                                     <a
-                                        href={`#${element.interface}`}
+                                        href={`${element.protocol ?? ''}#${
+                                            element.interface
+                                        }`}
                                         className={`font-bold ${colors.Interface}`}
                                     >
                                         {element.interface}
