@@ -11,32 +11,37 @@ export const WaylandDescription: React.FC<
             </div>
         )}
 
-        {element.text?.split('\n\n').map((text, index) => {
-            const { block, list } = parseList(text)
-            return (
-                <p
-                    key={index}
-                    className="my-3 text-base text-gray-700 dark:text-white"
-                >
-                    {block}
-                    {list && (
-                        <ul className="list-disc list-inside">
-                            {list.map((text) => (
-                                <li>{text}</li>
-                            ))}
-                        </ul>
-                    )}
-                </p>
-            )
-        })}
+        {element.text && (
+			<div className="my-3 text-base text-gray-700 dark:text-white">
+				{splitText(element.text)}
+			</div>
+        )}
     </div>
 )
 
-function parseList(block: string): { block: string; list?: string[] } {
-    const listStart = block.startsWith('* ') ? 0 : block.indexOf('\n*')
-    if (listStart === -1) {
-        return { block }
-    }
-    const list = block.slice(listStart + 2).split('\n* ')
-    return { block: block.slice(0, listStart), list }
+function splitText(description: string) {
+	const out = []
+	let listItems = null
+	let matches = description.split(/((?:^|\n+)(?:[*-] )|\n\n)/);
+	let paragraphGap = undefined
+	let isListItem = false
+	for (let i = 0; i < matches.length; i++) {
+		let chunk = matches[i]
+		if (i % 2) {
+			paragraphGap = chunk.startsWith('\n\n') ? 'mt-3' : undefined
+			isListItem = chunk.endsWith(' ')
+		} else {
+			if (isListItem) {
+				listItems ??= []
+				listItems.push(<li key={i} className={paragraphGap}>{chunk}</li>)
+			} else {
+				if (listItems !== null) {
+					out.push(<ul key={i} className="list-disc ml-6">{listItems}</ul>)
+					listItems = null
+				}
+				out.push(<p key={i} className={paragraphGap}>{chunk}</p>)
+			}
+		}
+	}
+	return out
 }
