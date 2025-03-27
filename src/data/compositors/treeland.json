@@ -1,7 +1,11 @@
 {
-  "generationTimestamp": 1737439436773,
-  "version": "0.5.17",
+  "generationTimestamp": 1743070480786,
+  "version": "0.5.20",
   "globals": [
+    {
+      "interface": "ext_idle_notifier_v1",
+      "version": 1
+    },
     {
       "interface": "treeland_capture_manager_v1",
       "version": 1
@@ -99,8 +103,16 @@
       "version": 4
     },
     {
+      "interface": "zwlr_output_power_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "zwlr_screencopy_manager_v1",
       "version": 3
+    },
+    {
+      "interface": "zwp_idle_inhibit_manager_v1",
+      "version": 1
     },
     {
       "interface": "zwp_input_method_manager_v2",
