@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1737409071435,
-  "version": "0.8.2",
+  "generationTimestamp": 1742942614217,
+  "version": "0.8.3",
   "globals": [
     {
       "interface": "ext_foreign_toplevel_list_v1",
@@ -12,6 +12,10 @@
     },
     {
       "interface": "ext_session_lock_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_workspace_manager_v1",
       "version": 1
     },
     {

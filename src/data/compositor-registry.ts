@@ -59,10 +59,21 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/weston.json'),
     },
     {
-        id: 'mir',
-        name: 'Mir',
-        icon: 'mir',
-        info: require('./compositors/mir.json'),
+        id: 'labwc',
+        name: 'Labwc',
+        icon: 'labwc',
+        info: require('./compositors/labwc.json'),
+    },
+    {
+        id: 'cage',
+        name: 'Cage',
+        info: require('./compositors/cage.json'),
+    },
+    {
+        id: 'wayfire',
+        name: 'Wayfire',
+        icon: 'wayfire',
+        info: require('./compositors/wayfire.json'),
     },
     {
         id: 'gamescope',
@@ -76,16 +87,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/jay.json'),
     },
     {
-        id: 'labwc',
-        name: 'Labwc',
-        icon: 'labwc',
-        info: require('./compositors/labwc.json'),
-    },
-    {
-        id: 'wayfire',
-        name: 'Wayfire',
-        icon: 'wayfire',
-        info: require('./compositors/wayfire.json'),
+        id: 'mir',
+        name: 'Mir',
+        icon: 'mir',
+        info: require('./compositors/mir.json'),
     },
     {
         id: 'treeland',
