@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "11",
+      "version": "12",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -697,6 +697,13 @@
               "value": "0x80",
               "summary": "if this outputdevice supports the brightness setting",
               "since": "9"
+            },
+            {
+              "type": "entry",
+              "name": "built_in_color",
+              "value": "0x100",
+              "summary": "if this outputdevice supports the built-in color profile",
+              "since": "12"
             }
           ]
         },

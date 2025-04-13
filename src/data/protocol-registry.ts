@@ -239,6 +239,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/color-management-v1.json'),
     },
     {
+        id: 'xdg-toplevel-tag-v1',
+        name: 'XDG toplevel tag',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-toplevel-tag-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -664,6 +671,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/hyprland-lock-notify-v1.json'),
     },
     {
+        id: 'hyprland-toplevel-mapping-v1',
+        name: 'Hyprland toplevel mapping',
+        source: WaylandProtocolSource.HyprlandProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/hyprland-toplevel-mapping-v1.json'),
+    },
+    {
         id: 'cosmic-image-source-unstable-v1',
         name: 'COSMIC image source',
         source: WaylandProtocolSource.CosmicProtocols,
@@ -788,8 +802,8 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.TreelandProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/treeland-capture-unstable-v1.json'),
-     },
-     {
+    },
+    {
         id: 'treeland-dde-shell-v1',
         name: 'Treeland DDE shell',
         source: WaylandProtocolSource.TreelandProtocols,

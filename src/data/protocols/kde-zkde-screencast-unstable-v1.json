@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_unstable_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "Warning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -137,6 +137,7 @@
           "since": "3",
           "description": {
             "type": "description",
+            "text": "Since version 5, the compositor will choose the highest scale\nfactor for the region if the given scale is 0.0.",
             "summary": "requests a feed from region in the workspace"
           },
           "args": [
@@ -274,7 +275,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_stream_unstable_v1",
-      "version": "4",
+      "version": "5",
       "requests": [
         {
           "type": "request",

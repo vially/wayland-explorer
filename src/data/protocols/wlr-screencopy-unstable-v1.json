@@ -122,7 +122,7 @@
       "version": "3",
       "description": {
         "type": "description",
-        "text": "This object represents a single frame.\n\nWhen created, a series of buffer events will be sent, each representing a\nsupported buffer type. The \"buffer_done\" event is sent afterwards to\nindicate that all supported buffer types have been enumerated. The client\nwill then be able to send a \"copy\" request. If the capture is successful,\nthe compositor will send a \"flags\" followed by a \"ready\" event.\n\nFor objects version 2 or lower, wl_shm buffers are always supported, ie.\nthe \"buffer\" event is guaranteed to be sent.\n\nIf the capture failed, the \"failed\" event is sent. This can happen anytime\nbefore the \"ready\" event.\n\nOnce either a \"ready\" or a \"failed\" event is received, the client should\ndestroy the frame.",
+        "text": "This object represents a single frame.\n\nWhen created, a series of buffer events will be sent, each representing a\nsupported buffer type. The \"buffer_done\" event is sent afterwards to\nindicate that all supported buffer types have been enumerated. The client\nwill then be able to send a \"copy\" request. If the capture is successful,\nthe compositor will send a \"flags\" event followed by a \"ready\" event.\n\nFor objects version 2 or lower, wl_shm buffers are always supported, ie.\nthe \"buffer\" event is guaranteed to be sent.\n\nIf the capture failed, the \"failed\" event is sent. This can happen anytime\nbefore the \"ready\" event.\n\nOnce either a \"ready\" or a \"failed\" event is received, the client should\ndestroy the frame.",
         "summary": "a frame ready for copy"
       },
       "requests": [
@@ -131,7 +131,7 @@
           "name": "copy",
           "description": {
             "type": "description",
-            "text": "Copy the frame to the supplied buffer. The buffer must have a the\ncorrect size, see zwlr_screencopy_frame_v1.buffer and\nzwlr_screencopy_frame_v1.linux_dmabuf. The buffer needs to have a\nsupported format.\n\nIf the frame is successfully copied, a \"flags\" and a \"ready\" events are\nsent. Otherwise, a \"failed\" event is sent.",
+            "text": "Copy the frame to the supplied buffer. The buffer must have the\ncorrect size, see zwlr_screencopy_frame_v1.buffer and\nzwlr_screencopy_frame_v1.linux_dmabuf. The buffer needs to have a\nsupported format.\n\nIf the frame is successfully copied, \"flags\" and \"ready\" events are\nsent. Otherwise, a \"failed\" event is sent.",
             "summary": "copy the frame"
           },
           "args": [
@@ -236,7 +236,7 @@
           "name": "ready",
           "description": {
             "type": "description",
-            "text": "Called as soon as the frame is copied, indicating it is available\nfor reading. This event includes the time at which presentation happened\nat.\n\nThe timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\neach component being an unsigned 32-bit value. Whole seconds are in\ntv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\nand the additional fractional part in tv_nsec as nanoseconds. Hence,\nfor valid timestamps tv_nsec must be in [0, 999999999]. The seconds part\nmay have an arbitrary offset at start.\n\nAfter receiving this event, the client should destroy the object.",
+            "text": "Called as soon as the frame is copied, indicating it is available\nfor reading. This event includes the time at which the presentation took place.\n\nThe timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,\neach component being an unsigned 32-bit value. Whole seconds are in\ntv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,\nand the additional fractional part in tv_nsec as nanoseconds. Hence,\nfor valid timestamps tv_nsec must be in [0, 999999999]. The seconds part\nmay have an arbitrary offset at start.\n\nAfter receiving this event, the client should destroy the object.",
             "summary": "indicates frame is available for reading"
           },
           "args": [

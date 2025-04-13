@@ -367,7 +367,7 @@
               "type": "entry",
               "name": "windows_scrgb",
               "value": "7",
-              "summary": "get_windows_scrgb request"
+              "summary": "create_windows_scrgb request"
             }
           ]
         },

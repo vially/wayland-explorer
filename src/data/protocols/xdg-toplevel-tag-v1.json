@@ -1,0 +1,83 @@
+{
+  "type": "protocol",
+  "name": "xdg_toplevel_tag_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 Xaver Hugl\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_tag_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "In order to make some window properties like position, size,\n\"always on top\" or user defined rules for window behavior persistent, the\ncompositor needs some way to identify windows even after the application\nhas been restarted.\nThis protocol allows clients to make this possible by setting a tag for\ntoplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "protocol for setting toplevel tags"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this toplevel tag manager object. This request has no other\neffects.",
+            "summary": "destroy toplevel tag object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_toplevel_tag",
+          "description": {
+            "type": "description",
+            "text": "Set a tag for a toplevel. The tag may be shown to the user in UI, so\nit's preferable for it to be human readable, but it must be suitable\nfor configuration files and should not be translated.\nSuitable tags would for example be \"main window\", \"settings\",\n\"e-mail composer\" or similar.\n\nThe tag does not need to be unique across applications, and the client\nmay set the same tag for multiple windows, for example if the user has\nopened the same UI twice. How the potentially resulting conflicts are\nhandled is compositor policy.\n\nThe client should set the tag as part of the initial commit on the\nassociated toplevel, but it may set it at any time afterwards as well,\nfor example if the purpose of the toplevel changes.",
+            "summary": "set tag"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "tag",
+              "argType": "string",
+              "summary": "untranslated tag"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_toplevel_description",
+          "description": {
+            "type": "description",
+            "text": "Set a description for a toplevel. This description may be shown to the\nuser in UI or read by a screen reader for accessibility purposes, and\nshould be translated.\nIt is recommended to make the description the translation of the tag.\n\nThe client should set the description as part of the initial commit on\nthe associated toplevel, but it may set it at any time afterwards as\nwell, for example if the purpose of the toplevel changes.",
+            "summary": "set description"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "translated description"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

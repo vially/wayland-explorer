@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "hyprland_ctm_control_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This object is a manager which offers requests to control CTMs.\n\nIf any changes are done, once this object is destroyed, CTMs are reset back to\nan identity matrix.",
@@ -106,7 +106,16 @@
           "args": []
         }
       ],
-      "events": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "blocked",
+          "description": {
+            "type": "description"
+          },
+          "args": []
+        }
+      ],
       "enums": [
         {
           "type": "enum",

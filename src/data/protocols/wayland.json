@@ -1269,7 +1269,7 @@
           "name": "release",
           "description": {
             "type": "description",
-            "text": "Sent when this wl_buffer is no longer used by the compositor.\nThe client is now free to reuse or destroy this buffer and its\nbacking storage.\n\nIf a client receives a release event before the frame callback\nrequested in the same wl_surface.commit that attaches this\nwl_buffer to a surface, then the client is immediately free to\nreuse the buffer and its backing storage, and does not need a\nsecond buffer for the next surface content update. Typically\nthis is possible, when the compositor maintains a copy of the\nwl_surface contents, e.g. as a GL texture. This is an important\noptimization for GL(ES) compositors with wl_shm clients.",
+            "text": "Sent when this wl_buffer is no longer used by the compositor.\n\nFor more information on when release events may or may not be sent,\nand what consequences it has, please see the description of\nwl_surface.attach.\n\nIf a client receives a release event before the frame callback\nrequested in the same wl_surface.commit that attaches this\nwl_buffer to a surface, then the client is immediately free to\nreuse the buffer and its backing storage, and does not need a\nsecond buffer for the next surface content update. Typically\nthis is possible, when the compositor maintains a copy of the\nwl_surface contents, e.g. as a GL texture. This is an important\noptimization for GL(ES) compositors with wl_shm clients.",
             "summary": "compositor releases buffer"
           },
           "args": []

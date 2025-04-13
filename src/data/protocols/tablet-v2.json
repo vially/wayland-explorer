@@ -3,7 +3,7 @@
   "name": "tablet_v2",
   "copyright": {
     "type": "copyright",
-    "text": "Copyright 2014 © Stephen \"Lyude\" Chandler Paul\nCopyright 2015-2016 © Red Hat, Inc.\n\nPermission is hereby granted, free of charge, to any person\nobtaining a copy of this software and associated documentation files\n(the \"Software\"), to deal in the Software without restriction,\nincluding without limitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of the Software,\nand to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice (including the\nnext paragraph) shall be included in all copies or substantial\nportions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS\nBE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+    "text": "Copyright 2014 © Stephen \"Lyude\" Chandler Paul\nCopyright 2015-2024 © Red Hat, Inc.\n\nPermission is hereby granted, free of charge, to any person\nobtaining a copy of this software and associated documentation files\n(the \"Software\"), to deal in the Software without restriction,\nincluding without limitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of the Software,\nand to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice (including the\nnext paragraph) shall be included in all copies or substantial\nportions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS\nBE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
   },
   "description": {
     "type": "description",
@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_manager_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An object that provides access to the graphics tablets available on this\nsystem. All tablets are associated with a seat, to get access to the\nactual tablets, use wp_tablet_manager.get_tablet_seat.",
@@ -64,7 +64,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_seat_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An object that provides access to the graphics tablets available on this\nseat. After binding to this interface, the compositor sends a set of\nwp_tablet_seat.tablet_added and wp_tablet_seat.tool_added events.",
@@ -144,7 +144,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_tool_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An object that represents a physical tool that has been, or is\ncurrently in use with a tablet in this seat. Each wp_tablet_tool\nobject stays valid until the client destroys it; the compositor\nreuses the wp_tablet_tool object to indicate that the object's\nrespective physical tool has come into proximity of a tablet again.\n\nA wp_tablet_tool object's relation to a physical tool depends on the\ntablet's ability to report serial numbers. If the tablet supports\nthis capability, then the object represents a specific physical tool\nand can be identified even when used on multiple tablets.\n\nA tablet tool has a number of static characteristics, e.g. tool type,\nhardware_serial and capabilities. These capabilities are sent in an\nevent sequence after the wp_tablet_seat.tool_added event before any\nactual events from this tool. This initial event sequence is\nterminated by a wp_tablet_tool.done event.\n\nTablet tool events are grouped by wp_tablet_tool.frame events.\nAny events received before a wp_tablet_tool.frame event should be\nconsidered part of the same hardware state change.",
@@ -705,7 +705,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The wp_tablet interface represents one graphics tablet device. The\ntablet interface itself does not generate events; all events are\ngenerated by wp_tablet_tool objects when in proximity above a tablet.\n\nA tablet has a number of static characteristics, e.g. device name and\npid/vid. These capabilities are sent in an event sequence after the\nwp_tablet_seat.tablet_added event. This initial event sequence is\nterminated by a wp_tablet.done event.",
@@ -747,21 +747,21 @@
           "name": "id",
           "description": {
             "type": "description",
-            "text": "The USB vendor and product IDs for the tablet device.\n\nIf the device has no USB vendor/product ID, this event is not sent.\nThis can happen for virtual devices or non-USB devices, for instance.\n\nThis event is sent in the initial burst of events before the\nwp_tablet.done event.",
-            "summary": "tablet device USB vendor/product id"
+            "text": "The vendor and product IDs for the tablet device.\n\nThe interpretation of the id depends on the wp_tablet.bustype.\nPrior to version v2 of this protocol, the id was implied to be a USB\nvendor and product ID. If no wp_tablet.bustype is sent, the ID\nis to be interpreted as USB vendor and product ID.\n\nIf the device has no vendor/product ID, this event is not sent.\nThis can happen for virtual devices or non-USB devices, for instance.\n\nThis event is sent in the initial burst of events before the\nwp_tablet.done event.",
+            "summary": "tablet device vendor/product id"
           },
           "args": [
             {
               "type": "arg",
               "name": "vid",
               "argType": "uint",
-              "summary": "USB vendor id"
+              "summary": "vendor id"
             },
             {
               "type": "arg",
               "name": "pid",
               "argType": "uint",
-              "summary": "USB product id"
+              "summary": "product id"
             }
           ]
         },
@@ -801,14 +801,77 @@
             "summary": "tablet removed event"
           },
           "args": []
+        },
+        {
+          "type": "event",
+          "name": "bustype",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "The bustype argument is one of the BUS_ defines in the Linux kernel's\nlinux/input.h\n\nIf the device has no known bustype or the bustype cannot be\nqueried, this event is not sent.\n\nThis event is sent in the initial burst of events before the\nwp_tablet.done event.",
+            "summary": "tablet device bus type"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "bustype",
+              "argType": "uint",
+              "summary": "bus type",
+              "enum": "bustype"
+            }
+          ]
         }
       ],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "bustype",
+          "since": "2",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Describes the bus types this tablet is connected to.",
+            "summary": "bus type"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "usb",
+              "value": "3",
+              "summary": "USB"
+            },
+            {
+              "type": "entry",
+              "name": "bluetooth",
+              "value": "5",
+              "summary": "Bluetooth"
+            },
+            {
+              "type": "entry",
+              "name": "virtual",
+              "value": "6",
+              "summary": "Virtual"
+            },
+            {
+              "type": "entry",
+              "name": "serial",
+              "value": "17",
+              "summary": "Serial"
+            },
+            {
+              "type": "entry",
+              "name": "i2c",
+              "value": "24",
+              "summary": "I2C"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",
       "name": "zwp_tablet_pad_ring_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A circular interaction area, such as the touch ring on the Wacom Intuos\nPro series tablets.\n\nEvents on a ring are logically grouped by the wl_tablet_pad_ring.frame\nevent.",
@@ -938,7 +1001,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_pad_strip_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A linear interaction area, such as the strips found in Wacom Cintiq\nmodels.\n\nEvents on a strip are logically grouped by the wl_tablet_pad_strip.frame\nevent.",
@@ -1068,7 +1131,7 @@
     {
       "type": "interface",
       "name": "zwp_tablet_pad_group_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A pad group describes a distinct (sub)set of buttons, rings and strips\npresent in the tablet. The criteria of this grouping is usually positional,\neg. if a tablet has buttons on the left and right side, 2 groups will be\npresented. The physical arrangement of groups is undisclosed and may\nchange on the fly.\n\nPad groups will announce their features during pad initialization. Between\nthe corresponding wp_tablet_pad.group event and wp_tablet_pad_group.done, the\npad group will announce the buttons, rings and strips contained in it,\nplus the number of supported modes.\n\nModes are a mechanism to allow multiple groups of actions for every element\nin the pad group. The number of groups and available modes in each is\npersistent across device plugs. The current mode is user-switchable, it\nwill be announced through the wp_tablet_pad_group.mode_switch event both\nwhenever it is switched, and after wp_tablet_pad.enter.\n\nThe current mode logically applies to all elements in the pad group,\nalthough it is at clients' discretion whether to actually perform different\nactions, and/or issue the respective .set_feedback requests to notify the\ncompositor. See the wp_tablet_pad_group.mode_switch event for more details.",
@@ -1171,7 +1234,7 @@
           "name": "mode_switch",
           "description": {
             "type": "description",
-            "text": "Notification that the mode was switched.\n\nA mode applies to all buttons, rings and strips in a group\nsimultaneously, but a client is not required to assign different actions\nfor each mode. For example, a client may have mode-specific button\nmappings but map the ring to vertical scrolling in all modes. Mode\nindices start at 0.\n\nSwitching modes is compositor-dependent. The compositor may provide\nvisual cues to the user about the mode, e.g. by toggling LEDs on\nthe tablet device. Mode-switching may be software-controlled or\ncontrolled by one or more physical buttons. For example, on a Wacom\nIntuos Pro, the button inside the ring may be assigned to switch\nbetween modes.\n\nThe compositor will also send this event after wp_tablet_pad.enter on\neach group in order to notify of the current mode. Groups that only\nfeature one mode will use mode=0 when emitting this event.\n\nIf a button action in the new mode differs from the action in the\nprevious mode, the client should immediately issue a\nwp_tablet_pad.set_feedback request for each changed button.\n\nIf a ring or strip action in the new mode differs from the action\nin the previous mode, the client should immediately issue a\nwp_tablet_ring.set_feedback or wp_tablet_strip.set_feedback request\nfor each changed ring or strip.",
+            "text": "Notification that the mode was switched.\n\nA mode applies to all buttons, rings, strips and dials in a group\nsimultaneously, but a client is not required to assign different actions\nfor each mode. For example, a client may have mode-specific button\nmappings but map the ring to vertical scrolling in all modes. Mode\nindices start at 0.\n\nSwitching modes is compositor-dependent. The compositor may provide\nvisual cues to the user about the mode, e.g. by toggling LEDs on\nthe tablet device. Mode-switching may be software-controlled or\ncontrolled by one or more physical buttons. For example, on a Wacom\nIntuos Pro, the button inside the ring may be assigned to switch\nbetween modes.\n\nThe compositor will also send this event after wp_tablet_pad.enter on\neach group in order to notify of the current mode. Groups that only\nfeature one mode will use mode=0 when emitting this event.\n\nIf a button action in the new mode differs from the action in the\nprevious mode, the client should immediately issue a\nwp_tablet_pad.set_feedback request for each changed button.\n\nIf a ring, strip or dial action in the new mode differs from the action\nin the previous mode, the client should immediately issue a\nwp_tablet_ring.set_feedback, wp_tablet_strip.set_feedback or\nwp_tablet_dial.set_feedback request for each changed ring, strip or dial.",
             "summary": "mode switch event"
           },
           "args": [
@@ -1193,6 +1256,24 @@
               "summary": "the new mode of the pad"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "dial",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Sent on wp_tablet_pad initialization to announce available dials.\nOne event is sent for each dial available on this pad group.\n\nThis event is sent in the initial burst of events before the\nwp_tablet_pad_group.done event.",
+            "summary": "dial announced"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dial",
+              "argType": "new_id",
+              "interface": "zwp_tablet_pad_dial_v2"
+            }
+          ]
         }
       ],
       "enums": []
@@ -1200,11 +1281,11 @@
     {
       "type": "interface",
       "name": "zwp_tablet_pad_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
-        "text": "A pad device is a set of buttons, rings and strips\nusually physically present on the tablet device itself. Some\nexceptions exist where the pad device is physically detached, e.g. the\nWacom ExpressKey Remote.\n\nPad devices have no axes that control the cursor and are generally\nauxiliary devices to the tool devices used on the tablet surface.\n\nA pad device has a number of static characteristics, e.g. the number\nof rings. These capabilities are sent in an event sequence after the\nwp_tablet_seat.pad_added event before any actual events from this pad.\nThis initial event sequence is terminated by a wp_tablet_pad.done\nevent.\n\nAll pad features (buttons, rings and strips) are logically divided into\ngroups and all pads have at least one group. The available groups are\nnotified through the wp_tablet_pad.group event; the compositor will\nemit one event per group before emitting wp_tablet_pad.done.\n\nGroups may have multiple modes. Modes allow clients to map multiple\nactions to a single pad feature. Only one mode can be active per group,\nalthough different groups may have different active modes.",
-        "summary": "a set of buttons, rings and strips"
+        "text": "A pad device is a set of buttons, rings, strips and dials\nusually physically present on the tablet device itself. Some\nexceptions exist where the pad device is physically detached, e.g. the\nWacom ExpressKey Remote.\n\nPad devices have no axes that control the cursor and are generally\nauxiliary devices to the tool devices used on the tablet surface.\n\nA pad device has a number of static characteristics, e.g. the number\nof rings. These capabilities are sent in an event sequence after the\nwp_tablet_seat.pad_added event before any actual events from this pad.\nThis initial event sequence is terminated by a wp_tablet_pad.done\nevent.\n\nAll pad features (buttons, rings, strips and dials) are logically divided into\ngroups and all pads have at least one group. The available groups are\nnotified through the wp_tablet_pad.group event; the compositor will\nemit one event per group before emitting wp_tablet_pad.done.\n\nGroups may have multiple modes. Modes allow clients to map multiple\nactions to a single pad feature. Only one mode can be active per group,\nalthough different groups may have different active modes.",
+        "summary": "a set of buttons, rings, strips and dials"
       },
       "requests": [
         {
@@ -1433,6 +1514,89 @@
           ]
         }
       ]
+    },
+    {
+      "type": "interface",
+      "name": "zwp_tablet_pad_dial_v2",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A rotary control, e.g. a dial or a wheel.\n\nEvents on a dial are logically grouped by the wl_tablet_pad_dial.frame\nevent.",
+        "summary": "pad dial"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_feedback",
+          "description": {
+            "type": "description",
+            "text": "Requests the compositor to use the provided feedback string\nassociated with this dial. This request should be issued immediately\nafter a wp_tablet_pad_group.mode_switch event from the corresponding\ngroup is received, or whenever the dial is mapped to a different\naction. See wp_tablet_pad_group.mode_switch for more details.\n\nClients are encouraged to provide context-aware descriptions for\nthe actions associated with the dial, and compositors may use this\ninformation to offer visual feedback about the button layout\n(eg. on-screen displays).\n\nThe provided string 'description' is a UTF-8 encoded string to be\nassociated with this ring, and is considered user-visible; general\ninternationalization rules apply.\n\nThe serial argument will be that of the last\nwp_tablet_pad_group.mode_switch event received for the group of this\ndial. Requests providing other serials than the most recent one will be\nignored.",
+            "summary": "set compositor feedback"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "dial description"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the mode switch event"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This destroys the client's resource for this dial object.",
+            "summary": "destroy the dial object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "delta",
+          "description": {
+            "type": "description",
+            "text": "Sent whenever the position on a dial changes.\n\nThis event carries the wheel delta as multiples or fractions\nof 120 with each multiple of 120 representing one logical wheel detent.\nFor example, an axis_value120 of 30 is one quarter of\na logical wheel step in the positive direction, a value120 of\n-240 are two logical wheel steps in the negative direction within the\nsame hardware event. See the wl_pointer.axis_value120 for more details.\n\nThe value120 must not be zero.",
+            "summary": "delta movement"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "value120",
+              "argType": "int",
+              "summary": "rotation distance as fraction of 120"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "frame",
+          "description": {
+            "type": "description",
+            "text": "Indicates the end of a set of events that represent one logical\nhardware dial event. A client is expected to accumulate the data\nin all events within the frame before proceeding.\n\nAll wp_tablet_pad_dial events before a wp_tablet_pad_dial.frame event belong\nlogically together.\n\nA wp_tablet_pad_dial.frame event is sent for every logical event\ngroup, even if the group only contains a single wp_tablet_pad_dial\nevent. Specifically, a client may get a sequence: delta, frame,\ndelta, frame, etc.",
+            "summary": "end of a dial event sequence"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp with millisecond granularity"
+            }
+          ]
+        }
+      ],
+      "enums": []
     }
   ]
 }

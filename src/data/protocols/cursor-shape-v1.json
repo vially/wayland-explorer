@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "wp_cursor_shape_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This global offers an alternative, optional way to set cursor images. This\nnew way uses enumerated cursors instead of a wl_surface like\nwl_pointer.set_cursor does.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
@@ -82,7 +82,7 @@
     {
       "type": "interface",
       "name": "wp_cursor_shape_device_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows clients to set the cursor shape.",
@@ -132,7 +132,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "This enum describes cursor shapes.\n\nThe names are taken from the CSS W3C specification:\nhttps://w3c.github.io/csswg-drafts/css-ui/#cursor",
+            "text": "This enum describes cursor shapes.\n\nThe names are taken from the CSS W3C specification:\nhttps://w3c.github.io/csswg-drafts/css-ui/#cursor\nwith a few additions.\n\nNote that there are some groups of cursor shapes that are related:\nThe first group is drag-and-drop cursors which are used to indicate\nthe selected action during dnd operations. The second group is resize\ncursors which are used to indicate resizing and moving possibilities\non window borders. It is recommended that the shapes in these groups\nshould use visually compatible images and metaphors.",
             "summary": "cursor shapes"
           },
           "entries": [
@@ -339,6 +339,20 @@
               "name": "zoom_out",
               "value": "34",
               "summary": "something can be zoomed out"
+            },
+            {
+              "type": "entry",
+              "name": "dnd_ask",
+              "value": "35",
+              "summary": "drag-and-drop: the user will select which action will be carried out (non-css value)",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "all_resize",
+              "value": "36",
+              "summary": "resizing: something can be moved or resized in any direction (non-css value)",
+              "since": "2"
             }
           ]
         },

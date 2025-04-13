@@ -1,0 +1,149 @@
+{
+  "type": "protocol",
+  "name": "hyprland_toplevel_mapping_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 WhySoBad\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows clients to retrieve the mapping of toplevels to hyprland window addresses.",
+    "summary": "mapping of toplevels to windows"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_toplevel_mapping_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a manager which offers requests to retrieve a window address\nfor a toplevel.",
+        "summary": "manager to request toplevel mappings"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_window_for_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Get the window address for a toplevel.",
+            "summary": "get window address for toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "new_id",
+              "interface": "hyprland_toplevel_window_mapping_handle_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "summary": "toplevel to get the window address for",
+              "interface": "ext_foreign_toplevel_handle_v1",
+              "protocol": "ext-foreign-toplevel-list-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_window_for_toplevel_wlr",
+          "description": {
+            "type": "description",
+            "text": "Get the window address for a wlr toplevel.",
+            "summary": "get window address for wlr toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "new_id",
+              "interface": "hyprland_toplevel_window_mapping_handle_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "summary": "wlr toplevel to get the window address for",
+              "interface": "zwlr_foreign_toplevel_handle_v1",
+              "protocol": "wlr-foreign-toplevel-management-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "All objects created by the manager will still remain valid, until their appropriate destroy\nrequest has been called.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_toplevel_window_mapping_handle_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object represents a mapping of a (wlr) toplevel to a window address.\n\nOnce created, the `window_address` event will be sent containing the address of the window\nassociated with the toplevel.\nShould the mapping fail, the `failed` event will be sent.",
+        "summary": "toplevel to window mapping"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the handle. This request can be sent at any time by the client.",
+            "summary": "destroy handle"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "window_address",
+          "description": {
+            "type": "description",
+            "text": "The full 64bit window address. The `address` field contains the lower 32 bits whilst the\n`address_hi` contains the upper 32 bits",
+            "summary": "address of the window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "address_hi",
+              "argType": "uint",
+              "summary": "upper 32 bits of the window address"
+            },
+            {
+              "type": "arg",
+              "name": "address",
+              "argType": "uint",
+              "summary": "lower 32 bits of the window address"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "The mapping of the toplevel to a window address failed. Most likely the window does not\nexist (anymore).",
+            "summary": "mapping failed"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}
