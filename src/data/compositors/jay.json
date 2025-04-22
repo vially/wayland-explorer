@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1737971421887,
-  "version": "1.9.0",
+  "generationTimestamp": 1745320673678,
+  "version": "1.10.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -40,7 +40,7 @@
     },
     {
       "interface": "jay_compositor",
-      "version": 13
+      "version": 16
     },
     {
       "interface": "jay_damage_tracking",
@@ -91,6 +91,10 @@
       "version": 1
     },
     {
+      "interface": "wp_color_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_commit_timing_manager_v1",
       "version": 1
     },
@@ -100,7 +104,7 @@
     },
     {
       "interface": "wp_cursor_shape_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -148,7 +152,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 6
+      "version": 7
     },
     {
       "interface": "xdg_wm_dialog_v1",
