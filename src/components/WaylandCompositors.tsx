@@ -7,69 +7,6 @@ import { WaylandProtocolModel } from './common'
 export const WaylandCompositors: React.FC<{
     element: WaylandProtocolModel
 }> = ({ element }) => {
-    const rows = element.interfaces
-        .map((childElement) => {
-            const versions = compositorRegistry.map((comp) => {
-                const info = comp.info.globals.find(
-                    (global) => global.interface === childElement.name
-                )
-
-                if (info !== undefined) {
-                    return info.version
-                } else {
-                    return null
-                }
-            })
-
-            return {
-                name: childElement.name,
-                versions,
-            }
-        })
-        .filter((childElement) => childElement.versions.some((v) => v != null))
-        .map((childElement, index) => {
-            const name = (
-                <td className="border-b border-gray-300 dark:border-gray-900 p-2">
-                    {childElement.name}
-                </td>
-            )
-
-            return (
-                <tr key={index}>
-                    {name}
-                    {childElement.versions.map((version, index) => {
-                        if (version !== null) {
-                            return (
-                                <td
-                                    key={index}
-                                    className="border-b border-gray-300 dark:border-gray-900 p-2"
-                                >
-                                    <div className="flex justify-center">
-                                        <div className="w-7 h-7 leading-7 bg-emerald-700 text-white rounded-lg text-center">
-                                            {version}
-                                        </div>
-                                    </div>
-                                </td>
-                            )
-                        } else {
-                            return (
-                                <td
-                                    key={index}
-                                    className="border-b border-gray-300 dark:border-gray-900 p-2"
-                                >
-                                    <div className="flex justify-center">
-                                        <div className="w-7 h-7 leading-7 bg-red-900 text-white rounded-lg text-center">
-                                            x
-                                        </div>
-                                    </div>
-                                </td>
-                            )
-                        }
-                    })}
-                </tr>
-            )
-        })
-
     return (
         <div className="mb-10">
             <h4
@@ -82,39 +19,112 @@ export const WaylandCompositors: React.FC<{
                 </a>
             </h4>
 
-            <div className="flex items-center overflow-x-auto">
-                {rows.length !== 0 ? (
-                    <CanIUseTable rows={rows} />
-                ) : (
-                    <NotFound />
-                )}
+            <div className="overflow-x-auto">
+                <CanIUseTable protocol={element} />
             </div>
         </div>
     )
 }
 
-const CanIUseTable: React.FC<{
-    rows: JSX.Element[]
-}> = ({ rows }) => {
-    const SubTitle: React.FC<{ compositor: CompositorRegistryItem }> = ({
-        compositor,
-    }) => {
-        let version = '...'
-        if (compositor.info.version) {
-            version = compositor.info.version
-        }
-        const generationTimestamp = new Date(
-            compositor.info.generationTimestamp
-        ).toLocaleDateString()
+/** Label for displaying compositor version */
+const CompositorVersion: React.FC<{ compositor: CompositorRegistryItem }> = ({
+    compositor,
+}) => {
+    const version = compositor.info.version
+    const timestamp = new Date(
+        compositor.info.generationTimestamp
+    ).toLocaleDateString()
 
-        return (
-            <div
-                className="text-xs text-gray-500 mt-1"
-                title={generationTimestamp}
-            >
-                {version}
+    return (
+        <span className="text-xs text-gray-500 mt-1" title={timestamp}>
+            {version ? version : '...'}
+        </span>
+    )
+}
+
+/** Column header for displaying compositor name icon and version */
+const CompositorHeader: React.FC<{ compositor: CompositorRegistryItem }> = ({
+    compositor,
+}) => (
+    <th key={compositor.id} className="px-2 pt-1 align-bottom">
+        <div className="flex flex-col justify-end items-center gap-2">
+            <div className="[writing-mode:vertical-rl] rotate-180">
+                {compositor.name}
             </div>
-        )
+            <div className="aspect-square h-5">
+                {compositor.icon && (
+                    <img
+                        alt={compositor.name}
+                        src={`/protocols/logos/${compositor.icon}.svg`}
+                        className="dark:invert h-5 m-auto"
+                    />
+                )}
+            </div>
+        </div>
+        <CompositorVersion compositor={compositor} />
+    </th>
+)
+
+/** Green/Red box for displaying supported interface version */
+const InterfaceVersion: React.FC<{
+    version: number | null
+}> = ({ version }) => {
+    const color = version !== null ? 'bg-emerald-700' : 'bg-red-900'
+    const label = version !== null ? version : 'x'
+
+    return (
+        <td className="border-b border-gray-300 dark:border-gray-900">
+            <div className="flex justify-center">
+                <div
+                    className={`w-7 h-7 leading-7 text-white rounded-lg text-center ${color}`}
+                >
+                    {label}
+                </div>
+            </div>
+        </td>
+    )
+}
+
+const InterfaceRow: React.FC<{
+    name: string
+    versions: (number | null)[]
+}> = ({ name, versions }) => (
+    <tr>
+        <td className="border-b border-gray-300 dark:border-gray-900 p-2">
+            {name}
+        </td>
+        {versions.map((version, index) => (
+            <InterfaceVersion key={index} version={version} />
+        ))}
+    </tr>
+)
+
+const CanIUseTable: React.FC<{
+    protocol: WaylandProtocolModel
+}> = ({ protocol }) => {
+    const interfaces = protocol.interfaces
+        .map((waylandInterface) => {
+            const versions = compositorRegistry.map((comp) => {
+                const info = comp.info.globals.find(
+                    (global) => global.interface === waylandInterface.name
+                )
+
+                if (info !== undefined) {
+                    return info.version
+                } else {
+                    return null
+                }
+            })
+
+            return {
+                name: waylandInterface.name,
+                versions,
+            }
+        })
+        .filter((data) => data.versions.some((v) => v != null))
+
+    if (interfaces.length === 0) {
+        return <NotFound />
     }
 
     return (
@@ -122,41 +132,31 @@ const CanIUseTable: React.FC<{
             <thead>
                 <tr>
                     <th className="p-4"></th>
-                    {compositorRegistry.map((comp) => (
-                        <th key={comp.id} className="px-2 pt-1 align-bottom">
-                            <div className="flex flex-col justify-end items-center gap-2">
-                                <div className="[writing-mode:vertical-rl] rotate-180">
-                                    {comp.name}
-                                </div>
-                                <div className="aspect-square h-5">
-                                    {comp.icon && (
-                                        <img
-                                            alt={comp.name}
-                                            src={`/protocols/logos/${comp.icon}.svg`}
-                                            className="dark:invert h-5 m-auto"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            <SubTitle compositor={comp} />
-                        </th>
+                    {compositorRegistry.map((compositor) => (
+                        <CompositorHeader compositor={compositor} />
                     ))}
                 </tr>
             </thead>
 
-            <tbody className="bg-white dark:bg-neutral-800">{rows}</tbody>
+            <tbody className="bg-white dark:bg-neutral-800">
+                {interfaces.map((data, index) => (
+                    <InterfaceRow
+                        name={data.name}
+                        versions={data.versions}
+                        key={index}
+                    />
+                ))}
+            </tbody>
         </table>
     )
 }
 
-const NotFound: React.FC = () => {
-    return (
-        <>
-            <span
-                className="codicon codicon-search mr-3"
-                style={{ fontSize: 50 }}
-            ></span>
-            <span className="text-xl">No compositor support found</span>
-        </>
-    )
-}
+const NotFound: React.FC = () => (
+    <div className="flex md:justify-center w-full items-center overflow-x-auto mt-5">
+        <span
+            className="codicon codicon-search mr-3"
+            style={{ fontSize: 50 }}
+        ></span>
+        <span className="text-xl">No compositor support found</span>
+    </div>
+)
