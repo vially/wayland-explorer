@@ -118,12 +118,12 @@ const CanIUseTable: React.FC<{
     }
 
     return (
-        <table className="border-colapse bg-gray-50 rounded dark:bg-neutral-900">
+        <table className="border-collapse bg-gray-50 rounded dark:bg-neutral-900">
             <thead>
                 <tr>
                     <th className="p-4"></th>
                     {compositorRegistry.map((comp) => (
-                        <th key={comp.id} className="px-4 pt-1 align-bottom">
+                        <th key={comp.id} className="px-2 pt-1 align-bottom">
                             <div className="flex flex-col justify-end items-center gap-2">
                                 <div className="[writing-mode:vertical-rl] rotate-180">
                                     {comp.name}
