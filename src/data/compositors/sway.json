@@ -1,13 +1,25 @@
 {
-  "generationTimestamp": 1736886736157,
-  "version": "1.10",
+  "generationTimestamp": 1749487947902,
+  "version": "1.11",
   "globals": [
+    {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_foreign_toplevel_list_v1",
       "version": 1
     },
     {
       "interface": "ext_idle_notifier_v1",
+      "version": 2
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -59,12 +71,20 @@
       "version": 1
     },
     {
+      "interface": "wp_drm_lease_device_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_fractional_scale_manager_v1",
       "version": 1
     },
     {
-      "interface": "wp_presentation",
+      "interface": "wp_linux_drm_syncobj_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "wp_presentation",
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
