@@ -239,11 +239,32 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/color-management-v1.json'),
     },
     {
+        id: 'color-representation-v1',
+        name: 'Color representation',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/color-representation-v1.json'),
+    },
+    {
         id: 'xdg-toplevel-tag-v1',
         name: 'XDG toplevel tag',
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Staging,
         protocol: require('./protocols/xdg-toplevel-tag-v1.json'),
+    },
+    {
+        id: 'pointer-warp-v1',
+        name: 'Pointer warp',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/pointer-warp-v1.json'),
+    },
+    {
+        id: 'ext-background-effect-v1',
+        name: 'Background effect',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/ext-background-effect-v1.json'),
     },
     {
         id: 'fullscreen-shell-unstable-v1',

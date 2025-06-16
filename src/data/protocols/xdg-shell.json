@@ -1330,7 +1330,7 @@
               "description": {
                 "type": "description",
                 "text": "The bottom edge of the window is currently constrained, meaning it\nshouldn't attempt to resize from that edge. It can for example mean\nit's tiled next to a monitor edge on the constrained side of the\nwindow.",
-                "summary": "the surface’s bottom edge is tiled"
+                "summary": "the surface’s bottom edge is constrained"
               }
             }
           ]

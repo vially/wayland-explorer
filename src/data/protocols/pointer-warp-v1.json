@@ -1,0 +1,78 @@
+{
+  "type": "protocol",
+  "name": "pointer_warp_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 Neal Gompa\nCopyright © 2024 Xaver Hugl\nCopyright © 2024 Matthias Klumpp\nCopyright © 2024 Vlad Zahorodnii\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "wp_pointer_warp_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global interface allows applications to request the pointer to be\nmoved to a position relative to a wl_surface.\n\nNote that if the desired behavior is to constrain the pointer to an area\nor lock it to a position, this protocol does not provide a reliable way\nto do that. The pointer constraint and pointer lock protocols should be\nused for those use cases instead.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "summary": "reposition the pointer to a location on a surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the pointer warp manager.",
+            "summary": "destroy the warp manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "warp_pointer",
+          "description": {
+            "type": "description",
+            "text": "Request the compositor to move the pointer to a surface-local position.\nWhether or not the compositor honors the request is implementation defined,\nbut it should\n- honor it if the surface has pointer focus, including\nwhen it has an implicit pointer grab\n- reject it if the enter serial is incorrect\n- reject it if the requested position is outside of the surface\n\nNote that the enter serial is valid for any surface of the client,\nand does not have to be from the surface the pointer is warped to.",
+            "summary": "reposition the pointer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface to position the pointer on",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "pointer",
+              "argType": "object",
+              "summary": "the pointer that should be repositioned",
+              "interface": "wl_pointer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial number of the enter event"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

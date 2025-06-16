@@ -509,7 +509,7 @@
               "value": "2",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\nEquivalent to H.273 TransferCharacteristics code point 4.",
+                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\nEquivalent to H.273 TransferCharacteristics code point 4.\n\nNote: an sRGB display (IEC 61966-2-1) uses this transfer function.",
                 "summary": "Assumed display gamma 2.2 transfer function"
               }
             },
@@ -579,7 +579,7 @@
               "value": "9",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\nEquivalent to H.273 TransferCharacteristics code point 13 with\nMatrixCoefficients set to 0.",
+                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\nEquivalent to H.273 TransferCharacteristics code point 13 with\nMatrixCoefficients set to 0.\n\nNote: This is not appropriate for describing sRGB material.\nsRGB material is intended to be viewed on an sRGB display, and\nthat is described by gamma22.",
                 "summary": "sRGB piece-wise transfer function"
               }
             },
