@@ -37,7 +37,7 @@
           "name": "create_u32_rgba_buffer",
           "description": {
             "type": "description",
-            "text": "Create a single-pixel buffer from four 32-bit RGBA values.\n\nUnless specified in another protocol extension, the RGBA values use\npre-multiplied alpha.\n\nThe width and height of the buffer are 1.",
+            "text": "Create a single-pixel buffer from four 32-bit RGBA values.\n\nUnless specified in another protocol extension, the RGBA values use\npre-multiplied alpha.\n\nThe width and height of the buffer are 1.\n\nThe r, g, b and a arguments valid range is from UINT32_MIN (0)\nto UINT32_MAX (0xffffffff).\n\nThese arguments should be interpreted as a percentage, i.e.\n- UINT32_MIN = 0% of the given color component\n- UINT32_MAX = 100% of the given color component",
             "summary": "create a 1×1 buffer from 32-bit RGBA values"
           },
           "args": [

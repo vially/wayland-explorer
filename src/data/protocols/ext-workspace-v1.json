@@ -256,7 +256,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "A ext_workspace_handle_v1 object represents a workspace that handles a\ngroup of surfaces.\n\nEach workspace has:\n- a name, conveyed to the client with the name event\n- potentially an id conveyed with the id event\n- a list of states, conveyed to the client with the state event\n- and optionally a set of coordinates, conveyed to the client with the\ncoordinates event\n\nThe client may request that the compositor activate or deactivate the workspace.\n\nEach workspace can belong to only a single workspace group.\nDepepending on the compositor policy, there might be workspaces with\nthe same name in different workspace groups, but these workspaces are still\nseparate (e.g. one of them might be active while the other is not).",
+        "text": "A ext_workspace_handle_v1 object represents a workspace that handles a\ngroup of surfaces.\n\nEach workspace has:\n- a name, conveyed to the client with the name event\n- potentially an id conveyed with the id event\n- a list of states, conveyed to the client with the state event\n- and optionally a set of coordinates, conveyed to the client with the\ncoordinates event\n\nThe client may request that the compositor activate or deactivate the workspace.\n\nEach workspace can belong to only a single workspace group.\nDepending on the compositor policy, there might be workspaces with\nthe same name in different workspace groups, but these workspaces are still\nseparate (e.g. one of them might be active while the other is not).",
         "summary": "a workspace handing a group of surfaces"
       },
       "requests": [
