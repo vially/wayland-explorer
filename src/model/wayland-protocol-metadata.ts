@@ -2,6 +2,7 @@ export enum WaylandProtocolStability {
     Stable = 'stable',
     Staging = 'staging',
     Unstable = 'unstable',
+    Experimental = 'experimental',
 }
 
 export enum WaylandProtocolSource {
