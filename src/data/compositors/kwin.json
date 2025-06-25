@@ -112,7 +112,7 @@
     },
     {
       "interface": "wp_cursor_shape_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -141,6 +141,14 @@
     {
       "interface": "wp_viewporter",
       "version": 1
+    },
+    {
+        "interface": "wp_color_manager_v1",
+        "version": 1
+    },
+    {
+        "interface": "wp_color_representation_manager_v1",
+        "version": 1
     },
     {
       "interface": "xdg_activation_v1",
