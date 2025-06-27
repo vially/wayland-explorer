@@ -67,6 +67,7 @@ export const compositorRegistry: CompositorRegistryItem[] = [
     {
         id: 'cage',
         name: 'Cage',
+        icon: 'cage',
         info: require('./compositors/cage.json'),
     },
     {
