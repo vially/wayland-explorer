@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created using Krita: http://krita.org -->
+
+<svg
+   width="240pt"
+   height="240pt"
+   viewBox="0 0 240 240"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="cage.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="pt">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="240"
+       height="240"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs8" />
+  <path
+     id="shape0"
+     fill="url(#gradient0)"
+     fill-rule="evenodd"
+     stroke="#000000"
+     stroke-opacity="0"
+     stroke-width="1"
+     stroke-linecap="square"
+     stroke-linejoin="bevel"
+     d="m 25.7593,162.594 7.8363,-3.717 0.0949,-126.2101 -9.1837,-7.3476 1.2525,137.2747 m 54.0023,44.17 7.8363,-3.716 0.0949,-126.211 -9.1837,-7.3476 1.2525,137.2746 M 61.6914,192.062 69.5277,188.346 69.6226,62.1354 60.4389,54.7878 61.6914,192.062 M 43.5115,177.455 51.3477,173.738 51.4426,47.5278 42.259,40.1802 43.5115,177.455"
+     style="fill:#616161;fill-opacity:1" />
+  <path
+     id="shape1"
+     fill="url(#gradient1)"
+     fill-rule="evenodd"
+     stroke="#000000"
+     stroke-opacity="0"
+     stroke-width="1"
+     stroke-linecap="square"
+     stroke-linejoin="bevel"
+     d="M 70.1619,66.1974 V 196.044 L 63.879,190.759 V 62.1552 l 6.2829,4.0422 m 18.925,12.1423 0.0588,0.0379 -1e-4,-0.1078 0.0802,0.0516 -0.0582,-25.2973 -0.041,-0.0252 4e-4,-0.049 -0.0461,-0.0281 v -0.0184 l -1.3511,-0.8278 -1e-4,-0.0839 -77.12,-47.18787 0.0088,23.08517 6.5314,4.2022 V 151.453 l -6.5402,-5.502 0.0088,23.088 73.3372,63.998 5.1313,4.496 -1e-4,-0.085 0.0588,0.052 -1e-4,-0.108 0.0802,0.07 -0.0582,-25.311 -0.041,-0.034 4e-4,-0.049 -0.0461,-0.039 v -0.018 l -1.3511,-1.138 -1e-4,-0.051 -6.1801,-5.199 V 73.5459 l 7.5374,4.8784 -1e-4,-0.0846 m -60.5492,-38.922 6.2829,4.0422 V 166.317 l -6.2829,-5.285 V 39.4177 m 23.9535,15.411 V 181.18 l -6.2829,-5.284 V 50.7864 l 6.2829,4.0423"
+     style="fill:#000000;fill-opacity:1" />
+  <path
+     id="shape2"
+     fill="url(#gradient2)"
+     fill-rule="evenodd"
+     stroke="#000000"
+     stroke-opacity="0"
+     stroke-width="1"
+     stroke-linecap="square"
+     stroke-linejoin="bevel"
+     d="m 202.178,164.972 -9.797,-6.31 0.13,-126.1113 10.902,-6.3368 -1.235,138.7581 m -64.815,29.864 -9.797,-6.956 0.13,-126.103 10.903,-5.6173 -1.236,138.6763 m -32.582,14.887 -9.7967,-7.382 0.1301,-126.0968 10.9026,-5.1433 -1.236,138.6221 m 65.082,-29.798 -9.798,-6.88 0.131,-126.1034 10.902,-5.702 -1.235,138.6854"
+     style="fill:#515151;fill-opacity:1" />
+  <path
+     id="shape3"
+     fill="url(#gradient3)"
+     fill-rule="evenodd"
+     stroke="#000000"
+     stroke-opacity="0"
+     stroke-width="1"
+     stroke-linecap="square"
+     stroke-linejoin="bevel"
+     d="M 153.84,55.7887 V 182.14 l 11.52,-5.284 V 51.7464 l -11.52,4.0423 m 32.4,-11.3688 V 167.277 l 11.52,-5.285 V 40.3777 l -11.52,4.0422 m 32.4,-11.3687 V 152.413 l 11.992,-5.502 -0.016,23.088 -141.4903,67.34 0.1029,-25.557 11.3314,-5.199 V 74.4839 L 89.1257,78.4961 89.2286,52.9517 230.632,5.76383 230.616,28.849 218.64,33.0512 m -97.2,163.9528 11.52,-5.285 V 63.1152 l -11.52,4.0422 V 197.004"
+     style="fill:#000000;fill-opacity:1" />
+</svg>
