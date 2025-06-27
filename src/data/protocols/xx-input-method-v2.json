@@ -1,0 +1,278 @@
+{
+  "type": "protocol",
+  "name": "input_method_experimental_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2008-2011 Kristian Høgsberg\nCopyright © 2010-2011 Intel Corporation\nCopyright © 2012-2013 Collabora, Ltd.\nCopyright © 2012, 2013 Intel Corporation\nCopyright © 2015, 2016 Jan Arne Petersen\nCopyright © 2017, 2018 Red Hat, Inc.\nCopyright © 2018       Purism SPC\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows applications to act as input methods for compositors.\n\nAn input method context is used to manage the state of the input method.\n\nText strings are UTF-8 encoded, their indices and lengths are in bytes.\n\nThis document adheres to the RFC 2119 when using words like \"must\",\n\"should\", \"may\", etc.\n\nWarning! The protocol described in this file is currently in the\nexperimental phase. Backwards incompatible major versions of the\nprotocol are to be expected. Exposing this protocol without an opt-in\nmechanism is discouraged.",
+    "summary": "Protocol for creating input methods"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xx_input_method_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An input method object allows for clients to compose text.\n\nThe objects connects the client to a text input in an application, and\nlets the client to serve as an input method for a seat.\n\nThe xx_input_method_v1 object can occupy two distinct states: active and\ninactive. In the active state, the object is associated to and\ncommunicates with a text input. In the inactive state, there is no\nassociated text input, and the only communication is with the compositor.\nInitially, the input method is in the inactive state.\n\nRequests issued in the inactive state must be accepted by the compositor.\nBecause of the serial mechanism, and the state reset on activate event,\nthey will not have any effect on the state of the next text input.\n\nThere must be no more than one input method object per seat.",
+        "summary": "input method"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "commit_string",
+          "description": {
+            "type": "description",
+            "text": "Send the commit string text for insertion to the application.\n\nInserts a string at current cursor position (see commit event\nsequence). The string to commit could be either just a single character\nafter a key press or the result of some composing.\n\nThe argument text is a buffer containing the string to insert. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next zwp_text_input_v3.commit request.\n\nThe initial value of text is an empty string.",
+            "summary": "commit string"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_preedit_string",
+          "description": {
+            "type": "description",
+            "text": "Send the pre-edit string text to the application text input.\n\nPlace a new composing text (pre-edit) at the current cursor position.\nAny previously set composing text must be removed. Any previously\nexisting selected text must be removed. The cursor is moved to a new\nposition within the preedit string.\n\nThe argument text is a buffer containing the preedit string. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nThe arguments cursor_begin and cursor_end are counted in bytes relative\nto the beginning of the submitted string buffer. Cursor should be\nhidden by the text input when both are equal to -1.\n\ncursor_begin indicates the beginning of the cursor. cursor_end\nindicates the end of the cursor. It may be equal or different than\ncursor_begin.\n\nValues set with this event are double-buffered. They must be applied on\nthe next xx_input_method_v1.commit event.\n\nThe initial value of text is an empty string. The initial value of\ncursor_begin, and cursor_end are both 0.",
+            "summary": "pre-edit string"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "cursor_begin",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "cursor_end",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "delete_surrounding_text",
+          "description": {
+            "type": "description",
+            "text": "Remove the surrounding text.\n\nbefore_length and after_length are the number of bytes before and after\nthe current cursor index (excluding the preedit text) to delete.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event. In effect before_length is counted from the\nbeginning of preedit text, and after_length from its end (see commit\nevent sequence).\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next xx_input_method_v1.commit request.\n\nThe initial values of both before_length and after_length are 0.",
+            "summary": "delete text"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "before_length",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "after_length",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Apply state changes from commit_string, set_preedit_string and\ndelete_surrounding_text requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe connected text input is expected to proceed by evaluating the\nchanges in the following order:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Calculate surrounding text to send.\n5. Insert new preedit text in cursor position.\n6. Place cursor inside preedit text.\n\nThe serial number reflects the last state of the xx_input_method_v1\nobject known to the client. The value of the serial argument must be\nequal to the number of done events already issued by that object. When\nthe compositor receives a commit request with a serial different than\nthe number of past done events, it must proceed as normal, except it\nshould not change the current state of the xx_input_method_v1 object.",
+            "summary": "apply state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the zwp_text_input_v2 object and any associated child\nobjects.",
+            "summary": "destroy the text input"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "Notification that a text input focused on this seat requested the input\nmethod to be activated.\n\nThis event serves the purpose of providing the compositor with an\nactive input method.\n\nThis event resets all state associated with previous enable, disable,\nsurrounding_text, text_change_cause, and content_type events, as well\nas the state associated with set_preedit_string, commit_string, and\ndelete_surrounding_text requests. In addition, it marks the\nxx_input_method_v1 object as active, and makes any existing\nzwp_input_popup_surface_v2 objects visible.\n\nThe surrounding_text, and content_type events must follow before the\nnext done event if the text input supports the respective\nfunctionality.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
+            "summary": "input method has been requested"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "deactivate",
+          "description": {
+            "type": "description",
+            "text": "Notification that no focused text input currently needs an active\ninput method on this seat.\n\nThis event marks the xx_input_method_v1 object as inactive. The\ncompositor must make all existing zwp_input_popup_surface_v2 objects\ninvisible until the next activate event.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
+            "summary": "deactivate event"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "surrounding_text",
+          "description": {
+            "type": "description",
+            "text": "Updates the surrounding plain text around the cursor, excluding the\npreedit text.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event.\n\nThe argument text is a buffer containing the preedit string, and must\ninclude the cursor position, and the complete selection. It should\ncontain additional characters before and after these. There is a\nmaximum length of wayland messages, so text can not be longer than 4000\nbytes.\n\ncursor is the byte offset of the cursor within the text buffer.\n\nanchor is the byte offset of the selection anchor within the text\nbuffer. If there is no selected text, anchor must be the same as\ncursor.\n\nIf this event does not arrive before the first done event, the input\nmethod may assume that the text input does not support this\nfunctionality and ignore following surrounding_text events.\n\nValues set with this event are double-buffered. They will get applied\nand set to initial values on the next xx_input_method_v1.done\nevent.\n\nThe initial state for affected fields is empty, meaning that the text\ninput does not support sending surrounding text. If the empty values\nget applied, subsequent attempts to change them may have no effect.",
+            "summary": "surrounding text event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "text_change_cause",
+          "description": {
+            "type": "description",
+            "text": "Tells the input method why the text surrounding the cursor changed.\n\nWhenever the client detects an external change in text, cursor, or\nanchor position, it must issue this request to the compositor. This\nrequest is intended to give the input method a chance to update the\npreedit text in an appropriate way, e.g. by removing it when the user\nstarts typing with a keyboard.\n\ncause describes the source of the change.\n\nThe value set with this event is double-buffered. It will get applied\nand set to its initial value on the next xx_input_method_v1.done\nevent.\n\nThe initial value of cause is input_method.",
+            "summary": "indicates the cause of surrounding text change"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "cause",
+              "argType": "uint",
+              "enum": "zwp_text_input_v3.change_cause",
+              "protocol": "text-input-unstable-v3"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "content_type",
+          "description": {
+            "type": "description",
+            "text": "Indicates the content type and hint for the current\nxx_input_method_v1 instance.\n\nValues set with this event are double-buffered. They will get applied\non the next xx_input_method_v1.done event.\n\nThe initial value for hint is none, and the initial value for purpose\nis normal.",
+            "summary": "content purpose and hint"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "hint",
+              "argType": "uint",
+              "enum": "zwp_text_input_v3.content_hint",
+              "protocol": "text-input-unstable-v3"
+            },
+            {
+              "type": "arg",
+              "name": "purpose",
+              "argType": "uint",
+              "enum": "zwp_text_input_v3.content_purpose",
+              "protocol": "text-input-unstable-v3"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "Atomically applies state changes recently sent to the client.\n\nThe done event establishes and updates the state of the client, and\nmust be issued after any changes to apply them.\n\nText input state (content purpose, content hint, surrounding text, and\nchange cause) is conceptually double-buffered within an input method\ncontext.\n\nEvents modify the pending state, as opposed to the current state in use\nby the input method. A done event atomically applies all pending state,\nreplacing the current state. After done, the new pending state is as\ndocumented for each related request.\n\nEvents must be applied in the order of arrival.\n\nNeither current nor pending state are modified unless noted otherwise.",
+            "summary": "apply state"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unavailable",
+          "description": {
+            "type": "description",
+            "text": "The input method ceased to be available.\n\nThe compositor must issue this event as the only event on the object if\nthere was another input_method object associated with the same seat at\nthe time of its creation.\n\nThe compositor must issue this request when the object is no longer\nuseable, e.g. due to seat removal.\n\nThe input method context becomes inert and should be destroyed after\ndeactivation is handled. Any further requests and events except for the\ndestroy request must be ignored.",
+            "summary": "input method unavailable"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "xx_input_method_manager_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The input method manager allows the client to become the input method on\na chosen seat.\n\nNo more than one input method must be associated with any seat at any\ngiven time.",
+        "summary": "input method manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_input_method",
+          "description": {
+            "type": "description",
+            "text": "Request a new input xx_input_method_v1 object associated with a given\nseat.",
+            "summary": "request an input method object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_method",
+              "argType": "new_id",
+              "interface": "xx_input_method_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the zwp_input_method_manager_v2 object.\n\nThe xx_input_method_v1 objects originating from it remain valid.",
+            "summary": "destroy the input method manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}
