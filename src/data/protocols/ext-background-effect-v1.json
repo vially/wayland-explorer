@@ -94,7 +94,7 @@
             {
               "type": "entry",
               "name": "blur",
-              "value": "0",
+              "value": "1",
               "summary": "the compositor supports applying blur"
             }
           ]
