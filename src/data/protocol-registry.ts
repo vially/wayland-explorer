@@ -267,6 +267,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-background-effect-v1.json'),
     },
     {
+        id: 'xx-input-method-v2',
+        name: 'Input method v2',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Experimental,
+        protocol: require('./protocols/xx-input-method-v2.json'),
+    },
+    {
+        id: 'xx-session-management-v1',
+        name: 'Session management',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Experimental,
+        protocol: require('./protocols/xx-session-management-v1.json'),
+    },
+    {
         id: 'fullscreen-shell-unstable-v1',
         name: 'Fullscreen shell',
         source: WaylandProtocolSource.WaylandProtocols,
