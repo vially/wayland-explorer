@@ -21,9 +21,19 @@ const waylandProtocolsStableBadgeTheme: BadgeTheme = {
     backgroundColor: 'bg-blue-100',
 }
 
+const waylandProtocolsStagingBadgeTheme: BadgeTheme = {
+    textColor: 'text-violet-800',
+    backgroundColor: 'bg-violet-100',
+}
+
+const waylandProtocolsExperimentalBadgeTheme: BadgeTheme = {
+    textColor: 'text-fuchsia-800',
+    backgroundColor: 'bg-fuchsia-100',
+}
+
 const waylandProtocolsUnstableBadgeTheme: BadgeTheme = {
-    textColor: 'text-pink-800',
-    backgroundColor: 'bg-pink-100',
+    textColor: 'text-rose-800',
+    backgroundColor: 'bg-rose-100',
 }
 
 const wlrProtocolsUnstableBadgeTheme: BadgeTheme = {
@@ -61,6 +71,14 @@ const externalProtocolsBadgeTheme: BadgeTheme = {
     backgroundColor: 'bg-gray-100',
 }
 
+const badgeThemeByStability: Record<WaylandProtocolStability, BadgeTheme> = {
+    [WaylandProtocolStability.Stable]: waylandProtocolsStableBadgeTheme,
+    [WaylandProtocolStability.Staging]: waylandProtocolsStagingBadgeTheme,
+    [WaylandProtocolStability.Experimental]:
+        waylandProtocolsExperimentalBadgeTheme,
+    [WaylandProtocolStability.Unstable]: waylandProtocolsUnstableBadgeTheme,
+}
+
 function badgeThemeFor(
     source: WaylandProtocolSource,
     stability: WaylandProtocolStability
@@ -68,9 +86,7 @@ function badgeThemeFor(
     if (source === WaylandProtocolSource.WaylandCore) {
         return coreBadgeTheme
     } else if (source === WaylandProtocolSource.WaylandProtocols) {
-        return stability === WaylandProtocolStability.Stable
-            ? waylandProtocolsStableBadgeTheme
-            : waylandProtocolsUnstableBadgeTheme
+        return badgeThemeByStability[stability]
     } else if (source === WaylandProtocolSource.WlrProtocols) {
         return wlrProtocolsUnstableBadgeTheme
     } else if (source === WaylandProtocolSource.KDEProtocols) {
