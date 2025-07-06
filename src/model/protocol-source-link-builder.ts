@@ -82,7 +82,7 @@ const sourceRepositoryUrls: Record<
         protocolUrl:
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/linuxdeepin/treeland-protocols/tree/master/xml/${protocol}.xml',
-    },    
+    },
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',
         stabilityUrl: '',
@@ -154,7 +154,10 @@ function waylandProtocolDirectoryNameFor(
         return metadata.id.endsWith('-v1') || metadata.id.endsWith('-v2')
             ? metadata.id.substring(0, metadata.id.length - 3)
             : metadata.id
-    } else if (metadata.stability === WaylandProtocolStability.Staging) {
+    } else if (
+        metadata.stability === WaylandProtocolStability.Staging ||
+        metadata.stability === WaylandProtocolStability.Experimental
+    ) {
         // Remove version suffix (e.g.: '-v1')
         return metadata.id.substring(0, metadata.id.length - 3)
     }
