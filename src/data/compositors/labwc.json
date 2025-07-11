@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1742942614217,
-  "version": "0.8.3",
+  "version": "0.9.0",
   "globals": [
     {
       "interface": "ext_foreign_toplevel_list_v1",
@@ -84,6 +84,10 @@
     },
     {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_toplevel_icon_manager_v1",
       "version": 1
     },
     {
