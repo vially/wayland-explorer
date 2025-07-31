@@ -19,6 +19,7 @@ const relativeProtocolDirs = [
     path.join('protocols', 'weston', 'protocol'),
     path.join('protocols', 'treeland', 'xml'),
     path.join('protocols', 'external'),
+    path.join('protocols', 'cosmic', 'unstable'),
 ]
 
 const jsonFilePathFor = (protocolId: string): string =>

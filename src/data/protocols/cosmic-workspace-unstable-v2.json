@@ -1,0 +1,333 @@
+{
+  "type": "protocol",
+  "name": "cosmic_workspace_unstable_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 System76\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_manager_v2",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This protocol extends `ext-workspace-v1` with addtional requests and events.\n\nThe caller should call `get_cosmic_workspace` whenever a new ext workspace is\ncreated.",
+        "summary": "list and control workspaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_cosmic_workspace",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request a `zcosmic_workspace_handle_v2` extension object for an existing\n`ext_workspace_handle_v1`.\n\nIf a `zcosmic_workspace_handle_v2` already exists for the `ext_workspace_handle_v1`, this\nwill raise a `workspace_exists` protocol error.",
+            "summary": "get cosmic workspace extension object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "cosmic_workspace",
+              "argType": "new_id",
+              "interface": "zcosmic_workspace_handle_v2"
+            },
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called either when the client will no longer\nuse the `zcosmic_workspace_manager_v2`.",
+            "summary": "destroy the zcosmic_workspace_manager_v2 object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "workspace_exists",
+              "value": "0",
+              "summary": "zcosmic_workspace_handle_v2 already exists for ext_workspace_handle_v1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_workspace_handle_v2",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A zcosmic_workspace_handle_v2 object represents a a workspace that handles a\ngroup of surfaces.\n\nEach workspace has a name, conveyed to the client with the name event; a\nlist of states, conveyed to the client with the state event; and\noptionally a set of coordinates, conveyed to the client with the\ncoordinates event. The client may request that the compositor activate or\ndeactivate the workspace.\n\nEach workspace can belong to only a single workspace group.\nDepepending on the compositor policy, there might be workspaces with\nthe same name in different workspace groups, but these workspaces are still\nseparate (e.g. one of them might be active while the other is not).",
+        "summary": "a workspace handing a group of surfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called either when the client will no longer\nuse the `zcosmic_workspace_handle_v1`.",
+            "summary": "destroy the zcosmic_workspace_handle_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "rename",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace is renamed.\n\nThere is no guarantee the workspace will actually be renamed.",
+            "summary": "rename this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "new name of the workspace"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tiling_state",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace's tiling state is changed.\n\nThere is no guarantee the workspace will actually change it's tiling state.",
+            "summary": "change the tiling state of this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the new tiling state of the workspace",
+              "enum": "tiling_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "move_before",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Move a workspace to be before another workspace along a given axis.\n\n`other_workspace` may be on the same workspace group, or on a different group.\nIf it's a different set, the workspace will also be moved to that group.\n\n`axis` should be a valid index in the coordinates on the workspace group\n`other_workspace` is on. The workspace will be positioned on the target group\nto have a coordinate with this component less than the value of the component for\n`other_workspace`. The exact coordinate values, or how other workspaces are moved\nto accommodate the workspace, is unspecified.\n\nThe request will be ignored if `axis` is invalid or the compositor is otherwise\nunable to move the workspace.\n\nThere is no guarantee the workspace will actually be moved.",
+            "summary": "move before a different workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "other_workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
+            },
+            {
+              "type": "arg",
+              "name": "axis",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "move_after",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Move a workspace to be after another workspace along a given axis.\n\nSee `move_before`.",
+            "summary": "move after a different workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "other_workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
+            },
+            {
+              "type": "arg",
+              "name": "axis",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pin",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace be pinned.\n\nThere is no guarantee the workspace will be actually pinned.",
+            "summary": "pin the workspace"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unpin",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request that this workspace be unpinned.\n\nThere is no guarantee the workspace will be actually unpinned.",
+            "summary": "pin the workspace"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "capabilities",
+          "description": {
+            "type": "description",
+            "text": "This event advertises the capabilities supported by the compositor. If\na capability isn't supported, clients should hide or disable the UI\nelements that expose this functionality. For instance, if the\ncompositor doesn't advertise support for removing workspaces, a button\ntriggering the remove request should not be displayed.\n\nThe compositor will ignore requests it doesn't support. For instance,\na compositor which doesn't advertise support for remove will ignore\nremove requests.\n\nCompositors must send this event once after creation of a\n`zcosmic_workspace_handle_v2`. When the capabilities change, compositors\nmust send this event again.",
+            "summary": "compositor capabilities"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "capabilities",
+              "argType": "uint",
+              "summary": "capabilities",
+              "enum": "workspace_capabilities"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tiling_state",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the zcosmic_workspace_handle_v2 is created\nand each time the workspace tiling state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "summary": "indicates if tiling behavior is enabled for this workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "tiling_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "state",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted immediately after the zcosmic_workspace_handle_v2 is\ncreated and each time the workspace state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "summary": "the state of the workspace changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "workspace_capabilities",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "rename",
+              "value": "1",
+              "summary": "rename request is available"
+            },
+            {
+              "type": "entry",
+              "name": "set_tiling_state",
+              "value": "2",
+              "summary": "set_tiling_state request is available"
+            },
+            {
+              "type": "entry",
+              "name": "pin",
+              "value": "3",
+              "summary": "pin and unpin requests are available",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "move",
+              "value": "4",
+              "summary": "move_before and move_after requests are available",
+              "since": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tiling_state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "types of tiling state a workspace may have"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "floating_only",
+              "value": "0",
+              "summary": "The workspace has no active tiling properties"
+            },
+            {
+              "type": "entry",
+              "name": "tiling_enabled",
+              "value": "1",
+              "summary": "Tiling behavior is enabled for the workspace"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "state",
+          "since": "2",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "summary": "state of the workspace, extending the ext workspace state"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "pinned",
+              "value": "1",
+              "summary": "the workspace is pinned"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "zcosmic_output_manager_v1",
-      "version": "1",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This interface provides extension points for wlr-output-management types.",
@@ -103,6 +103,26 @@
             "summary": "Destroy this global"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_xwayland_primary",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This requests a head to be advertised as the primary output via randr to Xwayland.\n\nNo head has to be marked primary, if `null` is passed Xwayland won't advertise a primary output.\nSending a disabled head will be ignored to avoid races.",
+            "summary": "set head as the primary for xwayland"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "head",
+              "argType": "object",
+              "summary": "head to be advertised as primary",
+              "interface": "zcosmic_output_head_v1",
+              "allowNull": "true"
+            }
+          ]
         }
       ],
       "events": [],
@@ -125,7 +145,7 @@
     {
       "type": "interface",
       "name": "zcosmic_output_head_v1",
-      "version": "1",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "Extension to zwlr_output_head_v1.\n\nAdds additional read-only properties.\n\nProperties sent via this interface are applied atomically via the wlr_output_manager.done event.\nNo guarantees are made regarding the order in which properties are sent.",
@@ -177,9 +197,116 @@
               "allowNull": "true"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "adaptive_sync_available",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This events describes if adaptive_sync is available for this head.\n\nIt is only sent if the output is enabled.",
+            "summary": "is adaptive_sync available for this head"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "available",
+              "argType": "uint",
+              "enum": "adaptive_sync_availability"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "adaptive_sync_ext",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This events describes the adaptive_sync state of this head.\n\nIt is only sent if the output is enabled.",
+            "summary": "current adaptive_sync state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "adaptive_sync_state_ext"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "xwayland_primary",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event describes if this head is advertised as the primary output via randr to Xwayland.\n\nAt most one output is marked primary, but it is not guaranteed that any output is marked.\nIt is only sent if the output is enabled.",
+            "summary": "is this head configured as the primary for xwayland"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "boolean if primary or not"
+            }
+          ]
         }
       ],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "adaptive_sync_availability",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unsupported",
+              "value": "0",
+              "summary": "adaptive sync is not supported"
+            },
+            {
+              "type": "entry",
+              "name": "requires_modeset",
+              "value": "1",
+              "summary": "automatic adaptive_sync is unavailable"
+            },
+            {
+              "type": "entry",
+              "name": "supported",
+              "value": "2",
+              "summary": "adaptive sync is supported in all states"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "adaptive_sync_state_ext",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0",
+              "summary": "adaptive sync is disabled"
+            },
+            {
+              "type": "entry",
+              "name": "automatic",
+              "value": "1",
+              "summary": "adaptive sync will be actived automatically"
+            },
+            {
+              "type": "entry",
+              "name": "always",
+              "value": "2",
+              "summary": "adaptive sync is forced to be always active"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",
@@ -275,10 +402,10 @@
     {
       "type": "interface",
       "name": "zcosmic_output_configuration_head_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
-        "text": "Extension to zwlr_output_configuration_head_v1.\n\nAdds additional/alternative parameters to the original zwlr_output_configuration_head_v1.\n\nOnce the original `zwlr_output_configuration_head_v1` is destroyed this object will also be destroyed.",
+        "text": "Extension to zwlr_output_configuration_head_v1.\n\nAdds additional/alternative parameters to the original zwlr_output_configuration_head_v1.\n\nOnce the original `zwlr_output_configuration_head_v1` is destroyed this object will\nbecome inert and all requests except `release` will be ignored.",
         "summary": "Output configuration head extension object"
       },
       "requests": [
@@ -308,6 +435,24 @@
             "summary": "destroy the output configuration head"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_adaptive_sync_ext",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This request requests a new adaptive sync state.\n\nThis request is meant to be used in place of `zwlr_output_configuration_head_v1::set_adaptive_sync`.\nUsing `set_adaptive_sync` and `set_adaptive_sync_ext` at once will thus raise an `already_set` error on the\noriginal `zwlr_output_configuration_head_v1`.\n\nAny request conflicting with `set_adaptive_sync` will also conflict with `set_adaptive_sync_ext`.",
+            "summary": "set adaptive sync state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "zcosmic_output_head_v1.adaptive_sync_state_ext"
+            }
+          ]
         }
       ],
       "events": [],

@@ -1,0 +1,136 @@
+{
+  "type": "protocol",
+  "name": "cosmic_atspi_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 System76\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol provides a relatively straightforward mapping of AtpsiDevice\nin the at-spi2-core library, so it's possible to add a Wayland backend for it.\n\nThis provides a way for screen reader key bindings to work.\n\nThis is a temporary solution until a better protocol is available for this purpose.",
+    "summary": "atspi accessibility protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "cosmic_atspi_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Manager for adding grabs and monitoring key input.",
+        "summary": "atspi manager global"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Any grabs that are still active will be disabled.",
+            "summary": "Destroy the global"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "add_key_grab",
+          "description": {
+            "type": "description",
+            "text": "Grab the given key combination, so it will not be sent to clients.",
+            "summary": "Add grab for key combination"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mods",
+              "argType": "uint",
+              "summary": "modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "virtual_mods",
+              "argType": "array",
+              "summary": "keycodes of virtual modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "uint",
+              "summary": "keycode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "remove_key_grab",
+          "description": {
+            "type": "description",
+            "text": "Disables a grab added with add_key_grab.",
+            "summary": "Remove grab for key combination"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mods",
+              "argType": "uint",
+              "summary": "modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "virtual_mods",
+              "argType": "array",
+              "summary": "keycodes of virtual modifiers"
+            },
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "uint",
+              "summary": "keycode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "grab_keyboard",
+          "description": {
+            "type": "description",
+            "text": "Grab keyboard, so key input will not be sent to clients.",
+            "summary": "Grab keyboard"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "ungrab_keyboard",
+          "description": {
+            "type": "description",
+            "text": "Disables a grab added with grab_keyboard.",
+            "summary": "Ungrab keyboard"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "key_events_eis",
+          "description": {
+            "type": "description",
+            "text": "Produces an fd that can be used with libei to monitor keyboard input.",
+            "summary": "Get eis socket fd"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "eis file descriptor"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}
