@@ -3,37 +3,64 @@
   "name": "cosmic_toplevel_info_unstable_v1",
   "copyright": {
     "type": "copyright",
-    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopytight © 2022 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopyright © 2024 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "zcosmic_toplevel_info_v1",
-      "version": "1",
+      "version": "3",
       "description": {
         "type": "description",
-        "text": "The purpose of this protocol is to enable clients such as taskbars\nor docks to access a list of opened applications and basic properties\nthereof.\n\nThe secondary purpose of this protocol is to provide protocol object\nhandles for toplevels which may be used to address said toplevels in\nother protocols (e.g. to target a toplevel for screencopy).\n\nAfter a client binds the zcosmic_toplevel_info_v1, each opened\ntoplevel window will be sent via the toplevel event",
+        "text": "The purpose of this protocol is to enable clients such as taskbars\nor docks to access a list of opened applications and basic properties\nthereof.\n\nIt thus extends ext_foreign_toplevel_v1 to provide more information\nand actions on foreign toplevels.",
         "summary": "list toplevels and properties thereof"
       },
       "requests": [
         {
           "type": "request",
           "name": "stop",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This request indicates that the client no longer wishes to receive\nevents for new toplevels.  However, the compositor may emit further\ntoplevel_created events until the finished event is emitted.\n\nThe client must not send any more requests after this one.",
+            "text": "This request indicates that the client no longer wishes to receive\nevents for new toplevels.  However, the compositor may emit further\ntoplevel_created events until the finished event is emitted.\n\nThe client must not send any more requests after this one.\n\nNote: This request isn't necessary for clients binding version 2\nof this protocol and will be ignored.",
             "summary": "stop sending events"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_cosmic_toplevel",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Request a zcosmic_toplevel_handle_v1 extension object for an existing\next_foreign_toplevel_handle_v1.\n\nAll initial properties of the toplevel (states, etc.)\nwill be sent immediately after this event via the corresponding\nevents in zcosmic_toplevel_handle_v1.",
+            "summary": "get cosmic toplevel extension object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "cosmic_toplevel",
+              "argType": "new_id",
+              "interface": "zcosmic_toplevel_handle_v1"
+            },
+            {
+              "type": "arg",
+              "name": "foreign_toplevel",
+              "argType": "object",
+              "interface": "ext_foreign_toplevel_handle_v1",
+              "protocol": "ext-foreign-toplevel-list-v1"
+            }
+          ]
         }
       ],
       "events": [
         {
           "type": "event",
           "name": "toplevel",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This event is emitted whenever a new toplevel window is created. It is\nemitted for all toplevels, regardless of the app that has created them.\n\nAll initial properties of the toplevel (title, app_id, states, etc.)\nwill be sent immediately after this event via the corresponding\nevents in zcosmic_toplevel_handle_v1.",
+            "text": "This event is never emitted for clients binding version 2\nof this protocol, they should use `get_cosmic_toplevel` instead.\n\nThis event is emitted for clients binding version 1 whenever a\nnew toplevel window is created. It is emitted for all toplevels,\nregardless of the app that has created them.\n\nAll initial properties of the toplevel (title, app_id, states, etc.)\nwill be sent immediately after this event via the corresponding\nevents in zcosmic_toplevel_handle_v1.",
             "summary": "a toplevel has been created"
           },
           "args": [
@@ -48,10 +75,22 @@
         {
           "type": "event",
           "name": "finished",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This event indicates that the compositor is done sending events\nto the zcosmic_toplevel_info_v1. The server will destroy the\nobject immediately after sending this request, so it will become\ninvalid and the client should free any resources associated with it.",
+            "text": "This event indicates that the compositor is done sending events\nto the zcosmic_toplevel_info_v1. The server will destroy the\nobject immediately after sending this request, so it will become\ninvalid and the client should free any resources associated with it.\n\nNote: This event is emitted immediately after calling `stop` for\nclients binding version 2 of this protocol for backwards compatibility.",
             "summary": "the compositor has finished with the toplevel manager"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all changes for currently active\nzcosmic_toplevel_handle_v1 have been sent.\n\nThis allows changes to multiple zcosmic_toplevel_handle_v1 handles\nand their properties to be seen as atomic, even if they happen via\nmultiple events.",
+            "summary": "all information about active toplevels have been sent"
           },
           "args": []
         }
@@ -61,10 +100,10 @@
     {
       "type": "interface",
       "name": "zcosmic_toplevel_handle_v1",
-      "version": "1",
+      "version": "3",
       "description": {
         "type": "description",
-        "text": "A zcosmic_toplevel_handle_v1 object represents an open toplevel\nwindow.  A single app may have multiple open toplevels.\n\nEach toplevel has a list of outputs it is visible on, exposed to the\nclient via the output_enter and output_leave events.",
+        "text": "A zcosmic_toplevel_handle_v1 object represents an open toplevel\nwindow. A single app may have multiple open toplevels.\n\nEach toplevel has a list of outputs it is visible on, exposed to the\nclient via the output_enter and output_leave events.",
         "summary": "an open toplevel"
       },
       "requests": [
@@ -74,7 +113,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "This request should be called either when the client will no longer\nuse the zcosmic_toplevel_handle_v1 or after the closed event\nhas been received to allow destruction of the object.",
+            "text": "This request should be called either when the client will no longer\nuse the zcosmic_toplevel_handle_v1.",
             "summary": "destroy the zcosmic_toplevel_handle_v1 object"
           },
           "args": []
@@ -84,9 +123,10 @@
         {
           "type": "event",
           "name": "closed",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "The server will emit no further events on the\nzcosmic_toplevel_handle_v1 after this event. Any requests received\naside from the destroy request will be ignored. Upon receiving this\nevent, the client should make the destroy request to allow freeing\nof resources.",
+            "text": "The server will emit no further events on the\nzcosmic_toplevel_handle_v1 after this event. Any requests received\naside from the destroy request will be ignored. Upon receiving this\nevent, the client should make the destroy request to allow freeing\nof resources.\n\nNote: This event will not be emitted for clients binding version 2\nof this protocol, as `ext_foreign_toplevel_handle_v1.closed` is\nequivalent.",
             "summary": "the toplevel has been closed"
           },
           "args": []
@@ -94,9 +134,10 @@
         {
           "type": "event",
           "name": "done",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This event is sent after all changes in the toplevel state have\nbeen sent.\n\nThis allows changes to the zcosmic_toplevel_handle_v1 properties\nto be seen as atomic, even if they happen via multiple events.\n\nNote: this is is not sent after the closed event.",
+            "text": "This event is sent after all changes in the toplevel state have\nbeen sent.\n\nThis allows changes to the zcosmic_toplevel_handle_v1 properties\nto be seen as atomic, even if they happen via multiple events.\n\nNote: this is is not sent after the closed event.\n\nNote: This event will not be emitted for clients binding version 2\nof this protocol, as `ext_foreign_toplevel_handle_v1.done` is\nequivalent.",
             "summary": "all information about the toplevel has been sent"
           },
           "args": []
@@ -104,9 +145,10 @@
         {
           "type": "event",
           "name": "title",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This event is emitted whenever the title of the toplevel changes.",
+            "text": "This event is emitted whenever the title of the toplevel changes.\n\nNote: This event will not be emitted for clients binding version 2\nof this protocol, as `ext_foreign_toplevel_handle_v1.title` is\nequivalent.",
             "summary": "title change"
           },
           "args": [
@@ -120,9 +162,10 @@
         {
           "type": "event",
           "name": "app_id",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "This event is emitted whenever the app_id of the toplevel changes.",
+            "text": "This event is emitted whenever the app_id of the toplevel changes.\n\nNote: This event will not be emitted for clients binding version 2\nof this protocol, as `ext_foreign_toplevel_handle_v1.app_id` is\nequivalent.",
             "summary": "app_id change"
           },
           "args": [
@@ -172,6 +215,7 @@
         {
           "type": "event",
           "name": "workspace_enter",
+          "deprecatedSince": "3",
           "description": {
             "type": "description",
             "text": "This event is emitted whenever the toplevel becomes visible on the\ngiven workspace. A toplevel may be visible on multiple workspaces.",
@@ -190,6 +234,7 @@
         {
           "type": "event",
           "name": "workspace_leave",
+          "deprecatedSince": "3",
           "description": {
             "type": "description",
             "text": "This event is emitted whenever the toplevel is no longer visible\non a given workspace. It is guaranteed that an workspace_enter event with\nthe same workspace has been emitted before this event.",
@@ -218,6 +263,87 @@
               "type": "arg",
               "name": "state",
               "argType": "array"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "geometry",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the geometry of a toplevel (it's position and/or size)\nrelative to the provided output has changed.\n\nThis event is emitted once on creation of the\nzcosmic_toplevel_handle_v1 for every entered output and again\nwhenever the geometry of the toplevel changes relative to any output.",
+            "summary": "the toplevel's position and/or size has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x coordinate of the upper-left corner"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y coordinate of the upper-left corner"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the toplevel"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the toplevel"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ext_workspace_enter",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the toplevel becomes visible on the\ngiven workspace. A toplevel may be visible on multiple workspaces.",
+            "summary": "toplevel entered an workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ext_workspace_leave",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted whenever the toplevel is no longer visible\non a given workspace. It is guaranteed that an workspace_enter event with\nthe same workspace has been emitted before this event.",
+            "summary": "toplevel left an workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
             }
           ]
         }
@@ -256,6 +382,13 @@
               "name": "fullscreen",
               "value": "3",
               "summary": "the toplevel is fullscreen"
+            },
+            {
+              "type": "entry",
+              "name": "sticky",
+              "value": "4",
+              "summary": "the toplevel is sticky",
+              "since": "2"
             }
           ]
         }

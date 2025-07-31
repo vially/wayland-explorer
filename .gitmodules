@@ -19,3 +19,6 @@
 [submodule "protocols/treeland"]
 	path = protocols/treeland
 	url = https://github.com/linuxdeepin/treeland-protocols.git
+[submodule "protocols/cosmic"]
+	path = protocols/cosmic
+	url = https://github.com/pop-os/cosmic-protocols.git
