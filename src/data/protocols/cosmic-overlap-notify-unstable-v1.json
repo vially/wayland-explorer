@@ -1,0 +1,211 @@
+{
+  "type": "protocol",
+  "name": "cosmic_overlap_notify_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copytight © 2024 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_overlap_notify_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The purpose of this protocol is to enable layer-shell client to get\nnotifications if part of their surfaces are occluded other elements\n(currently toplevels and other layer-surfaces).\n\nYou can request a notification object for any of your zwlr_layer_surface_v1\nsurfaces, which will then emit overlap events.",
+        "summary": "get notifications of other elements overlapping layer surfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "notify_on_overlap",
+          "description": {
+            "type": "description",
+            "text": "Requests notifications for toplevels and layer-surfaces entering and leaving the\nsurface-area of the given zwlr_layer_surface_v1. This can be used e.g. to\nimplement auto-hide functionality.\n\nTo stop receiving notifications, destroy the returned\nzcosmic_overlap_notification_v1 object.",
+            "summary": "get notified if a layer-shell is obstructed by a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "overlap_notification",
+              "argType": "new_id",
+              "interface": "zcosmic_overlap_notification_v1"
+            },
+            {
+              "type": "arg",
+              "name": "layer_surface",
+              "argType": "object",
+              "interface": "zwlr_layer_surface_v1",
+              "protocol": "wlr-layer-shell-unstable-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_overlap_notification_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "summary": "Subscription for overlapping toplevels on a layer-surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called when the client has no interest in overlap\nnotifications anymore.",
+            "summary": "destroy the notification object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "toplevel_enter",
+          "description": {
+            "type": "description",
+            "text": "A ext_foreign_toplevel_handle_v1 has entered the surface area.\n\nThis event will be emitted once for every ext_foreign_toplevel_handle_v1\nrepresenting this toplevel.\n\nCompositors are free to update the overlapping area by sending additional\n`toplevel_enter` events for the same toplevel without sending `toplevel_leave`\nin between.",
+            "summary": "Toplevel entered the surface area"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "ext_foreign_toplevel_handle_v1",
+              "protocol": "ext-foreign-toplevel-list-v1"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x coordinate of the upper-left corner of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y coordinate of the upper-left corner of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the overlapping area"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "toplevel_leave",
+          "description": {
+            "type": "description",
+            "text": "A ext_foreign_toplevel_handle_v1 has left the surface area.\n\nThis event will be emitted once for every ext_foreign_toplevel_handle_v1\nrepresenting this toplevel.",
+            "summary": "Toplevel entered the surface area"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "ext_foreign_toplevel_handle_v1",
+              "protocol": "ext-foreign-toplevel-list-v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "layer_enter",
+          "description": {
+            "type": "description",
+            "text": "A zwlr_layer_surface_v1 has entered the surface area.\n\nCompositors are free to update the overlapping area by sending additional\n`layer_enter` events for the same surface without sending `layer_leave`\nin between.\n\nThe overlapping region is given surface-relative to the zwlr_layer_surface_v1\nused to create this notification object.",
+            "summary": "Layer surface entered the surface area"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "string",
+              "summary": "unique identifier for the overlapping layer-surface"
+            },
+            {
+              "type": "arg",
+              "name": "namespace",
+              "argType": "string",
+              "summary": "namespace for the layer surface"
+            },
+            {
+              "type": "arg",
+              "name": "exclusive",
+              "argType": "uint",
+              "summary": "if the overlapping surface is requesting an exclusive area or not"
+            },
+            {
+              "type": "arg",
+              "name": "layer",
+              "argType": "uint",
+              "summary": "layer the overlapping surface sits on",
+              "enum": "zwlr_layer_shell_v1.layer",
+              "protocol": "wlr-layer-shell-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x coordinate of the upper-left corner of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y coordinate of the upper-left corner of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the overlapping area"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the overlapping area"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "layer_leave",
+          "description": {
+            "type": "description",
+            "text": "A zwlr_layer_surface_v1 has left the surface area.",
+            "summary": "Layer surface left the surface area"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "string",
+              "summary": "unique identifier for the overlapping layer-surface"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

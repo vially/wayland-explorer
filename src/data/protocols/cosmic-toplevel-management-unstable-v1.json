@@ -3,13 +3,13 @@
   "name": "cosmic_toplevel_management_unstable_v1",
   "copyright": {
     "type": "copyright",
-    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopyright © 2022 wb9688\nCopyright © 2022 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+    "text": "Copyright © 2018 Ilia Bozhinov\nCopyright © 2020 Isaac Freund\nCopyright © 2022 wb9688\nCopyright © 2024 Victoria Brekenfeld\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "zcosmic_toplevel_manager_v1",
-      "version": "2",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "This protocol allows clients such as a taskbar to request the compositor\nto preform typical actions on open toplevels. The compositor is in all\ncases free to ignore the request.",
@@ -235,6 +235,7 @@
           "type": "request",
           "name": "move_to_workspace",
           "since": "2",
+          "deprecatedSince": "4",
           "description": {
             "type": "description",
             "text": "Move window to workspace, on given output.",
@@ -254,6 +255,77 @@
               "argType": "object",
               "interface": "zcosmic_workspace_handle_v1",
               "protocol": "cosmic-workspace-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_sticky",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be made sticky"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_sticky",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "If the compositor honors this request, the\nzcosmic_toplevel_handle_v1.state event will be sent.",
+            "summary": "request that a toplevel be removed of the sticky status"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "move_to_ext_workspace",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "Move window to workspace, on given output.",
+            "summary": "move toplevel to workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "zcosmic_toplevel_handle_v1",
+              "protocol": "cosmic-toplevel-info-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
             },
             {
               "type": "arg",
@@ -326,6 +398,20 @@
               "value": "6",
               "summary": "move_to_workspace request is available",
               "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "sticky",
+              "value": "7",
+              "summary": "set_sticky and unset_sticky requests are available",
+              "since": "3"
+            },
+            {
+              "type": "entry",
+              "name": "move_to_ext_workspace",
+              "value": "8",
+              "summary": "move_to_ext_workspace request is available",
+              "since": "4"
             }
           ]
         },

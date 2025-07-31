@@ -1,0 +1,265 @@
+{
+  "type": "protocol",
+  "name": "cosmic_a11y_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 System76\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocols provides way to toggle various accessibility features\nin the COSMIC desktop environment for shell components.",
+    "summary": "toggle various accessibility features"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "cosmic_a11y_manager_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "Manager to toggle accessibility features.",
+        "summary": "a11y global"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_magnifier",
+          "description": {
+            "type": "description",
+            "text": "Sets the state of the screen magnifier.\n\nThe client must not assume any requested changes are actually applied and should wait\nuntil the next magnifier event before updating it's UI.",
+            "summary": "Set the screen magnifier on or off"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "active",
+              "argType": "uint",
+              "summary": "If the screen magnifier should be enabled",
+              "enum": "active_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_screen_filter",
+          "since": "2",
+          "deprecatedSince": "3",
+          "description": {
+            "type": "description",
+            "text": "Set the parameters for screen filtering.\n\nIf the filter is set to unknown, the compositor MUST not change the current state\nof the filter. This is to allow clients to update the inverted state, even if they\ndon't know about the current active filter.\n\nThe client must not assume any requested changes are actually applied and should wait\nuntil the next screen_filter event before updating it's UI.\n\nSend this request will raised a \"deprecated\" protocol error, if version 3 or higher was bound.\nUse `set_screen_filter2` instead.",
+            "summary": "Set screen filtering"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "inverted",
+              "argType": "uint",
+              "summary": "If the screen colors should be inverted",
+              "enum": "active_state"
+            },
+            {
+              "type": "arg",
+              "name": "filter",
+              "argType": "uint",
+              "summary": "Which if any filter should be used",
+              "enum": "filter"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_screen_filter2",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Set the parameters for screen filtering.\n\nIf the filter is set to unknown, the compositor MUST not change the currently set\nfilter. This is to allow clients to update the inverted state or toggle the screen filter,\neven if they don't know about the currently selected filter.\n\nThe client must not assume any requested changes are actually applied and should wait\nuntil the next screen_filter event before updating it's UI.\n\nThe \"deprecated\" protocol error is raised, if \"disabled\" is set for \"filter\".",
+            "summary": "Set screen filtering"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "inverted",
+              "argType": "uint",
+              "summary": "If the screen colors should be inverted",
+              "enum": "active_state"
+            },
+            {
+              "type": "arg",
+              "name": "filter",
+              "argType": "uint",
+              "summary": "Which if filter should be used",
+              "enum": "filter"
+            },
+            {
+              "type": "arg",
+              "name": "filter_state",
+              "argType": "uint",
+              "summary": "If the screen filter should be active",
+              "enum": "active_state"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "magnifier",
+          "description": {
+            "type": "description",
+            "text": "State of the screen magnifier.\n\nThis event will be emitted by the compositor when binding the protocol\nand whenever the state changes.",
+            "summary": "State of the screen magnifier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "active",
+              "argType": "uint",
+              "summary": "If the screen magnifier is enabled",
+              "enum": "active_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "screen_filter",
+          "since": "2",
+          "deprecatedSince": "3",
+          "description": {
+            "type": "description",
+            "text": "Parameters used for screen filtering.\n\nThis event will be emitted by the compositor when binding the protocol\nand whenever the state changes.\n\nIf a screen filter is used not known to the protocol or the bound version\nfilter will be set to unknown.\n\nSince version 3 this event will not be emitted anymore, instead use `screen_filter2`.",
+            "summary": "State of screen filtering"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "inverted",
+              "argType": "uint",
+              "summary": "If the screen colors are inverted",
+              "enum": "active_state"
+            },
+            {
+              "type": "arg",
+              "name": "filter",
+              "argType": "uint",
+              "summary": "Which if any screen filter is enabled",
+              "enum": "filter"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "screen_filter2",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Parameters used for screen filtering.\n\nThis event will be emitted by the compositor when binding the protocol\nand whenever the state changes.\n\nIf a screen filter is used not known to the protocol or the bound version\nfilter will be set to unknown.\n\nThe compositor must never send \"disabled\" as the \"filter\" argument.",
+            "summary": "State of screen filtering"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "inverted",
+              "argType": "uint",
+              "summary": "If the screen colors are inverted",
+              "enum": "active_state"
+            },
+            {
+              "type": "arg",
+              "name": "filter",
+              "argType": "uint",
+              "summary": "Which if any screen filter is selected",
+              "enum": "filter"
+            },
+            {
+              "type": "arg",
+              "name": "filter_state",
+              "argType": "uint",
+              "summary": "If the screen filter is active",
+              "enum": "active_state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "active_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0",
+              "summary": "function is disabled"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1",
+              "summary": "function is enabled"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "filter",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0",
+              "summary": "No screen filter is set",
+              "deprecatedSince": "3"
+            },
+            {
+              "type": "entry",
+              "name": "unknown",
+              "value": "1",
+              "summary": "A custom or unknown screen filter"
+            },
+            {
+              "type": "entry",
+              "name": "greyscale",
+              "value": "2",
+              "summary": "Greyscale colors"
+            },
+            {
+              "type": "entry",
+              "name": "daltonize_protanopia",
+              "value": "3",
+              "summary": "Daltonize for Protanopia"
+            },
+            {
+              "type": "entry",
+              "name": "daltonize_deuteranopia",
+              "value": "4",
+              "summary": "Daltonize for Deuteranopia"
+            },
+            {
+              "type": "entry",
+              "name": "daltonize_tritanopia",
+              "value": "5",
+              "summary": "Daltonize for Tritanopia"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "3",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "deprecated",
+              "value": "0",
+              "summary": "A deprecated request or value was used"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
