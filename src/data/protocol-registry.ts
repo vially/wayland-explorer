@@ -713,6 +713,27 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/hyprland-toplevel-mapping-v1.json'),
     },
     {
+        id: 'cosmic-a11y-unstable-v1',
+        name: 'COSMIC a11y',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-a11y-unstable-v1.json'),
+    },
+    {
+        id: 'cosmic-atspi-unstable-v1',
+        name: 'COSMIC atspi',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-atspi-unstable-v1.json'),
+    },
+    {
+        id: 'cosmic-image-capture-source-unstable-v1',
+        name: 'COSMIC image capture source',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-image-capture-source-unstable-v1.json'),
+    },
+    {
         id: 'cosmic-image-source-unstable-v1',
         name: 'COSMIC image source',
         source: WaylandProtocolSource.CosmicProtocols,
@@ -725,6 +746,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-output-management-unstable-v1.json'),
+    },
+    {
+        id: 'cosmic-overlap-notify-unstable-v1',
+        name: 'COSMIC overlap notify',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-overlap-notify-unstable-v1.json'),
     },
     {
         id: 'cosmic-screencopy-unstable-v1',
@@ -756,10 +784,17 @@ const protocols: WaylandProtocolRegistryItem[] = [
     },
     {
         id: 'cosmic-workspace-unstable-v1',
-        name: 'COSMIC workspace',
+        name: 'COSMIC workspace v1',
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-workspace-unstable-v1.json'),
+    },
+    {
+        id: 'cosmic-workspace-unstable-v2',
+        name: 'COSMIC workspace v2',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-workspace-unstable-v2.json'),
     },
     {
         id: 'ivi-application',
