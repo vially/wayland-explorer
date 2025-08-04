@@ -1,9 +1,29 @@
 {
-  "generationTimestamp": 1743070480786,
-  "version": "0.5.20",
+  "generationTimestamp": 1754274224560,
+  "version": "0.6.1",
   "globals": [
     {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_list_v1",
+      "version": 1
+    },
+    {
       "interface": "ext_idle_notifier_v1",
+      "version": 2
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -51,6 +71,10 @@
       "version": 3
     },
     {
+      "interface": "wl_drm",
+      "version": 2
+    },
+    {
       "interface": "wl_output",
       "version": 4
     },
@@ -64,6 +88,10 @@
     },
     {
       "interface": "wl_subcompositor",
+      "version": 1
+    },
+    {
+      "interface": "wp_alpha_modifier_v1",
       "version": 1
     },
     {
@@ -156,4 +184,3 @@
     }
   ]
 }
-
