@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1740336770862,
-  "version": "25.02",
+  "generationTimestamp": 1756565979679,
+  "version": "25.08",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -12,6 +12,10 @@
     },
     {
       "interface": "ext_session_lock_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_workspace_manager_v1",
       "version": 1
     },
     {
@@ -39,10 +43,6 @@
       "version": 4
     },
     {
-      "interface": "wl_output",
-      "version": 4
-    },
-    {
       "interface": "wl_seat",
       "version": 9
     },
@@ -56,6 +56,10 @@
     },
     {
       "interface": "wp_cursor_shape_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "wp_drm_lease_device_v1",
       "version": 1
     },
     {
