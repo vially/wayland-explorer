@@ -50,6 +50,7 @@ export const compositorRegistry: CompositorRegistryItem[] = [
     {
         id: 'niri',
         name: 'niri',
+        icon: 'niri',
         info: require('./compositors/niri.json'),
     },
     {
