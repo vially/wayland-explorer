@@ -24,6 +24,12 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/mutter.json'),
     },
     {
+        id: 'muffin',
+        name: 'Muffin',
+        icon: 'cinnamon',
+        info: require('./compositors/muffin.json'),
+    },
+    {
         id: 'kwin',
         name: 'KWin',
         icon: 'kde',
