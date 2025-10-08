@@ -16,7 +16,7 @@ export interface CompositorRegistryItem {
     info: CompositorInfo
 }
 
-export const compositorRegistry: CompositorRegistryItem[] = [
+const compositorRegistryUnsorted: CompositorRegistryItem[] = [
     {
         id: 'mutter',
         name: 'Mutter',
@@ -119,3 +119,6 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         info: require('./compositors/river.json'),
     },
 ]
+
+export const compositorRegistry: CompositorRegistryItem[] =
+    compositorRegistryUnsorted.sort((c1, c2) => c1.name.localeCompare(c2.name))
