@@ -18,6 +18,7 @@
     },
     "scripts": {
         "start": "react-scripts start",
+        "prebuild": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/export-data-json.ts",
         "build": "env BUILD_PATH=build/protocols react-scripts build",
         "postbuild": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/render-static-html.tsx",
         "test": "react-scripts test",
