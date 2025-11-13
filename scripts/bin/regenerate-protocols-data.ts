@@ -20,6 +20,7 @@ const relativeProtocolDirs = [
     path.join('protocols', 'treeland', 'xml'),
     path.join('protocols', 'external'),
     path.join('protocols', 'cosmic', 'unstable'),
+    path.join('protocols', 'river', 'protocol'),
 ]
 
 const jsonFilePathFor = (protocolId: string): string =>
@@ -54,6 +55,11 @@ const deprecatedProtocols = [
      * https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/14
      */
     'weston/protocol/color-management-v1.xml',
+    /**
+     * Ignore duplicate
+     */
+    'river/protocol/wlr-layer-shell-unstable-v1.xml',
+    'river/protocol/wlr-output-power-management-unstable-v1.xml'
 ]
 
 interface WaylandProtocolWithId extends WaylandProtocol {

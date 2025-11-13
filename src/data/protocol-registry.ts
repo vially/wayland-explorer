@@ -930,6 +930,27 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/treeland-window-management-v1.json'),
     },
     {
+        id: 'river-status-unstable-v1',
+        name: 'River status',
+        source: WaylandProtocolSource.RiverProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/river-status-unstable-v1.json'),
+    },
+    {
+        id: 'river-control-unstable-v1',
+        name: 'River control',
+        source: WaylandProtocolSource.RiverProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/river-control-unstable-v1.json'),
+    },
+    {
+        id: 'river-layout-v3',
+        name: 'River window layout',
+        source: WaylandProtocolSource.RiverProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/river-layout-v3.json'),
+    },
+    {
         id: 'wayland-drm',
         name: 'Mesa Wayland DRM',
         source: WaylandProtocolSource.External,

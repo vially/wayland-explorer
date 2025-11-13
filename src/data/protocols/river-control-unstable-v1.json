@@ -1,0 +1,127 @@
+{
+  "type": "protocol",
+  "name": "river_control_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2020 The River Developers\n\nPermission to use, copy, modify, and/or distribute this software for any\npurpose with or without fee is hereby granted, provided that the above\ncopyright notice and this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES\nWITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\nMERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR\nANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\nOR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zriver_control_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to run compositor commands and receive a\nsuccess/failure response with output or a failure message respectively.\n\nEach command is built up in a series of add_argument requests and\nexecuted with a run_command request. The first argument is the command\nto be run.\n\nA complete list of commands should be made available in the man page of\nthe compositor.",
+        "summary": "run compositor commands"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will not use the\nriver_control object any more. Objects that have been created\nthrough this instance are not affected.",
+            "summary": "destroy the river_control object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "add_argument",
+          "description": {
+            "type": "description",
+            "text": "Arguments are stored by the server in the order they were sent until\nthe run_command request is made.",
+            "summary": "add an argument to the current command"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "argument",
+              "argType": "string",
+              "summary": "the argument to add"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "run_command",
+          "description": {
+            "type": "description",
+            "text": "Execute the command built up using the add_argument request for the\ngiven seat.",
+            "summary": "run the current command"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "callback object",
+              "interface": "zriver_command_callback_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zriver_command_callback_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is created by the run_command request. Exactly one of the\nsuccess or failure events will be sent. This object will be destroyed\nby the compositor after one of the events is sent.",
+        "summary": "callback object"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "success",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Sent when the command has been successfully received and executed by\nthe compositor. Some commands may produce output, in which case the\noutput argument will be a non-empty string.",
+            "summary": "command successful"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "string",
+              "summary": "the output of the command"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failure",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Sent when the command could not be carried out. This could be due to\nsending a non-existent command, no command, not enough arguments, too\nmany arguments, invalid arguments, etc.",
+            "summary": "command failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "failure_message",
+              "argType": "string",
+              "summary": "a message explaining why failure occurred"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}
