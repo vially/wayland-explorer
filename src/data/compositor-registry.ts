@@ -112,4 +112,10 @@ export const compositorRegistry: CompositorRegistryItem[] = [
         icon: 'louvre',
         info: require('./compositors/louvre.json'),
     },
+    {
+        id: 'river',
+        name: 'river',
+        icon: 'river',
+        info: require('./compositors/river.json'),
+    },
 ]

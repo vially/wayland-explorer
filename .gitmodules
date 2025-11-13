@@ -22,3 +22,6 @@
 [submodule "protocols/cosmic"]
 	path = protocols/cosmic
 	url = https://github.com/pop-os/cosmic-protocols.git
+[submodule "protocols/river"]
+	path = protocols/river
+	url = https://codeberg.org/river/river.git

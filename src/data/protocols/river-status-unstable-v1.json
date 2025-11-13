@@ -1,0 +1,287 @@
+{
+  "type": "protocol",
+  "name": "river_status_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2020 The River Developers\n\nPermission to use, copy, modify, and/or distribute this software for any\npurpose with or without fee is hereby granted, provided that the above\ncopyright notice and this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES\nWITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\nMERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR\nANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\nOR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zriver_status_manager_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "A global factory for objects that receive status information specific\nto river. It could be used to implement, for example, a status bar.",
+        "summary": "manage river status objects"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will not use the\nriver_status_manager object any more. Objects that have been created\nthrough this instance are not affected.",
+            "summary": "destroy the river_status_manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_river_output_status",
+          "description": {
+            "type": "description",
+            "text": "This creates a new river_output_status object for the given wl_output.",
+            "summary": "create an output status object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zriver_output_status_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_river_seat_status",
+          "description": {
+            "type": "description",
+            "text": "This creates a new river_seat_status object for the given wl_seat.",
+            "summary": "create a seat status object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "zriver_seat_status_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zriver_output_status_v1",
+      "version": "4",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to receive information about the current\nwindowing state of an output.",
+        "summary": "track output tags and focus"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will not use the\nriver_output_status object any more.",
+            "summary": "destroy the river_output_status object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "focused_tags",
+          "description": {
+            "type": "description",
+            "text": "Sent once binding the interface and again whenever the tag focus of\nthe output changes.",
+            "summary": "focused tags of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tags",
+              "argType": "uint",
+              "summary": "32-bit bitfield"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "view_tags",
+          "description": {
+            "type": "description",
+            "text": "Sent once on binding the interface and again whenever the tag state\nof the output changes.",
+            "summary": "tag state of an output's views"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tags",
+              "argType": "array",
+              "summary": "array of 32-bit bitfields"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "urgent_tags",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Sent once on binding the interface and again whenever the set of\ntags with at least one urgent view changes.",
+            "summary": "tags of the output with an urgent view"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tags",
+              "argType": "uint",
+              "summary": "32-bit bitfield"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "layout_name",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "Sent once on binding the interface should a layout name exist and again\nwhenever the name changes.",
+            "summary": "name of the layout"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "layout name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "layout_name_clear",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "Sent when the current layout name has been removed without a new one\nbeing set, for example when the active layout generator disconnects.",
+            "summary": "name of the layout"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zriver_seat_status_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This interface allows clients to receive information about the current\nfocus of a seat. Note that (un)focused_output events will only be sent\nif the client has bound the relevant wl_output globals.",
+        "summary": "track seat focus"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will not use the\nriver_seat_status object any more.",
+            "summary": "destroy the river_seat_status object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "focused_output",
+          "description": {
+            "type": "description",
+            "text": "Sent on binding the interface and again whenever an output gains focus.",
+            "summary": "the seat focused an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "unfocused_output",
+          "description": {
+            "type": "description",
+            "text": "Sent whenever an output loses focus.",
+            "summary": "the seat unfocused an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "focused_view",
+          "description": {
+            "type": "description",
+            "text": "Sent once on binding the interface and again whenever the focused\nview or a property thereof changes. The title may be an empty string\nif no view is focused or the focused view did not set a title.",
+            "summary": "information on the focused view"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "title",
+              "argType": "string",
+              "summary": "title of the focused view"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "mode",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Sent once on binding the interface and again whenever a new mode\nis entered (e.g. with riverctl enter-mode foobar).",
+            "summary": "the active mode changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the mode"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

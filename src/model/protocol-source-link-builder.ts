@@ -83,6 +83,16 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://github.com/linuxdeepin/treeland-protocols/tree/master/xml/${protocol}.xml',
     },
+    [WaylandProtocolSource.RiverProtocols]: {
+        repositoryUrl: 'https://codeberg.org/river/river',
+        stabilityUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://codeberg.org/river/river/src/branch/0.3.x',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://codeberg.org/river/river/src/branch/0.3.x/protocol/${protocol}.xml',
+    },
+
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',
         stabilityUrl: '',
