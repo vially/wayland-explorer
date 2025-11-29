@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1756565979679,
-  "version": "25.08",
+  "generationTimestamp": 1764414801094,
+  "version": "25.11",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -104,7 +104,7 @@
     },
     {
       "interface": "zwlr_layer_shell_v1",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "zwlr_output_manager_v1",
