@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "12",
+      "version": "18",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -538,6 +538,153 @@
               "summary": "multiplier in 0-10000"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "replication_source",
+          "since": "13",
+          "description": {
+            "type": "description",
+            "summary": "source output for mirroring"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "string",
+              "summary": "uuid of the source output"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ddc_ci_allowed",
+          "since": "14",
+          "description": {
+            "type": "description",
+            "text": "If the ddc_ci capability is present, this determines if settings\nsuch as brightness, contrast or others should be set using DDC/CI.",
+            "summary": "if DDC/CI should be used to control brightness etc."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "allowed",
+              "argType": "uint",
+              "summary": "1 if allowed, 0 if disabled"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "max_bits_per_color",
+          "since": "15",
+          "description": {
+            "type": "description",
+            "text": "This limits the amount of bits per color that are sent to the display.",
+            "summary": "override max bpc"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "max_bpc",
+              "argType": "uint",
+              "summary": "0 for the default / automatic"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "max_bits_per_color_range",
+          "since": "15",
+          "description": {
+            "type": "description",
+            "summary": "range of max bits per color value"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "min_value",
+              "argType": "uint",
+              "summary": "the minimum supported by the driver"
+            },
+            {
+              "type": "arg",
+              "name": "max_value",
+              "argType": "uint",
+              "summary": "the maximum supported by the driver"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "automatic_max_bits_per_color_limit",
+          "since": "15",
+          "description": {
+            "type": "description",
+            "summary": "if and to what value automatic max bpc is limited"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "max_bpc_limit",
+              "argType": "uint",
+              "summary": "which value automatic bpc gets limited to. 0 if not limited"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "edr_policy",
+          "since": "16",
+          "description": {
+            "type": "description",
+            "text": "When EDR is enabled, the compositor may increase the backlight beyond\nthe user-specified setting, in order to present HDR content on displays\nwithout native HDR support.\nThis will usually result in better visuals, but also increases battery\nusage.",
+            "summary": "when the compositor may apply EDR"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "policy",
+              "argType": "uint",
+              "enum": "edr_policy"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "sharpness",
+          "since": "17",
+          "description": {
+            "type": "description",
+            "text": "This is the sharpness modifier of the output.\n0 is sharpness disabled and 10000 is the maximum sharpness",
+            "summary": "sharpness strength"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "sharpness",
+              "argType": "uint",
+              "summary": "sharpness in 0-10000"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "priority",
+          "since": "18",
+          "description": {
+            "type": "description",
+            "text": "Describes the position of the output in the output order list,\nwith lower values being earlier in the list. There's no specific\nvalue the list has to start at, this value is only used in sorting\noutputs.\n\nNote that the output order protocol is not sufficient for this,\nas an output may not be in the output order if it's disabled or\nmirroring another screen.",
+            "summary": "output priority"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "priority",
+              "argType": "uint",
+              "summary": "priority"
+            }
+          ]
         }
       ],
       "enums": [
@@ -704,6 +851,34 @@
               "value": "0x100",
               "summary": "if this outputdevice supports the built-in color profile",
               "since": "12"
+            },
+            {
+              "type": "entry",
+              "name": "ddc_ci",
+              "value": "0x200",
+              "summary": "if this outputdevice supports DDC/CI",
+              "since": "14"
+            },
+            {
+              "type": "entry",
+              "name": "max_bits_per_color",
+              "value": "0x400",
+              "summary": "if this outputdevice supports setting max bpc",
+              "since": "15"
+            },
+            {
+              "type": "entry",
+              "name": "edr",
+              "value": "0x800",
+              "summary": "if this outputdevice supports EDR",
+              "since": "16"
+            },
+            {
+              "type": "entry",
+              "name": "sharpness",
+              "value": "0x1000",
+              "summary": "if this outputdevice supports the sharpness setting",
+              "since": "17"
             }
           ]
         },
@@ -835,6 +1010,28 @@
               "name": "accuracy",
               "value": "1",
               "summary": "prefer accuracy"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "edr_policy",
+          "since": "16",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "when the compositor may make use of EDR"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "never",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "always",
+              "value": "1"
             }
           ]
         }

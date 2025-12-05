@@ -3,13 +3,13 @@
   "name": "treeland_output_manager_v1",
   "copyright": {
     "type": "copyright",
-    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+    "text": "\nSPDX-FileCopyrightText: 2024-2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "treeland_output_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Protocol for telling which is the primary display among the selection of enabled\noutputs.",
@@ -30,6 +30,30 @@
               "name": "output",
               "argType": "string",
               "allowNull": "false"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_color_control",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "Get color control interface for output."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_output_color_control_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "protocol": "wayland"
             }
           ]
         },
@@ -65,6 +89,152 @@
         }
       ],
       "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_output_color_control_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Protocol for controlling color temperature and brightness settings of a specific output.",
+        "summary": "Color control interface for output."
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_color_temperature",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Color temperature settings are applied only after a commit request is made.\nSetting a value outside the range [1000, 20000] is a protocol error.",
+            "summary": "Set color temperature for output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "temperature",
+              "argType": "uint",
+              "summary": "color temperature in Kelvin"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_brightness",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Brightness settings are applied only after a commit request is made.\nSetting a value outside the range [0.0, 100.0] is a protocol error.",
+            "summary": "Set brightness for output."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "brightness",
+              "argType": "fixed",
+              "summary": "brightness level (in range [0.0, 100.0])"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "Commit the pending color settings changes for output."
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "Destroy the color control interface."
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "result",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "summary": "The result of the last commit request."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "success",
+              "argType": "uint",
+              "summary": "1 if the commit was successful, 0 otherwise."
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "color_temperature",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Provides the current color temperature setting of the output.\nColor temperature is valued in the range [1000, 20000].\nColor temperature is defined as the corresponding temperature (in Kelvin) of the current white point\nof the display on a Planckian locus.\nWith the current implementation, the neutral temperature is 6600K.\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a color temperature change for the output is successfully commited.",
+            "summary": "Current color temperature for output."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "temperature",
+              "argType": "uint",
+              "summary": "current color temperature in Kelvin"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "brightness",
+          "since": "1",
+          "description": {
+            "type": "description",
+            "text": "Provides the current brightness setting of the output.\nBrightness is valued in the range [0.0, 100.0].\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a brightness change for the output is successfully commited.",
+            "summary": "Current brightness for output."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "brightness",
+              "argType": "fixed",
+              "summary": "current brightness level (in range [0.0, 100.0])"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "1",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_color_temperature",
+              "value": "1",
+              "summary": "Invalid color temperature value provided."
+            },
+            {
+              "type": "entry",
+              "name": "invalid_brightness",
+              "value": "2",
+              "summary": "Invalid brightness value provided."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

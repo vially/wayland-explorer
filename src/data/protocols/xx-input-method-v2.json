@@ -3,7 +3,7 @@
   "name": "input_method_experimental_v2",
   "copyright": {
     "type": "copyright",
-    "text": "Copyright © 2008-2011 Kristian Høgsberg\nCopyright © 2010-2011 Intel Corporation\nCopyright © 2012-2013 Collabora, Ltd.\nCopyright © 2012, 2013 Intel Corporation\nCopyright © 2015, 2016 Jan Arne Petersen\nCopyright © 2017, 2018 Red Hat, Inc.\nCopyright © 2018       Purism SPC\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+    "text": "Copyright © 2008-2011 Kristian Høgsberg\nCopyright © 2010-2011 Intel Corporation\nCopyright © 2012-2013 Collabora, Ltd.\nCopyright © 2012, 2013 Intel Corporation\nCopyright © 2015, 2016 Jan Arne Petersen\nCopyright © 2017, 2018 Red Hat, Inc.\nCopyright © 2018       Purism SPC\nCopyright © 2025       DorotaC\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
   },
   "description": {
     "type": "description",
@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "xx_input_method_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An input method object allows for clients to compose text.\n\nThe objects connects the client to a text input in an application, and\nlets the client to serve as an input method for a seat.\n\nThe xx_input_method_v1 object can occupy two distinct states: active and\ninactive. In the active state, the object is associated to and\ncommunicates with a text input. In the inactive state, there is no\nassociated text input, and the only communication is with the compositor.\nInitially, the input method is in the inactive state.\n\nRequests issued in the inactive state must be accepted by the compositor.\nBecause of the serial mechanism, and the state reset on activate event,\nthey will not have any effect on the state of the next text input.\n\nThere must be no more than one input method object per seat.",
@@ -26,7 +26,7 @@
           "name": "commit_string",
           "description": {
             "type": "description",
-            "text": "Send the commit string text for insertion to the application.\n\nInserts a string at current cursor position (see commit event\nsequence). The string to commit could be either just a single character\nafter a key press or the result of some composing.\n\nThe argument text is a buffer containing the string to insert. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next zwp_text_input_v3.commit request.\n\nThe initial value of text is an empty string.",
+            "text": "Send the commit string text for insertion to the application.\n\nInserts a string at current cursor position (see commit event\nsequence). The string to commit could be either just a single character\nafter a key press or the result of some composing.\n\nThe argument text is a buffer containing the string to insert. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nValues set with this request are double-buffered. They must be applied\nand reset to initial on the next .commit request.\n\nThe initial value of text is an empty string.",
             "summary": "commit string"
           },
           "args": [
@@ -42,7 +42,7 @@
           "name": "set_preedit_string",
           "description": {
             "type": "description",
-            "text": "Send the pre-edit string text to the application text input.\n\nPlace a new composing text (pre-edit) at the current cursor position.\nAny previously set composing text must be removed. Any previously\nexisting selected text must be removed. The cursor is moved to a new\nposition within the preedit string.\n\nThe argument text is a buffer containing the preedit string. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nThe arguments cursor_begin and cursor_end are counted in bytes relative\nto the beginning of the submitted string buffer. Cursor should be\nhidden by the text input when both are equal to -1.\n\ncursor_begin indicates the beginning of the cursor. cursor_end\nindicates the end of the cursor. It may be equal or different than\ncursor_begin.\n\nValues set with this event are double-buffered. They must be applied on\nthe next xx_input_method_v1.commit event.\n\nThe initial value of text is an empty string. The initial value of\ncursor_begin, and cursor_end are both 0.",
+            "text": "Send the pre-edit string text to the application text input.\n\nPlace a new composing text (pre-edit) at the current cursor position.\nAny previously set composing text must be removed. Any previously\nexisting selected text must be removed. The cursor is moved to a new\nposition within the preedit string.\n\nThe argument text is a buffer containing the preedit string. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nThe arguments cursor_begin and cursor_end are counted in bytes relative\nto the beginning of the submitted string buffer. Cursor should be\nhidden by the text input when both are equal to -1.\n\ncursor_begin indicates the beginning of the cursor. cursor_end\nindicates the end of the cursor. It may be equal or different than\ncursor_begin.\n\nValues set with this request are double-buffered. They must be applied on\nthe next xx_input_method_v1.commit request.\nThey must be reset to initial on the next committed disable event.\n\nThe initial value of text is an empty string. The initial value of\ncursor_begin, and cursor_end are both 0.",
             "summary": "pre-edit string"
           },
           "args": [
@@ -68,7 +68,7 @@
           "name": "delete_surrounding_text",
           "description": {
             "type": "description",
-            "text": "Remove the surrounding text.\n\nbefore_length and after_length are the number of bytes before and after\nthe current cursor index (excluding the preedit text) to delete.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event. In effect before_length is counted from the\nbeginning of preedit text, and after_length from its end (see commit\nevent sequence).\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next xx_input_method_v1.commit request.\n\nThe initial values of both before_length and after_length are 0.",
+            "text": "Remove the surrounding text.\n\nbefore_length and after_length are the number of bytes before and after\nthe current cursor index (excluding the preedit text) to delete.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event. In effect before_length is counted from the\nbeginning of preedit text, and after_length from its end (see commit\nevent sequence).\n\nValues set with this request are double-buffered. They must be applied\nand reset to initial on the next xx_input_method_v1.commit request.\n\nThe initial values of both before_length and after_length are 0.",
             "summary": "delete text"
           },
           "args": [
@@ -102,12 +102,43 @@
         },
         {
           "type": "request",
+          "name": "get_input_popup_surface",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Creates a new xx_input_popup_surface_v2 object wrapping a given\nsurface.\n\nThe surface gets assigned the \"input_popup\" role. If the surface\nalready has an assigned role, the compositor must issue a protocol\nerror.\n\nIssuing this request before receiving a committed .activate causes the \"inactive\" error.",
+            "summary": "create popup surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xx_input_popup_surface_v2"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "positioner",
+              "argType": "object",
+              "interface": "xx_input_popup_positioner_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
           "name": "destroy",
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Destroys the zwp_text_input_v2 object and any associated child\nobjects.",
-            "summary": "destroy the text input"
+            "text": "Destroys the xx_input_method_v1 object and any associated child\nobjects.",
+            "summary": "destroy the input method"
           },
           "args": []
         }
@@ -118,7 +149,7 @@
           "name": "activate",
           "description": {
             "type": "description",
-            "text": "Notification that a text input focused on this seat requested the input\nmethod to be activated.\n\nThis event serves the purpose of providing the compositor with an\nactive input method.\n\nThis event resets all state associated with previous enable, disable,\nsurrounding_text, text_change_cause, and content_type events, as well\nas the state associated with set_preedit_string, commit_string, and\ndelete_surrounding_text requests. In addition, it marks the\nxx_input_method_v1 object as active, and makes any existing\nzwp_input_popup_surface_v2 objects visible.\n\nThe surrounding_text, and content_type events must follow before the\nnext done event if the text input supports the respective\nfunctionality.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
+            "text": "Notification that a text input focused on this seat requested the input\nmethod to be activated.\n\nThis event serves the purpose of providing the compositor with an\nactive input method.\n\nThis event resets all state associated with previous\nsurrounding_text, text_change_cause, and content_type events, as well\nas the state associated with set_preedit_string, commit_string, and\ndelete_surrounding_text requests, and destroys any existing input_popup_surface objects.\nIn addition, it marks the xx_input_method_v1 object as active.\n\nThe surrounding_text, and content_type events must follow before the\nnext done event if the text input supports the respective\nfunctionality.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
             "summary": "input method has been requested"
           },
           "args": []
@@ -128,7 +159,7 @@
           "name": "deactivate",
           "description": {
             "type": "description",
-            "text": "Notification that no focused text input currently needs an active\ninput method on this seat.\n\nThis event marks the xx_input_method_v1 object as inactive. The\ncompositor must make all existing zwp_input_popup_surface_v2 objects\ninvisible until the next activate event.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
+            "text": "Notification that no focused text input currently needs an active\ninput method on this seat.\n\nThis event marks the xx_input_method_v1 object as inactive.\ncompositor must destroy all existing xx_input_popup_surface_v2 objects.\n\nThis event resets all state associated with previous\nsurrounding_text, text_change_cause, and content_type events, as well\nas the state associated with set_preedit_string, commit_string, and\ndelete_surrounding_text requests.\n\nState set with this event is double-buffered. It will get applied on\nthe next xx_input_method_v1.done event, and stay valid until changed.",
             "summary": "deactivate event"
           },
           "args": []
@@ -182,7 +213,7 @@
           "name": "content_type",
           "description": {
             "type": "description",
-            "text": "Indicates the content type and hint for the current\nxx_input_method_v1 instance.\n\nValues set with this event are double-buffered. They will get applied\non the next xx_input_method_v1.done event.\n\nThe initial value for hint is none, and the initial value for purpose\nis normal.",
+            "text": "Indicates the content type and hint for the current\nxx_input_method_v1 instance.\n\nValues set with this event are double-buffered. They will get applied\non the next xx_input_method_v1.done event.\nThey get reset to initial on the next committed deactivate event.\n\nThe initial value for hint is none, and the initial value for purpose\nis normal.",
             "summary": "content purpose and hint"
           },
           "args": [
@@ -223,12 +254,519 @@
           "args": []
         }
       ],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "surface_has_role",
+              "value": "0x0",
+              "summary": "surface already has a role"
+            },
+            {
+              "type": "entry",
+              "name": "inactive",
+              "value": "0x1",
+              "summary": "operation requires the input method to be active"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_input_popup_surface_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An input method popup surface is a short-lived, temporary surface.\nIt is meant as an area to show suggestions, candidates, or for other input-related uses.\n\nThe compositor should anchor it at the active text input cursor area.\n\nThe client must call wl_surface.commit on the corresponding wl_surface\nfor input_popup_surface state updates to take effect, unless otherwise noted.\n\nAfter the initial wl_surface.commit, the compositor must reply with a configure sequence (see .start_configure) initializing all the compositor-provided state of the popup. That means providing values for:\n\n- width\n- height\n- anchor_x\n- anchor_y\n- anchor_width\n- anchor_height\n- serial\n\nusing the appropriate events.\n\nThe popup will only be presented to the user after the client receives the configure sequence and replies with .ack_configure.\n\nAn example init sequence could look like this:\n\n1. client (Cl): popup = input_method.get_popup(wl_surface, positioner)\n2. Cl: wl_surface.commit()\n3. compositor (Co): popup.start_configure(150, 150, 10, -2, 5, 30)\n5. Co: input_method.done()\n6. Cl: ack_configure()\n7. Cl: wl_surface.commit()\n\nA newly created input_popup_surface will be stacked on top of all previously created\ninput_popup_surfaces associated with the same text input.\n\nA typical sequence resulting from the user selecting a new text field and typing some text:\n\n1. compositor (Co): input_method.enable()\n2. Co: input_method.done()\n3. [init sequence]\n4. Co: input_method.set_surrounding_text(\"new text\")\n5. Co: popup.start_configure(150, 150, -60, -2, 55, 30)\n6. Co: input_method.done()\n7. client (Cl): ack_configure()\n8. Cl: wl_surface.commit()\n\nWhen the corresponding input_method receives a commited .disable event, the popup gets destroyed and becomes invalid and its surface gets unmapped.\n\nThe client must not destroy the underlying wl_surface while the\nxx_input_popup_surface_v2 object exists.",
+        "summary": "popup surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "ack_configure",
+          "description": {
+            "type": "description",
+            "text": "This request notifies the compositor that the client updated its surface in response to a configure sequence.\n\nThe purpose of this request is to synchronize the updates of the surface geometry with the surface contents.\nFor example, when the compositor assigns a size larger than prevously, the client must fill the additional space before the popup gets displayed to the user with the new size. When the compositor receives .ack_configure, it can proceed to draw the new size.\n\n.ack_configure should be sent after every submitted configure sequence, passing along the serial received in it.\n\nAn .ack_configure request is conceptually double-buffered.\nEvery request overrides the previous one. The request takes effect once the .commit request is sent on the corresponding surface.\n\nIf the client receives multiple configure sequences before it\ncan respond to one, it may acknowledge only the last configure sequence by using its serial in the .ack_configure request.\n\nCommitting an .ack_configure request consumes the serial number sent with\nthe request, as well as serial numbers sent by all configure sequences\nsubmitted on this input_popup_surface prior to the configure sequence referenced by\nthe committed serial.\n\nCommitting this request with a serial that, for this surface, never appeared in a submitted configure sequence, or one that was already committed before, raises an invalid_serial\nerror.",
+            "summary": "acknowledge a configure sequence"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "the serial from the configure sequence"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "reposition",
+          "description": {
+            "type": "description",
+            "text": "Reposition an already-mapped popup. The popup will be placed given the\ndetails in the passed input_popup_positioner object.\n\nThe request is processed immediately, without the need to issue wl_surface.commit, but the actual repositioning takes place later, after .ack_configure.\n\nThe compositor should reply with a configure sequence including:\n- input_popup_surface.start_configure,\n- input_popup_surface.repositioned, including the token passed in this request.\n\nThis will discard any parameters set by the previous positioner.\n\nIf multiple .reposition requests are sent before the .repositioned event is submitted as part of a configure sequence, the compositor may ignore all\nbut the last one.\n\nThe new popup position will not take\neffect until the corresponding configure sequence is acknowledged by the\nclient. See input_popup_surface.repositioned for details.\n\nThe token itself is opaque, and has no other special meaning.",
+            "summary": "recalculate the popup's location"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "positioner",
+              "argType": "object",
+              "interface": "xx_input_popup_positioner_v1"
+            },
+            {
+              "type": "arg",
+              "name": "token",
+              "argType": "uint",
+              "summary": "reposition request token"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This destroys the popup. Explicitly destroying the input_popup_surface\nobject will also dismiss the popup, and unmap the surface.",
+            "summary": "remove the popup"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "start_configure",
+          "description": {
+            "type": "description",
+            "text": "The start_configure event updates the popup geometry and marks the start of a configure sequence.\n\nThe anchor_* arguments represent the geometry of the anchor to which the popup was attached, relative to the upper left corner of the\npopup's surface. Note that this makes anchor_x, anchor_y the reverse of the what they represent in xdg_popup.\n\nA configure sequence is a set of one or more events configuring the state of the\ninput_popup_surface, starting with this event and ending with input_method.done. After the input_method.done event, the configure sequence is considered submitted.\n\nState set by event in a configure sequence is conceptually double-buffered.\nEvery argument overwrites its previous value. The state change should get applied atomically with the input_method.done ending the sequence, and the value of serial should return to the undefined value.\n\nEvents on the input_popup_surface object received outside a configure sequence (while serial is undefined) must be ignored by the client.\n\nA configure sequence shall be sent every time the compositor (re)positions the popup, or the shape of the anchor changes, for example after popup creation, or in response to text being typed and the text cursor moving.\n\nThe client may update the surface in response to input_method.done. Unless the popup is destroyed by the input_method.done, the client must reply with\nan .ack_configure request with the serial sent in the start_configure event at\nsome point after the sequence ends and before committing the new surface.\n\nIf the client receives multiple configure sequences before it can respond\nto one, it is free to discard all but the last event it received.",
+            "summary": "configure the popup surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "popup width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "popup height"
+            },
+            {
+              "type": "arg",
+              "name": "anchor_x",
+              "argType": "int",
+              "summary": "x position relative to anchor geometry"
+            },
+            {
+              "type": "arg",
+              "name": "anchor_y",
+              "argType": "int",
+              "summary": "y position relative to anchor geometry"
+            },
+            {
+              "type": "arg",
+              "name": "anchor_width",
+              "argType": "uint",
+              "summary": "width of the anchor area"
+            },
+            {
+              "type": "arg",
+              "name": "anchor_height",
+              "argType": "uint",
+              "summary": "height of the anchor area"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of the configure sequence"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "repositioned",
+          "description": {
+            "type": "description",
+            "text": "The compositor sends the .repositioned event in response to the .reposition request to notify about its completion.\n\nThe new geometry of the popup can be communicated using additional events within a configure sequence including:\n- input_popup_surface.start_configure, and\n- the .anchor_position event to update the relative position to the anchor.\n\nWhen responding to a .reposition request, the token argument is the token passed in the that request.\n\nThis event is sent as part of a configure sequence.\nState set by this event is conceptually double-buffered.\nEvery argument overwrites its previous value. The state change should get applied atomically with the next input_method.done event.\n\nThe client should optionally update the content of the popup, but must\nacknowledge the new popup configuration for the new position to take\neffect. See input_popup_surface.ack_configure for details.",
+            "summary": "signal the completion of a reposition request"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "token",
+              "argType": "uint",
+              "summary": "reposition request token"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_serial",
+              "value": "0",
+              "summary": "received acknowledgement for a serial which has already been acknowledged or has never been issued"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_input_popup_positioner_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The input_popup_positioner provides a collection of rules for the placement of an input method popup surface relative to the cursor.\nRules can be defined to ensure\nthe text input area remains within the visible area's borders, and to\nspecify how the popup changes its position, such as sliding along\nan axis, or flipping around a rectangle. These positioner-created rules are\nconstrained by the requirement that a popup must intersect with or\nbe at least partially adjacent to the surface containing the text input.\n\nSee the various requests for details about possible rules.\n\nA newly created positioner has the following state:\n- 0 surface width\n- 0 surface height\n- anchor at the center (\"none\")\n- gravity towards the center (\"none\")\n- constraints adjustment set to none\n- offset at x = 0, y = 0\n- not reactive\n\nUpon receiving a request taking the positioner as an argument, the compositor makes a copy of the rules\nspecified by the input_popup_positioner. Thus, after the request is complete the\ninput_popup_positioner object can be destroyed or reused; further changes to the\nobject will have no effect on previous usages.\n\nFor an input_popup_positioner object to be considered complete, its state must contain a non-zero width and height. Passing an incomplete input_popup_positioner object when\npositioning a surface raises an invalid_positioner error.",
+        "summary": "input method popup positioner"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Notify the compositor that the positioner will no longer be used.",
+            "summary": "destroy the input_popup_positioner object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_size",
+          "description": {
+            "type": "description",
+            "text": "Set the size of the surface that is to be positioned with the positioner\nobject. The size is in surface-local coordinates and corresponds to the\nwindow geometry. See xdg_surface.set_window_geometry.\n\nIf any dimension is set to zero, the invalid_input error is raised.",
+            "summary": "set the size of the to-be positioned rectangle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "width of positioned rectangle"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "height of positioned rectangle"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_anchor",
+          "description": {
+            "type": "description",
+            "text": "Defines the anchor point for the anchor rectangle. The specified anchor\nis used to derive an anchor point that the popup surface will be\npositioned relative to. If a corner anchor is set (e.g. 'top_left' or\n'bottom_right'), the anchor point will be at the specified corner;\notherwise, the derived anchor point will be centered on the specified\nedge, or in the center of the anchor rectangle if no edge is specified.",
+            "summary": "set anchor rectangle anchor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "uint",
+              "summary": "anchor",
+              "enum": "anchor"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_gravity",
+          "description": {
+            "type": "description",
+            "text": "Defines in what direction the surface should be positioned, relative to\nthe anchor point of the anchor rectangle. If a corner gravity is\nspecified (e.g. 'bottom_right' or 'top_left'), then the surface\nwill be placed towards the specified gravity; otherwise, the child\nsurface will be centered over the anchor point on any axis that had no\ngravity specified. If the gravity is not in the ‘gravity’ enum, an\ninvalid_input error is raised.",
+            "summary": "set surface gravity"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "gravity",
+              "argType": "uint",
+              "summary": "gravity direction",
+              "enum": "gravity"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_constraint_adjustment",
+          "description": {
+            "type": "description",
+            "text": "Specify how the popup should be positioned if the originally intended\nposition caused the surface to be constrained, meaning at least\npartially outside positioning boundaries set by the compositor. The\nadjustment is set by constructing a bitmask describing the adjustment to\nbe made when the surface is constrained on that axis.\n\nIf no bit for one axis is set, the compositor will assume that the child\nsurface should not change its position on that axis when constrained.\n\nIf more than one bit for one axis is set, the order of how adjustments\nare applied is specified in the corresponding adjustment descriptions.\n\nThe default adjustment is none.",
+            "summary": "set the adjustment to be done when constrained"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "constraint_adjustment",
+              "argType": "uint",
+              "summary": "bit mask of constraint adjustments",
+              "enum": "constraint_adjustment"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_offset",
+          "description": {
+            "type": "description",
+            "text": "Specify the surface position offset relative to the position of the\nanchor on the anchor rectangle and the anchor on the surface. For\nexample if the anchor of the anchor rectangle is at (x, y), the surface\nhas the gravity bottom|right, and the offset is (ox, oy), the calculated\nsurface position will be (x + ox, y + oy). The offset position of the\nsurface is the one used for constraint testing. See\nset_constraint_adjustment.\n\nAn example use case is placing a popup menu on top of a user interface\nelement, while aligning the user interface element of the parent surface\nwith some user interface element placed somewhere in the popup surface.",
+            "summary": "set surface position offset"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "surface position x offset"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "surface position y offset"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_reactive",
+          "description": {
+            "type": "description",
+            "text": "When set reactive, the surface is reconstrained if the conditions used\nfor constraining changed, e.g. the window containing the text input moved.\n\nWhenever the conditions change and the popup gets reconstrained, a\nconfigure sequence is sent with updated geometry.",
+            "summary": "continuously reconstrain the surface"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_input",
+              "value": "0",
+              "summary": "invalid input provided"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "anchor",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "summary": "no edge, specfies center"
+            },
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "top_left",
+              "value": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_left",
+              "value": "6"
+            },
+            {
+              "type": "entry",
+              "name": "top_right",
+              "value": "7"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_right",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "gravity",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "summary": "center to center"
+            },
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "top_left",
+              "value": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_left",
+              "value": "6"
+            },
+            {
+              "type": "entry",
+              "name": "top_right",
+              "value": "7"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_right",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "constraint_adjustment",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "The constraint adjustment value define ways the compositor will adjust\nthe position of the surface, if the unadjusted position would result\nin the surface being partly constrained.\n\nWhether a surface is considered 'constrained' is left to the compositor\nto determine. For example, the surface may be partly outside the\ncompositor's defined 'work area', thus necessitating the child surface's\nposition be adjusted until it is entirely inside the work area.\n\nThe adjustments can be combined, according to a defined precedence: 1)\nFlip, 2) Slide, 3) Resize.",
+            "summary": "constraint adjustments"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "description": {
+                "type": "description",
+                "text": "Don't alter the surface position even if it is constrained on some\naxis, for example partially outside the edge of an output.",
+                "summary": "don't move the surface when constrained"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "slide_x",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "Slide the surface along the x axis until it is no longer constrained.\n\nFirst try to slide towards the direction of the gravity on the x axis\nuntil either the edge in the opposite direction of the gravity is\nunconstrained or the edge in the direction of the gravity is\nconstrained.\n\nThen try to slide towards the opposite direction of the gravity on the\nx axis until either the edge in the direction of the gravity is\nunconstrained or the edge in the opposite direction of the gravity is\nconstrained.",
+                "summary": "move along the x axis until unconstrained"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "slide_y",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "Slide the surface along the y axis until it is no longer constrained.\n\nFirst try to slide towards the direction of the gravity on the y axis\nuntil either the edge in the opposite direction of the gravity is\nunconstrained or the edge in the direction of the gravity is\nconstrained.\n\nThen try to slide towards the opposite direction of the gravity on the\ny axis until either the edge in the direction of the gravity is\nunconstrained or the edge in the opposite direction of the gravity is\nconstrained.",
+                "summary": "move along the y axis until unconstrained"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "flip_x",
+              "value": "4",
+              "description": {
+                "type": "description",
+                "text": "Invert the anchor and gravity on the x axis if the surface is\nconstrained on the x axis. For example, if the left edge of the\nsurface is constrained, the gravity is 'left' and the anchor is\n'left', change the gravity to 'right' and the anchor to 'right'.\n\nIf the adjusted position also ends up being constrained, the resulting\nposition of the flip_x adjustment will be the one before the\nadjustment.",
+                "summary": "invert the anchor and gravity on the x axis"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "flip_y",
+              "value": "8",
+              "description": {
+                "type": "description",
+                "text": "Invert the anchor and gravity on the y axis if the surface is\nconstrained on the y axis. For example, if the bottom edge of the\nsurface is constrained, the gravity is 'bottom' and the anchor is\n'bottom', change the gravity to 'top' and the anchor to 'top'.\n\nThe adjusted position is calculated given the original anchor\nrectangle and offset, but with the new flipped anchor and gravity\nvalues.\n\nIf the adjusted position also ends up being constrained, the resulting\nposition of the flip_y adjustment will be the one before the\nadjustment.",
+                "summary": "invert the anchor and gravity on the y axis"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "resize_x",
+              "value": "16",
+              "description": {
+                "type": "description",
+                "text": "Resize the surface horizontally so that it is completely\nunconstrained.",
+                "summary": "horizontally resize the surface"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "resize_y",
+              "value": "32",
+              "description": {
+                "type": "description",
+                "text": "Resize the surface vertically so that it is completely unconstrained.",
+                "summary": "vertically resize the surface"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",
       "name": "xx_input_method_manager_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The input method manager allows the client to become the input method on\na chosen seat.\n\nNo more than one input method must be associated with any seat at any\ngiven time.",
@@ -261,11 +799,28 @@
         },
         {
           "type": "request",
+          "name": "get_positioner",
+          "description": {
+            "type": "description",
+            "text": "Create a positioner object. A positioner object is used to position\nsurfaces relative to some parent surface. See the interface description\nand xdg_surface.get_popup for details.",
+            "summary": "create a positioner object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xx_input_popup_positioner_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
           "name": "destroy",
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Destroys the zwp_input_method_manager_v2 object.\n\nThe xx_input_method_v1 objects originating from it remain valid.",
+            "text": "Destroys the xx_input_method_manager_v2 object.\n\nThe xx_input_method_v1 objects originating from it remain valid.",
             "summary": "destroy the input method manager"
           },
           "args": []

@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows a privileged client to control data devices. In\nparticular, the client will be able to manage the current selection and take\nthe role of a clipboard manager.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "text": "This protocol allows a privileged client to control data devices. In\nparticular, the client will be able to manage the current selection and take\nthe role of a clipboard manager.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.\n\nNote! This protocol is deprecated and not intended for production use.\nFor clipboard management, use the ext-data-control-v1 protocol.",
     "summary": "control data devices"
   },
   "interfaces": [

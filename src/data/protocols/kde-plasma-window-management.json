@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_window_management",
-      "version": "19",
+      "version": "20",
       "description": {
         "type": "description",
         "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -319,6 +319,12 @@
               "name": "can_set_no_border",
               "value": "0x100000",
               "since": "19"
+            },
+            {
+              "type": "entry",
+              "name": "exclude_from_capture",
+              "value": "0x200000",
+              "since": "20"
             }
           ]
         },
@@ -344,7 +350,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_window",
-      "version": "18",
+      "version": "20",
       "description": {
         "type": "description",
         "text": "Manages and control an application window.\n\nOnly one client can bind this interface at a time.",

@@ -3,7 +3,7 @@
   "name": "appmenu",
   "copyright": {
     "type": "copyright",
-    "text": "\nSPDX-FileCopyrightText: 2017 David Edmundson\n\nSPDX-License-Identifier: LGPL-2.1-or-later\n"
+    "text": "\nSPDX-FileCopyrightText: 2017 David Edmundson\n\nSPDX-License-Identifier: MIT\n"
   },
   "interfaces": [
     {

@@ -1,0 +1,131 @@
+{
+  "type": "protocol",
+  "name": "treeland_ddm",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_ddm",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is primarily used for establish connection between\ntreeland and ddm.",
+        "summary": "core global for treeland - ddm connection"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "switch_to_greeter",
+          "description": {
+            "type": "description",
+            "text": "Send treeland to Greeter mode.",
+            "summary": "send treeland to greeter mode"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "switch_to_user",
+          "description": {
+            "type": "description",
+            "text": "Set lockscreen user to username. Ignore when username is \"ddm\".",
+            "summary": "call treeland to switch lockscreen user"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "username",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "activate_session",
+          "description": {
+            "type": "description",
+            "text": "Activate treeland session. This will makes treeland try to take\ncontrol of screen.",
+            "summary": "activate wayland session"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "deactivate_session",
+          "description": {
+            "type": "description",
+            "text": "Deactivate treeland session. This will release control of the\nscreen, but not to close the current seats.",
+            "summary": "deactivate wayland session"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "enable_render",
+          "description": {
+            "type": "description",
+            "text": "Enable treeland rendering. This is primarily called after\ndisable_render to resume treeland.",
+            "summary": "start treeland rendering"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "disable_render",
+          "description": {
+            "type": "description",
+            "text": "Disable treeland rendering. This will prevent treeland from\noutput to DRM device.",
+            "summary": "stop treeland rendering"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "interface": "wl_callback",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "switch_to_vt",
+          "description": {
+            "type": "description",
+            "text": "Call ddm to switch current virtual terminal to vtnr. ddm should\ntake care of the switch and call ioctl respectively.",
+            "summary": "switch to virtual terminal"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "vtnr",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "acquire_vt",
+          "description": {
+            "type": "description",
+            "text": "Call ddm to acquire control of VT at vtnr. ddm should call\nVT_SETMODE respectively.",
+            "summary": "acquire control of virtual terminal"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "vtnr",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}
