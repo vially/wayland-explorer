@@ -1,12 +1,17 @@
 {
-  "generationTimestamp": 1753995883719,
+  "generationTimestamp": 1764899630247,
+  "version": "1.0.0~beta.8",
   "globals": [
     {
       "interface": "cosmic_a11y_manager_v1",
       "version": 2
     },
     {
-      "interface": "cosmic_atspi_manager_v1",
+      "interface": "cosmic_corner_radius_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_data_control_manager_v1",
       "version": 1
     },
     {
@@ -75,7 +80,7 @@
     },
     {
       "interface": "wp_cursor_shape_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -138,8 +143,12 @@
       "version": 2
     },
     {
+      "interface": "zwlr_data_control_manager_v1",
+      "version": 2
+    },
+    {
       "interface": "zwlr_layer_shell_v1",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "zwlr_output_manager_v1",
