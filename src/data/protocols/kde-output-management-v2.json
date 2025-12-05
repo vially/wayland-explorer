@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_management_v2",
-      "version": "12",
+      "version": "17",
       "description": {
         "type": "description",
         "text": "This interface enables clients to set properties of output devices for screen\nconfiguration purposes via the server. To this end output devices are referenced\nby global kde_output_device_v2 objects.\n\noutputmanagement (wl_global)\n--------------------------\nrequest:\n* create_configuration -> outputconfiguration (wl_resource)\n\noutputconfiguration (wl_resource)\n--------------------------\nrequests:\n* enable(outputdevice, bool)\n* mode(outputdevice, mode)\n* transformation(outputdevice, flag)\n* position(outputdevice, x, y)\n* apply\n\nevents:\n* applied\n* failed\n\nThe server registers one outputmanagement object as a global object. In order\nto configure outputs a client requests create_configuration, which provides a\nresource referencing an outputconfiguration for one-time configuration. That\nway the server knows which requests belong together and can group them by that.\n\nOn the outputconfiguration object the client calls for each output whether the\noutput should be enabled, which mode should be set (by referencing the mode from\nthe list of announced modes) and the output's global position. Once all outputs\nare configured that way, the client calls apply.\nAt that point and not earlier the server should try to apply the configuration.\nIf this succeeds the server emits the applied signal, otherwise the failed\nsignal, such that the configuring client is noticed about the success of its\nconfiguration request.\n\nThrough this design the interface enables atomic output configuration changes if\ninternally supported by the server.\n\nWarning! The protocol described in this file is a desktop environment implementation\ndetail. Regular clients must not use this protocol. Backward incompatible\nchanges may be added without bumping the major version of the extension.",
@@ -40,7 +40,7 @@
     {
       "type": "interface",
       "name": "kde_output_configuration_v2",
-      "version": "12",
+      "version": "17",
       "description": {
         "type": "description",
         "text": "outputconfiguration is a client-specific resource that can be used to ask\nthe server to apply changes to available output devices.\n\nThe client receives a list of output devices from the registry. When it wants\nto apply new settings, it creates a configuration object from the\noutputmanagement global, writes changes through this object's enable, scale,\ntransform and mode calls. It then asks the server to apply these settings in\nan atomic fashion, for example through Linux' DRM interface.\n\nThe server signals back whether the new settings have applied successfully\nor failed to apply. outputdevice objects are updated after the changes have been\napplied to the hardware and before the server side sends the applied event.",
@@ -301,7 +301,7 @@
           "since": "3",
           "description": {
             "type": "description",
-            "text": "The order of outputs can be used to assign desktop environment components to a specific screen,\nsee kde_output_order_v1 for details. The priority is 1-based for outputs that will be enabled after\nthis changeset is applied, all outputs that are disabled need to have the index set to zero.",
+            "text": "Set the position of the output in the output order list, with lower values\nbeing earlier in the list. There's no specific value the list has to start\nat, this value is only used in sorting outputs.\n\nThe order of outputs can be used to assign desktop environment components\nto a specific screen, see kde_output_order_v1 and kde-output-device-v2 for\ndetails. Note that for consistent behavior, the priority value needs to be\nunique among all enabled outputs.",
             "summary": "Set the order of outputs"
           },
           "args": [
@@ -542,7 +542,7 @@
           "since": "9",
           "description": {
             "type": "description",
-            "text": "Set the brightness modifier of the output. It doesn't specify\nany absolute values, but is merely a multiplier on top of other\nbrightness values, like sdr_brightness and brightness_metadata.\n0 is the minimum brightness (not completely dark) and 10000 is\nthe maximum brightness.\nThis is supported while HDR is active in versions 8 and below,\nor when the device supports the brightness_control capability in\nversions 9 and above.",
+            "text": "Set the brightness modifier of the output. It doesn't specify\nany absolute values, but is merely a multiplier on top of other\nbrightness values, like sdr_brightness and brightness_metadata.\n0 is the minimum brightness (not completely dark) and 10000 is\nthe maximum brightness.\nThis is supported while HDR is active in versions 8 and below,\nor when the device supports the \"brightness\" capability in\nversions 9 and above.",
             "summary": "brightness multiplier"
           },
           "args": [
@@ -593,7 +593,7 @@
           "since": "11",
           "description": {
             "type": "description",
-            "text": "Set the dimming multiplier of the output. This is similar to the\nbrightness setting, except it's meant to be a temporary setting\nonly, not persistent and may be implemented differently depending\non the display.\n0 is the minimum dimming factor (not completely dark) and 10000\nmeans the output is not dimmed.\n\nThis is supported only when the brightness_control capability is\nalso supported.",
+            "text": "Set the dimming multiplier of the output. This is similar to the\nbrightness setting, except it's meant to be a temporary setting\nonly, not persistent and may be implemented differently depending\non the display.\n0 is the minimum dimming factor (not completely dark) and 10000\nmeans the output is not dimmed.\n\nThis is supported only when the \"brightness\" capability is\nalso supported.",
             "summary": "dimming multiplier"
           },
           "args": [
@@ -610,6 +610,135 @@
               "name": "multiplier",
               "argType": "uint",
               "summary": "multiplier in 0-10000"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_replication_source",
+          "since": "13",
+          "description": {
+            "type": "description",
+            "text": "Set the source output that the outputdevice should mirror its\nviewport from.",
+            "summary": "source output for mirroring"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "string",
+              "summary": "uuid of the source output"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_ddc_ci_allowed",
+          "since": "14",
+          "description": {
+            "type": "description",
+            "summary": "if DDC/CI should be used to control brightness etc."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "allowed",
+              "argType": "uint",
+              "summary": "1 if allowed, 0 if disabled"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_max_bits_per_color",
+          "since": "15",
+          "description": {
+            "type": "description",
+            "text": "This limits the amount of bits per color that are sent to the display.",
+            "summary": "override the max bpc"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "max_bpc",
+              "argType": "uint",
+              "summary": "0 for the default / automatic"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_edr_policy",
+          "since": "16",
+          "description": {
+            "type": "description",
+            "text": "When EDR is enabled, the compositor may increase the backlight beyond\nthe user-specified setting, in order to present HDR content on displays\nwithout native HDR support.\nThis will usually result in better visuals, but also increases battery\nusage.",
+            "summary": "set when the compositor may apply EDR"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "policy",
+              "argType": "uint",
+              "enum": "edr_policy"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_sharpness",
+          "since": "17",
+          "description": {
+            "type": "description",
+            "text": "This is the sharpness modifier of the output.\n0 is sharpness disabled and 10000 is the maximum sharpness",
+            "summary": "sharpness strength"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "sharpness",
+              "argType": "uint",
+              "summary": "sharpness in 0-10000"
             }
           ]
         }
@@ -801,6 +930,28 @@
               "name": "accuracy",
               "value": "1",
               "summary": "prefer accuracy"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "edr_policy",
+          "since": "16",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "when the compositor may make use of EDR"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "never",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "always",
+              "value": "1"
             }
           ]
         }

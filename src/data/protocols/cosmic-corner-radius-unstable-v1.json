@@ -1,0 +1,170 @@
+{
+  "type": "protocol",
+  "name": "cosmic_corner_radius_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 System76\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol provides a way for clients to communicate the\ncorner radius of their toplevels, should they use rounded corners.\n\nThis hint can then be used by the compositor to draw fitting outlines\nor prevent overdrawing of other server-side drawn interfaces.",
+    "summary": "communicate corner radius of windows"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "cosmic_corner_radius_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Manager for creating corner-radius objects for existing toplevels",
+        "summary": "corner radius global"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server, that the client will no longer use this global.\nAny previously created corner-radius objects remain valid until destroyed.",
+            "summary": "Destroy the global"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Instantiate an interface extension for the given xdg_toplevel to specify their corner radius.\n\nIf the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,\nthe corner_radius_exists protocol error will be raised.",
+            "summary": "Create a new corner-radius object for an existing toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new cosmic_corner_radius_toplevel_v1 object",
+              "interface": "cosmic_corner_radius_toplevel_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "summary": "the toplevel",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "corner_radius_exists",
+              "value": "0",
+              "summary": "the toplevel already has a corner-radius object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "cosmic_corner_radius_toplevel_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The corner-radius object provides a way to specify a corner-radius\nfor it's associated toplevel.\n\nIf the xdg_toplevel associated with the cosmic_corner_radius_toplevel_v1\nobject has been destroyed, this object becomes inert. Any further requests\nother than destroy will raise the toplevel_destroyed protocol error.",
+        "summary": "corner radius toplevel"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will no longer be using this protocol\nobject. The corner radius will be unset on the next commit.",
+            "summary": "Destroy the corner-radius object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_radius",
+          "description": {
+            "type": "description",
+            "text": "This request sets the hinted corner radius values for rectangular windows.\n\nThe corner radius hint is double-buffered state and will be applied on\nthe next wl_surface.commit.\n\nThe value is given in logical space relative to the window geometry of the\nassociated xdg_toplevel. If any value exceeds a quarter of either dimension\nof the window geometry the radius_too_large protocol error is raised.",
+            "summary": "Set corner radius"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "top_left",
+              "argType": "uint",
+              "summary": "top-left corner radius"
+            },
+            {
+              "type": "arg",
+              "name": "top_right",
+              "argType": "uint",
+              "summary": "top-right corner radius"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_right",
+              "argType": "uint",
+              "summary": "bottom-right corner radius"
+            },
+            {
+              "type": "arg",
+              "name": "bottom_left",
+              "argType": "uint",
+              "summary": "bottom-left corner radius"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_radius",
+          "description": {
+            "type": "description",
+            "text": "Unsets any previously hinted corner radius values without invalidating the object for later use.\nCan be used by clients that possibly have temporary irregular shapes.",
+            "summary": "Unset corner radius"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "toplevel_destroyed",
+              "value": "0",
+              "summary": "the associated toplevel object has been already destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "radius_too_large",
+              "value": "1",
+              "summary": "the associated toplevel's window geometry isn't large enough for the requested radius"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

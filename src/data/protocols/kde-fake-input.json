@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_kwin_fake_input",
-      "version": "5",
+      "version": "6",
       "description": {
         "type": "description",
         "text": "This interface allows other processes to provide fake input events.\nPurpose is on the one hand side to provide testing facilities like XTest on X11.\nBut also to support use case like kdeconnect's mouse pad interface.\n\nA compositor should not trust the input received from this interface.\nClients should not expect that the compositor honors the requests from this\ninterface.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -231,6 +231,23 @@
             "summary": "Destroy the fake input device"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "keyboard_keysym",
+          "since": "6",
+          "args": [
+            {
+              "type": "arg",
+              "name": "keysym",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint"
+            }
+          ]
         }
       ],
       "events": [],

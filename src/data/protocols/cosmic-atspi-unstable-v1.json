@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol provides a relatively straightforward mapping of AtpsiDevice\nin the at-spi2-core library, so it's possible to add a Wayland backend for it.\n\nThis provides a way for screen reader key bindings to work.\n\nThis is a temporary solution until a better protocol is available for this purpose.",
+    "text": "This protocol provides a relatively straightforward mapping of AtspiDevice\nin the at-spi2-core library, so it's possible to add a Wayland backend for it.\n\nThis provides a way for screen reader key bindings to work.\n\nThis is a temporary solution until a better protocol is available for this purpose.",
     "summary": "atspi accessibility protocol"
   },
   "interfaces": [

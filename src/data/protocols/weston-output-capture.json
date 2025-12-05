@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "weston_capture_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The global interface exposing Weston screenshooting functionality\nintended for single shots.\n\nThis is a privileged inteface.",
@@ -112,7 +112,7 @@
     {
       "type": "interface",
       "name": "weston_capture_source_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An object representing image capturing functionality for a single\nsource. When created, it sends the initial events if and only if the\noutput still exists and the specified pixel source is available on\nthe output.",
@@ -156,7 +156,7 @@
           "name": "format",
           "description": {
             "type": "description",
-            "text": "This event delivers the pixel format that should be used for the\nimage buffer. Any buffer is incompatible if it does not have\nthis pixel format.\n\nThe format modifier is linear (DRM_FORMAT_MOD_LINEAR).\n\nThis is an initial event, and sent whenever the required format\nchanges.",
+            "text": "This event delivers one pixel format that can be used for the\nimage buffer. Any buffer is incompatible if it does not have\na pixel format delivered by one of this events.\n\nThe format modifier is linear (DRM_FORMAT_MOD_LINEAR).\n\nThis is an initial event, and sent whenever the supported formats\nchange.\n\nThis event may be send multiple times, followed by a format_done event.",
             "summary": "pixel format for a buffer"
           },
           "args": [
@@ -173,7 +173,7 @@
           "name": "size",
           "description": {
             "type": "description",
-            "text": "This event delivers the size that should be used for the\nimage buffer. Any buffer is incompatible if it does not have\nthis size.\n\nRow alignment of the buffer must be 4 bytes, and it must not contain\nfurther row padding. Otherwise the buffer is unsupported.\n\nThis is an initial event, and sent whenever the required size\nchanges.",
+            "text": "This event delivers the size that should be used for the\nimage buffer. Any buffer is incompatible if it does not have\nthis size.\n\nFor wl_shm the row alignment of the buffer must be 4 bytes, and it must\nnot contain further row padding. Otherwise the buffer is unsupported.\n\nThis is an initial event, and sent whenever the required size\nchanges.",
             "summary": "dimensions for a buffer"
           },
           "args": [
@@ -228,6 +228,17 @@
               "allowNull": "true"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "formats_done",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all formats have been sent.",
+            "summary": "sending formats is complete"
+          },
+          "args": []
         }
       ],
       "enums": [

@@ -1,0 +1,75 @@
+{
+  "type": "protocol",
+  "name": "treeland_screensaver",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_screensaver",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object implements a simple idle inhibit protocol.\n\nCall inhibit to prevent treeland from entering idle state.\nCall uninhibit or disconnect from the global to release\nthe inhibit.\n\nIf the client disconnects from the compositor, the inhibit\nassociated with that client is automatically released.\n\nThere can be only one inhibit per client per time. Calling\ninhibit multiple times will raise an error. Call uninhibit\nbefore inhibit to update application_name and reason\nrecorded.\n\nWarning! The protocol described in this file is currently\nin the testing phase. Backward compatible changes may be\nadded together with the corresponding interface version\nbump. Backward incompatible changes can only be done by\ncreating a new major version of the extension.",
+        "summary": "Simple idle inhibit protocol"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "inhibit",
+          "description": {
+            "type": "description",
+            "text": "Inhibit idleness with given application_name and reason_for_inhibit.",
+            "summary": "Inhibit idleness"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "application_name",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "reason_for_inhibit",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "uninhibit",
+          "description": {
+            "type": "description",
+            "text": "Uninhibit idleness previously inhibited by inhibit request.",
+            "summary": "Uninhibit idleness"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "not_yet_inhibited",
+              "value": "0",
+              "summary": "Trying to uninhibit but no active inhibit existed"
+            },
+            {
+              "type": "entry",
+              "name": "already_inhibited",
+              "value": "1",
+              "summary": "Trying to inhibit with an active inhibit existed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

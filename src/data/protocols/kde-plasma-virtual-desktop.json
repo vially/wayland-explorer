@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_virtual_desktop_management",
-      "version": "2",
+      "version": "3",
       "requests": [
         {
           "type": "request",
@@ -119,7 +119,7 @@
           "name": "done",
           "description": {
             "type": "description",
-            "text": "This event is sent after all other properties has been\nsent after binding to the desktop manager object and after any\nother property changes done after that. This allows\nchanges to the org_kde_plasma_virtual_desktop_management properties to be seen as\natomic, even if they happen via multiple events.",
+            "text": "This event is sent after all other properties have been sent after\nbinding to the desktop manager global and after all changes to\norg_kde_plasma_virtual_desktop_management and org_kde_plasma_virtual_desktop\nproperties have been sent.\n\nThis allows changes to org_kde_plasma_virtual_desktop_management and\norg_kde_plasma_virtual_desktop properties to be seen as atomic, even\nif they happen via multiple events.",
             "summary": "sent all information about desktops"
           },
           "args": []
@@ -143,7 +143,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_virtual_desktop",
-      "version": "1",
+      "version": "3",
       "requests": [
         {
           "type": "request",
@@ -225,6 +225,24 @@
             "summary": "This desktop has been removed"
           },
           "args": []
+        },
+        {
+          "type": "event",
+          "name": "position",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "The position of the virtual desktop in the desktop list. The virtual\ndesktop position is in the [0, N - 1] range, where N is the number of\nvirtual desktops.",
+            "summary": "virtual desktop position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "index",
+              "argType": "uint",
+              "summary": "virtual desktop position"
+            }
+          ]
         }
       ],
       "enums": []

@@ -1236,6 +1236,126 @@
               "name": "p030",
               "value": "0x30333050",
               "summary": "2x2 subsampled Cr:Cb plane 10 bits per channel packed"
+            },
+            {
+              "type": "entry",
+              "name": "rgb161616",
+              "value": "0x38344752",
+              "summary": "[47:0] R:G:B 16:16:16 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "bgr161616",
+              "value": "0x38344742",
+              "summary": "[47:0] B:G:R 16:16:16 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "r16f",
+              "value": "0x48202052",
+              "summary": "[15:0] R 16 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "gr1616f",
+              "value": "0x48205247",
+              "summary": "[31:0] G:R 16:16 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "bgr161616f",
+              "value": "0x48524742",
+              "summary": "[47:0] B:G:R 16:16:16 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "r32f",
+              "value": "0x46202052",
+              "summary": "[31:0] R 32 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "gr3232f",
+              "value": "0x46205247",
+              "summary": "[63:0] R:G 32:32 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "bgr323232f",
+              "value": "0x46524742",
+              "summary": "[95:0] R:G:B 32:32:32 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "abgr32323232f",
+              "value": "0x46384241",
+              "summary": "[127:0] R:G:B:A 32:32:32:32 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "nv20",
+              "value": "0x3032564e",
+              "summary": "2x1 subsampled Cr:Cb plane"
+            },
+            {
+              "type": "entry",
+              "name": "nv30",
+              "value": "0x3033564e",
+              "summary": "non-subsampled Cr:Cb plane"
+            },
+            {
+              "type": "entry",
+              "name": "s010",
+              "value": "0x30313053",
+              "summary": "2x2 subsampled Cb (1) and Cr (2) planes 10 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s210",
+              "value": "0x30313253",
+              "summary": "2x1 subsampled Cb (1) and Cr (2) planes 10 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s410",
+              "value": "0x30313453",
+              "summary": "non-subsampled Cb (1) and Cr (2) planes 10 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s012",
+              "value": "0x32313053",
+              "summary": "2x2 subsampled Cb (1) and Cr (2) planes 12 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s212",
+              "value": "0x32313253",
+              "summary": "2x1 subsampled Cb (1) and Cr (2) planes 12 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s412",
+              "value": "0x32313453",
+              "summary": "non-subsampled Cb (1) and Cr (2) planes 12 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s016",
+              "value": "0x36313053",
+              "summary": "2x2 subsampled Cb (1) and Cr (2) planes 16 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s216",
+              "value": "0x36313253",
+              "summary": "2x1 subsampled Cb (1) and Cr (2) planes 16 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "s416",
+              "value": "0x36313453",
+              "summary": "non-subsampled Cb (1) and Cr (2) planes 16 bits per channel"
             }
           ]
         }

@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "The aim of the color management extension is to allow clients to know\nthe color properties of outputs, and to tell the compositor about the color\nproperties of their content on surfaces. Doing this enables a compositor\nto perform automatic color management of content for different outputs\naccording to how content is intended to look like.\n\nThe color properties are represented as an image description object which\nis immutable after it has been created. A wl_output always has an\nassociated image description that clients can observe. A wl_surface\nalways has an associated preferred image description as a hint chosen by\nthe compositor that clients can also observe. Clients can set an image\ndescription on a wl_surface to denote the color characteristics of the\nsurface contents.\n\nAn image description includes SDR and HDR colorimetry and encoding, HDR\nmetadata, and viewing environment parameters. An image description does\nnot include the properties set through color-representation extension.\nIt is expected that the color-representation extension is used in\nconjunction with the color management extension when necessary,\nparticularly with the YUV family of pixel formats.\n\nRecommendation ITU-T H.273\n\"Coding-independent code points for video signal type identification\"\nshall be referred to as simply H.273 here.\n\nThe color-and-hdr repository\n(https://gitlab.freedesktop.org/pq/color-and-hdr) contains\nbackground information on the protocol design and legacy color management.\nIt also contains a glossary, learning resources for digital color, tools,\nsamples and more.\n\nThe terminology used in this protocol is based on common color science and\ncolor encoding terminology where possible. The glossary in the color-and-hdr\nrepository shall be the authority on the definition of terms in this\nprotocol.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "text": "The aim of the color management extension is to allow clients to know\nthe color properties of outputs, and to tell the compositor about the color\nproperties of their content on surfaces. All surface contents must be\nreadily intended for some display, but not necessarily for the display at\nhand. Doing this enables a compositor to perform automatic color management\nof content for different outputs according to how content is intended to\nlook like.\n\nFor an introduction, see the section \"Color management\" in the Wayland\ndocumentation at https://wayland.freedesktop.org/docs/html/ .\n\nThe color properties are represented as an image description object which\nis immutable after it has been created. A wl_output always has an\nassociated image description that clients can observe. A wl_surface\nalways has an associated preferred image description as a hint chosen by\nthe compositor that clients can also observe. Clients can set an image\ndescription on a wl_surface to denote the color characteristics of the\nsurface contents.\n\nAn image description essentially defines a display and (indirectly) its\nviewing environment. An image description includes SDR and HDR colorimetry\nand encoding, HDR metadata, and some parameters related to the viewing\nenvironment. An image description does not include the properties set\nthrough color-representation extension. It is expected that the\ncolor-representation extension is used in conjunction with the\ncolor-management extension when necessary, particularly with the YUV family\nof pixel formats.\n\nThe normative appendix for this protocol is in the appendix.md file beside\nthis XML file.\n\nThe color-and-hdr repository\n(https://gitlab.freedesktop.org/pq/color-and-hdr) contains\nbackground information on the protocol design and legacy color management.\nIt also contains a glossary, learning resources for digital color, tools,\nsamples and more.\n\nThe terminology used in this protocol is based on common color science and\ncolor encoding terminology where possible. The glossary in the color-and-hdr\nrepository shall be the authority on the definition of terms in this\nprotocol.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
     "summary": "color management protocol"
   },
   "interfaces": [
@@ -377,7 +377,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "Named color primaries used to encode well-known sets of primaries. H.273\nis the authority, when it comes to the exact values of primaries and\nauthoritative specifications, where an equivalent code point exists.\n\nA value of 0 is invalid and will never be present in the list of enums.\n\nDescriptions do list the specifications for convenience.",
+            "text": "Named color primaries used to encode well-known sets of primaries.\n\nA value of 0 is invalid and will never be present in the list of enums.",
             "summary": "named color primaries"
           },
           "entries": [
@@ -387,7 +387,7 @@
               "value": "1",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by\n- Rec. ITU-R BT.709-6\n- Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\ncolour gamut system (historical)\n- IEC 61966-2-1 sRGB or sYCC\n- IEC 61966-2-4\n- Society of Motion Picture and Television Engineers (SMPTE) RP 177\n(1993) Annex B\nEquivalent to H.273 ColourPrimaries code point 1.",
+                "text": "Color primaries as defined by\n- Rec. ITU-R BT.709-6\n- Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\ncolour gamut system (historical)\n- IEC 61966-2-1 sRGB or sYCC\n- IEC 61966-2-4\n- Society of Motion Picture and Television Engineers (SMPTE) RP 177\n(1993) Annex B",
                 "summary": "Color primaries for the sRGB color space as defined by the BT.709 standard"
               }
             },
@@ -397,7 +397,7 @@
               "value": "2",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a)(20)\nEquivalent to H.273 ColourPrimaries code point 4.",
+                "text": "Color primaries as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a)(20)",
                 "summary": "Color primaries for PAL-M as defined by the BT.470 standard"
               }
             },
@@ -407,7 +407,7 @@
               "value": "3",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by\n- Rec. ITU-R BT.470-6 System B, G (historical)\n- Rec. ITU-R BT.601-7 625\n- Rec. ITU-R BT.1358-0 625 (historical)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\nEquivalent to H.273 ColourPrimaries code point 5.",
+                "text": "Color primaries as defined by\n- Rec. ITU-R BT.470-6 System B, G (historical)\n- Rec. ITU-R BT.601-7 625\n- Rec. ITU-R BT.1358-0 625 (historical)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM",
                 "summary": "Color primaries for PAL as defined by the BT.601 standard"
               }
             },
@@ -417,7 +417,7 @@
               "value": "4",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by\n- Rec. ITU-R BT.601-7 525\n- Rec. ITU-R BT.1358-1 525 or 625 (historical)\n- Rec. ITU-R BT.1700-0 NTSC\n- SMPTE 170M (2004)\n- SMPTE 240M (1999) (historical)\nEquivalent to H.273 ColourPrimaries code point 6 and 7.",
+                "text": "Color primaries as defined by\n- Rec. ITU-R BT.601-7 525\n- Rec. ITU-R BT.1358-1 525 or 625 (historical)\n- Rec. ITU-R BT.1700-0 NTSC\n- SMPTE 170M (2004)\n- SMPTE 240M (1999) (historical)",
                 "summary": "Color primaries for NTSC as defined by the BT.601 standard"
               }
             },
@@ -427,7 +427,7 @@
               "value": "5",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by H.273 for generic film.\nEquivalent to H.273 ColourPrimaries code point 8.",
+                "text": "Color primaries as defined by Recommendation ITU-T H.273\n\"Coding-independent code points for video signal type identification\"\nfor \"generic film\".",
                 "summary": "Generic film with colour filters using Illuminant C"
               }
             },
@@ -437,7 +437,7 @@
               "value": "6",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by\n- Rec. ITU-R BT.2020-2\n- Rec. ITU-R BT.2100-0\nEquivalent to H.273 ColourPrimaries code point 9.",
+                "text": "Color primaries as defined by\n- Rec. ITU-R BT.2020-2\n- Rec. ITU-R BT.2100-0",
                 "summary": "Color primaries as defined by the BT.2020 and BT.2100 standard"
               }
             },
@@ -447,7 +447,7 @@
               "value": "7",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined as the maximum of the CIE 1931 XYZ color\nspace by\n- SMPTE ST 428-1\n- (CIE 1931 XYZ as in ISO 11664-1)\nEquivalent to H.273 ColourPrimaries code point 10.",
+                "text": "Color primaries as defined as the maximum of the CIE 1931 XYZ color\nspace by\n- SMPTE ST 428-1\n- (CIE 1931 XYZ as in ISO 11664-1)",
                 "summary": "Color primaries of the full CIE 1931 XYZ color space"
               }
             },
@@ -457,7 +457,7 @@
               "value": "8",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by Digital Cinema System and published in\nSMPTE RP 431-2 (2011). Equivalent to H.273 ColourPrimaries code point\n11.",
+                "text": "Color primaries as defined by Digital Cinema System and published in\nSMPTE RP 431-2 (2011).",
                 "summary": "Color primaries of the DCI P3 color space as defined by the SMPTE RP 431 standard"
               }
             },
@@ -467,7 +467,7 @@
               "value": "9",
               "description": {
                 "type": "description",
-                "text": "Color primaries as defined by Digital Cinema System and published in\nSMPTE EG 432-1 (2010).\nEquivalent to H.273 ColourPrimaries code point 12.",
+                "text": "Color primaries as defined by Digital Cinema System and published in\nSMPTE EG 432-1 (2010).",
                 "summary": "Color primaries of Display P3 variant of the DCI-P3 color space as defined by the SMPTE EG 432 standard"
               }
             },
@@ -489,7 +489,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "Named transfer functions used to represent well-known transfer\ncharacteristics. H.273 is the authority, when it comes to the exact\nformulas and authoritative specifications, where an equivalent code\npoint exists.\n\nA value of 0 is invalid and will never be present in the list of enums.\n\nDescriptions do list the specifications for convenience.",
+            "text": "Named transfer functions used to represent well-known transfer\ncharacteristics of displays.\n\nA value of 0 is invalid and will never be present in the list of enums.\n\nSee appendix.md for the formulae.",
             "summary": "named transfer functions"
           },
           "entries": [
@@ -499,7 +499,7 @@
               "value": "1",
               "description": {
                 "type": "description",
-                "text": "Rec. ITU-R BT.1886 is the display transfer characteristic assumed by\n- Rec. ITU-R BT.601-7 525 and 625\n- Rec. ITU-R BT.709-6\n- Rec. ITU-R BT.2020-2\nThese recommendations are referred to by H.273 TransferCharacteristics\ncode points 1, 6, 14, and 15, which are all equivalent.\n\nThis TF implies these default luminances from Rec. ITU-R BT.2035:\n- primary color volume minimum: 0.01 cd/m²\n- primary color volume maximum: 100 cd/m²\n- reference white: 100 cd/m²",
+                "text": "Rec. ITU-R BT.1886 is the display transfer characteristic assumed by\n- Rec. ITU-R BT.601-7 525 and 625\n- Rec. ITU-R BT.709-6\n- Rec. ITU-R BT.2020-2\n\nThis TF implies these default luminances from Rec. ITU-R BT.2035:\n- primary color volume minimum: 0.01 cd/m²\n- primary color volume maximum: 100 cd/m²\n- reference white: 100 cd/m²",
                 "summary": "BT.1886 display transfer characteristic"
               }
             },
@@ -509,7 +509,7 @@
               "value": "2",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\nEquivalent to H.273 TransferCharacteristics code point 4.\n\nNote: an sRGB display (IEC 61966-2-1) uses this transfer function.",
+                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n\nNote: an sRGB display (IEC 61966-2-1) uses this transfer function.",
                 "summary": "Assumed display gamma 2.2 transfer function"
               }
             },
@@ -519,7 +519,7 @@
               "value": "3",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System B, G (historical)\nEquivalent to H.273 TransferCharacteristics code point 5.",
+                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System B, G (historical)",
                 "summary": "Assumed display gamma 2.8 transfer function"
               }
             },
@@ -529,7 +529,7 @@
               "value": "4",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- SMPTE ST 240 (1999)\nEquivalent to H.273 TransferCharacteristics code point 7.",
+                "text": "Transfer characteristics as defined by\n- SMPTE ST 240 (1999)",
                 "summary": "SMPTE ST 240 transfer function"
               }
             },
@@ -539,7 +539,7 @@
               "value": "5",
               "description": {
                 "type": "description",
-                "text": "Linear transfer function defined over all real numbers.\nNormalised electrical values are equal the normalised optical values.\n\nThe differences to H.273 TransferCharacteristics code point 8 are\nthe definition over all real numbers.",
+                "text": "Linear transfer function defined over all real numbers.\nNormalised electrical values are equal the normalised optical values.",
                 "summary": "extended linear transfer function"
               }
             },
@@ -549,7 +549,7 @@
               "value": "6",
               "description": {
                 "type": "description",
-                "text": "Logarithmic transfer characteristic (100:1 range).\nEquivalent to H.273 TransferCharacteristics code point 9.",
+                "text": "Logarithmic transfer characteristic (100:1 range).",
                 "summary": "logarithmic 100:1 transfer function"
               }
             },
@@ -559,7 +559,7 @@
               "value": "7",
               "description": {
                 "type": "description",
-                "text": "Logarithmic transfer characteristic (100 * Sqrt(10) : 1 range).\nEquivalent to H.273 TransferCharacteristics code point 10.",
+                "text": "Logarithmic transfer characteristic (100 * Sqrt(10) : 1 range).",
                 "summary": "logarithmic (100*Sqrt(10) : 1) transfer function"
               }
             },
@@ -569,7 +569,7 @@
               "value": "8",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- IEC 61966-2-4\nEquivalent to H.273 TransferCharacteristics code point 11.",
+                "text": "Transfer characteristics as defined by\n- IEC 61966-2-4",
                 "summary": "IEC 61966-2-4 transfer function"
               }
             },
@@ -579,7 +579,7 @@
               "value": "9",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\nEquivalent to H.273 TransferCharacteristics code point 13 with\nMatrixCoefficients set to 0.\n\nNote: This is not appropriate for describing sRGB material.\nsRGB material is intended to be viewed on an sRGB display, and\nthat is described by gamma22.",
+                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\n\nNote: This is not appropriate for describing sRGB material.\nsRGB material is intended to be viewed on an sRGB display, and\nthat is described by gamma22.",
                 "summary": "sRGB piece-wise transfer function"
               }
             },
@@ -589,7 +589,7 @@
               "value": "10",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sYCC\nEquivalent to H.273 TransferCharacteristics code point 13 with\nMatrixCoefficients set to anything but 0.",
+                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sYCC",
                 "summary": "Extended sRGB piece-wise transfer function"
               }
             },
@@ -599,7 +599,7 @@
               "value": "11",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- SMPTE ST 2084 (2014) for 10-, 12-, 14- and 16-bit systems\n- Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system\nEquivalent to H.273 TransferCharacteristics code point 16.\n\nThis TF implies these default luminances\n- primary color volume minimum: 0.005 cd/m²\n- primary color volume maximum: 10000 cd/m²\n- reference white: 203 cd/m²\n\nThe difference between the primary color volume minimum and maximum\nmust be approximately 10000 cd/m² as that is the swing of the EOTF\ndefined by ST 2084 and BT.2100. The default value for the\nreference white is a protocol addition: it is suggested by\nReport ITU-R BT.2408-7 and is not part of ST 2084 or BT.2100.",
+                "text": "Transfer characteristics as defined by\n- SMPTE ST 2084 (2014) for 10-, 12-, 14- and 16-bit systems\n- Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system\n\nThis TF implies these default luminances\n- primary color volume minimum: 0.005 cd/m²\n- primary color volume maximum: 10000 cd/m²\n- reference white: 203 cd/m²\n\nThe difference between the primary color volume minimum and maximum\nmust be approximately 10000 cd/m² as that is the swing of the EOTF\ndefined by ST 2084 and BT.2100. The default value for the\nreference white is a protocol addition: it is suggested by\nReport ITU-R BT.2408-7 and is not part of ST 2084 or BT.2100.",
                 "summary": "perceptual quantizer transfer function"
               }
             },
@@ -609,7 +609,7 @@
               "value": "12",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- SMPTE ST 428-1 (2019)\nEquivalent to H.273 TransferCharacteristics code point 17.",
+                "text": "Transfer characteristics as defined by\n- SMPTE ST 428-1 (2019)",
                 "summary": "SMPTE ST 428 transfer function"
               }
             },
@@ -619,7 +619,7 @@
               "value": "13",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- ARIB STD-B67 (2015)\n- Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system\nEquivalent to H.273 TransferCharacteristics code point 18.\n\nThis TF implies these default luminances\n- primary color volume minimum: 0.005 cd/m²\n- primary color volume maximum: 1000 cd/m²\n- reference white: 203 cd/m²\n\nHLG is a relative display-referred signal with a specified\nnon-linear mapping to the display peak luminance (the HLG OOTF).\nAll absolute luminance values used here for HLG assume a 1000 cd/m²\npeak display.\n\nThe default value for the reference white is a protocol addition:\nit is suggested by Report ITU-R BT.2408-7 and is not part of\nARIB STD-B67 or BT.2100.",
+                "text": "Transfer characteristics as defined by\n- ARIB STD-B67 (2015)\n- Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system\n\nThis TF implies these default luminances\n- primary color volume minimum: 0.005 cd/m²\n- primary color volume maximum: 1000 cd/m²\n- reference white: 203 cd/m²\n\nHLG is a relative display-referred signal with a specified\nnon-linear mapping to the display peak luminance (the HLG OOTF).\nAll absolute luminance values used here for HLG assume a 1000 cd/m²\npeak display.\n\nThe default value for the reference white is a protocol addition:\nit is suggested by Report ITU-R BT.2408-7 and is not part of\nARIB STD-B67 or BT.2100.",
                 "summary": "hybrid log-gamma transfer function"
               }
             }
@@ -706,7 +706,7 @@
           "name": "set_image_description",
           "description": {
             "type": "description",
-            "text": "If this protocol object is inert, the protocol error inert is raised.\n\nSet the image description of the underlying surface. The image\ndescription and rendering intent are double-buffered state, see\nwl_surface.commit.\n\nIt is the client's responsibility to understand the image description\nit sets on a surface, and to provide content that matches that image\ndescription. Compositors might convert images to match their own or any\nother image descriptions.\n\nImage descriptions which are not ready (see wp_image_description_v1)\nare forbidden in this request, and in such case the protocol error\nimage_description is raised.\n\nAll image descriptions which are ready (see wp_image_description_v1)\nare allowed and must always be accepted by the compositor.\n\nA rendering intent provides the client's preference on how content\ncolors should be mapped to each output. The render_intent value must\nbe one advertised by the compositor with\nwp_color_manager_v1.render_intent event, otherwise the protocol error\nrender_intent is raised.\n\nWhen an image description is set on a surface, the Transfer\nCharacteristics of the image description defines the valid range of\nthe nominal (real-valued) color channel values. The processing of\nout-of-range color channel values is undefined, but compositors are\nrecommended to clamp the values to the valid range when possible.\n\nBy default, a surface does not have an associated image description\nnor a rendering intent. The handling of color on such surfaces is\ncompositor implementation defined. Compositors should handle such\nsurfaces as sRGB, but may handle them differently if they have specific\nrequirements.\n\nSetting the image description has copy semantics; after this request,\nthe image description can be immediately destroyed without affecting\nthe pending state of the surface.",
+            "text": "If this protocol object is inert, the protocol error inert is raised.\n\nSet the image description of the underlying surface. The image\ndescription and rendering intent are double-buffered state, see\nwl_surface.commit.\n\nIt is the client's responsibility to understand the image description\nit sets on a surface, and to provide content that matches that image\ndescription. Compositors might convert images to match their own or any\nother image descriptions.\n\nImage descriptions which are not ready (see wp_image_description_v1)\nare forbidden in this request, and in such case the protocol error\nimage_description is raised.\n\nAll image descriptions which are ready (see wp_image_description_v1)\nare allowed and must always be accepted by the compositor.\n\nWhen an image description is set on a surface, it establishes an\nexplicit link between surface pixel values and surface colorimetry.\nThis link may be undefined for some pixel values, see the image\ndescription creator interfaces for the conditions. Non-finite\nfloating-point values (NaN, Inf) always have an undefined colorimetry.\n\nA rendering intent provides the client's preference on how surface\ncolorimetry should be mapped to each output. The render_intent value\nmust be one advertised by the compositor with\nwp_color_manager_v1.render_intent event, otherwise the protocol error\nrender_intent is raised.\n\nBy default, a surface does not have an associated image description\nnor a rendering intent. The handling of color on such surfaces is\ncompositor implementation defined. Compositors should handle such\nsurfaces as sRGB, but may handle them differently if they have specific\nrequirements.\n\nSetting the image description has copy semantics; after this request,\nthe image description can be immediately destroyed without affecting\nthe pending state of the surface.",
             "summary": "set the surface image description"
           },
           "args": [
@@ -876,7 +876,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This type of object is used for collecting all the information required\nto create a wp_image_description_v1 object from an ICC file. A complete\nset of required parameters consists of these properties:\n- ICC file\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.",
+        "text": "This type of object is used for collecting all the information required\nto create a wp_image_description_v1 object from an ICC file. A complete\nset of required parameters consists of these properties:\n- ICC file\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nThe link between a pixel value (a device value in ICC) and its respective\ncolorimetry is defined by the details of the particular ICC profile.\nThose details also determine when colorimetry becomes undefined.",
         "summary": "holder of image description ICC information"
       },
       "requests": [
@@ -979,7 +979,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This type of object is used for collecting all the parameters required\nto create a wp_image_description_v1 object. A complete set of required\nparameters consists of these properties:\n- transfer characteristic function (tf)\n- chromaticities of primaries and white point (primary color volume)\n\nThe following properties are optional and have a well-defined default\nif not explicitly set:\n- primary color volume luminance range\n- reference white luminance level\n- mastering display primaries and white point (target color volume)\n- mastering luminance range\n\nThe following properties are optional and will be ignored\nif not explicitly set:\n- maximum content light level\n- maximum frame-average light level\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.",
+        "text": "This type of object is used for collecting all the parameters required\nto create a wp_image_description_v1 object. A complete set of required\nparameters consists of these properties:\n- transfer characteristic function (tf)\n- chromaticities of primaries and white point (primary color volume)\n\nThe following properties are optional and have a well-defined default\nif not explicitly set:\n- primary color volume luminance range\n- reference white luminance level\n- mastering display primaries and white point (target color volume)\n- mastering luminance range\n\nThe following properties are optional and will be ignored\nif not explicitly set:\n- maximum content light level\n- maximum frame-average light level\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nA viewer, who is viewing the display defined by the resulting image\ndescription (the viewing environment included), is assumed to be fully\nadapted to the primary color volume's white point.\n\nAny of the following conditions will cause the colorimetry of a pixel\nto become undefined:\n- Values outside of the defined range of the transfer characteristic.\n- Tristimulus that exceeds the target color volume.\n- If extended_target_volume is not supported: tristimulus that exceeds\nthe primary color volume.\n\nThe closest correspondence to an image description created through this\ninterface is the Display class of profiles in ICC.",
         "summary": "holder of image description parameters"
       },
       "requests": [
@@ -1006,7 +1006,7 @@
           "name": "set_tf_named",
           "description": {
             "type": "description",
-            "text": "Sets the transfer characteristic using explicitly enumerated named\nfunctions.\n\nWhen the resulting image description is attached to an image, the\ncontent should be encoded and decoded according to the industry standard\npractices for the transfer characteristic.\n\nOnly names advertised with wp_color_manager_v1 event supported_tf_named\nare allowed. Other values shall raise the protocol error invalid_tf.\n\nIf transfer characteristic has already been set on this object, the\nprotocol error already_set is raised.",
+            "text": "Sets the transfer characteristic using explicitly enumerated named\nfunctions.\n\nWhen the resulting image description is attached to an image, the\ncontent should be decoded according to the industry standard\npractices for the transfer characteristic.\n\nOnly names advertised with wp_color_manager_v1 event supported_tf_named\nare allowed. Other values shall raise the protocol error invalid_tf.\n\nIf transfer characteristic has already been set on this object, the\nprotocol error already_set is raised.",
             "summary": "named transfer characteristic"
           },
           "args": [
@@ -1024,7 +1024,7 @@
           "name": "set_tf_power",
           "description": {
             "type": "description",
-            "text": "Sets the color component transfer characteristic to a power curve with\nthe given exponent. Negative values are handled by mirroring the\npositive half of the curve through the origin. The valid domain and\nrange of the curve are all finite real numbers. This curve represents\nthe conversion from electrical to optical color channel values.\n\nWhen the resulting image description is attached to an image, the\ncontent should be encoded with the inverse of the power curve.\n\nThe curve exponent shall be multiplied by 10000 to get the argument eexp\nvalue to carry the precision of 4 decimals.\n\nThe curve exponent must be at least 1.0 and at most 10.0. Otherwise the\nprotocol error invalid_tf is raised.\n\nIf transfer characteristic has already been set on this object, the\nprotocol error already_set is raised.\n\nThis request can be used when the compositor advertises\nwp_color_manager_v1.feature.set_tf_power. Otherwise this request raises\nthe protocol error unsupported_feature.",
+            "text": "Sets the color component transfer characteristic to a power curve with\nthe given exponent. Negative values are handled by mirroring the\npositive half of the curve through the origin. The valid domain and\nrange of the curve are all finite real numbers. This curve represents\nthe conversion from electrical to optical color channel values.\n\nThe curve exponent shall be multiplied by 10000 to get the argument eexp\nvalue to carry the precision of 4 decimals.\n\nThe curve exponent must be at least 1.0 and at most 10.0. Otherwise the\nprotocol error invalid_tf is raised.\n\nIf transfer characteristic has already been set on this object, the\nprotocol error already_set is raised.\n\nThis request can be used when the compositor advertises\nwp_color_manager_v1.feature.set_tf_power. Otherwise this request raises\nthe protocol error unsupported_feature.",
             "summary": "transfer characteristic as a power curve"
           },
           "args": [
@@ -1118,7 +1118,7 @@
           "name": "set_luminances",
           "description": {
             "type": "description",
-            "text": "Sets the primary color volume luminance range and the reference white\nluminance level. These values include the minimum display emission\nand ambient flare luminances, assumed to be optically additive and have\nthe chromaticity of the primary color volume white point.\n\nThe default luminances from\nhttps://www.color.org/chardata/rgb/srgb.xalter are\n- primary color volume minimum: 0.2 cd/m²\n- primary color volume maximum: 80 cd/m²\n- reference white: 80 cd/m²\n\nSetting a named transfer characteristic can imply other default\nluminances.\n\nThe default luminances get overwritten when this request is used.\nWith transfer_function.st2084_pq the given 'max_lum' value is ignored,\nand 'max_lum' is taken as 'min_lum' + 10000 cd/m².\n\n'min_lum' and 'max_lum' specify the minimum and maximum luminances of\nthe primary color volume as reproduced by the targeted display.\n\n'reference_lum' specifies the luminance of the reference white as\nreproduced by the targeted display, and reflects the targeted viewing\nenvironment.\n\nCompositors should make sure that all content is anchored, meaning that\nan input signal level of 'reference_lum' on one image description and\nanother input signal level of 'reference_lum' on another image\ndescription should produce the same output level, even though the\n'reference_lum' on both image representations can be different.\n\n'reference_lum' may be higher than 'max_lum'. In that case reaching\nthe reference white output level in image content requires the\n'extended_target_volume' feature support.\n\nIf 'max_lum' or 'reference_lum' are less than or equal to 'min_lum',\nthe protocol error invalid_luminance is raised.\n\nThe minimum luminance is multiplied by 10000 to get the argument\n'min_lum' value and carries precision of 4 decimals. The maximum\nluminance and reference white luminance values are unscaled.\n\nIf the primary color volume luminance range and the reference white\nluminance level have already been set on this object, the protocol error\nalready_set is raised.\n\nThis request can be used if the compositor advertises\nwp_color_manager_v1.feature.set_luminances. Otherwise this request\nraises the protocol error unsupported_feature.",
+            "text": "Sets the primary color volume luminance range and the reference white\nluminance level. These values include the minimum display emission, but\nnot external flare. The minimum display emission is assumed to have\nthe chromaticity of the primary color volume white point.\n\nThe default luminances from\nhttps://www.color.org/chardata/rgb/srgb.xalter are\n- primary color volume minimum: 0.2 cd/m²\n- primary color volume maximum: 80 cd/m²\n- reference white: 80 cd/m²\n\nSetting a named transfer characteristic can imply other default\nluminances.\n\nThe default luminances get overwritten when this request is used.\nWith transfer_function.st2084_pq the given 'max_lum' value is ignored,\nand 'max_lum' is taken as 'min_lum' + 10000 cd/m².\n\n'min_lum' and 'max_lum' specify the minimum and maximum luminances of\nthe primary color volume as reproduced by the targeted display.\n\n'reference_lum' specifies the luminance of the reference white as\nreproduced by the targeted display, and reflects the targeted viewing\nenvironment.\n\nCompositors should make sure that all content is anchored, meaning that\nan input signal level of 'reference_lum' on one image description and\nanother input signal level of 'reference_lum' on another image\ndescription should produce the same output level, even though the\n'reference_lum' on both image representations can be different.\n\n'reference_lum' may be higher than 'max_lum'. In that case reaching\nthe reference white output level in image content requires the\n'extended_target_volume' feature support.\n\nIf 'max_lum' or 'reference_lum' are less than or equal to 'min_lum',\nthe protocol error invalid_luminance is raised.\n\nThe minimum luminance is multiplied by 10000 to get the argument\n'min_lum' value and carries precision of 4 decimals. The maximum\nluminance and reference white luminance values are unscaled.\n\nIf the primary color volume luminance range and the reference white\nluminance level have already been set on this object, the protocol error\nalready_set is raised.\n\nThis request can be used if the compositor advertises\nwp_color_manager_v1.feature.set_luminances. Otherwise this request\nraises the protocol error unsupported_feature.",
             "summary": "primary color volume luminance range and reference white"
           },
           "args": [
@@ -1316,7 +1316,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "An image description carries information about the color encoding used on\na surface when attached to a wl_surface via\nwp_color_management_surface_v1.set_image_description. A compositor can use\nthis information to decode pixel values into colorimetrically meaningful\nquantities.\n\nNote, that the wp_image_description_v1 object is not ready to be used\nimmediately after creation. The object eventually delivers either the\n'ready' or the 'failed' event, specified in all requests creating it. The\nobject is deemed \"ready\" after receiving the 'ready' event.\n\nAn object which is not ready is illegal to use, it can only be destroyed.\nAny other request in this interface shall result in the 'not_ready'\nprotocol error. Attempts to use an object which is not ready through other\ninterfaces shall raise protocol errors defined there.\n\nOnce created and regardless of how it was created, a\nwp_image_description_v1 object always refers to one fixed image\ndescription. It cannot change after creation.",
+        "text": "An image description carries information about the pixel color encoding\nand its intended display and viewing environment. The image description is\nattached to a wl_surface via\nwp_color_management_surface_v1.set_image_description. A compositor can use\nthis information to decode pixel values into colorimetrically meaningful\nquantities, which allows the compositor to transform the surface contents\nto become suitable for various displays and viewing environments.\n\nNote, that the wp_image_description_v1 object is not ready to be used\nimmediately after creation. The object eventually delivers either the\n'ready' or the 'failed' event, specified in all requests creating it. The\nobject is deemed \"ready\" after receiving the 'ready' event.\n\nAn object which is not ready is illegal to use, it can only be destroyed.\nAny other request in this interface shall result in the 'not_ready'\nprotocol error. Attempts to use an object which is not ready through other\ninterfaces shall raise protocol errors defined there.\n\nOnce created and regardless of how it was created, a\nwp_image_description_v1 object always refers to one fixed image\ndescription. It cannot change after creation.",
         "summary": "Colorimetric image description"
       },
       "requests": [

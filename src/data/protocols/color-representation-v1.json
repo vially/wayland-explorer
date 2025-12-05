@@ -201,7 +201,7 @@
           "name": "set_chroma_location",
           "description": {
             "type": "description",
-            "text": "If this protocol object is inert, the protocol error inert is raised.\n\nSet the chroma location type which defines the position of downsampled\nchroma samples, corresponding to Chroma420SampleLocType code points in\nH.273.\n\nA call to wl_surface.commit verifies that the pixel format and chroma\nlocation type in the committed surface contents are compatible, if\ncontents exist. The \"pixel_format\" protocol error is raised otherwise.\n\nFor the definition of the supported chroma location types, see the\nwp_color_representation_surface_v1::chroma_location enum.\n\nThe chroma location type is double-buffered, see wl_surface.commit.",
+            "text": "If this protocol object is inert, the protocol error inert is raised.\n\nSet the chroma location type which defines the position of downsampled\nchroma samples, corresponding to Chroma420SampleLocType code points in\nH.273.\n\nAn invalid chroma location enum value raises the \"chroma_location\"\nprotocol error.\n\nA call to wl_surface.commit verifies that the pixel format and chroma\nlocation type in the committed surface contents are compatible, if\ncontents exist. The \"pixel_format\" protocol error is raised otherwise.\n\nFor the definition of the supported chroma location types, see the\nwp_color_representation_surface_v1::chroma_location enum.\n\nThe chroma location type is double-buffered, see wl_surface.commit.",
             "summary": "set the chroma location"
           },
           "args": [
@@ -249,6 +249,12 @@
               "name": "inert",
               "value": "4",
               "summary": "forbidden request on inert object"
+            },
+            {
+              "type": "entry",
+              "name": "chroma_location",
+              "value": "5",
+              "summary": "invalid chroma location"
             }
           ]
         },

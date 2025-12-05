@@ -1,0 +1,273 @@
+{
+  "type": "protocol",
+  "name": "hyprland_input_capture_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025 Fl0w\n\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol is a bridge of the XDG input capture to the compositor.",
+    "summary": "Bridge input capture to the compositor"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_input_capture_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows to create an input capture session.",
+        "summary": "manage input capture sessions"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_session",
+          "description": {
+            "type": "description",
+            "text": "Create a input capture session.",
+            "summary": "create a input capture session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session",
+              "argType": "new_id",
+              "interface": "hyprland_input_capture_v1"
+            },
+            {
+              "type": "arg",
+              "name": "handle",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "hyprland_input_capture_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Interface that is used to create barrier, and trigger capture and release of the pointer.\nThe inputs are sent through an EIS socket, when the cursor hit a barrier.\nBarriers can only be placed on screen edges and need to be a straight line that cover one corner to another.",
+        "summary": "close reproduction of the xdg input capture portal"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "clear_barriers",
+          "description": {
+            "type": "description",
+            "text": "Remove every barriers from the session, new barriers need to be send before calling enable again.",
+            "summary": "clear every barriers registered"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "add_barrier",
+          "description": {
+            "type": "description",
+            "text": "Add one barrier to the current session, the barrier need to a line placed on the edge of the screen, and is a straight line from one corner to another.",
+            "summary": "add one barrier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "zone_set",
+              "argType": "uint",
+              "summary": "The current zone_set"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "uint",
+              "summary": "The zone id"
+            },
+            {
+              "type": "arg",
+              "name": "x1",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "y1",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "x2",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "y2",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "enable",
+          "description": {
+            "type": "description",
+            "text": "Enable the input capturing to be triggered by the cursor crossing a barrier.",
+            "summary": "enable input capturing"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "disable",
+          "description": {
+            "type": "description",
+            "text": "Disable input capturing, the crossing of a barrier will not trigger anymore input capture.",
+            "summary": "disable input capturing"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "description": {
+            "type": "description",
+            "text": "Release input capturing, the input are not intercepted anymore and barrier crossing will activate it again.\nIf x != -1 and y != -1 then the cursor is warped to the x and y coordinates.",
+            "summary": "release input capturing"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "activation_id",
+              "argType": "uint",
+              "summary": "The activation id provided when activated is called"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "the x position of the cursor"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "the y position of the cursor"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "eis_fd",
+          "description": {
+            "type": "description",
+            "text": "This event provide the file descriptor of an eis socket where inputs will be sent when input capturing is active",
+            "summary": "eis file descriptor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "fd",
+              "argType": "fd",
+              "summary": "eis socket file descriptor"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "disabled",
+          "description": {
+            "type": "description",
+            "text": "Called when the application will not receive captured input. The application can call enable to request future input capturing",
+            "summary": "disable the session"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "activated",
+          "description": {
+            "type": "description",
+            "text": "Called when the application is about to receive inputs",
+            "summary": "inputs has been captured"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "activation_id",
+              "argType": "uint",
+              "summary": "Same number used in eis start_emulating to allow synchronisation"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "the x position of the cursor"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "the y position of the cursor"
+            },
+            {
+              "type": "arg",
+              "name": "barrier_id",
+              "argType": "uint",
+              "summary": "the is of the barrier that have been triggered"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "deactivated",
+          "description": {
+            "type": "description",
+            "text": "Called when input capture is stopped, and inputs are no longer sent to the application",
+            "summary": "pointer motion"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "activation_id",
+              "argType": "uint",
+              "summary": "same activation id of the latest activated event"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_barrier_id",
+              "value": "0",
+              "summary": "The barrier id already exist"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_barrier",
+              "value": "1",
+              "summary": "The barrier coordinates are invalid"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_activation_id",
+              "value": "2",
+              "summary": "The activation id provided is invalid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

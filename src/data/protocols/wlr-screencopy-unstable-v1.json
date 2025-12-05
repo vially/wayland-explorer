@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows clients to ask the compositor to copy part of the\nscreen content to a client buffer.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
+    "text": "This protocol allows clients to ask the compositor to copy part of the\nscreen content to a client buffer.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.\n\nNote! This protocol is deprecated and not intended for production use.\nThe ext-image-copy-capture-v1 protocol should be used instead.",
     "summary": "screen content capturing on client buffers"
   },
   "interfaces": [
