@@ -1,13 +1,25 @@
 {
-  "generationTimestamp": 1742942614217,
-  "version": "0.9.0",
+  "generationTimestamp": 1764894708216,
+  "version": "labwc 0.9.2",
   "globals": [
+    {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_foreign_toplevel_list_v1",
       "version": 1
     },
     {
       "interface": "ext_idle_notifier_v1",
+      "version": 2
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -24,7 +36,7 @@
     },
     {
       "interface": "wl_compositor",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "wl_data_device_manager",
@@ -51,6 +63,10 @@
       "version": 1
     },
     {
+      "interface": "wp_alpha_modifier_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_cursor_shape_manager_v1",
       "version": 1
     },
@@ -63,8 +79,12 @@
       "version": 1
     },
     {
-      "interface": "wp_presentation",
+      "interface": "wp_linux_drm_syncobj_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "wp_presentation",
+      "version": 2
     },
     {
       "interface": "wp_security_context_manager_v1",
@@ -92,7 +112,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 3
+      "version": 6
     },
     {
       "interface": "zcosmic_workspace_manager_v1",
