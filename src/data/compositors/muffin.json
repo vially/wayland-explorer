@@ -1,5 +1,6 @@
 {
   "generationTimestamp": 1759057772065,
+  "version": "6.4.1",
   "globals": [
     {
       "interface": "gtk_primary_selection_device_manager",

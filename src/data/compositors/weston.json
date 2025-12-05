@@ -1,13 +1,21 @@
 {
-  "generationTimestamp": 1737939500990,
-  "version": "14",
+  "generationTimestamp": 1764897910939,
+  "version": "14.0.2",
   "globals": [
     {
       "interface": "weston_capture_v1",
       "version": 1
     },
     {
+      "interface": "weston_content_protection",
+      "version": 1
+    },
+    {
       "interface": "weston_desktop_shell",
+      "version": 1
+    },
+    {
+      "interface": "weston_direct_display_v1",
       "version": 1
     },
     {
@@ -17,10 +25,6 @@
     {
       "interface": "wl_data_device_manager",
       "version": 3
-    },
-    {
-      "interface": "wl_drm",
-      "version": 2
     },
     {
       "interface": "wl_output",
@@ -73,6 +77,10 @@
     {
       "interface": "zwp_linux_dmabuf_v1",
       "version": 5
+    },
+    {
+      "interface": "zwp_linux_explicit_synchronization_v1",
+      "version": 2
     },
     {
       "interface": "zwp_pointer_constraints_v1",
