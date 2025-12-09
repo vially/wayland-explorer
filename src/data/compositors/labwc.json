@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1764894708216,
-  "version": "labwc 0.9.2",
+  "version": "0.9.2",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
