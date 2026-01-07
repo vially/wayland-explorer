@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1754274224560,
-  "version": "0.6.1",
+  "generationTimestamp": 1767755683687,
+  "version": "0.8.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -27,6 +27,14 @@
       "version": 1
     },
     {
+      "interface": "ext_session_lock_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_app_id_resolver_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "treeland_capture_manager_v1",
       "version": 1
     },
@@ -35,19 +43,31 @@
       "version": 1
     },
     {
+      "interface": "treeland_ddm",
+      "version": 1
+    },
+    {
       "interface": "treeland_foreign_toplevel_manager_v1",
       "version": 1
     },
     {
       "interface": "treeland_output_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "treeland_personalization_manager_v1",
       "version": 1
     },
     {
-      "interface": "treeland_shortcut_manager_v1",
+      "interface": "treeland_prelaunch_splash_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "treeland_screensaver",
+      "version": 1
+    },
+    {
+      "interface": "treeland_shortcut_manager_v2",
       "version": 1
     },
     {
@@ -100,6 +120,10 @@
     },
     {
       "interface": "wp_fractional_scale_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_security_context_manager_v1",
       "version": 1
     },
     {
