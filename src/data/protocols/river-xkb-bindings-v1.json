@@ -1,0 +1,160 @@
+{
+  "type": "protocol",
+  "name": "river_xkb_bindings_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2025 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows the river-window-management-v1 window manager to\ndefine key bindings in terms of xkbcommon keysyms and other configurable\nproperties.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "summary": "define xkbcommon-based key bindings"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_xkb_bindings_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global interface should only be advertised to the client if the\nriver_window_manager_v1 global is also advertised.",
+        "summary": "xkbcommon bindings global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the\nriver_xkb_bindings_v1 object.",
+            "summary": "destroy the river_xkb_bindings_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_xkb_binding",
+          "description": {
+            "type": "description",
+            "text": "Define a key binding for the given seat in terms of an xkbcommon keysym\nand other configurable properties.\n\nThe new key binding is not enabled until initial configuration is\ncompleted and the enable request is made during a manage sequence.",
+            "summary": "define a new xkbcommon key binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1",
+              "protocol": "river-window-management-v1"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_xkb_binding_v1"
+            },
+            {
+              "type": "arg",
+              "name": "keysym",
+              "argType": "uint",
+              "summary": "an xkbcommon keysym"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "enum": "river_seat_v1.modifiers",
+              "protocol": "river-window-management-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "river_xkb_binding_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object allows the window manager to configure a xkbcommon key binding\nand receive events when the key binding is triggered.\n\nThe new key binding is not enabled until the enable request is made during\na manage sequence.\n\nNormally, all key events are sent to the surface with keyboard focus by\nthe compositor. Key events that trigger a key binding are not sent to the\nsurface with keyboard focus.\n\nIf multiple key bindings would be triggered by a single physical key event\non the compositor side, it is compositor policy which key binding(s) will\nreceive press/release events or if all of the matched key bindings receive\npress/release events.\n\nKey bindings might be matched by the same physical key event due to shared\nkeysym and modifiers. The layout override feature may also cause the same\nphysical key event to trigger two key bindings with different keysyms and\ndifferent layout overrides configured.",
+        "summary": "configure a xkb key binding, receive trigger events"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the xkb key\nbinding object and that it may be safely destroyed.",
+            "summary": "destroy the xkb binding object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_layout_override",
+          "description": {
+            "type": "description",
+            "text": "Specify an xkb layout that should be used to translate key events for\nthe purpose of triggering this key binding irrespective of the currently\nactive xkb layout.\n\nThe layout argument is a 0-indexed xkbcommon layout number for the\nkeyboard that generated the key event.\n\nIf this request is never made, the currently active xkb layout of the\nkeyboard that generated the key event will be used.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "override currently active xkb layout"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "layout",
+              "argType": "uint",
+              "summary": "0-indexed xkbcommon layout"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "enable",
+          "description": {
+            "type": "description",
+            "text": "This request should be made after all initial configuration has been\ncompleted and the window manager wishes the key binding to be able to be\ntriggered.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "enable the key binding"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "disable",
+          "description": {
+            "type": "description",
+            "text": "This request may be used to temporarily disable the key binding. It may\nbe later re-enabled with the enable request.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "disable the key binding"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "pressed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the physical key triggering the binding has\nbeen pressed.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
+            "summary": "the key triggering the binding has been pressed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "released",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the physical key triggering the binding has\nbeen released.\n\nReleasing the modifiers for the binding without releasing the \"main\"\nphysical key that produces the bound keysym does not trigger the release\nevent. This event is sent when the \"main\" key is released, even if the\nmodifiers have changed since the pressed event.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
+            "summary": "the key triggering the binding has been released"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

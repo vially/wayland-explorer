@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "18",
+      "version": "20",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -685,6 +685,23 @@
               "summary": "priority"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "auto_brightness",
+          "since": "20",
+          "description": {
+            "type": "description",
+            "summary": "whether or not automatic brightness is enabled"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "enabled",
+              "argType": "uint",
+              "summary": "1 for enabled, 0 for disabled"
+            }
+          ]
         }
       ],
       "enums": [
@@ -879,6 +896,19 @@
               "value": "0x1000",
               "summary": "if this outputdevice supports the sharpness setting",
               "since": "17"
+            },
+            {
+              "type": "entry",
+              "name": "custom_modes",
+              "value": "0x2000",
+              "summary": "if this outputdevice supports custom modes",
+              "since": "18"
+            },
+            {
+              "type": "entry",
+              "name": "auto_brightness",
+              "value": "0x4000",
+              "since": "19"
             }
           ]
         },
@@ -1040,7 +1070,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_mode_v2",
-      "version": "1",
+      "version": "20",
       "description": {
         "type": "description",
         "text": "This object describes an output mode.\n\nSome heads don't support output modes, in which case modes won't be\nadvertised.\n\nProperties sent via this interface are applied atomically via the\nkde_output_device.done event. No guarantees are made regarding the order\nin which properties are sent.",
@@ -1107,9 +1137,49 @@
             "summary": "the mode has been destroyed"
           },
           "args": []
+        },
+        {
+          "type": "event",
+          "name": "flags",
+          "since": "19",
+          "description": {
+            "type": "description",
+            "text": "This event describes the mode's flags.",
+            "summary": "mode flags"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "enum": "flags"
+            }
+          ]
         }
       ],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "flags",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "mode flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "custom",
+              "value": "0x1"
+            },
+            {
+              "type": "entry",
+              "name": "reduced_blanking",
+              "value": "0x2"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

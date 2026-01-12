@@ -1,0 +1,66 @@
+{
+  "type": "protocol",
+  "name": "treeland_prelaunch_splash_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_prelaunch_splash_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager for creating prelaunch splash screens.\nA prelaunch splash screen is a placeholder surface that is shown\nbefore an application's main window is mapped. This helps to improve\nthe perceived startup time.\n\nIt is particularly useful for application launchers to provide immediate\nfeedback to the user.",
+        "summary": "prelaunch splash screen manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_splash",
+          "description": {
+            "type": "description",
+            "text": "Creates a new prelaunch splash screen.\n\nThe `app_id` is a string that identifies the application. The compositor\nwill use this ID together with `sandbox_engine_name` to match the splash\nscreen with the actual application window when it appears. This\nmatching mechanism should also work for XWayland windows.\n\nCallers MUST provide a non-empty `sandbox_engine_name` string which\nidentifies the sandboxing/container.\n\nIf there is already an active (not-yet-completed) splash for the same\n`sandbox_engine_name` and `app_id`, the compositor will silently ignore\nthis request (no new splash will be created and no error is raised).",
+            "summary": "create a new splash screen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "summary": "the application ID"
+            },
+            {
+              "type": "arg",
+              "name": "sandbox_engine_name",
+              "argType": "string",
+              "summary": "the sandbox engine / security context name (required, non-empty)"
+            },
+            {
+              "type": "arg",
+              "name": "icon_buffer",
+              "argType": "object",
+              "summary": "optional icon image as wl_buffer (e.g. wl_shm)",
+              "interface": "wl_buffer",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

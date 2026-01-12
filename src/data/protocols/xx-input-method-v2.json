@@ -14,13 +14,33 @@
     {
       "type": "interface",
       "name": "xx_input_method_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "An input method object allows for clients to compose text.\n\nThe objects connects the client to a text input in an application, and\nlets the client to serve as an input method for a seat.\n\nThe xx_input_method_v1 object can occupy two distinct states: active and\ninactive. In the active state, the object is associated to and\ncommunicates with a text input. In the inactive state, there is no\nassociated text input, and the only communication is with the compositor.\nInitially, the input method is in the inactive state.\n\nRequests issued in the inactive state must be accepted by the compositor.\nBecause of the serial mechanism, and the state reset on activate event,\nthey will not have any effect on the state of the next text input.\n\nThere must be no more than one input method object per seat.",
         "summary": "input method"
       },
       "requests": [
+        {
+          "type": "request",
+          "name": "perform_action",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Perform an action on this text input.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next commit request.\n\nThe initial value of action is none.",
+            "summary": "perform action"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "action to perform",
+              "enum": "xx_text_input_v3.action",
+              "protocol": "xx-text-input-v3"
+            }
+          ]
+        },
         {
           "type": "request",
           "name": "commit_string",
@@ -86,10 +106,32 @@
         },
         {
           "type": "request",
+          "name": "move_cursor",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Unselects text, moves the cursor and selects text.\n\nThis is equivalent to dragging the mouse over some text: it deselects whatever might be currently selected and selects a new range of text.\n\nThe offsets used in arguments are in bytes relative to the current cursor position. Cursor is the new position of the cursor, and anchor is the opposite end of selection. If there's no selection, anchor should be equal to cursor.\n\nThe offsets do not take preedit contents into account, nor is preedit changed in any way with this request.\n\nBoth cursor and anchor must fall on code point boundaries, otherwise text input client may ignore the request. It is therefore not recommended for an input method to move any of them beyond the text received in surrounding_text.\n\nWhen surrounding_text is not supported, the offsets must not be interpreted as bytes, but as some human-readable unit at least as big as a code point, for example a grapheme.\n\nThe cursor and anchor arguments can also take the following special values:\nBEGINNING := 0x8000_0000 = i32::MIN\nEND := 0x7fff_ffff = i32::MAX\nmeaning, respectively, the beginning and the end of of all text in the input field.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next commit request.\n\nThe initial values of both cursor and anchor are 0.",
+            "summary": "move cursor and change selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
           "name": "commit",
           "description": {
             "type": "description",
-            "text": "Apply state changes from commit_string, set_preedit_string and\ndelete_surrounding_text requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe connected text input is expected to proceed by evaluating the\nchanges in the following order:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Calculate surrounding text to send.\n5. Insert new preedit text in cursor position.\n6. Place cursor inside preedit text.\n\nThe serial number reflects the last state of the xx_input_method_v1\nobject known to the client. The value of the serial argument must be\nequal to the number of done events already issued by that object. When\nthe compositor receives a commit request with a serial different than\nthe number of past done events, it must proceed as normal, except it\nshould not change the current state of the xx_input_method_v1 object.",
+            "text": "Apply state changes from commit_string, set_preedit_string and\ndelete_surrounding_text requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe connected text input is expected to proceed by evaluating the\nchanges in the following order:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Move the cursor and selection.\n5. Calculate surrounding text to send.\n6. Insert new preedit text in cursor position.\n7. Place cursor inside preedit text.\n8. Perform the requested action.\n\nNote that the input method can not receive more than 4000 bytes of selection text, which might be the case for example when the entire document is selected. Nevertheless, the text input must delete the entire selected range before inserting the commit string.\n\nThe serial number reflects the last state of the xx_input_method_v1\nobject known to the client. The value of the serial argument must be\nequal to the number of done events already issued by that object. When\nthe compositor receives a commit request with a serial different than\nthe number of past done events, it must proceed as normal, except it\nshould not change the current state of the xx_input_method_v1 object.",
             "summary": "apply state"
           },
           "args": [
@@ -203,8 +245,8 @@
               "type": "arg",
               "name": "cause",
               "argType": "uint",
-              "enum": "zwp_text_input_v3.change_cause",
-              "protocol": "text-input-unstable-v3"
+              "enum": "xx_text_input_v3.change_cause",
+              "protocol": "xx-text-input-v3"
             }
           ]
         },
@@ -221,15 +263,52 @@
               "type": "arg",
               "name": "hint",
               "argType": "uint",
-              "enum": "zwp_text_input_v3.content_hint",
-              "protocol": "text-input-unstable-v3"
+              "enum": "xx_text_input_v3.content_hint",
+              "protocol": "xx-text-input-v3"
             },
             {
               "type": "arg",
               "name": "purpose",
               "argType": "uint",
-              "enum": "zwp_text_input_v3.content_purpose",
-              "protocol": "text-input-unstable-v3"
+              "enum": "xx_text_input_v3.content_purpose",
+              "protocol": "xx-text-input-v3"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "set_available_actions",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Announces the actions available for the currently active text input.\n\nValues set with this event are double-buffered. They will get applied\non the next .done event.\nThey get reset to the initial value on the next committed deactivate event.\n\nThe initial value is an empty set: no actions are available.\n\nValues in the available_actions array come from text-input-v3.action.",
+            "summary": "announce the available actions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "available_actions",
+              "argType": "array",
+              "summary": "available actions"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "announce_supported_features",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Notifies the input method what the currently active text input client is able to do.\n\nThis event should come within the same .done sequence as .activate. Otherwise, the input method may ignore it.\n\nValues set with this event are double-buffered. They will get applied\non the next .done event.\nThey get reset to initial on the next committed deactivate event.\n\nThe initial value for features is none.",
+            "summary": "announce extra supported features"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "features",
+              "argType": "uint",
+              "enum": "xx_text_input_v3.supported_features",
+              "protocol": "xx-text-input-v3"
             }
           ]
         },
@@ -766,7 +845,7 @@
     {
       "type": "interface",
       "name": "xx_input_method_manager_v2",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "The input method manager allows the client to become the input method on\na chosen seat.\n\nNo more than one input method must be associated with any seat at any\ngiven time.",

@@ -1,0 +1,2097 @@
+{
+  "type": "protocol",
+  "name": "river_libinput_config_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2025 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol exposes libinput device configuration APIs. The libinput\ndocumentation should be referred to for detailed information on libinput's\nbehavior.\n\nThis protocol is designed so that (hopefully) any backwards compatible\nchange to libinput's API can be matched with a backwards compatible change\nto this protocol.\n\nNote: the libinput API uses floating point types (float and double in C)\nwhich are not (yet?) natively supported by the Wayland protocol. However,\nthe Wayland protocol does support sending arbitrary bytes through the array\nargument type. This protocol uses e.g. type=\"array\" summary=\"double\" to\nindicate a native-endian IEEE-754 64-bit double value.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "summary": "configure libinput devices"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_libinput_config_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Global interface for configuring libinput devices. This global should\nonly be advertised if river_input_manager_v1 is advertised as well.",
+        "summary": "libinput config global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wishes to receive\nevents on this object.\n\nThe Wayland protocol is asynchronous, which means the server may send\nfurther events until the stop request is processed. The client must wait\nfor a river_libinput_config_v1.finished event before destroying this\nobject.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called after the finished event has been received\nto complete destruction of the object.\n\nIt is a protocol error to make this request before the finished event\nhas been received.\n\nIf a client wishes to destroy this object it should send a\nriver_libinput_config_v1.stop request and wait for a\nriver_libinput_config_v1.finished event. Once the finished event is\nreceived it is safe to destroy this object and any other objects created\nthrough this interface.",
+            "summary": "destroy the river_libinput_config_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_accel_config",
+          "description": {
+            "type": "description",
+            "text": "Create a acceleration config which can be applied\nwith river_libinput_device_v1.apply_accel_config.",
+            "summary": "create a acceleration config"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_libinput_accel_config_v1"
+            },
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "enum": "river_libinput_device_v1.accel_profile"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the server will send no further events on this\nobject. The client should destroy the object. See\nriver_libinput_config_v1.destroy for more information.",
+            "summary": "the server has finished with the object"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "libinput_device",
+          "description": {
+            "type": "description",
+            "text": "A new libinput device has been created. Not every river_input_device_v1\nis necessarily a libinput device as well.",
+            "summary": "new libinput device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_libinput_device_v1"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_arg",
+              "value": "0",
+              "summary": "invalid enum value or similar"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_destroy",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_libinput_device_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "In general, *_support events will be sent exactly once directly after the\nriver_libinput_device_v1 is created. *_default events will be sent after\n*_support events if the config option is supported, and *_current events\nwilll be sent after the *_default events and again whenever the config\noption is changed.",
+        "summary": "a libinput device"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the input\ndevice object and that it may be safely destroyed.",
+            "summary": "destroy the libinput device object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_send_events",
+          "description": {
+            "type": "description",
+            "text": "Set the send events mode for the device.",
+            "summary": "set send events mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "enum": "send_events_modes"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tap",
+          "description": {
+            "type": "description",
+            "text": "Configure tap-to-click on this device, with a default mapping of\n1, 2, 3 finger tap mapping to left, right, middle click, respectively.",
+            "summary": "enable/disable tap-to-click"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "tap_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tap_button_map",
+          "description": {
+            "type": "description",
+            "text": "Set the finger number to button number mapping for tap-to-click. The\ndefault mapping on most devices is to have a 1, 2 and 3 finger tap to\nmap to the left, right and middle button, respectively.",
+            "summary": "set tap-to-click button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "tap_button_map"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_drag",
+          "description": {
+            "type": "description",
+            "text": "Configure tap-and-drag functionality on the device.",
+            "summary": "set tap-and-drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_drag_lock",
+          "description": {
+            "type": "description",
+            "text": "Configure drag-lock during tapping on this device. When enabled, a\nfinger may be lifted and put back on the touchpad and the drag process\ncontinues. A timeout for lifting the finger is optional. When disabled,\nlifting the finger during a tap-and-drag will immediately stop the drag.\nSee the libinput documentation for more details.",
+            "summary": "set drag lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_three_finger_drag",
+          "description": {
+            "type": "description",
+            "text": "Configure three finger drag functionality for the device.",
+            "summary": "set three finger drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "three_finger_drag_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_calibration_matrix",
+          "description": {
+            "type": "description",
+            "text": "Set calibration matrix.",
+            "summary": "set calibration matrix"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "array",
+              "summary": "array of 6 floats"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_accel_profile",
+          "description": {
+            "type": "description",
+            "text": "Set the acceleration profile.",
+            "summary": "set send events mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "enum": "accel_profile"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_accel_speed",
+          "description": {
+            "type": "description",
+            "text": "Set the acceleration speed within a range of [-1, 1], where 0 is\nthe default acceleration for this device, -1 is the slowest acceleration\nand 1 is the maximum acceleration available on this device.",
+            "summary": "set acceleration speed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "speed",
+              "argType": "array",
+              "summary": "double"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "apply_accel_config",
+          "description": {
+            "type": "description",
+            "text": "Apply a pointer accleration config.",
+            "summary": "apply acceleration config"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "config",
+              "argType": "object",
+              "interface": "river_libinput_accel_config_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_natural_scroll",
+          "description": {
+            "type": "description",
+            "text": "Set natural scroll state.",
+            "summary": "set natural scroll state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "natural_scroll_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_left_handed",
+          "description": {
+            "type": "description",
+            "text": "Set left-handed mode state.",
+            "summary": "set left-handed mode state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "left_handed_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_click_method",
+          "description": {
+            "type": "description",
+            "text": "Set click method.",
+            "summary": "set click method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "click_method"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_clickfinger_button_map",
+          "description": {
+            "type": "description",
+            "text": "Set clickfinger button map.\nSupported if click_methods.clickfinger is supported.",
+            "summary": "set clickfinger button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "clickfinger_button_map"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_middle_emulation",
+          "description": {
+            "type": "description",
+            "text": "Set middle mouse button emulation state.",
+            "summary": "set middle mouse button emulation state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "middle_emulation_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_scroll_method",
+          "description": {
+            "type": "description",
+            "text": "Set scroll method.",
+            "summary": "set scroll method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "scroll_method"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_scroll_button",
+          "description": {
+            "type": "description",
+            "text": "Set scroll button.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "set scroll button"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_scroll_button_lock",
+          "description": {
+            "type": "description",
+            "text": "Set scroll button lock state.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "set scroll button lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "scroll_button_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_dwt",
+          "description": {
+            "type": "description",
+            "text": "Set disable-while-typing state.",
+            "summary": "set disable-while-typing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwt_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_dwtp",
+          "description": {
+            "type": "description",
+            "text": "Set disable-while-trackpointing state.",
+            "summary": "set disable-while-trackpointing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwtp_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_rotation",
+          "description": {
+            "type": "description",
+            "text": "Set rotation angle in degrees clockwise off the logical neutral\nposition. Angle must be in the range [0-360).",
+            "summary": "set rotation angle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "angle",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "removed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the libinput device has been removed.\n\nThe server will send no further events on this object and ignore any\nrequest (other than river_libinput_device_v1.destroy) made after this\nevent is sent. The client should destroy this object with the\nriver_libinput_device_v1.destroy request to free up resources.",
+            "summary": "the libinput device is removed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "input_device",
+          "description": {
+            "type": "description",
+            "text": "The river_input_device_v1 corresponding to this libinput device.\nThis event will always be the first event sent on the\nriver_libinput_device_v1 object, and it will be sent exactly once.",
+            "summary": "corresponding river input device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "device",
+              "argType": "object",
+              "interface": "river_input_device_v1",
+              "protocol": "river-input-management-v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "send_events_support",
+          "description": {
+            "type": "description",
+            "text": "Supported send events modes.",
+            "summary": "supported send events modes"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "modes",
+              "argType": "uint",
+              "enum": "send_events_modes"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "send_events_default",
+          "description": {
+            "type": "description",
+            "text": "Default send events mode.",
+            "summary": "default send events mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "enum": "send_events_modes"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "send_events_current",
+          "description": {
+            "type": "description",
+            "text": "Current send events mode.",
+            "summary": "current send events mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "enum": "send_events_modes"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_support",
+          "description": {
+            "type": "description",
+            "text": "The number of fingers supported for tap-to-click/drag.\nIf finger_count is 0, tap-to-click and drag are unsupported.",
+            "summary": "tap-to-click/drag support"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "finger_count",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_default",
+          "description": {
+            "type": "description",
+            "text": "Default tap-to-click state.",
+            "summary": "default tap-to-click state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "tap_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_current",
+          "description": {
+            "type": "description",
+            "text": "Current tap-to-click state.",
+            "summary": "current tap-to-click state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "tap_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_button_map_default",
+          "description": {
+            "type": "description",
+            "text": "Default tap-to-click button map.",
+            "summary": "default tap-to-click button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "tap_button_map"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_button_map_current",
+          "description": {
+            "type": "description",
+            "text": "Current tap-to-click button map.",
+            "summary": "current tap-to-click button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "tap_button_map"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "drag_default",
+          "description": {
+            "type": "description",
+            "text": "Default tap-and-drag state.",
+            "summary": "default tap-and-drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "drag_current",
+          "description": {
+            "type": "description",
+            "text": "Current tap-and-drag state.",
+            "summary": "current tap-and-drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "drag_lock_default",
+          "description": {
+            "type": "description",
+            "text": "Default drag lock state.",
+            "summary": "default drag lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "drag_lock_current",
+          "description": {
+            "type": "description",
+            "text": "Current drag lock state.",
+            "summary": "current drag lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "drag_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "three_finger_drag_support",
+          "description": {
+            "type": "description",
+            "text": "The number of fingers supported for three/four finger drag.\nIf finger_count is less than 3, three finger drag is unsupported.",
+            "summary": "three finger drag support"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "finger_count",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "three_finger_drag_default",
+          "description": {
+            "type": "description",
+            "text": "Default three finger drag state.",
+            "summary": "default three finger drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "three_finger_drag_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "three_finger_drag_current",
+          "description": {
+            "type": "description",
+            "text": "Current three finger drag state.",
+            "summary": "current three finger drag state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "three_finger_drag_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "calibration_matrix_support",
+          "description": {
+            "type": "description",
+            "text": "A calibration matrix is supported if the supported argument is non-zero.",
+            "summary": "support for a calibration matrix"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "calibration_matrix_default",
+          "description": {
+            "type": "description",
+            "text": "Default calibration matrix.",
+            "summary": "default calibration matrix"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "array",
+              "summary": "array of 6 floats"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "calibration_matrix_current",
+          "description": {
+            "type": "description",
+            "text": "Current calibration matrix.",
+            "summary": "current calibration matrix"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "matrix",
+              "argType": "array",
+              "summary": "array of 6 floats"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_profiles_support",
+          "description": {
+            "type": "description",
+            "text": "Supported acceleration profiles.",
+            "summary": "supported acceleration profiles"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profiles",
+              "argType": "uint",
+              "enum": "accel_profiles"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_profile_default",
+          "description": {
+            "type": "description",
+            "text": "Default acceleration profile.",
+            "summary": "default acceleration profile"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "enum": "accel_profile"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_profile_current",
+          "description": {
+            "type": "description",
+            "text": "Current acceleration profile.",
+            "summary": "current send events mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "enum": "accel_profile"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_speed_default",
+          "description": {
+            "type": "description",
+            "text": "Default acceleration speed.",
+            "summary": "default acceleration speed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "speed",
+              "argType": "array",
+              "summary": "double"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_speed_current",
+          "description": {
+            "type": "description",
+            "text": "Current acceleration speed.",
+            "summary": "current acceleration speed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "speed",
+              "argType": "array",
+              "summary": "double"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "natural_scroll_support",
+          "description": {
+            "type": "description",
+            "text": "Natural scroll is supported if the supported argument is non-zero.",
+            "summary": "support for natural scroll"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "natural_scroll_default",
+          "description": {
+            "type": "description",
+            "text": "Default natural scroll.",
+            "summary": "default natural scroll"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "natural_scroll_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "natural_scroll_current",
+          "description": {
+            "type": "description",
+            "text": "Current natural scroll.",
+            "summary": "current natural scroll state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "natural_scroll_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "left_handed_support",
+          "description": {
+            "type": "description",
+            "text": "Left-handed mode is supported if the supported argument is non-zero.",
+            "summary": "support for left-handed mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "left_handed_default",
+          "description": {
+            "type": "description",
+            "text": "Default left-handed mode.",
+            "summary": "default left-handed mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "left_handed_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "left_handed_current",
+          "description": {
+            "type": "description",
+            "text": "Current left-handed mode.",
+            "summary": "current left-handed mode state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "left_handed_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "click_method_support",
+          "description": {
+            "type": "description",
+            "text": "The click methods suppported by the device.",
+            "summary": "supported click methods"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "methods",
+              "argType": "uint",
+              "enum": "click_methods"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "click_method_default",
+          "description": {
+            "type": "description",
+            "text": "Default click method.",
+            "summary": "default click method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "click_method"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "click_method_current",
+          "description": {
+            "type": "description",
+            "text": "Current click method.",
+            "summary": "current click method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "click_method"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "clickfinger_button_map_default",
+          "description": {
+            "type": "description",
+            "text": "Default clickfinger button map.\nSupported if click_methods.clickfinger is supported.",
+            "summary": "default clickfinger button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "clickfinger_button_map"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "clickfinger_button_map_current",
+          "description": {
+            "type": "description",
+            "text": "Current clickfinger button map.\nSupported if click_methods.clickfinger is supported.",
+            "summary": "current clickfinger button map"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button_map",
+              "argType": "uint",
+              "enum": "clickfinger_button_map"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "middle_emulation_support",
+          "description": {
+            "type": "description",
+            "text": "Middle mouse button emulation is supported if the supported argument is\nnon-zero.",
+            "summary": "support for middle mouse button emulation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "middle_emulation_default",
+          "description": {
+            "type": "description",
+            "text": "Default middle mouse button emulation.",
+            "summary": "default middle mouse button emulation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "middle_emulation_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "middle_emulation_current",
+          "description": {
+            "type": "description",
+            "text": "Current middle mouse button emulation.",
+            "summary": "current middle mouse button emulation state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "middle_emulation_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_method_support",
+          "description": {
+            "type": "description",
+            "text": "The scroll methods suppported by the device.",
+            "summary": "supported scroll methods"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "methods",
+              "argType": "uint",
+              "enum": "scroll_methods"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_method_default",
+          "description": {
+            "type": "description",
+            "text": "Default scroll method.",
+            "summary": "default scroll method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "scroll_method"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_method_current",
+          "description": {
+            "type": "description",
+            "text": "Current scroll method.",
+            "summary": "current scroll method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "method",
+              "argType": "uint",
+              "enum": "scroll_method"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_button_default",
+          "description": {
+            "type": "description",
+            "text": "Default scroll button.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "default scroll button"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_button_current",
+          "description": {
+            "type": "description",
+            "text": "Current scroll button.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "current scroll button"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_button_lock_default",
+          "description": {
+            "type": "description",
+            "text": "Default scroll button lock state.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "default scroll button lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "scroll_button_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_button_lock_current",
+          "description": {
+            "type": "description",
+            "text": "Current scroll button lock state.\nSupported if scroll_methods.on_button_down is supported.",
+            "summary": "current scroll button lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "scroll_button_lock_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwt_support",
+          "description": {
+            "type": "description",
+            "text": "Disable-while-typing is supported if the supported argument is\nnon-zero.",
+            "summary": "support for disable-while-typing"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwt_default",
+          "description": {
+            "type": "description",
+            "text": "Default disable-while-typing state.",
+            "summary": "default disable-while-typing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwt_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwt_current",
+          "description": {
+            "type": "description",
+            "text": "Current disable-while-typing state.",
+            "summary": "current disable-while-typing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwt_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwtp_support",
+          "description": {
+            "type": "description",
+            "text": "Disable-while-trackpointing is supported if the supported argument is\nnon-zero.",
+            "summary": "support for disable-while-trackpointing"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwtp_default",
+          "description": {
+            "type": "description",
+            "text": "Default disable-while-trackpointing state.",
+            "summary": "default disable-while-trackpointing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwtp_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dwtp_current",
+          "description": {
+            "type": "description",
+            "text": "Current disable-while-trackpointing state.",
+            "summary": "current disable-while-trackpointing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "enum": "dwtp_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "rotation_support",
+          "description": {
+            "type": "description",
+            "text": "Rotation is supported if the supported argument is non-zero.",
+            "summary": "support for rotation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "supported",
+              "argType": "int",
+              "summary": "boolean"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "rotation_default",
+          "description": {
+            "type": "description",
+            "text": "Default rotation angle.",
+            "summary": "default rotation angle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "angle",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "rotation_current",
+          "description": {
+            "type": "description",
+            "text": "Current rotation angle.",
+            "summary": "current rotation angle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "angle",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_arg",
+              "value": "0",
+              "summary": "invalid enum value or similar"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "send_events_modes",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "disabled_on_external_mouse",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tap_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tap_button_map",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "lrm",
+              "value": "0",
+              "summary": "1/2/3 finger tap maps to left/right/middle"
+            },
+            {
+              "type": "entry",
+              "name": "lmr",
+              "value": "1",
+              "summary": "1/2/3 finger tap maps to left/middle/right"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "drag_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "drag_lock_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled_timeout",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "enabled_sticky",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "three_finger_drag_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled_3fg",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "enabled_4fg",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "accel_profile",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "flat",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "adaptive",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "custom",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "accel_profiles",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "flat",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "adaptive",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "custom",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "natural_scroll_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "left_handed_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "click_method",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "button_areas",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "clickfinger",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "click_methods",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "button_areas",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "clickfinger",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "clickfinger_button_map",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "lrm",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "lmr",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "middle_emulation_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "scroll_method",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_scroll",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "two_finger",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "edge",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "on_button_down",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "scroll_methods",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_scroll",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "two_finger",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "edge",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "on_button_down",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "scroll_button_lock_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "dwt_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "dwtp_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_libinput_accel_config_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The result returned by libinput on setting configuration for a device.",
+        "summary": "acceleration config"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the accel\nconfig object and that it may be safely destroyed.",
+            "summary": "destroy the accel object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_points",
+          "description": {
+            "type": "description",
+            "text": "Defines the acceleration function for a given movement type\nin an acceleration configuration with custom accel profile.",
+            "summary": "define custom acceleration function"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "new_id",
+              "interface": "river_libinput_result_v1"
+            },
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "enum": "accel_type"
+            },
+            {
+              "type": "arg",
+              "name": "step",
+              "argType": "array",
+              "summary": "double"
+            },
+            {
+              "type": "arg",
+              "name": "points",
+              "argType": "array",
+              "summary": "array of doubles"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_arg",
+              "value": "0",
+              "summary": "invalid enum value or similar"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "accel_type",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "fallback",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "motion",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "scroll",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_libinput_result_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The result returned by libinput on setting configuration for a device.",
+        "summary": "config application result"
+      },
+      "requests": [],
+      "events": [
+        {
+          "type": "event",
+          "name": "success",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The configuration was successfully applied to the device.",
+            "summary": "config success"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unsupported",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The configuration is unsupported by the device and was ignored.",
+            "summary": "config unsupported"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "invalid",
+          "eventType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The configuration is invalid and was ignored.",
+            "summary": "config invalid"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

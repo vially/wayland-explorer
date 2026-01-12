@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_management_v2",
-      "version": "17",
+      "version": "19",
       "description": {
         "type": "description",
         "text": "This interface enables clients to set properties of output devices for screen\nconfiguration purposes via the server. To this end output devices are referenced\nby global kde_output_device_v2 objects.\n\noutputmanagement (wl_global)\n--------------------------\nrequest:\n* create_configuration -> outputconfiguration (wl_resource)\n\noutputconfiguration (wl_resource)\n--------------------------\nrequests:\n* enable(outputdevice, bool)\n* mode(outputdevice, mode)\n* transformation(outputdevice, flag)\n* position(outputdevice, x, y)\n* apply\n\nevents:\n* applied\n* failed\n\nThe server registers one outputmanagement object as a global object. In order\nto configure outputs a client requests create_configuration, which provides a\nresource referencing an outputconfiguration for one-time configuration. That\nway the server knows which requests belong together and can group them by that.\n\nOn the outputconfiguration object the client calls for each output whether the\noutput should be enabled, which mode should be set (by referencing the mode from\nthe list of announced modes) and the output's global position. Once all outputs\nare configured that way, the client calls apply.\nAt that point and not earlier the server should try to apply the configuration.\nIf this succeeds the server emits the applied signal, otherwise the failed\nsignal, such that the configuring client is noticed about the success of its\nconfiguration request.\n\nThrough this design the interface enables atomic output configuration changes if\ninternally supported by the server.\n\nWarning! The protocol described in this file is a desktop environment implementation\ndetail. Regular clients must not use this protocol. Backward incompatible\nchanges may be added without bumping the major version of the extension.",
@@ -32,6 +32,23 @@
               "interface": "kde_output_configuration_v2"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "create_mode_list",
+          "description": {
+            "type": "description",
+            "text": "For details, see the description of kde_mode_list_v2 and\nkde_output_configuration_v2.set_custom_modes.",
+            "summary": "create a list of custom modes"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "kde_mode_list_v2"
+            }
+          ]
         }
       ],
       "events": [],
@@ -40,7 +57,7 @@
     {
       "type": "interface",
       "name": "kde_output_configuration_v2",
-      "version": "17",
+      "version": "19",
       "description": {
         "type": "description",
         "text": "outputconfiguration is a client-specific resource that can be used to ask\nthe server to apply changes to available output devices.\n\nThe client receives a list of output devices from the registry. When it wants\nto apply new settings, it creates a configuration object from the\noutputmanagement global, writes changes through this object's enable, scale,\ntransform and mode calls. It then asks the server to apply these settings in\nan atomic fashion, for example through Linux' DRM interface.\n\nThe server signals back whether the new settings have applied successfully\nor failed to apply. outputdevice objects are updated after the changes have been\napplied to the hardware and before the server side sends the applied event.",
@@ -741,6 +758,57 @@
               "summary": "sharpness in 0-10000"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "set_custom_modes",
+          "since": "18",
+          "description": {
+            "type": "description",
+            "text": "Set the list of custom modes for this output. The compositor\nwill in response generate the requested modes and add them to\nthe output (or delete ones no longer in the list).\nThis can be useful for overclocking displays, or for working\naround broken EDIDs.\nNote that there is no guarantee for any custom mode to\nactually work, or even to leave the display undamaged (in the\ncase of CRTs). It's entirely the responsibility of the user\nto ensure each added mode is the right one for their display.",
+            "summary": "set the custom mode list"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "modes",
+              "argType": "object",
+              "interface": "kde_mode_list_v2"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_auto_brightness",
+          "since": "19",
+          "description": {
+            "type": "description",
+            "summary": "whether or not automatic brightness is enabled"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "enabled",
+              "argType": "uint",
+              "summary": "1 for enabled, 0 for disabled"
+            }
+          ]
         }
       ],
       "events": [
@@ -952,6 +1020,103 @@
               "type": "entry",
               "name": "always",
               "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "kde_mode_list_v2",
+      "version": "18",
+      "description": {
+        "type": "description",
+        "text": "This list is populated by first setting each relevant property,\nand then calling add_mode to add a mode with these properties.\nOne would for example call\n- set_resolution\n- set_refresh_rate\n- set_reduced_blanking\n- add_mode\n\nadd_mode does not reset the properties that were previously set,\nthey are valid until the object is destroyed.\nThe compositor may additionally have sensible defaults for some\nproperties like reduced_blanking, but for consistent results,\nit's best to always set each known property every time.\n\nThe parameters resolution and refresh rate are required, if they\nare not set, the missing_parameters error will be emitted.",
+        "summary": "a list of custom modes"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the mode list object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "add_mode",
+          "description": {
+            "type": "description",
+            "summary": "Add the current mode configuration to the list"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_resolution",
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_refresh_rate",
+          "args": [
+            {
+              "type": "arg",
+              "name": "rate",
+              "argType": "uint",
+              "summary": "in milliHz"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_reduced_blanking",
+          "description": {
+            "type": "description",
+            "text": "Reduced blanking is an optimization that can reduce bandwidth / timing\nrequirements for a display mode by reducing the time vblank takes.\nAs not all displays support it, it may be desired to still turn it off\nthough (like with CRTs, where full blanking is required).",
+            "summary": "whether or not the mode should have reduced blanking"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reduced",
+              "argType": "uint",
+              "summary": "1 for reduced blanking, 0 for normal vblank duration"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These errors can be emitted in response to add_mode requests.",
+            "summary": "kde_mode_list_v2 error values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "missing_parameters",
+              "value": "0",
+              "summary": "a required parameter wasn't set"
             }
           ]
         }

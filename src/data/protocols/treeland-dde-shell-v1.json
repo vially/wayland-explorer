@@ -31,7 +31,6 @@
         {
           "type": "request",
           "name": "get_shell_surface",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Create a shell surface for an existing wl_surface.\n\nOnly one shell surface can be associated with a given surface.\n\nRecommended for use with xdg_surface.",
@@ -56,7 +55,6 @@
         {
           "type": "request",
           "name": "get_treeland_dde_active",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Create a new dde active for a given seat.",
@@ -82,7 +80,6 @@
         {
           "type": "request",
           "name": "get_treeland_multitaskview",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Create a new multitaskview context for toggle.",
@@ -100,7 +97,6 @@
         {
           "type": "request",
           "name": "get_treeland_window_picker",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Create a new window picker to pick window.",
@@ -118,7 +114,6 @@
         {
           "type": "request",
           "name": "get_treeland_lockscreen",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Create a new lockscreen context for toggle.",
@@ -269,7 +264,6 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "The treeland_dde_shell_surface_v1 interface is removed from the\nwl_surface object that was turned into a shell surface with the\ntreeland_shell_v1.get_treeland_dde_shell_surface request.\n\nThe shell surface role is lost and wl_surface is unmapped.",
@@ -280,7 +274,6 @@
         {
           "type": "request",
           "name": "set_surface_position",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Move the surface to new coordinates.\n\nCoordinates are global, for example 50,50 for a 1920,0+1920x1080 output\nis 1970,50 in global coordinates space.",
@@ -304,7 +297,6 @@
         {
           "type": "request",
           "name": "set_role",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Assign a role to a shell surface.",
@@ -322,7 +314,6 @@
         {
           "type": "request",
           "name": "set_auto_placement",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Set the vertical alignment of the surface within the cursor width.\n\nDo not use it together with set_surface_position to avoid exceptions.\n\nThe position of the surface will be controlled by the compositor after the\nrequest, including preventing it from being displayed beyond the edge of\nthe output.",
@@ -340,7 +331,6 @@
         {
           "type": "request",
           "name": "set_skip_switcher",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Setting this bit will indicate that the window prefers not to be listed in a switcher.",
@@ -358,7 +348,6 @@
         {
           "type": "request",
           "name": "set_skip_dock_preview",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Setting this bit will indicate that the window prefers not to be listed in a dock preview.",
@@ -376,7 +365,6 @@
         {
           "type": "request",
           "name": "set_skip_muti_task_view",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Setting this bit will indicate that the window prefers not to be listed in a mutitask view.",
@@ -394,7 +382,6 @@
         {
           "type": "request",
           "name": "set_accept_keyboard_focus",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Setting this will determine whether the surface can receive keyboard focus.\nWhen set to 0, the surface will not receive keyboard focus even when clicked or activated.\nWhen set to 1 (default), the surface will receive keyboard focus normally.",
@@ -425,8 +412,7 @@
             {
               "type": "entry",
               "name": "overlay",
-              "value": "1",
-              "since": "1"
+              "value": "1"
             }
           ]
         }
@@ -446,7 +432,6 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "destroy the treeland_dde_active_v1 object"
@@ -458,7 +443,6 @@
         {
           "type": "event",
           "name": "active_in",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "activeIn event"
@@ -475,7 +459,6 @@
         {
           "type": "event",
           "name": "active_out",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "activeOut event"
@@ -492,7 +475,6 @@
         {
           "type": "event",
           "name": "start_drag",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "sent when the compositor starts a drag operation"
@@ -502,7 +484,6 @@
         {
           "type": "event",
           "name": "drop",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "sent when the compositor drop operation"
@@ -523,14 +504,12 @@
             {
               "type": "entry",
               "name": "mouse",
-              "value": "0",
-              "since": "1"
+              "value": "0"
             },
             {
               "type": "entry",
               "name": "wheel",
-              "value": "1",
-              "since": "1"
+              "value": "1"
             }
           ]
         }
@@ -550,7 +529,6 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "destroy the treeland_multitaskview_v1 object"
@@ -560,7 +538,6 @@
         {
           "type": "request",
           "name": "toggle",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Show or hide the multitaskview.",
@@ -586,7 +563,6 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "destroy the treeland_window_picker_v1 object"
@@ -596,7 +572,6 @@
         {
           "type": "request",
           "name": "pick",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Pick a window to get information.",
@@ -616,7 +591,6 @@
         {
           "type": "event",
           "name": "window",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Picked window information.",
@@ -648,7 +622,6 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
-          "since": "1",
           "description": {
             "type": "description",
             "summary": "destroy the treeland_lockscreen_v1 object"
@@ -658,7 +631,6 @@
         {
           "type": "request",
           "name": "lock",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Lock the screen.",
@@ -669,7 +641,6 @@
         {
           "type": "request",
           "name": "shutdown",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Show shutdown.",
@@ -680,7 +651,6 @@
         {
           "type": "request",
           "name": "switch_user",
-          "since": "1",
           "description": {
             "type": "description",
             "text": "Switch user.",

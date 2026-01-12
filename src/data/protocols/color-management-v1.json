@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "wp_color_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A singleton global interface used for getting color management extensions\nfor wl_surface and wl_output objects, and for creating client defined\nimage description objects. The extension interfaces allow\ngetting the image description of outputs and setting the image\ndescription of surfaces.\n\nCompositors should never remove this global.",
@@ -156,6 +156,30 @@
               "interface": "wp_image_description_v1"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "get_image_description",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This request retrieves the image description backing a reference.\n\nThe get_information request can be used if and only if the request that\ncreates the reference allows it.",
+            "summary": "create an image description from a reference"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "image_description",
+              "argType": "new_id",
+              "interface": "wp_image_description_v1"
+            },
+            {
+              "type": "arg",
+              "name": "reference",
+              "argType": "object",
+              "interface": "wp_image_description_reference_v1"
+            }
+          ]
         }
       ],
       "events": [
@@ -164,7 +188,7 @@
           "name": "supported_intent",
           "description": {
             "type": "description",
-            "text": "When this object is created, it shall immediately send this event once\nfor each rendering intent the compositor supports.",
+            "text": "When this object is created, it shall immediately send this event once\nfor each rendering intent the compositor supports.\n\nA compositor must not advertise intents that are deprecated in the\nbound version of the interface.",
             "summary": "supported rendering intent"
           },
           "args": [
@@ -182,7 +206,7 @@
           "name": "supported_feature",
           "description": {
             "type": "description",
-            "text": "When this object is created, it shall immediately send this event once\nfor each compositor supported feature listed in the enumeration.",
+            "text": "When this object is created, it shall immediately send this event once\nfor each compositor supported feature listed in the enumeration.\n\nA compositor must not advertise features that are deprecated in the\nbound version of the interface.",
             "summary": "supported features"
           },
           "args": [
@@ -200,7 +224,7 @@
           "name": "supported_tf_named",
           "description": {
             "type": "description",
-            "text": "When this object is created, it shall immediately send this event once\nfor each named transfer function the compositor supports with the\nparametric image description creator.",
+            "text": "When this object is created, it shall immediately send this event once\nfor each named transfer function the compositor supports with the\nparametric image description creator.\n\nA compositor must not advertise transfer functions that are deprecated\nin the bound version of the interface.",
             "summary": "supported named transfer characteristic"
           },
           "args": [
@@ -218,7 +242,7 @@
           "name": "supported_primaries_named",
           "description": {
             "type": "description",
-            "text": "When this object is created, it shall immediately send this event once\nfor each named set of primaries the compositor supports with the\nparametric image description creator.",
+            "text": "When this object is created, it shall immediately send this event once\nfor each named set of primaries the compositor supports with the\nparametric image description creator.\n\nA compositor must not advertise names that are deprecated in the\nbound version of the interface.",
             "summary": "supported named primaries"
           },
           "args": [
@@ -301,6 +325,17 @@
               "name": "relative_bpc",
               "value": "4",
               "summary": "media-relative colorimetric + black point compensation"
+            },
+            {
+              "type": "entry",
+              "name": "absolute_no_adaptation",
+              "value": "5",
+              "since": "2",
+              "description": {
+                "type": "description",
+                "text": "This rendering intent is a modified absolute rendering intent that\nassumes the viewer is not adapted to the display white point, so no\nchromatic adaptation between surface and display is done.\nThis can be useful for color proofing applications.",
+                "summary": "ICC-absolute colorimetric without adaptation"
+              }
             }
           ]
         },
@@ -509,7 +544,7 @@
               "value": "2",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n\nNote: an sRGB display (IEC 61966-2-1) uses this transfer function.",
+                "text": "Transfer characteristics as defined by\n- Rec. ITU-R BT.470-6 System M (historical)\n- United States National Television System Committee 1953\nRecommendation for transmission standards for color television\n- United States Federal Communications Commission (2003) Title 47 Code\nof Federal Regulations 73.682 (a) (20)\n- Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n- IEC 61966-2-1 (reference display)",
                 "summary": "Assumed display gamma 2.2 transfer function"
               }
             },
@@ -577,20 +612,22 @@
               "type": "entry",
               "name": "srgb",
               "value": "9",
+              "deprecatedSince": "2",
               "description": {
                 "type": "description",
-                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\n\nNote: This is not appropriate for describing sRGB material.\nsRGB material is intended to be viewed on an sRGB display, and\nthat is described by gamma22.",
-                "summary": "sRGB piece-wise transfer function"
+                "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sRGB\n\nAs a rule of thumb, use gamma22 for video, motion picture and\ncomputer graphics, or compound_power_2_4 for ICC calibrated print\nworkflows.",
+                "summary": "Deprecated (ambiguous sRGB transfer function)"
               }
             },
             {
               "type": "entry",
               "name": "ext_srgb",
               "value": "10",
+              "deprecatedSince": "2",
               "description": {
                 "type": "description",
                 "text": "Transfer characteristics as defined by\n- IEC 61966-2-1 sYCC",
-                "summary": "Extended sRGB piece-wise transfer function"
+                "summary": "Deprecated (Extended sRGB piece-wise transfer function)"
               }
             },
             {
@@ -622,6 +659,17 @@
                 "text": "Transfer characteristics as defined by\n- ARIB STD-B67 (2015)\n- Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system\n\nThis TF implies these default luminances\n- primary color volume minimum: 0.005 cd/m²\n- primary color volume maximum: 1000 cd/m²\n- reference white: 203 cd/m²\n\nHLG is a relative display-referred signal with a specified\nnon-linear mapping to the display peak luminance (the HLG OOTF).\nAll absolute luminance values used here for HLG assume a 1000 cd/m²\npeak display.\n\nThe default value for the reference white is a protocol addition:\nit is suggested by Report ITU-R BT.2408-7 and is not part of\nARIB STD-B67 or BT.2100.",
                 "summary": "hybrid log-gamma transfer function"
               }
+            },
+            {
+              "type": "entry",
+              "name": "compound_power_2_4",
+              "value": "14",
+              "since": "2",
+              "description": {
+                "type": "description",
+                "text": "Encoding characteristics as defined by IEC 61966-2-1, for displays\nthat invert the encoding function.",
+                "summary": "IEC 61966-2-1 encoding function"
+              }
             }
           ]
         }
@@ -630,7 +678,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_output_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A wp_color_management_output_v1 describes the color properties of an\noutput.\n\nThe wp_color_management_output_v1 is associated with the wl_output global\nunderlying the wl_output object. Therefore the client destroying the\nwl_output object has no impact, but the compositor removing the output\nglobal makes the wp_color_management_output_v1 object inert.",
@@ -683,7 +731,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_surface_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A wp_color_management_surface_v1 allows the client to set the color\nspace and HDR properties of a surface.\n\nIf the wl_surface associated with the wp_color_management_surface_v1 is\ndestroyed, the wp_color_management_surface_v1 object becomes inert.",
@@ -772,7 +820,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_surface_feedback_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A wp_color_management_surface_feedback_v1 allows the client to get the\npreferred image description of a surface.\n\nIf the wl_surface associated with this object is destroyed, the\nwp_color_management_surface_feedback_v1 object becomes inert.",
@@ -829,6 +877,25 @@
         {
           "type": "event",
           "name": "preferred_changed",
+          "deprecatedSince": "2",
+          "description": {
+            "type": "description",
+            "text": "Starting from interface version 2, 'preferred_changed2' is sent instead\nof this event. See the 'preferred_changed2' event for the definition.",
+            "summary": "the preferred image description changed (32-bit)"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identity",
+              "argType": "uint",
+              "summary": "the 32-bit image description id number"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "preferred_changed2",
+          "since": "2",
           "description": {
             "type": "description",
             "text": "The preferred image description is the one which likely has the most\nperformance and/or quality benefits for the compositor if used by the\nclient for its wl_surface contents. This event is sent whenever the\ncompositor changes the wl_surface's preferred image description.\n\nThis event sends the identity of the new preferred state as the argument,\nso clients who are aware of the image description already can reuse it.\nOtherwise, if the client client wants to know what the preferred image\ndescription is, it shall use the get_preferred request.\n\nThe preferred image description is not automatically used for anything.\nIt is only a hint, and clients may set any valid image description with\nset_image_description, but there might be performance and color accuracy\nimprovements by providing the wl_surface contents in the preferred\nimage description. Therefore clients that can, should render according\nto the preferred image description",
@@ -837,9 +904,15 @@
           "args": [
             {
               "type": "arg",
-              "name": "identity",
+              "name": "identity_hi",
               "argType": "uint",
-              "summary": "image description id number"
+              "summary": "high 32 bits of the 64-bit image description id number"
+            },
+            {
+              "type": "arg",
+              "name": "identity_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the 64-bit image description id number"
             }
           ]
         }
@@ -873,7 +946,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_creator_icc_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This type of object is used for collecting all the information required\nto create a wp_image_description_v1 object from an ICC file. A complete\nset of required parameters consists of these properties:\n- ICC file\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nThe link between a pixel value (a device value in ICC) and its respective\ncolorimetry is defined by the details of the particular ICC profile.\nThose details also determine when colorimetry becomes undefined.",
@@ -976,7 +1049,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_creator_params_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This type of object is used for collecting all the parameters required\nto create a wp_image_description_v1 object. A complete set of required\nparameters consists of these properties:\n- transfer characteristic function (tf)\n- chromaticities of primaries and white point (primary color volume)\n\nThe following properties are optional and have a well-defined default\nif not explicitly set:\n- primary color volume luminance range\n- reference white luminance level\n- mastering display primaries and white point (target color volume)\n- mastering luminance range\n\nThe following properties are optional and will be ignored\nif not explicitly set:\n- maximum content light level\n- maximum frame-average light level\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nA viewer, who is viewing the display defined by the resulting image\ndescription (the viewing environment included), is assumed to be fully\nadapted to the primary color volume's white point.\n\nAny of the following conditions will cause the colorimetry of a pixel\nto become undefined:\n- Values outside of the defined range of the transfer characteristic.\n- Tristimulus that exceeds the target color volume.\n- If extended_target_volume is not supported: tristimulus that exceeds\nthe primary color volume.\n\nThe closest correspondence to an image description created through this\ninterface is the Display class of profiles in ICC.",
@@ -989,7 +1062,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Create an image description object based on the parameters previously\nset on this object.\n\nThe completeness of the parameter set is verified. If the set is not\ncomplete, the protocol error incomplete_set is raised. For the\ndefinition of a complete set, see the description of this interface.\n\nThe protocol error invalid_luminance is raised if any of the following\nrequirements is not met:\n- When max_cll is set, it must be greater than min L and less or equal\nto max L of the mastering luminance range.\n- When max_fall is set, it must be greater than min L and less or equal\nto max L of the mastering luminance range.\n- When both max_cll and max_fall are set, max_fall must be less or equal\nto max_cll.\n\nIf the particular combination of the parameter set is not supported\nby the compositor, the resulting image description object shall\nimmediately deliver the wp_image_description_v1.failed event with the\n'unsupported' cause. If a valid image description was created from the\nparameter set, the wp_image_description_v1.ready event will eventually\nbe sent instead.\n\nThis request destroys the wp_image_description_creator_params_v1\nobject.\n\nThe resulting image description object does not allow get_information\nrequest.",
+            "text": "Create an image description object based on the parameters previously\nset on this object.\n\nThe completeness of the parameter set is verified. If the set is not\ncomplete, the protocol error incomplete_set is raised. For the\ndefinition of a complete set, see the description of this interface.\n\nWhen both max_cll and max_fall are set, max_fall must be less or equal\nto max_cll otherwise the invalid_luminance protocol error is raised.\n\nIn version 1, these following conditions also result in the\ninvalid_luminance protocol error. Version 2 and later do not have this\nrequirement.\n- When max_cll is set, it must be greater than min L and less or equal\nto max L of the mastering luminance range.\n- When max_fall is set, it must be greater than min L and less or equal\nto max L of the mastering luminance range.\n\nIf the particular combination of the parameter set is not supported\nby the compositor, the resulting image description object shall\nimmediately deliver the wp_image_description_v1.failed event with the\n'unsupported' cause. If a valid image description was created from the\nparameter set, the wp_image_description_v1.ready event will eventually\nbe sent instead.\n\nThis request destroys the wp_image_description_creator_params_v1\nobject.\n\nThe resulting image description object does not allow get_information\nrequest.",
             "summary": "Create the image description object using params"
           },
           "args": [
@@ -1313,7 +1386,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An image description carries information about the pixel color encoding\nand its intended display and viewing environment. The image description is\nattached to a wl_surface via\nwp_color_management_surface_v1.set_image_description. A compositor can use\nthis information to decode pixel values into colorimetrically meaningful\nquantities, which allows the compositor to transform the surface contents\nto become suitable for various displays and viewing environments.\n\nNote, that the wp_image_description_v1 object is not ready to be used\nimmediately after creation. The object eventually delivers either the\n'ready' or the 'failed' event, specified in all requests creating it. The\nobject is deemed \"ready\" after receiving the 'ready' event.\n\nAn object which is not ready is illegal to use, it can only be destroyed.\nAny other request in this interface shall result in the 'not_ready'\nprotocol error. Attempts to use an object which is not ready through other\ninterfaces shall raise protocol errors defined there.\n\nOnce created and regardless of how it was created, a\nwp_image_description_v1 object always refers to one fixed image\ndescription. It cannot change after creation.",
@@ -1377,17 +1450,42 @@
         {
           "type": "event",
           "name": "ready",
+          "deprecatedSince": "2",
           "description": {
             "type": "description",
-            "text": "Once this event has been sent, the wp_image_description_v1 object is\ndeemed \"ready\". Ready objects can be used to send requests and can be\nused through other interfaces.\n\nEvery ready wp_image_description_v1 protocol object refers to an\nunderlying image description record in the compositor. Multiple protocol\nobjects may end up referring to the same record. Clients may identify\nthese \"copies\" by comparing their id numbers: if the numbers from two\nprotocol objects are identical, the protocol objects refer to the same\nimage description record. Two different image description records\ncannot have the same id number simultaneously. The id number does not\nchange during the lifetime of the image description record.\n\nThe id number is valid only as long as the protocol object is alive. If\nall protocol objects referring to the same image description record are\ndestroyed, the id number may be recycled for a different image\ndescription record.\n\nImage description id number is not a protocol object id. Zero is\nreserved as an invalid id number. It shall not be possible for a client\nto refer to an image description by its id number in protocol. The id\nnumbers might not be portable between Wayland connections. A compositor\nshall not send an invalid id number.\n\nThis identity allows clients to de-duplicate image description records\nand avoid get_information request if they already have the image\ndescription information.",
-            "summary": "indication that the object is ready to be used"
+            "text": "Starting from interface version 2, the 'ready2' event is sent instead\nof this event.\n\nFor the definition of this event, see the 'ready2' event. The\ndifference to this event is as follows.\n\nThe id number is valid only as long as the protocol object is alive. If\nall protocol objects referring to the same image description record are\ndestroyed, the id number may be recycled for a different image\ndescription record.",
+            "summary": "the object is ready to be used (32-bit)"
           },
           "args": [
             {
               "type": "arg",
               "name": "identity",
               "argType": "uint",
-              "summary": "image description id number"
+              "summary": "the 32-bit image description id number"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready2",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Once this event has been sent, the wp_image_description_v1 object is\ndeemed \"ready\". Ready objects can be used to send requests and can be\nused through other interfaces.\n\nEvery ready wp_image_description_v1 protocol object refers to an\nunderlying image description record in the compositor. Multiple protocol\nobjects may end up referring to the same record. Clients may identify\nthese \"copies\" by comparing their id numbers: if the numbers from two\nprotocol objects are identical, the protocol objects refer to the same\nimage description record. Two different image description records\ncannot have the same id number simultaneously. The id number does not\nchange during the lifetime of the image description record.\n\nImage description id number is not a protocol object id. Zero is\nreserved as an invalid id number. It shall not be possible for a client\nto refer to an image description by its id number in protocol. The id\nnumbers might not be portable between Wayland connections. A compositor\nshall not send an invalid id number.\n\nCompositors must not recycle image description id numbers.\n\nThis identity allows clients to de-duplicate image description records\nand avoid get_information request if they already have the image\ndescription information.",
+            "summary": "the object is ready to be used"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identity_hi",
+              "argType": "uint",
+              "summary": "high 32 bits of the 64-bit image description id number"
+            },
+            {
+              "type": "arg",
+              "name": "identity_lo",
+              "argType": "uint",
+              "summary": "low 32 bits of the 64-bit image description id number"
             }
           ]
         }
@@ -1456,7 +1554,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_info_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Sends all matching events describing an image description object exactly\nonce and finally sends the 'done' event.\n\nThis means\n- if the image description is parametric, it must send\n- primaries\n- named_primaries, if applicable\n- at least one of tf_power and tf_named, as applicable\n- luminances\n- target_primaries\n- target_luminance\n- if the image description is parametric, it may send, if applicable,\n- target_max_cll\n- target_max_fall\n- if the image description contains an ICC profile, it must send the\nicc_file event\n\nOnce a wp_image_description_info_v1 object has delivered a 'done' event it\nis automatically destroyed.\n\nEvery wp_image_description_info_v1 created from the same\nwp_image_description_v1 shall always return the exact same data.",
@@ -1756,6 +1854,31 @@
           ]
         }
       ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "wp_image_description_reference_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object is a reference to an image description. This interface is\nfrozen at version 1 to allow other protocols to create\nwp_image_description_v1 objects.\n\nThe wp_color_manager_v1.get_image_description request can be used to\nretrieve the underlying image description.",
+        "summary": "Reference to an image description"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this object. This has no effect on the referenced image\ndescription.",
+            "summary": "destroy the reference"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
       "enums": []
     }
   ]
