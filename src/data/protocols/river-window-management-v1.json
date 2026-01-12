@@ -1,0 +1,1781 @@
+{
+  "type": "protocol",
+  "name": "river_window_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2024 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a single \"window manager\" client to determine the\nwindow management policy of the compositor. State is globally\ndouble-buffered allowing for frame perfect state changes involving multiple\nwindows.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "summary": "frame-perfect window management"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_window_manager_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This global interface should only be advertised to the window manager\nprocess. Only one window management client may be active at a time. The\ncompositor should use the unavailable event if necessary to enforce this.\n\nThere are two disjoint categories of state managed by this protocol:\n\nWindow management state influences the communication between the server\nand individual window clients (e.g. xdg_toplevels). Window management\nstate includes window dimensions, fullscreen state, keyboard focus,\nkeyboard bindings, and more.\n\nRendering state only affects the rendered output of the compositor and\ndoes not influence communication between the server and individual window\nclients. Rendering state includes the position and rendering order of\nwindows, shell surfaces, decoration surfaces, borders, and more.\n\nWindow management state may only be modified by the window manager as part\nof a manage sequence. A manage sequence is started with the manage_start\nevent and ended with the manage_finish request. It is a protocol error to\nmodify window management state outside of a manage sequence.\n\nA manage sequence is always followed by at least one render sequence. A\nrender sequence is started with the render_start event and ended with the\nrender_finish request.\n\nRendering state may be modified by the window manager during a manage\nsequence or a render sequence. Regardless of when the rendering state is\nmodified, it is applied with the next render_finish request. It is a\nprotocol error to modify rendering state outside of a manage or render\nsequence.\n\nThe server will start a manage sequence by sending new state and the\nmanage_start event as soon as possible whenever there is a change in state\nthat must be communicated with the window manager.\n\nIf the window manager client needs to ensure a manage sequence is started\ndue to a state change the compositor is not aware of, it may send the\nmanage_dirty request.\n\nThe server will start a render sequence by sending new state and the\nrender_start event as soon as possible whenever there is a change in\nwindow dimensions that must be communicated with the window manager.\nMultiple render sequences may be made consecutively without a manage\nsequence in between, for example if a window independently changes its own\ndimensions.\n\nTo summarize, the main loop of this protocol is as follows:\n\n1. The server sends events indicating all changes since the last\nmanage sequence followed by the manage_start event.\n\n2. The client sends requests modifying window management state or\nrendering state (as defined above) followed by the manage_finish\nrequest.\n\n3. The server sends new state to windows and waits for responses.\n\n4. The server sends new window dimensions to the client followed by the\nrender_start event.\n\n5. The client sends requests modifying rendering state (as defined above)\nfollowed by the render_finish request.\n\n6. If window dimensions change, loop back to step 4.\nIf state that requires a manage sequence changes or if the client makes\na manage_dirty request, loop back to step 1.\n\nFor the purposes of frame perfection, the server may delay rendering new\nstate committed by the windows in step 3 until after step 5 is finished.\n\nIt is a protocol error for the client to make a manage_finish or\nrender_finish request that violates this ordering.",
+        "summary": "window manager global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wishes to receive\nevents on this object.\n\nThe Wayland protocol is asynchronous, which means the server may send\nfurther events until the stop request is processed. The client must wait\nfor a river_window_manager_v1.finished event before destroying this\nobject.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called after the finished event has been received\nto complete destruction of the object.\n\nIf a client wishes to destroy this object it should send a\nriver_window_manager_v1.stop request and wait for a\nriver_window_manager_v1.finished event. Once the finished event is\nreceived it is safe to destroy this object and any other objects created\nthrough this interface.",
+            "summary": "destroy the river_window_manager_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "manage_finish",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client has made all changes to window\nmanagement state it wishes to include in the current manage sequence and\nthat the server should atomically send these state changes to the\nwindows and continue with the manage sequence.\n\nAfter sending this request, it is a protocol error for the client to\nmake further changes to window management state until the next\nmanage_start event is received.\n\nSee the description of the river_window_manager_v1 interface for a\ncomplete overview of the manage/render sequence loop.",
+            "summary": "finish a manage sequence"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "manage_dirty",
+          "description": {
+            "type": "description",
+            "text": "This request ensures a manage sequence is started and that a\nmanage_start event is sent by the server. If this request is made during\nan ongoing manage sequence, a new manage sequence will be started as\nsoon as the current one is completed.\n\nThe client may want to use this request due to an internal state change\nthat the compositor is not aware of (e.g. a dbus event) which should\naffect window management or rendering state.",
+            "summary": "ensure a manage sequence is started"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "render_finish",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client has made all changes to rendering\nstate it wishes to include in the current manage sequence and that the\nserver should atomically apply and display these state changes to the\nuser.\n\nAfter sending this request, it is a protocol error for the client to\nmake further changes to rendering state until the next manage_start or\nrender_start event is received, whichever comes first.\n\nSee the description of the river_window_manager_v1 interface for a\ncomplete overview of the manage/render sequence loop.",
+            "summary": "finish a render sequence"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_shell_surface",
+          "description": {
+            "type": "description",
+            "text": "Create a new shell surface for window manager UI and assign the\nriver_shell_surface_v1 role to the surface.\n\nProviding a wl_surface which already has a role or already has a buffer\nattached or committed is a protocol error.",
+            "summary": "assign the river_shell_surface_v1 surface role"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_shell_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "unavailable",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that window management is not available to the\nclient, perhaps due to another window management client already running.\nThe circumstances causing this event to be sent are compositor policy.\n\nIf sent, this event is guaranteed to be the first and only event sent by\nthe server.\n\nThe server will send no further events on this object. The client should\ndestroy this object and all objects created through this interface.",
+            "summary": "window management unavailable"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the server will send no further events on this\nobject. The client should destroy the object. See\nriver_window_manager_v1.destroy for more information.",
+            "summary": "the server has finished with the window manager"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "manage_start",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the server has sent events indicating all\nstate changes since the last manage sequence.\n\nIn response to this event, the client should make requests modifying\nwindow management state as it chooses. Then, the client must make the\nmanage_finish request.\n\nSee the description of the river_window_manager_v1 interface for a\ncomplete overview of the manage/render sequence loop.",
+            "summary": "start a manage sequence"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "render_start",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the server has sent all river_node_v1.position\nand river_window_v1.dimensions events necessary.\n\nIn response to this event, the client should make requests modifying\nrendering state as it chooses. Then, the client must make the\nrender_finish request.\n\nSee the description of the river_window_manager_v1 interface for a\ncomplete overview of the manage/render sequence loop.",
+            "summary": "start a render sequence"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "session_locked",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the session has been locked.\n\nThe window manager may wish to restrict which key bindings are available\nwhile locked or otherwise use this information.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the session has been locked"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "session_unlocked",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the session has been unlocked.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the session has been unlocked"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "window",
+          "description": {
+            "type": "description",
+            "text": "A new window has been created.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "new window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_window_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output",
+          "description": {
+            "type": "description",
+            "text": "A new logical output has been created, perhaps due to a new physical\nmonitor being plugged in or perhaps due to a change in configuration.\n\nThis event will be followed by river_output_v1.position and dimensions\nevents as well as a manage_start event after all other new state has\nbeen sent by the server.",
+            "summary": "new output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_output_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "seat",
+          "description": {
+            "type": "description",
+            "text": "A new seat has been created.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "new seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_seat_v1"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "sequence_order",
+              "value": "0",
+              "summary": "request violates manage/render sequence ordering"
+            },
+            {
+              "type": "entry",
+              "name": "role",
+              "value": "1",
+              "summary": "given wl_surface already has a role"
+            },
+            {
+              "type": "entry",
+              "name": "unresponsive",
+              "value": "2",
+              "summary": "window manager unresponsive"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_window_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This represents a logical window. For example, a window may correspond to\nan xdg_toplevel or Xwayland window.\n\nA newly created window will not be displayed until the window manager\nproposes window dimensions with the propose_dimensions request as part of\na manage sequence, the server replies with a dimensions event as part of\na render sequence, and that render sequence is finished.",
+        "summary": "a logical window"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the window\nobject and that it may be safely destroyed.\n\nThis request should be made after the river_window_v1.closed event or\nriver_window_manager_v1.finished is received to complete destruction of\nthe window.",
+            "summary": "destroy the window object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "Request that the window be closed. The window may ignore this request or\nonly close after some delay, perhaps opening a dialog asking the user to\nsave their work or similar.\n\nThe server will send a river_window_v1.closed event if/when the window\nhas been closed.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "request that the window be closed"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_node",
+          "description": {
+            "type": "description",
+            "text": "Get the node in the render list corresponding to the window.\n\nIt is a protocol error to make this request more than once for a single\nwindow.",
+            "summary": "get the window's render list node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_node_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "propose_dimensions",
+          "description": {
+            "type": "description",
+            "text": "This request proposes dimensions for the window in the compositor's\nlogical coordinate space.\n\nThe width and height must be greater than or equal to zero. If the width\nor height is zero the window will be allowed to decide its own\ndimensions.\n\nThe window may not take the exact dimensions proposed. The actual\ndimensions taken by the window will be sent in a subsequent\nriver_window_v1.dimensions event. For example, a terminal emulator may\nonly allow dimensions that are multiple of the cell size.\n\nWhen a propose_dimensions request is made, the server must send a\ndimensions event in response as soon as possible. It may not be possible\nto send a dimensions event in the very next render sequence if, for\nexample, the window takes too long to respond to the first proposed\ndimensions. In this case, the server will send the dimensions event in a\nfuture render sequence. The window will not be displayed until the first\ndimensions event is received and the render sequence is finished.\n\nNote that the dimensions of a river_window_v1 refer to the dimensions of\nthe window content and are unaffected by the presence of borders or\ndecoration surfaces.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "propose window dimensions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "hide",
+          "description": {
+            "type": "description",
+            "text": "Request that the window be hidden. Has no effect if the window is\nalready hidden. Hides any window borders and decorations as well.\n\nNewly created windows are considered shown unless explicitly hidden with\nthe hide request.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "request that the window be hidden"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "show",
+          "description": {
+            "type": "description",
+            "text": "Request that the window be shown. Has no effect if the window is not\nhidden. Does not guarantee that the window is visible as it may be\ncompletely obscured by other windows placed above it for example.\n\nNewly created windows are considered shown unless explicitly hidden with\nthe hide request.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "request that the window be shown"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "use_csd",
+          "description": {
+            "type": "description",
+            "text": "Tell the client to use client side decoration and draw its own title\nbar, borders, etc.\n\nThis is the default if neither this request nor the use_ssd request is\never made.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "tell the client to use CSD"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "use_ssd",
+          "description": {
+            "type": "description",
+            "text": "Tell the client to use server side decoration and not draw any client\nside decorations.\n\nThis request will have no effect if the client only supports client side\ndecoration, see the decoration_hint event.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "tell the client to use SSD"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_borders",
+          "description": {
+            "type": "description",
+            "text": "This request decorates the window with borders drawn by the compositor\non the specified edges of the window. Borders are drawn above the window\ncontent.\n\nCorners are drawn only between borders on adjacent edges. If e.g. the\nleft edge has a border and the top edge does not, the border drawn on\nthe left edge will not extend vertically beyond the top edge of the\nwindow.\n\nBorders are not drawn while the window is fullscreen.\n\nThe color is defined by four 32-bit RGBA values. Unless specified in\nanother protocol extension, the RGBA values use pre-multiplied alpha.\n\nSetting the edges to none or the width to 0 disables the borders.\nSetting a negative width is a protocol error.\n\nThis request completely overrides all previous set_borders requests.\nOnly the most recent set_borders request has an effect.\n\nNote that the position/dimensions of a river_window_v1 refer to the\nposition/dimensions of the window content and are unaffected by the\npresence of borders or decoration surfaces.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "set window borders"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "edges",
+              "argType": "uint",
+              "enum": "edges"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "a",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tiled",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is part of a tiled layout and adjacent to\nother elements in the tiled layout on the given edges.\n\nThe window should use this information to change the style of its client\nside decorations and avoid drawing e.g. drop shadows outside of the\nwindow dimensions on the tiled edges.\n\nSetting the edges argument to none informs the window that it is not\npart of a tiled layout. If this request is never made, the window is\ninformed that it is not part of a tiled layout.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "set window tiled state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "edges",
+              "argType": "uint",
+              "enum": "edges"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_decoration_above",
+          "description": {
+            "type": "description",
+            "text": "Create a decoration surface and assign the river_decoration_v1 role to\nthe surface. The created decoration is placed above the window in\nrendering order, see the description of river_decoration_v1.\n\nProviding a wl_surface which already has a role or already has a buffer\nattached or committed is a protocol error.",
+            "summary": "create a decoration surface above the window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_decoration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_decoration_below",
+          "description": {
+            "type": "description",
+            "text": "Create a decoration surface and assign the river_decoration_v1 role to\nthe surface. The created decoration is placed below the window in\nrendering order, see the description of river_decoration_v1.\n\nProviding a wl_surface which already has a role or already has a buffer\nattached or committed is a protocol error.",
+            "summary": "create a decoration surface below the window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_decoration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "inform_resize_start",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is being resized. The window manager should\nuse this request to inform windows that are the target of an interactive\nresize for example.\n\nThe window manager remains responsible for handling the position and\ndimensions of the window while it is resizing.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window it is being resized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "inform_resize_end",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is no longer being resized. The window manager\nshould use this request to inform windows that are the target of an\ninteractive resize that the interactive resize has ended for example.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window it no longer being resized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_capabilities",
+          "description": {
+            "type": "description",
+            "text": "This request informs the window of the capabilities supported by the\nwindow manager. If the window manager, for example, ignores requests to\nbe maximized from the window it should not tell the window that it\nsupports the maximize capability.\n\nThe window might use this information to, for example, only show a\nmaximize button if the window manager supports the maximize capability.\n\nThe window manager client should use this request to set capabilities\nfor all new windows. If this request is never made, the compositor will\ninform windows that all capabilities are supported.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform window of supported capabilities"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "caps",
+              "argType": "uint",
+              "enum": "capabilities"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "inform_maximized",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is maximized. The window might use this\ninformation to adapt the style of its client-side window decorations for\nexample.\n\nThe window manager remains responsible for handling the position and\ndimensions of the window while it is maximized.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window that it is maximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "inform_unmaximized",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is unmaximized. The window might use this\ninformation to adapt the style of its client-side window decorations for\nexample.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window that it is unmaximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "inform_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is fullscreen. The window might use this\ninformation to adapt the style of its client-side window decorations for\nexample.\n\nThis request does not affect the size/position of the window or cause it\nto become the only window rendered, see the river_window_v1.fullscreen\nand exit_fullscreen requests for that.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window that it is fullscreen"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "inform_not_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Inform the window that it is not fullscreen. The window might use this\ninformation to adapt the style of its client-side window decorations for\nexample.\n\nThis request does not affect the size/position of the window or cause it\nto become the only window rendered, see the river_window_v1.fullscreen\nand exit_fullscreen requests for that.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "inform the window that it is not fullscreen"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Make the window fullscreen on the given output. If multiple windows are\nfullscreen on the same output at the same time only the \"top\" window in\nrendering order shall be displayed.\n\nAll river_shell_surface_v1 objects above the top fullscreen window in\nthe rendering order will continue to be rendered.\n\nThe compositor will handle the position and dimensions of the window\nwhile it is fullscreen. The set_position and propose_dimensions requests\nshall not affect the current position and dimensions of a fullscreen\nwindow.\n\nThe compositor will clip window content, decoration surfaces, and\nborders to the given output's dimensions while the window is fullscreen.\nThe effects of set_clip_box and set_content_clip_box are ignored while\nthe window is fullscreen.\n\nIf the output on which a window is currently fullscreen is removed, the\nwindowing state is modified as if there were an exit_fullscreen request\nmade in the same manage sequence as the river_output_v1.removed event.\n\nThis request does not inform the window that it is fullscreen, see the\nriver_window_v1.inform_fullscreen and inform_not_fullscreen requests.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "make the window fullscreen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "river_output_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "exit_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Make the window not fullscreen.\n\nThe position and dimensions are undefined after this request is made\nuntil a manage sequence in which the window manager makes the\npropose_dimensions and set_position requests is completed.\n\nThe window manager should make propose_dimensions and set_position\nrequests in the same manage sequence as the exit_fullscreen request for\nframe perfection.\n\nThis request does not inform the window that it is fullscreen, see the\nriver_window_v1.inform_fullscreen and inform_not_fullscreen requests.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "make the window not fullscreen"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_clip_box",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Clip the window, including borders and decoration surfaces, to the box\nspecified by the x, y, width, and height arguments. The x/y position of\nthe box is relative to the top left corner of the window.\n\nThe width and height arguments must be greater than or equal to 0.\n\nSetting a clip box with 0 width or height disables clipping.\n\nThe clip box is ignored while the window is fullscreen.\n\nBoth set_clip_box and set_content_clip_box may be enabled simultaneously.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "clip the window to a given box"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_content_clip_box",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Clip the content of the window, excluding borders and decoration\nsurfaces, to the box specified by the x, y, width, and height arguments.\nThe x/y position of the box is relative to the top left corner of the\nwindow.\n\nBorders drawn by the compositor (see set_borders) are placed around the\nintersection of the window content (as defined by the dimensions event)\nand the content clip box when content clipping is enabled.\n\nThe width and height arguments must be greater than or equal to 0.\n\nSetting a box with 0 width or height disables content clipping.\n\nThe content clip box is ignored while the window is fullscreen.\n\nBoth set_clip_box and set_content_clip_box may be enabled simultaneously.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "clip the window content to a given box"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "text": "The window has been closed by the server, perhaps due to an\nxdg_toplevel.close request or similar.\n\nThe server will send no further events on this object and ignore any\nrequest other than river_window_v1.destroy made after this event is\nsent. The client should destroy this object with the\nriver_window_v1.destroy request to free up resources.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window has been closed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "dimensions_hint",
+          "description": {
+            "type": "description",
+            "text": "This event informs the window manager of the window's preferred min/max\ndimensions. These preferences are a hint, and the window manager is free\nto propose dimensions outside of these bounds.\n\nAll min/max width/height values must be strictly greater than or equal\nto 0. A value of 0 indicates that the window has no preference for that\nvalue.\n\nThe min_width/min_height must be strictly less than or equal to the\nmax_width/max_height.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window's preferred min/max dimensions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "min_width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "min_height",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "max_width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "max_height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dimensions",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the dimensions of the window in the compositor's\nlogical coordinate space. The width and height must be strictly greater\nthan zero.\n\nNote that the dimensions of a river_window_v1 refer to the dimensions of\nthe window content and are unaffected by the presence of borders or\ndecoration surfaces.\n\nThis event is sent as part of a render sequence before the render_start\nevent.\n\nIt may be sent due to a propose_dimensions request in a previous manage\nsequence or because a window independently decides to change its\ndimensions.",
+            "summary": "window dimensions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_id",
+          "description": {
+            "type": "description",
+            "text": "The window set an application ID.\n\nThe app_id argument will be null if the window has never set an\napplication ID or if the window cleared its application ID. (Xwayland\nwindows may do this for example, though xdg-toplevels may not.)\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window set an application ID"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "title",
+          "description": {
+            "type": "description",
+            "text": "The window set a title.\n\nThe title argument will be null if the window has never set a title or\nif the window cleared its title. (Xwayland windows may do this for\nexample, though xdg-toplevels may not.)\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window set a title"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "title",
+              "argType": "string",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "parent",
+          "description": {
+            "type": "description",
+            "text": "The window set a parent window. If this event is never received or if\nthe parent argument is null then the window has no parent.\n\nA surface with a parent set might be a dialog, file picker, or similar\nfor the parent window.\n\nChild windows should generally be rendered directly above their parent.\n\nThe compositor must guarantee that there are no loops in the window\ntree: a parent must not be the descendant of one of its children.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window set a parent"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "parent",
+              "argType": "object",
+              "interface": "river_window_v1",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "decoration_hint",
+          "description": {
+            "type": "description",
+            "text": "Information from the window about the supported and preferred client\nside/server side decoration options.\n\nThis event may be sent multiple times over the lifetime of the window if\nthe window changes its preferences.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "supported/preferred decoration style"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "hint",
+              "argType": "uint",
+              "enum": "decoration_hint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "pointer_move_requested",
+          "description": {
+            "type": "description",
+            "text": "This event informs the window manager that the window has requested to\nbe interactively moved using the pointer. The seat argument indicates the\nseat for the move.\n\nThe xdg-shell protocol for example allows windows to request that an\ninteractive move be started, perhaps when a client-side rendered\ntitlebar is dragged.\n\nThe window manager may use the river_seat_v1.op_start_pointer request to\ninteractively move the window or ignore this event entirely.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "window requested interactive pointer move"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "pointer_resize_requested",
+          "description": {
+            "type": "description",
+            "text": "This event informs the window manager that the window has requested to\nbe interactively resized using the pointer. The seat argument indicates\nthe seat for the resize.\n\nThe edges argument indicates which edges the window has requested to be\nresized from. The edges argument will never be none and will never have\nboth top and bottom or both left and right edges set.\n\nThe xdg-shell protocol for example allows windows to request that an\ninteractive resize be started, perhaps when the corner of client-side\nrendered decorations is dragged.\n\nThe window manager may use the river_seat_v1.op_start_pointer request to\ninteractively resize the window or ignore this event entirely.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "window requested interactive pointer resize"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1"
+            },
+            {
+              "type": "arg",
+              "name": "edges",
+              "argType": "uint",
+              "enum": "edges"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "show_window_menu_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request that a\nwindow menu be shown, for example when the user right clicks on client\nside window decorations.\n\nA window menu might include options to maximize or minimize the window.\n\nThe window manager is free to ignore this request and decide what the\nwindow menu contains if it does choose to show one.\n\nThe x and y arguments indicate where the window requested that the\nwindow menu be shown.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "window requested that the window menu be shown"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset from top left corner"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset from top left corner"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "maximize_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request to be\nmaximized.\n\nThe window manager is free to honor this request using\nriver_window_v1.inform_maximize or ignore it.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window requested to be maximized"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unmaximize_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request to be\nunmaximized.\n\nThe window manager is free to honor this request using\nriver_window_v1.inform_unmaximized or ignore it.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window requested to be unmaximized"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "fullscreen_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request that they\nbe made fullscreen and allows them to provide an output preference.\n\nThe window manager is free to honor this request using\nriver_window_v1.fullscreen or ignore it.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window requested to be fullscreen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "river_output_v1",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "exit_fullscreen_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request to exit\nfullscreen.\n\nThe window manager is free to honor this request using\nriver_window_v1.exit_fullscreen or ignore it.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window requested to exit fullscreen"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "minimize_requested",
+          "description": {
+            "type": "description",
+            "text": "The xdg-shell protocol for example allows windows to request to be\nminimized.\n\nThe window manager is free to ignore this request, hide the window, or\ndo whatever else it chooses.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the window requested to be minimized"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "unreliable_pid",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event gives an unreliable PID of the process that created the\nwindow. Obtaining this information is inherently racy due to PID reuse.\nTherefore, this PID must not be used for anything security sensitive.\n\nNote also that a single process may create multiple windows, so there is\nnot necessarily a 1-to-1 mapping from PID to window. Multiple windows\nmay have the same PID.\n\nThis event is sent once when the river_window_v1 is created and never\nsent again.",
+            "summary": "unreliable PID of the window's creator"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "unreliable_pid",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "node_exists",
+              "value": "0",
+              "summary": "window already has a node object"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_dimensions",
+              "value": "1",
+              "summary": "proposed dimensions out of bounds"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_border",
+              "value": "2",
+              "summary": "invalid arg to set_borders"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_clip_box",
+              "value": "3",
+              "summary": "invalid arg to set_clip_box"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "decoration_hint",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "only_supports_csd",
+              "value": "0",
+              "summary": "only supports client side decoration"
+            },
+            {
+              "type": "entry",
+              "name": "prefers_csd",
+              "value": "1",
+              "summary": "client side decoration preferred, both CSD and SSD supported"
+            },
+            {
+              "type": "entry",
+              "name": "prefers_ssd",
+              "value": "2",
+              "summary": "server side decoration preferred, both CSD and SSD supported"
+            },
+            {
+              "type": "entry",
+              "name": "no_preference",
+              "value": "3",
+              "summary": "no preference, both CSD and SSD supported"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "edges",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "capabilities",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "window_menu",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "maximize",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "fullscreen",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "minimize",
+              "value": "8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_decoration_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "The rendering order of windows with decorations is follows:\n\n1. Decorations created with get_decoration_below at the bottom\n2. Window content\n3. Borders configured with river_window_v1.set_borders\n4. Decorations created with get_decoration_above at the top\n\nThe relative ordering of decoration surfaces above/below a window is\nundefined by this protocol and left up to the compositor.",
+        "summary": "a window decoration"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the decoration\nobject and that it may be safely destroyed.",
+            "summary": "destroy the decoration object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_offset",
+          "description": {
+            "type": "description",
+            "text": "This request sets the offset of the decoration surface from the top left\ncorner of the window.\n\nIf this request is never sent, the x and y offsets are undefined by this\nprotocol and left up to the compositor.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "set offset from the window's top left corner"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "sync_next_commit",
+          "description": {
+            "type": "description",
+            "text": "Synchronize application of the next wl_surface.commit request on the\ndecoration surface with rest of the state atomically applied with the\nnext river_window_manager_v1.render_finish request.\n\nThe client must make a wl_surface.commit request on the decoration\nsurface after this request and before the render_finish request, failure\nto do so is a protocol error.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "sync next commit with other rendering state"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_commit",
+              "value": "0",
+              "summary": "failed to commit the surface before the window manager commit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_shell_surface_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "The window manager might use a shell surface to display a status bar,\nbackground image, desktop notifications, launcher, desktop menu, or\nwhatever else it wants.",
+        "summary": "a surface for window manager UI"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the shell\nsurface object and that it may be safely destroyed.",
+            "summary": "destroy the shell surface object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_node",
+          "description": {
+            "type": "description",
+            "text": "Get the node in the render list corresponding to the shell surface.\n\nIt is a protocol error to make this request more than once for a single\nshell surface.",
+            "summary": "get the shell surface's render list node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_node_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "sync_next_commit",
+          "description": {
+            "type": "description",
+            "text": "Synchronize application of the next wl_surface.commit request on the\nshell surface with rest of the rendering state atomically applied with\nthe next river_window_manager_v1.render_finish request.\n\nThe client must make a wl_surface.commit request on the shell surface\nafter this request and before the render_finish request, failure to do\nso is a protocol error.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "sync next surface commit to window manager commit"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "node_exists",
+              "value": "0",
+              "summary": "shell surface already has a node object"
+            },
+            {
+              "type": "entry",
+              "name": "no_commit",
+              "value": "1",
+              "summary": "failed to commit the surface before the window manager commit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_node_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "The render list is a list of nodes that determines the rendering order of\nthe compositor. Nodes may correspond to windows or shell surfaces. The\nrelative ordering of nodes may be changed with the place_above and\nplace_below requests, changing the rendering order.\n\nThe initial position of a node in the render list is undefined, the window\nmanager client must use the place_above or place_below request to\nguarantee a specific rendering order.",
+        "summary": "a node in the render list"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the node\nobject and that it may be safely destroyed.",
+            "summary": "destroy the decoration object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_position",
+          "description": {
+            "type": "description",
+            "text": "Set the absolute position of the node in the compositor's logical\ncoordinate space. The x and y coordinates may be positive or negative.\n\nNote that the position of a river_window_v1 refers to the position of\nthe window content and is unaffected by the presence of borders or\ndecoration surfaces.\n\nIf this request is never sent, the position of the node is undefined by\nthis protocol and left up to the compositor.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "set absolute position of the node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "place_top",
+          "description": {
+            "type": "description",
+            "text": "This request places the node above all other nodes in the compositor's\nrender list.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "place node above all other nodes"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "place_bottom",
+          "description": {
+            "type": "description",
+            "text": "This request places the node below all other nodes in the compositor's\nrender list.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "place node below all other nodes"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "place_above",
+          "description": {
+            "type": "description",
+            "text": "This request places the node directly above another node in the\ncompositor's render list.\n\nAttempting to place a node above itself has no effect.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "place node above another node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "other",
+              "argType": "object",
+              "interface": "river_node_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "place_below",
+          "description": {
+            "type": "description",
+            "text": "This request places the node directly below another node in the\ncompositor's render list.\n\nAttempting to place a node below itself has no effect.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "summary": "place node below another node"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "other",
+              "argType": "object",
+              "interface": "river_node_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "river_output_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "An area in the compositor's logical coordinate space that should be\ntreated as a single output for window management purposes. This area may\ncorrespond to a single physical output or multiple physical outputs in the\ncase of mirroring or tiled monitors depending on the hardware and\ncompositor configuration.",
+        "summary": "a logical output"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the output\nobject and that it may be safely destroyed.\n\nThis request should be made after the river_output_v1.removed event is\nreceived to complete destruction of the output.",
+            "summary": "destroy the output object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "removed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the logical output is no longer conceptually\npart of window management space.\n\nThe server will send no further events on this object and ignore any\nrequest (other than river_output_v1.destroy) made after this event is\nsent. The client should destroy this object with the\nriver_output_v1.destroy request to free up resources.\n\nThis event may be sent because a corresponding physical output has been\nphysically unplugged or because some output configuration has changed.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the output is removed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "wl_output",
+          "description": {
+            "type": "description",
+            "text": "The wl_output object corresponding to the river_output_v1. The argument\nis the global name of the wl_output advertised with wl_registry.global.\n\nIt is guaranteed that the corresponding wl_output is advertised before\nthis event is sent.\n\nThis event is sent exactly once. The wl_output associated with a\nriver_output_v1 cannot change. It is guaranteed that there is a 1-to-1\nmapping between wl_output and river_output_v1 objects.\n\nThe global_remove event for the corresponding wl_output may be sent\nbefore the river_output_v1.remove event. This is due to the fact that\nriver_output_v1 state changes are synced to the river window management\nmanage sequence while changes to globals are not.\n\nRationale: The window manager may need information provided by the\nwl_output interface such as the name/description. It also may need the\nwl_output object to start screencopy for example.",
+            "summary": "corresponding wl_output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "uint",
+              "summary": "name of the wl_output global"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "position",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the position of the output in the compositor's\nlogical coordinate space. The x and y coordinates may be positive or\nnegative.\n\nThis event is sent once when the river_output_v1 is created and again\nwhenever the position changes.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe server must guarantee that the position and dimensions events do not\ncause the areas of multiple logical outputs to overlap when the\ncorresponding manage_start event is received.",
+            "summary": "output position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dimensions",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the dimensions of the output in the compositor's\nlogical coordinate space. The width and height will always be strictly\ngreater than zero.\n\nThis event is sent once when the river_output_v1 is created and again\nwhenever the dimensions change.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe server must guarantee that the position and dimensions events do not\ncause the areas of multiple logical outputs to overlap when the\ncorresponding manage_start event is received.",
+            "summary": "output dimensions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "river_seat_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This object represents a single user's collection of input devices. It\nallows the window manager to route keyboard input to windows, get\nhigh-level information about pointer input, define keyboard and pointer\nbindings, etc.\n\nTODO:\n- touch input\n- tablet input",
+        "summary": "a window management seat"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the seat\nobject and that it may be safely destroyed.\n\nThis request should be made after the river_seat_v1.removed event is\nreceived to complete destruction of the seat.",
+            "summary": "destroy the seat object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "focus_window",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor send keyboard input to the given window.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "give keyboard focus to a window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "window",
+              "argType": "object",
+              "interface": "river_window_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "focus_shell_surface",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor send keyboard input to the given shell\nsurface.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "give keyboard focus to a shell_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "shell_surface",
+              "argType": "object",
+              "interface": "river_shell_surface_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "clear_focus",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor not send keyboard input to any client.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "clear keyboard focus"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "op_start_pointer",
+          "description": {
+            "type": "description",
+            "text": "Start an interactive pointer operation. During the operation, op_delta\nevents will be sent based on pointer input.\n\nWhen all pointer buttons are released, the op_release event is sent.\n\nThe pointer operation continues until the op_end request is made during\na manage sequence and that manage sequence is finished.\n\nThe window manager may use this operation to implement interactive\nmove/resize of windows by setting the position of windows and proposing\ndimensions based off of the op_delta events.\n\nThis request is ignored if an operation is already in progress.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "start an interactive pointer operation"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "op_end",
+          "description": {
+            "type": "description",
+            "text": "End an interactive operation.\n\nThis request is ignored if there is no operation in progress.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "end an interactive operation"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_pointer_binding",
+          "description": {
+            "type": "description",
+            "text": "Define a pointer binding in terms of a pointer button, modifiers, and\nother configurable properties.\n\nThe button argument is a Linux input event code defined in the\nlinux/input-event-codes.h header file (e.g. BTN_RIGHT).\n\nThe new pointer binding is not enabled until initial configuration is\ncompleted and the enable request is made during a manage sequence.",
+            "summary": "define a new pointer binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_pointer_binding_v1"
+            },
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint",
+              "summary": "a Linux input event code"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "enum": "modifiers"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_xcursor_theme",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Set the XCursor theme for the seat. This theme is used for cursors\nrendered by the compositor, but not necessarily for cursors rendered by\nclients.\n\nNote: The window manager may also wish to set the XCURSOR_THEME and\nXCURSOR_SIZE environment variable for programs it starts.",
+            "summary": "set the xcursor theme for the seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pointer_warp",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Warp the pointer to the given position in the compositor's logical\ncoordinate space.\n\nIf the given position is outside the bounds of all outputs, the pointer\nwill be warped to the closest point inside an output instead.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "warp the pointer to a given position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "removed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that seat is no longer in use and should be\ndestroyed.\n\nThe server will send no further events on this object and ignore any\nrequest (other than river_seat_v1.destroy) made after this event is\nsent.  The client should destroy this object with the\nriver_seat_v1.destroy request to free up resources.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "the seat is removed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "wl_seat",
+          "description": {
+            "type": "description",
+            "text": "The wl_seat object corresponding to the river_seat_v1. The argument is\nthe global name of the wl_seat advertised with wl_registry.global.\n\nIt is guaranteed that the corresponding wl_seat is advertised before\nthis event is sent.\n\nThis event is sent exactly once. The wl_seat associated with a\nriver_seat_v1 cannot change. It is guaranteed that there is a 1-to-1\nmapping between wl_seat and river_seat_v1 objects.\n\nThe global_remove event for the corresponding wl_seat may be sent before\nthe river_seat_v1.remove event. This is due to the fact that\nriver_seat_v1 state changes are synced to the river window management\nmanage sequence while changes to globals are not.\n\nRationale: The window manager may want to trigger window management\nstate changes based on normal input events received by its shell\nsurfaces for example.",
+            "summary": "corresponding wl_seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "uint",
+              "summary": "name of the wl_seat global"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "pointer_enter",
+          "description": {
+            "type": "description",
+            "text": "The seat's pointer entered the given window's area.\n\nThe area of a window is defined to include the area defined by the\nwindow dimensions, borders configured using river_window_v1.set_borders,\nand the input regions of decoration surfaces. In particular, it does not\ninclude input regions of surfaces belonging to the window that extend\noutside the window dimensions.\n\nThe pointer of a seat may only enter a single window at a time. When the\npointer moves between windows, the pointer_leave event for the old\nwindow must be sent before the pointer_enter event for the new window.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "pointer entered a window"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "window",
+              "argType": "object",
+              "interface": "river_window_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "pointer_leave",
+          "description": {
+            "type": "description",
+            "text": "The seat's pointer left the window for which pointer_enter was most\nrecently sent. See pointer_enter for details.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "pointer left the entered window"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "window_interaction",
+          "description": {
+            "type": "description",
+            "text": "A window has been interacted with beyond the pointer merely passing over\nit. This event might be sent due to a pointer button press or due to a\ntouch/tablet tool interaction with the window.\n\nThere are no guarantees regarding how this event is sent in relation to\nthe pointer_enter and pointer_leave events as the interaction may use\ntouch or tablet tool input.\n\nRationale: this event gives window managers necessary information to\ndetermine when to send keyboard focus, raise a window that already has\nkeyboard focus, etc. Rather than expose all pointer, touch, and tablet\nevents to window managers, a policy over mechanism approach is taken.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "a window has been interacted with"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "window",
+              "argType": "object",
+              "interface": "river_window_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "shell_surface_interaction",
+          "description": {
+            "type": "description",
+            "text": "A shell surface has been interacted with beyond the pointer merely\npassing over it. This event might be sent due to a pointer button press\nor due to a touch/tablet tool interaction with the shell_surface.\n\nThere are no guarantees regarding how this event is sent in relation to\nthe pointer_enter and pointer_leave events as the interaction may use\ntouch or tablet tool input.\n\nRationale: While the shell surface does receive all wl_pointer,\nwl_touch, etc. input events for the surface directly, these events do\nnot necessarily trigger a manage sequence and therefore do not allow the\nwindow manager to update focus or perform other actions in response to\nthe input in a race-free way.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "a shell surface has been interacted with"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "shell_surface",
+              "argType": "object",
+              "interface": "river_shell_surface_v1"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "op_delta",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the total change in position since the start of the\noperation of the pointer/touch point/etc.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "total cumulative motion since op start"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "int",
+              "summary": "total change in x"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "int",
+              "summary": "total change in y"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "op_release",
+          "description": {
+            "type": "description",
+            "text": "The input driving the current interactive operation has been released.\nFor a pointer op for example, all pointer buttons have been released.\n\nDepending on the op type, op_delta events may continue to be sent until\nthe op is ended with the op_end request.\n\nThis event is sent at most once during an interactive operation.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "operation input has been released"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "pointer_position",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "The current position of the pointer in the compositor's logical\ncoordinate space.\n\nThis state is special in that a change in pointer position alone must\nnot cause the compositor to start a manage sequence.\n\nAssuming the seat has a pointer, this event must be sent in every manage\nsequence unless there is no change in x/y position since the last time this\nevent was sent.",
+            "summary": "The current position of the pointer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "modifiers",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "This enum is used to describe the keyboard modifiers that must be held\ndown to trigger a key binding or pointer binding.\n\nNote that river and wlroots use the values 2 and 16 for capslock and\nnumlock internally. It doesn't make sense to use locked modifiers for\nbindings however so these values are not included in this enum.",
+            "summary": "a set of keyboard modifiers"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "shift",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "ctrl",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "mod1",
+              "value": "8",
+              "summary": "commonly called alt"
+            },
+            {
+              "type": "entry",
+              "name": "mod3",
+              "value": "32"
+            },
+            {
+              "type": "entry",
+              "name": "mod4",
+              "value": "64",
+              "summary": "commonly called super or logo"
+            },
+            {
+              "type": "entry",
+              "name": "mod5",
+              "value": "128"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_pointer_binding_v1",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "This object allows the window manager to configure a pointer binding and\nreceive events when the binding is triggered.\n\nThe new pointer binding is not enabled until the enable request is made\nduring a manage sequence.\n\nNormally, all pointer button events are sent to the surface with pointer\nfocus by the compositor. Pointer button events that trigger a pointer\nbinding are not sent to the surface with pointer focus.\n\nIf multiple pointer bindings would be triggered by a single physical\npointer event on the compositor side, it is compositor policy which\npointer binding(s) will receive press/release events or if all of the\nmatched pointer bindings receive press/release events.",
+        "summary": "configure a pointer binding, receive trigger events"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the pointer\nbinding object and that it may be safely destroyed.",
+            "summary": "destroy the pointer binding object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "enable",
+          "description": {
+            "type": "description",
+            "text": "This request should be made after all initial configuration has been\ncompleted and the window manager wishes the pointer binding to be able\nto be triggered.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "enable the pointer binding"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "disable",
+          "description": {
+            "type": "description",
+            "text": "This request may be used to temporarily disable the pointer binding. It\nmay be later re-enabled with the enable request.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "disable the pointer binding"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "pressed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the pointer button triggering the binding has\nbeen pressed.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
+            "summary": "the bound pointer button has been pressed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "released",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the pointer button triggering the binding has\nbeen released.\n\nReleasing the modifiers for the binding without releasing the pointer\nbutton does not trigger the release event. This event is sent when the\npointer button is released, even if the modifiers have changed since the\npressed event.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
+            "summary": "the bound pointer button has been released"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

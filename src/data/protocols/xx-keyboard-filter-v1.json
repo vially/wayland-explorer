@@ -1,0 +1,183 @@
+{
+  "type": "protocol",
+  "name": "keyboard_filter_experimental_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2018 Mike Blumenkrantz\nCopyright 2018 Samsung Electronics Co., Ltd\nCopyright 2018 Red Hat Inc.\nCopyright 2025 DorotaC\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "The keyboard_filter protocol allows a client to intercept selected keyboard events and prevent them from reaching the focused surface.\n\nThis protocol offers a way to alter events reaching an application without the need to allow generating arbitrary keyboard events.\n\nHigh-level overview of the interfaces:\n\nThe keyboard_filter_manager exposes the bind_to_input_method request which binds a wl_keyboard to an xx_input_method.\nThe resulting keyboard_filter object has the can be then used for intercepting keyboard events in accordance to input method needs.\n\nThis document adheres to the RFC 2119 when using words like \"must\",\n\"should\", \"may\", etc.\n\nWarning! The protocol described in this file is currently in the\nexperimental phase. Backwards incompatible major versions of the\nprotocol are to be expected. Exposing this protocol without an opt-in\nmechanism is discouraged.",
+    "summary": "filter and intercept keyboard events"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xx_keyboard_filter_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Manages the filtering of key presses.",
+        "summary": "keyboard event filtering functionality"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "unbind",
+          "description": {
+            "type": "description",
+            "text": "Unbind the keyboard and stop intercepting events.\n\nUnbinds the bound keyboard and the input method. the compositor must stop redirecting keyboard events. Events that the keyboard_filter client has not yet responded to are treated as if they received the \"passthrough\" action.\n\nThis request takes effect immediately.",
+            "summary": "Stop intercepting"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "filter",
+          "description": {
+            "type": "description",
+            "text": "This request controls the filtering of keyboard input events before reaching the focused surface.\n\nUsage:\n\nWhile keyboard_filter is intercepting, the compositor must send every intercepted event to its bound wl_keyboard, and hold a copy of it in an internal queue.\nWhen the client responds with the .filter request, the compositor either removes the event from the queue (filter_action.consume), or sends the copy to the original wl_keyboard objects (filter_action.passthrough).\n\nThe compositor must process .filter the oldest event in the queue before processing more recent ones.\nFor this reason, the client sets the argument \"serial\" to the serial of the corresponding event it received.\n\nExceptions:\n\nIf the event is other than wl_keyboard.key or contains no serial, it cannot be filtered. The keyboard_filter client must not respond to it with .filter request. When such an event is oldest in the queue, the compositor must proceed as if the event had received a \"passthrough\" reply.\n\nAs of wl_keyboard v10 and keyboard_filter_v1, the only event that can be filtered is the wl_keyboard.key event.\n\nSequence:\n\nThe wl_keyboard begins to receive events after input_method.activate is committed.\nThe valid serial is the serial of the oldest wl_keyboard event which has been sent after input_method.activate but which hasn't yet received a .filter confirmation.\nThe compositor may raise the invalid_serial error in response to events with serials it had not issued.\nThe compositor must ignore events with all other serials. (Particularly, this means events with repeating serials are accepted normally and are not ignored).\nEvents must be filtered in order of arrival.",
+            "summary": "decide the processing of a keyboard event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "enum": "filter_action"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the keyboard_filter object, stops event interception, and unbinds the wl_keyboard and input_method objects bound to it.",
+            "summary": "destroy the keyboard"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_serial",
+              "value": "0x1",
+              "summary": "compositor received serial not adhering to requirements"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "filter_action",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "consume",
+              "value": "0",
+              "summary": "consume the key event"
+            },
+            {
+              "type": "entry",
+              "name": "passthrough",
+              "value": "1",
+              "summary": "pass the key event to the text input client"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_keyboard_filter_manager_v1",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "bind_to_input_method",
+          "description": {
+            "type": "description",
+            "text": "Bind a keyboard to an input method for the purpose of capturing key presses before they reach the text input client.\n\nWhen a wl_keyboard is bound, the compositor must redirect to it the input events intended for the focused surface with text input enabled. The wl_keyboard instance receives no other events from then on.\nSee keyboard_filter.filter.\n\nFor the bound wl_keyboard instance to intercept events, the following conditions must be fulfilled:\n- there's a focused surface,\n- the surface has an enabled text input object,\n- the bound input method is active (for the meaning of \"active\", see input_method.activate, input_method.deactivate).\n\nWhen those conditions are fulfilled, the compositor must start redirecting input events intended for the text input surface to the wl_keyboard bound with this request. Otherwise, the text input surface receives events without intercepting them.\n\nBe aware that the text input client might use a wl_keyboard object(s) of different version(s) than the one used by the input method. The compositor should issue events as it would normally do for the versions in question. This protocol assumes that events to multiple keyboards of different protocol versions are equivalent.\n\nBackground:\n\nWhenever the input method is activated, the compositor must start sending it keyboard events intended for the text-input client, so that the input method can be controlled using a keyboard.\nTraditionally, from the user perspective, input methods receive keys as if they were an overlay: keys which are interesting to the input method gain a special input method meaning, all others work as usual.\nThe binding and the keyboard_filter.filter request together make this possible by letting the input method indicate which events it is interested in.\n\nConceptually, when a wl_keyboard is bound to an input_method, the compositor prevents all keyboard events directed to the text input client from reaching it. They are delayed until the input method decides how to filter them using the keyboard_filter.filter request.\n\nArguments:\n\nThe wl_keyboard must not be already bound to another interface.\nThe wl_keyboard must only receive events between committed .activate and .deactivate.\n\nThe surface argument represents an arbitrary wl_surface. When issuing wl_keyboard.enter and wl_keyboard.leave on the bound wl_keyboard, the compositor must replace the original surface argument with the one provided by the input method in this request.\n\nBecause the wl_keyboard.enter and wl_keyboard.leave events require a surface as the target, one must be provided even if the input method doesn't display one. A dummy one is sufficient. The provided wl_surface will not be used for any other purpose than explained above.\n\nThe surface must outlive the input method.\n\nNOTE: This feature works much better with compositor-side key repeat introduced in wl_seat version 10. This protocol doesn't provide controls for filtering repeat key events generated client-side.\nA compositor implementing this protocol should implement compositor-side key repeat.\n\nThis request takes effect immediately.\n\nAttempting to bind a keyboard to an input method which is already bound must cause the already_bound error.\nAttempting to bind a keyboard object which was already bound must cause the already_bound error.\nAttempting to bind a keyboard object to an input method acting on a different seat must cause the wrong_seat error.\n\nWhen the input method gets destroyed, the compositor must stop issuing events to the keyboard and ignore any further requests to keyboard_filter, except keyboard_filter.destroy.",
+            "summary": "Bind a keyboard to an input method"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "keyboard",
+              "argType": "object",
+              "interface": "wl_keyboard",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_method",
+              "argType": "object",
+              "interface": "xx_input_method_v1",
+              "protocol": "xx-input-method-v2"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "extensions",
+              "argType": "new_id",
+              "interface": "xx_keyboard_filter_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the xx_keyboard_filter_manager_v1 object.\n\nThe xx_keyboard_filter_v1 objects originating from it remain unaffected.",
+            "summary": "destroy the input method manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_bound",
+              "value": "0x1",
+              "summary": "an argument is already bound"
+            },
+            {
+              "type": "entry",
+              "name": "wrong_seat",
+              "value": "0x2",
+              "summary": "the keyboard i attached to the wrong seat for this operation"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

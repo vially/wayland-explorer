@@ -1,0 +1,225 @@
+{
+  "type": "protocol",
+  "name": "river_layer_shell_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2025 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows the river-window-management-v1 window manager to\nsupport the wlr-layer-shell-v1 protocol.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "summary": "layer shell support for river"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_layer_shell_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global interface should only be advertised to the client if the\nriver_window_manager_v1 global is also advertised. Binding this interface\nindicates that the window manager supports layer shell.\n\nIf the window manager does not bind this interface, the compositor should\nnot allow clients to map layer surfaces. This can be achieved by\nclosing layer surfaces immediately.",
+        "summary": "river layer shell global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the\nriver_layer_shell_v1 object.",
+            "summary": "destroy the river_layer_shell_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_output",
+          "description": {
+            "type": "description",
+            "text": "It is a protocol error to make this request more than once for a given\nriver_output_v1 object.",
+            "summary": "get layer shell output state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_layer_shell_output_v1"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "river_output_v1",
+              "protocol": "river-window-management-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_seat",
+          "description": {
+            "type": "description",
+            "text": "It is a protocol error to make this request more than once for a given\nriver_seat_v1 object.",
+            "summary": "get layer shell seat state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_layer_shell_seat_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1",
+              "protocol": "river-window-management-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "object_already_created",
+              "value": "0",
+              "summary": "the layer_shell_output/seat object was already created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_layer_shell_output_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The lifetime of this object is tied to the corresponding river_output_v1.\nThis object is made inert when the river_output_v1.removed event is sent\nand should be destroyed.",
+        "summary": "layer shell output state"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the\nriver_layer_shell_output_v1 object and that it may be safely destroyed.\n\nThis request should be made after the river_output_v1.removed event is\nreceived to complete destruction of the output.",
+            "summary": "destroy the object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_default",
+          "description": {
+            "type": "description",
+            "text": "Mark this output as the default for new layer surfaces which do not\nrequest a specific output themselves. This request overrides any\nprevious set_default request on any river_layer_shell_output_v1 object.\n\nIf no set_default request is made or if the default output is destroyed,\nthe default output is undefined until the next set_default request.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "Set default output for layer surfaces"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "non_exclusive_area",
+          "description": {
+            "type": "description",
+            "text": "This event indicates the area of the output remaining after subtracting\nthe exclusive zones of layer surfaces. Exclusive zones are a hint, the\nwindow manager is free to ignore this area hint if it wishes.\n\nThe x and y values are in the global coordinate space, not relative to\nthe position of the output.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "area left after subtracting exclusive zones"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "river_layer_shell_seat_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The lifetime of this object is tied to the corresponding river_seat_v1.\nThis object is made inert when the river_seat_v1.removed event is sent and\nshould be destroyed.",
+        "summary": "layer shell seat state"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the\nriver_layer_shell_seat_v1 object and that it may be safely destroyed.\n\nThis request should be made after the river_seat_v1.removed event is\nreceived to complete destruction of the seat.",
+            "summary": "destroy the object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "focus_exclusive",
+          "description": {
+            "type": "description",
+            "text": "A layer shell surface will be given exclusive keyboard focus at the end\nof the manage sequence in which this event is sent. The window manager\nmay want to update window decorations or similar to indicate that no\nwindow is focused.\n\nUntil the focus_non_exclusive or focus_none event is sent, all window\nmanager requests to change focus are ignored.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": ""
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "focus_non_exclusive",
+          "description": {
+            "type": "description",
+            "text": "A layer shell surface will be given non-exclusive keyboard focus at the\nend of the manage sequence in which this event is sent. The window\nmanager may want to update window decorations or similar to indicate\nthat no window is focused.\n\nThe window manager continues to control focus and may choose to focus a\ndifferent window/shell surface at any time. If the window manager sets\nfocus during the same manage sequence in which this event is sent, the\nlayer surface will not be focused.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": ""
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "focus_none",
+          "description": {
+            "type": "description",
+            "text": "No layer shell surface will have keyboard focus at the end of the manage\nsequence in which this event is sent. The window manager may want to\nreturn focus to whichever window last had focus, for example.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": ""
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

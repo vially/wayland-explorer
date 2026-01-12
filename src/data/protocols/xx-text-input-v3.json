@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "xx_text_input_v3",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The xx_text_input_v3 interface represents text input and input methods\nassociated with a seat. It provides enter/leave events to follow the\ntext input focus for a seat.\n\nRequests are used to enable/disable the text-input object and set\nstate information like surrounding and selected text or the content type.\nThe information about the entered text is sent to the text-input object\nvia the preedit_string and commit_string events.\n\nText is valid UTF-8 encoded, indices and lengths are in bytes. Indices\nmust not point to middle bytes inside a code point: they must either\npoint to the first byte of a code point or to the end of the buffer.\nLengths must be measured between two valid indices.\n\nFocus moving throughout surfaces will result in the emission of\nxx_text_input_v3.enter and xx_text_input_v3.leave events. The focused\nsurface must commit xx_text_input_v3.enable and\nxx_text_input_v3.disable requests as the keyboard focus moves across\neditable and non-editable elements of the UI. Those two requests are not\nexpected to be paired with each other, the compositor must be able to\nhandle consecutive series of the same request.\n\nState is sent by the state requests (set_surrounding_text,\nset_content_type and set_cursor_rectangle) and a commit request. After an\nenter event or disable request all state information is invalidated and\nneeds to be resent by the client.",
@@ -37,7 +37,7 @@
           "name": "enable",
           "description": {
             "type": "description",
-            "text": "Requests text input on the surface previously obtained from the enter\nevent.\n\nThis request must be issued every time the active text input changes\nto a new one, including within the current surface. Use\nxx_text_input_v3.disable when there is no longer any input focus on\nthe current surface.\n\nClients must not enable more than one text input on the single seat\nand should disable the current text input before enabling the new one.\nAt most one instance of text input may be in enabled state per instance,\nRequests to enable the another text input when some text input is active\nmust be ignored by compositor.\n\nThis request resets all state associated with previous enable, disable,\nset_surrounding_text, set_text_change_cause, set_content_type, and\nset_cursor_rectangle requests, as well as the state associated with\npreedit_string, commit_string, and delete_surrounding_text events.\n\nThe set_surrounding_text, set_content_type and set_cursor_rectangle\nrequests must follow if the text input supports the necessary\nfunctionality.\n\nState set with this request is double-buffered. It will get applied on\nthe next xx_text_input_v3.commit request, and stay valid until the\nnext committed enable or disable request.\n\nThe changes must be applied by the compositor after issuing a\nxx_text_input_v3.commit request.",
+            "text": "Requests text input on the surface previously obtained from the enter\nevent.\n\nThis request must be issued every time the active text input changes\nto a new one, including within the current surface. Use\nxx_text_input_v3.disable when there is no longer any input focus on\nthe current surface.\n\nClients must not enable more than one text input on the single seat\nand should disable the current text input before enabling the new one.\nAt most one instance of text input may be in enabled state per instance,\nRequests to enable the another text input when some text input is active\nmust be ignored by compositor.\n\nThis request resets all state associated with previous enable, disable,\nset_surrounding_text, set_text_change_cause, set_content_type, and\nset_cursor_rectangle requests, as well as the state associated with\npreedit_string, commit_string, delete_surrounding_text, and action\nevents.\n\nThe set_surrounding_text, set_content_type and set_cursor_rectangle\nrequests must follow if the text input supports the necessary\nfunctionality.\n\nState set with this request is double-buffered. It will get applied on\nthe next xx_text_input_v3.commit request, and stay valid until the\nnext committed enable or disable request.\n\nThe changes must be applied by the compositor after issuing a\nxx_text_input_v3.commit request.",
             "summary": "Request text input to be enabled"
           },
           "args": []
@@ -158,6 +158,42 @@
             "summary": "commit state"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_available_actions",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Announces the actions available for the currently active text input.\n\nValues set with this event are double-buffered. They will get applied\non the next .done event.\nThey get reset to the initial value on the next committed deactivate event.\n\nThe initial value is an empty set: no actions are available.\n\nValues in the available_actions array come from text-input-v3.action.",
+            "summary": "announce the available actions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "available_actions",
+              "argType": "array",
+              "summary": "available actions"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "announce_supported_features",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Notifies the input method what the currently active text input client is able to do.\n\nThis event should come within the same .done sequence as .activate. Otherwise, the input method may ignore it.\n\nValues set with this event are double-buffered. They will get applied\non the next .done event.\nThey get reset to initial on the next committed deactivate event.\n\nThe initial value for features is none.",
+            "summary": "announce extra supported features"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "features",
+              "argType": "uint",
+              "enum": "xx_text_input_v3.supported_features"
+            }
+          ]
         }
       ],
       "events": [
@@ -266,10 +302,32 @@
         },
         {
           "type": "event",
+          "name": "move_cursor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Unselects text, moves the cursor and selects text.\n\nThis is equivalent to dragging the mouse over some text: it deselects whatever might be currently selected and selects a new range of text.\n\nThe offsets used in arguments are in bytes relative to the current cursor position. Cursor is the new position of the cursor, and anchor is the opposite end of selection. If there's no selection, anchor should be equal to cursor.\nIn terms of dragging the mouse, the anchor is the start, and cursor the end.\n\nThe offsets do not take preedit contents into account, nor is preedit changed in any way with this request.\n\nBoth cursor and anchor must fall on code point boundaries, otherwise text input client may ignore the request. It is therefore not recommended for an input method to move any of them beyond the text received in surrounding_text.\n\n\nWhen surrounding_text is not supported, the offsets must not be interpreted as bytes, but as some human-readable unit at least as big as a code point, for example a grapheme.\n\nThe cursor and anchor arguments can also take the following special values:\nBEGINNING := 0x8000_0000 = i32::MIN\nEND := 0x7fff_ffff = i32::MAX\nmeaning, respectively, the beginning and the end of of all text in the input field.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next commit request.\n\nThe initial values of both cursor and anchor are 0.",
+            "summary": "move cursor and change selection"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "cursor",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
           "name": "done",
           "description": {
             "type": "description",
-            "text": "Instruct the application to apply changes to state requested by the\npreedit_string, commit_string and delete_surrounding_text events. The\nstate relating to these events is double-buffered, and each one\nmodifies the pending state. This event replaces the current state with\nthe pending state.\n\nThe application must proceed by evaluating the changes in the following\norder:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Calculate surrounding text to send.\n5. Insert new preedit text in cursor position.\n6. Place cursor inside preedit text.\n\nThe serial number reflects the last state of the xx_text_input_v3\nobject known to the compositor. The value of the serial argument must\nbe equal to the number of commit requests already issued on that object.\n\nWhen the client receives a done event with a serial different than the\nnumber of past commit requests, it must proceed with evaluating and\napplying the changes as normal, except it should not change the current\nstate of the xx_text_input_v3 object. All pending state requests\n(set_surrounding_text, set_content_type and set_cursor_rectangle) on\nthe xx_text_input_v3 object should be sent and committed after\nreceiving a xx_text_input_v3.done event with a matching serial.",
+            "text": "Instruct the application to apply changes to state requested by the\npreedit_string, commit_string delete_surrounding_text, and action\nevents.\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This event replaces the current state with\nthe pending state.\n\nThe application must proceed by evaluating the changes in the following\norder:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Move the cursor and selection.\n5. Calculate surrounding text to send.\n6. Insert new preedit text in cursor position.\n7. Place cursor inside preedit text.\n8. Perform the requested action.\n\nThe serial number reflects the last state of the xx_text_input_v3\nobject known to the compositor. The value of the serial argument must\nbe equal to the number of commit requests already issued on that object.\n\nWhen the client receives a done event with a serial different than the\nnumber of past commit requests, it must proceed with evaluating and\napplying the changes as normal, except it should not change the current\nstate of the xx_text_input_v3 object. All pending state requests\n(set_surrounding_text, set_content_type and set_cursor_rectangle) on\nthe xx_text_input_v3 object should be sent and committed after\nreceiving a xx_text_input_v3.done event with a matching serial.",
             "summary": "apply changes"
           },
           "args": [
@@ -277,6 +335,25 @@
               "type": "arg",
               "name": "serial",
               "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "perform_action",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "The input method issued an action to perform on this text input.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next .done event.\n\nThe initial value of action is none.",
+            "summary": "action performed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "action performed",
+              "enum": "action"
             }
           ]
         }
@@ -479,13 +556,61 @@
               "summary": "input for a terminal"
             }
           ]
+        },
+        {
+          "type": "enum",
+          "name": "action",
+          "since": "2",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "A possible action to perform on a text input.",
+            "summary": "action"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "finish",
+              "value": "0",
+              "description": {
+                "type": "description",
+                "text": "This should be triggered when the user is done with editing the field and wants to move on. For example, the query was typed and the user wants the search result. Or the name was entered and the address needs to be typed next.\n\nThe action to perform depends on the application, and should match the value of the current content_purpose.\n\nAll clients SHOULD implement this action. Without it, on-screen keyboards don't work as expected.",
+                "summary": "trigger appropriate action for the completion of editing"
+              }
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "supported_features",
+          "since": "2",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Client functionality over the baseline that isn't indicated implicitly.\n\nThis does not include events coming with .enable: when the input method receives such an event, it is clear the text input supports it, e.g. content_type, available_actions.\n\nBaseline functionality like commit_string, set_preedit_string must always be supported for the protocol to be useful.\n\nThe flags match text-input protocol versions, but should be kept general enough to support other protocols.",
+            "summary": "possible supported features"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0x0",
+              "summary": "no extra functionality supported"
+            },
+            {
+              "type": "entry",
+              "name": "move_cursor",
+              "value": "0x1",
+              "summary": "the move_cursor request"
+            }
+          ]
         }
       ]
     },
     {
       "type": "interface",
       "name": "xx_text_input_manager_v3",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A factory for text-input objects. This object is a global singleton.",

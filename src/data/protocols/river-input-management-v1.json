@@ -1,0 +1,348 @@
+{
+  "type": "protocol",
+  "name": "river_input_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2025 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol supports creating/destroying seats, assigning input devices to\nseats, and configuring input devices (e.g. setting keyboard repeat rate).\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "summary": "configure input devices"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_input_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Input manager global interface.",
+        "summary": "input manager global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wishes to receive\nevents on this object.\n\nThe Wayland protocol is asynchronous, which means the server may send\nfurther events until the stop request is processed. The client must wait\nfor a river_input_manager_v1.finished event before destroying this\nobject.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called after the finished event has been received\nto complete destruction of the object.\n\nIt is a protocol error to make this request before the finished event\nhas been received.\n\nIf a client wishes to destroy this object it should send a\nriver_input_manager_v1.stop request and wait for a\nriver_input_manager_v1.finished event. Once the finished event is\nreceived it is safe to destroy this object and any other objects created\nthrough this interface.",
+            "summary": "destroy the river_input_manager_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_seat",
+          "description": {
+            "type": "description",
+            "text": "Create a new seat with the given name. Has no effect if a seat with the\ngiven name already exists.\n\nThe default seat with name \"default\" always exists and does not need to\nbe explicitly created.",
+            "summary": "create a new seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy_seat",
+          "description": {
+            "type": "description",
+            "text": "Destroy the seat with the given name. Has no effect if a seat with the\ngiven name does not exist.\n\nThe default seat with name \"default\" cannot be destroyed and attempting\nto destroy it will have no effect.\n\nAny input devices assigned to the destroyed seat at the time of\ndestruction are assigned to the default seat.",
+            "summary": "destroy a seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the server will send no further events on this\nobject. The client should destroy the object. See\nriver_input_manager_v1.destroy for more information.",
+            "summary": "the server has finished with the input manager"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "input_device",
+          "description": {
+            "type": "description",
+            "text": "A new input device has been created.",
+            "summary": "new input device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_input_device_v1"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_destroy",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_input_device_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An input device represents a physical keyboard, mouse, touchscreen, or\ndrawing tablet tool. It is assigned to exactly one seat at a time.\nBy default, all input devices are assigned to the default seat.",
+        "summary": "an input device"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the input\ndevice object and that it may be safely destroyed.",
+            "summary": "destroy the input device object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "assign_to_seat",
+          "description": {
+            "type": "description",
+            "text": "Assign the input device to a seat. All input devices not explicitly\nassigned to a seat are considered assigned to the default seat.\n\nHas no effect if a seat with the given name does not exist.",
+            "summary": "assign the input device to a seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the seat"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_repeat_info",
+          "description": {
+            "type": "description",
+            "text": "Set repeat rate and delay for a keyboard input device. Has no effect if\nthe device is not a keyboard.\n\nNegative values for either rate or delay are illegal. A rate of zero\nwill disable any repeating (regardless of the value of delay).",
+            "summary": "set keyboard repeat rate and delay"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "rate",
+              "argType": "int",
+              "summary": "rate in key repeats per second"
+            },
+            {
+              "type": "arg",
+              "name": "delay",
+              "argType": "int",
+              "summary": "delay in milliseconds"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_scroll_factor",
+          "description": {
+            "type": "description",
+            "text": "Set the scroll factor for a pointer input device. Has no effect if the\ndevice is not a pointer.\n\nFor example, a factor of 0.5 will make scrolling twice as slow while a\nfactor of 3.0 will make scrolling 3 times as fast.\n\nNegative values for either rate or delay are illegal. A rate of zero\nwill disable any repeating (regardless of the value of delay).",
+            "summary": "set scroll factor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "factor",
+              "argType": "fixed"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "map_to_output",
+          "description": {
+            "type": "description",
+            "text": "Map the input device to the given output. Has no effect if the device is\nnot a pointer, touch, or tablet device.\n\nIf mapped to both an output and a rectangle, the rectangle has priority.\n\nPassing null clears an existing mapping.",
+            "summary": "map input device to the given output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "map_to_rectangle",
+          "description": {
+            "type": "description",
+            "text": "Map the input device to the given rectangle in the global compositor\ncoordinate space. Has no effect if the device is not a pointer, touch,\nor tablet device.\n\nIf mapped to both an output and a rectangle, the rectangle has priority.\n\nWidth and height must be greater than or equal to 0.\n\nPassing 0 for width or height clears an existing mapping.",
+            "summary": "map input device to the given rectangle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "removed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the input device has been removed.\n\nThe server will send no further events on this object and ignore any\nrequest (other than river_input_device_v1.destroy) made after this event is\nsent. The client should destroy this object with the\nriver_input_device_v1.destroy request to free up resources.",
+            "summary": "the input device is removed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "type",
+          "description": {
+            "type": "description",
+            "text": "The type of the input device. This event is sent once when the\nriver_input_device_v1 object is created. The device type cannot\nchange during the lifetime of the object.",
+            "summary": "the type of the input device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "enum": "type"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "name",
+          "description": {
+            "type": "description",
+            "text": "The name of the input device. This event is sent once when the\nriver_input_device_v1 object is created. The device name cannot\nchange during the lifetime of the object.",
+            "summary": "the name of the input device"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_repeat_info",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_scroll_factor",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_map_to_rectangle",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "type",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "keyboard",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "pointer",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "touch",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "tablet",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
