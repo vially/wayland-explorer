@@ -118,6 +118,12 @@ const compositorRegistryUnsorted: CompositorRegistryItem[] = [
         icon: 'river',
         info: require('./compositors/river.json'),
     },
+    {
+        id: 'phoc',
+        name: 'phoc',
+        icon: 'phosh',
+        info: require('./compositors/phoc.json'),
+    },
 ]
 
 export const compositorRegistry: CompositorRegistryItem[] =
