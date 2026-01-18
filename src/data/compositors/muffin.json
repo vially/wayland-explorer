@@ -31,10 +31,6 @@
       "version": 5
     },
     {
-      "interface": "wl_shell",
-      "version": 1
-    },
-    {
       "interface": "wl_shm",
       "version": 1
     },
