@@ -32,7 +32,7 @@ export const Footer: React.FC = () => (
                 </div>
                 <div className="space-y-4">
                     <p className="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
-                        © 2025 <Link href="/">Wayland Explorer</Link>
+                        © 2026 <Link href="/">Wayland Explorer</Link>
                     </p>
                     <p className="text-gray-400 text-sm">
                         This website is not affiliated in any way with the
