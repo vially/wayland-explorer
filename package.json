@@ -8,6 +8,8 @@
     "dependencies": {
         "@headlessui/react": "^1.4.1",
         "@vscode/codicons": "^0.0.21",
+        "baseline-browser-mapping": "^2.9.19",
+        "caniuse-lite": "^1.0.30001768",
         "fast-xml-parser": "^4.5.0",
         "plausible-tracker": "^0.3.1",
         "react": "^17.0.2",
@@ -18,12 +20,12 @@
     },
     "scripts": {
         "start": "react-scripts start",
-        "prebuild": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/export-data-json.ts",
+        "prebuild": "bun ./scripts/bin/export-data-json.ts",
         "build": "env BUILD_PATH=build/protocols react-scripts build",
-        "postbuild": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/render-static-html.tsx",
+        "postbuild": "bun ./scripts/bin/render-static-html.tsx",
         "test": "react-scripts test",
-        "regenerate-protocols": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/regenerate-protocols-data.ts",
-        "print-registry": "ts-node --project=./tsconfig.scripts.json ./scripts/bin/print-protocol-registry-items.ts",
+        "regenerate-protocols": "bun ./scripts/bin/regenerate-protocols-data.ts",
+        "print-registry": "bun ./scripts/bin/print-protocol-registry-items.ts",
         "eject": "react-scripts eject"
     },
     "eslintConfig": {
@@ -71,7 +73,6 @@
         "prettier": "^2.3.2",
         "tailwind-scrollbar": "^1.3.1",
         "tailwindcss": "^3.0.16",
-        "ts-node": "^10.2.1",
         "typescript": "^4.4.2"
     }
 }
