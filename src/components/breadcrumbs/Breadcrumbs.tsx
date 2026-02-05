@@ -92,7 +92,7 @@ export const Breadcrumbs: React.FC<{ children?: React.ReactNode }> = ({
             <ol className="flex flex-wrap items-center space-x-1 [&>li]:overflow-x-hidden">
                 {React.Children.toArray(children).map((child, i) => {
                     return (
-                        <li>
+                        <li key={i}>
                             {i !== 0 ? (
                                 <div className="flex items-center">
                                     <SolidChevronRight className="mr-1" />

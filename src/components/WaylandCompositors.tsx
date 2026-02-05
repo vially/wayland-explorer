@@ -46,7 +46,7 @@ const CompositorVersion: React.FC<{ compositor: CompositorRegistryItem }> = ({
 const CompositorHeader: React.FC<{ compositor: CompositorRegistryItem }> = ({
     compositor,
 }) => (
-    <th key={compositor.id} className="px-2 pt-1 align-bottom">
+    <th className="px-2 pt-1 align-bottom">
         <div className="flex flex-col justify-end items-center gap-2">
             <div className="[writing-mode:vertical-rl] rotate-180">
                 {compositor.name}
@@ -133,7 +133,7 @@ const CanIUseTable: React.FC<{
                 <tr>
                     <th className="p-4"></th>
                     {compositorRegistry.map((compositor) => (
-                        <CompositorHeader compositor={compositor} />
+                        <CompositorHeader key={compositor.id} compositor={compositor} />
                     ))}
                 </tr>
             </thead>
