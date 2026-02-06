@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol supports creating/destroying seats, assigning input devices to\nseats, and configuring input devices (e.g. setting keyboard repeat rate).\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "text": "This protocol supports creating/destroying seats, assigning input devices to\nseats, and configuring input devices (e.g. setting keyboard repeat rate).\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "configure input devices"
   },
   "interfaces": [
@@ -185,7 +185,7 @@
           "name": "set_scroll_factor",
           "description": {
             "type": "description",
-            "text": "Set the scroll factor for a pointer input device. Has no effect if the\ndevice is not a pointer.\n\nFor example, a factor of 0.5 will make scrolling twice as slow while a\nfactor of 3.0 will make scrolling 3 times as fast.\n\nNegative values for either rate or delay are illegal. A rate of zero\nwill disable any repeating (regardless of the value of delay).",
+            "text": "Set the scroll factor for a pointer input device. Has no effect if the\ndevice is not a pointer.\n\nFor example, a factor of 0.5 will make scrolling twice as slow while a\nfactor of 3.0 will make scrolling 3 times as fast.\n\nSetting a scroll factor less than 0 is a protocol error.",
             "summary": "set scroll factor"
           },
           "args": [

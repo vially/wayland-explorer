@@ -1,6 +1,6 @@
 {
   "type": "protocol",
-  "name": "treeland_screensaver",
+  "name": "treeland_screensaver_v1",
   "copyright": {
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
@@ -8,11 +8,11 @@
   "interfaces": [
     {
       "type": "interface",
-      "name": "treeland_screensaver",
+      "name": "treeland_screensaver_v1",
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This object implements a simple idle inhibit protocol.\n\nCall inhibit to prevent treeland from entering idle state.\nCall uninhibit or disconnect from the global to release\nthe inhibit.\n\nIf the client disconnects from the compositor, the inhibit\nassociated with that client is automatically released.\n\nThere can be only one inhibit per client per time. Calling\ninhibit multiple times will raise an error. Call uninhibit\nbefore inhibit to update application_name and reason\nrecorded.\n\nWarning! The protocol described in this file is currently\nin the testing phase. Backward compatible changes may be\nadded together with the corresponding interface version\nbump. Backward incompatible changes can only be done by\ncreating a new major version of the extension.",
+        "text": "This object implements a simple idle inhibit protocol used\nto implement org.freedesktop.ScreenSaver D-Bus interface.\n\nCall inhibit to prevent treeland from entering idle state.\nCall uninhibit or disconnect from the global to release\nthe inhibit.\n\nIf the client disconnects from the compositor, the inhibit\nassociated with that client is automatically released.\n\nThere can be only one inhibit per client per time. Calling\ninhibit multiple times will raise an error. Call uninhibit\nbefore inhibit to update application_name and reason\nrecorded.\n\nWarning! The protocol described in this file is currently\nin the testing phase. Backward compatible changes may be\nadded together with the corresponding interface version\nbump. Backward incompatible changes can only be done by\ncreating a new major version of the extension.",
         "summary": "Simple idle inhibit protocol"
       },
       "requests": [

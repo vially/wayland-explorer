@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol exposes libinput device configuration APIs. The libinput\ndocumentation should be referred to for detailed information on libinput's\nbehavior.\n\nThis protocol is designed so that (hopefully) any backwards compatible\nchange to libinput's API can be matched with a backwards compatible change\nto this protocol.\n\nNote: the libinput API uses floating point types (float and double in C)\nwhich are not (yet?) natively supported by the Wayland protocol. However,\nthe Wayland protocol does support sending arbitrary bytes through the array\nargument type. This protocol uses e.g. type=\"array\" summary=\"double\" to\nindicate a native-endian IEEE-754 64-bit double value.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "text": "This protocol exposes libinput device configuration APIs. The libinput\ndocumentation should be referred to for detailed information on libinput's\nbehavior.\n\nThis protocol is designed so that (hopefully) any backwards compatible\nchange to libinput's API can be matched with a backwards compatible change\nto this protocol.\n\nNote: the libinput API uses floating point types (float and double in C)\nwhich are not (yet?) natively supported by the Wayland protocol. However,\nthe Wayland protocol does support sending arbitrary bytes through the array\nargument type. This protocol uses e.g. type=\"array\" summary=\"double\" to\nindicate a native-endian IEEE-754 64-bit double value.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "configure libinput devices"
   },
   "interfaces": [
@@ -1144,7 +1144,7 @@
           "name": "click_method_support",
           "description": {
             "type": "description",
-            "text": "The click methods suppported by the device.",
+            "text": "The click methods supported by the device.",
             "summary": "supported click methods"
           },
           "args": [
@@ -1280,7 +1280,7 @@
           "name": "scroll_method_support",
           "description": {
             "type": "description",
-            "text": "The scroll methods suppported by the device.",
+            "text": "The scroll methods supported by the device.",
             "summary": "supported scroll methods"
           },
           "args": [

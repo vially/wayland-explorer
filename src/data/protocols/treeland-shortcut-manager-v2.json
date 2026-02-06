@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_shortcut_manager_v2",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows privileged clients to register global shortcuts.\n\nIn treeland, global shortcuts are managed in a per-user context.\nShortcuts for different users are isolated, and will not interfere with each other.\nThis allows multiple users to use their own set of global Shortcuts\non the same system without conflicts.\nThis behavior is transparent to the clients of this interface (i.e\nthe user context used by this protocol is the same as that of the client.)\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
@@ -20,6 +20,7 @@
           "type": "request",
           "name": "destroy",
           "requestType": "destructor",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Destroy the shortcut manager.\nExisting shortcuts created through this interface remain valid.",
@@ -30,6 +31,7 @@
         {
           "type": "request",
           "name": "acquire",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Acquire the shortcut manager for the current client.\n\nThis request must be sent before any bind/unbind request can be performed.\n\nOnly one client hold exclusive control of the shortcut manager at a time,\nfor a given session.\nIf the shortcut manager is already acquired by another client, an protocol error",
@@ -40,9 +42,10 @@
         {
           "type": "request",
           "name": "bind_key",
+          "since": "1",
           "description": {
             "type": "description",
-            "text": "Bind a key sequence to a compositor action.\n\nThe key sequence is specified in the string format used by QKeySequence,\nsee https://doc.qt.io/qt-6/qkeysequence.html#toString for details.\n\nSending this request without first acquiring the shortcut manager\nwill result in a `not_acquired` protocol error.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, the bind_key request will fail.\n\nThe action argument specifies the compositor action to be executed\nwhen the key sequence is activated.\n\nThe protocol provides three keybinding modes:\n- key_release: the action is triggered when the key sequence is released.\n- key_press: the action is triggered when the key sequence is pressed.\n- key_press_repeat: the action is triggered when the key sequence is pressed,\nand repeatedly triggered if the key sequence is held down.\n\nIf a binding with the same key sequence and action already exists,\nthe bind_key request will fail.\n\nNote that the binding will not take effect until a commit request is sent.",
+            "text": "Bind a key sequence to a compositor action.\n\nThe key sequence is specified in the string format used by QKeySequence,\nsee https://doc.qt.io/qt-6/qkeysequence.html#toString for details.\n\nSending this request without first acquiring the shortcut manager\nwill result in a `not_acquired` protocol error.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, the bind_key request will fail.\n\nThe action argument specifies the compositor action to be executed\nwhen the key sequence is activated.\n\nEach keybind has a flags argument to specify the exact condition of triggering,\nsee documentation of keybind_flag enum for details.\n\nIf a binding with the same key sequence and action already exists,\nits flags will be updated to the new value.\n\nNote that the binding will not take effect until a commit request is sent.",
             "summary": "bind a key sequence to a compositor action"
           },
           "args": [
@@ -60,10 +63,10 @@
             },
             {
               "type": "arg",
-              "name": "mode",
+              "name": "flags",
               "argType": "uint",
-              "summary": "mode for the keybinding",
-              "enum": "keybind_mode"
+              "summary": "flags for the keybinding",
+              "enum": "keybind_flag"
             },
             {
               "type": "arg",
@@ -77,6 +80,7 @@
         {
           "type": "request",
           "name": "bind_swipe_gesture",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Bind a swipe gesture to a compositor action.\n\nSending this request without first acquiring the shortcut manager\nwill result in a `not_acquired` protocol error.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, the bind_swipe_gesture request will fail.\n\nThe direction argument specifies the direction towards which the swipe gesture must be performed.\nIf this argument is not one of the defined enum values, the bind_swipe_gesture request will fail.\n\nThe action argument specifies the compositor action to be executed\nwhen the swipe gesture is activated.\nIf a binding with the same gesture and action already exists,\nthe bind_swipe_gesture request will fail.\n\nNote that the binding will not take effect until a commit request is sent.",
@@ -114,6 +118,7 @@
         {
           "type": "request",
           "name": "bind_hold_gesture",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Bind a hold gesture to a compositor action.\n\nSending this request without first acquiring the shortcut manager\nwill result in a `not_acquired` protocol error.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, the bind_hold_gesture request will fail.\n\nThe action argument specifies the compositor action to be executed\nwhen the hold gesture is activated.\nIf a binding with the same gesture and action already exists,\nthe bind_hold_gesture request will fail.\n\nNote that the binding will not take effect until a commit request is sent.",
@@ -144,6 +149,7 @@
         {
           "type": "request",
           "name": "commit",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Commit the pending bindings.\n\nThis request applies all the bind_key, bind_swipe_gesture and bind_hold_gesture\nrequests sent since the last commit.\n\nAfter processing this request, the compositor will emit a `commit_status` event\nif the commit was successful or `commit_failure` event if the commit failed.\n\nOn a successful commit, all the pending bindings will take effect.\nOn a failed commit, none of the pending bindings will take effect.\n\nSending this request without first acquiring the shortcut manager\nwill result in a `not_acquired` protocol error.\n\nSending further commit requests before `commit_success` or `commit_failure`\nis sent is a protocol error.",
@@ -154,6 +160,7 @@
         {
           "type": "request",
           "name": "unbind",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "Remove an existing binding.\n\nThe binding to be removed is identified by its unique name.\nIf no binding with the specified name exists, the unbind request has no effect.",
@@ -173,9 +180,10 @@
         {
           "type": "event",
           "name": "activated",
+          "since": "1",
           "description": {
             "type": "description",
-            "text": "This event is emitted when a binding registered with action `notify` is activated.\n\nIf the binding is activated due to auto-repeat, the repeat argument will be non-zero.",
+            "text": "This event is emitted when a binding registered with action `notify` is activated.\n\nthe flags argument indicates the type of key event as defined in keybind_flag enum.",
             "summary": "a shortcut has been activated"
           },
           "args": [
@@ -187,15 +195,17 @@
             },
             {
               "type": "arg",
-              "name": "repeat",
+              "name": "flags",
               "argType": "uint",
-              "summary": "indicates whether the shortcut activation is due to auto-repeat"
+              "summary": "flags for the key event",
+              "enum": "keybind_flag"
             }
           ]
         },
         {
           "type": "event",
           "name": "commit_success",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "This event is emitted in response to a commit request,\nindicating that the commit was successful.",
@@ -206,6 +216,7 @@
         {
           "type": "event",
           "name": "commit_failure",
+          "since": "1",
           "description": {
             "type": "description",
             "text": "This event is emitted in response to a commit request,\nindicating that the commit has failed.\n\nThe error argument indicates the first error that caused the commit to fail.",
@@ -232,6 +243,7 @@
         {
           "type": "enum",
           "name": "direction",
+          "since": "1",
           "bitfield": false,
           "entries": [
             {
@@ -259,6 +271,7 @@
         {
           "type": "enum",
           "name": "action",
+          "since": "1",
           "bitfield": false,
           "description": {
             "type": "description",
@@ -405,34 +418,39 @@
         },
         {
           "type": "enum",
-          "name": "keybind_mode",
-          "bitfield": false,
+          "name": "keybind_flag",
+          "since": "2",
+          "bitfield": true,
           "description": {
             "type": "description",
-            "text": "Keybinding modes.",
-            "summary": "keybinding modes"
+            "text": "Flags to specify the keybinding mode.\nwith key_press, the action is triggered on key press.\nwith key_release, the action is triggered on key release.\nwith repeat, the action is repeatedly triggered if the key is held down.\n\nExamples:\nkey_press | repeat: the action is triggered on key press, and repeatedly\ntriggered if the key is held down.\nkey_press | key_release: the action is triggered on both key press and\nkey release, auto-repeated events are ignored.\nkey_press | key_release | repeat: note that treeland repeats both key\npress and key release events.",
+            "summary": "keybinding flags"
           },
           "entries": [
             {
               "type": "entry",
-              "name": "key_release",
-              "value": "1"
-            },
-            {
-              "type": "entry",
               "name": "key_press",
-              "value": "2"
+              "value": "0x1",
+              "summary": "bind key press events"
             },
             {
               "type": "entry",
-              "name": "key_press_repeat",
-              "value": "3"
+              "name": "key_release",
+              "value": "0x2",
+              "summary": "bind key release events"
+            },
+            {
+              "type": "entry",
+              "name": "repeat",
+              "value": "0x4",
+              "summary": "bind autorepeat events."
             }
           ]
         },
         {
           "type": "enum",
           "name": "bind_error",
+          "since": "1",
           "bitfield": false,
           "description": {
             "type": "description",
@@ -465,6 +483,7 @@
         {
           "type": "enum",
           "name": "error",
+          "since": "1",
           "bitfield": false,
           "entries": [
             {

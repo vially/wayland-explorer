@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "zxdg_decoration_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows a compositor to announce support for server-side\ndecorations.\n\nA window decoration is a set of window controls as deemed appropriate by\nthe party managing them, such as user interface components used to move,\nresize and change a window's state.\n\nA client can use this protocol to request being decorated by a supporting\ncompositor.\n\nIf compositor and client do not negotiate the use of a server-side\ndecoration using this protocol, clients continue to self-decorate as they\nsee fit.\n\nWarning! The protocol described in this file is experimental and\nbackward incompatible changes may be made. Backward compatible changes\nmay be added together with the corresponding interface version bump.\nBackward incompatible changes are done by bumping the version number in\nthe protocol and interface names and resetting the interface version.\nOnce the protocol is to be declared stable, the 'z' prefix and the\nversion number in the protocol and interface names are removed and the\ninterface version number is reset.",
@@ -32,7 +32,7 @@
           "name": "get_toplevel_decoration",
           "description": {
             "type": "description",
-            "text": "Create a new decoration object associated with the given toplevel.\n\nCreating an xdg_toplevel_decoration from an xdg_toplevel which has a\nbuffer attached or committed is a client error, and any attempts by a\nclient to attach or manipulate a buffer prior to the first\nxdg_toplevel_decoration.configure event must also be treated as\nerrors.",
+            "text": "Create a new decoration object associated with the given toplevel.\n\nFor objects of version 1, creating an xdg_toplevel_decoration from an\nxdg_toplevel which has a buffer attached or committed is a client\nerror, and any attempts by a client to attach or manipulate a buffer\nprior to the first xdg_toplevel_decoration.configure event must also be\ntreated as errors.\n\nFor objects of version 2 or newer, creating an xdg_toplevel_decoration\nfrom an xdg_toplevel which has a buffer attached or committed is\nallowed. The initial decoration mode of the surface if a buffer is\nalready attached depends on whether a xdg_toplevel_decoration object\nhas been associated with the surface or not prior to this request.\n\nIf an xdg_toplevel_decoration was associated with the surface, then\ndestroyed without a surface commit, the previous decoration mode is\nretained.\n\nIf no xdg_toplevel_decoration was associated with the surface prior to\nthis request, or if a surface commit has been perfomed after a previous\nxdg_toplevel_decoration object associated with the surface was\ndestroyed, the decoration mode is assumed to be client-side.",
             "summary": "create a new toplevel decoration object"
           },
           "args": [
@@ -58,7 +58,7 @@
     {
       "type": "interface",
       "name": "zxdg_toplevel_decoration_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The decoration object allows the compositor to toggle server-side window\ndecorations for a toplevel surface. The client can request to switch to\nanother mode.\n\nThe xdg_toplevel_decoration object must be destroyed before its\nxdg_toplevel.",
@@ -71,7 +71,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Switch back to a mode without any server-side decorations at the next\ncommit.",
+            "text": "Switch back to a mode without any server-side decorations at the next\ncommit, unless a new xdg_toplevel_decoration is created for the surface\nfirst.",
             "summary": "destroy the decoration object"
           },
           "args": []

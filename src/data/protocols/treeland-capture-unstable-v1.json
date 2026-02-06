@@ -347,7 +347,7 @@
               "name": "flags",
               "argType": "uint",
               "summary": "frame flags",
-              "enum": "treeland_capture_once_context_v1.flags"
+              "enum": "treeland_capture_frame_v1.flags"
             }
           ]
         },
