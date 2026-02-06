@@ -1,6 +1,6 @@
 {
   "type": "protocol",
-  "name": "treeland_ddm",
+  "name": "treeland_ddm_v1",
   "copyright": {
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
@@ -8,11 +8,11 @@
   "interfaces": [
     {
       "type": "interface",
-      "name": "treeland_ddm",
+      "name": "treeland_ddm_v1",
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This object is primarily used for establish connection between\ntreeland and ddm.",
+        "text": "This is the treeland - ddm private communication protocol.\n\nThis object is primarily used for establish connection between\ntreeland and ddm.",
         "summary": "core global for treeland - ddm connection"
       },
       "requests": [

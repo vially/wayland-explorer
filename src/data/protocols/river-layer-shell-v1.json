@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows the river-window-management-v1 window manager to\nsupport the wlr-layer-shell-v1 protocol.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "text": "This protocol allows the river-window-management-v1 window manager to\nsupport the wlr-layer-shell-v1 protocol.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "layer shell support for river"
   },
   "interfaces": [

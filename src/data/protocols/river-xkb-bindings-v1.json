@@ -7,14 +7,14 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows the river-window-management-v1 window manager to\ndefine key bindings in terms of xkbcommon keysyms and other configurable\nproperties.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "text": "This protocol allows the river-window-management-v1 window manager to\ndefine key bindings in terms of xkbcommon keysyms and other configurable\nproperties.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "define xkbcommon-based key bindings"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "river_xkb_bindings_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This global interface should only be advertised to the client if the\nriver_window_manager_v1 global is also advertised.",
@@ -68,15 +68,55 @@
               "protocol": "river-window-management-v1"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "get_seat",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Create an object to manage seat-specific xkb bindings state.\n\nIt is a protocol error to make this request more than once for a given\nriver_seat_v1 object.",
+            "summary": "manage seat-specific state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_xkb_bindings_seat_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1",
+              "protocol": "river-window-management-v1"
+            }
+          ]
         }
       ],
       "events": [],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "object_already_created",
+              "value": "0",
+              "since": "2"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",
       "name": "river_xkb_binding_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This object allows the window manager to configure a xkbcommon key binding\nand receive events when the key binding is triggered.\n\nThe new key binding is not enabled until the enable request is made during\na manage sequence.\n\nNormally, all key events are sent to the surface with keyboard focus by\nthe compositor. Key events that trigger a key binding are not sent to the\nsurface with keyboard focus.\n\nIf multiple key bindings would be triggered by a single physical key event\non the compositor side, it is compositor policy which key binding(s) will\nreceive press/release events or if all of the matched key bindings receive\npress/release events.\n\nKey bindings might be matched by the same physical key event due to shared\nkeysym and modifiers. The layout override feature may also cause the same\nphysical key event to trigger two key bindings with different keysyms and\ndifferent layout overrides configured.",
@@ -150,6 +190,77 @@
             "type": "description",
             "text": "This event indicates that the physical key triggering the binding has\nbeen released.\n\nReleasing the modifiers for the binding without releasing the \"main\"\nphysical key that produces the bound keysym does not trigger the release\nevent. This event is sent when the \"main\" key is released, even if the\nmodifiers have changed since the pressed event.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
             "summary": "the key triggering the binding has been released"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "stop_repeat",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that repeating should be stopped for the binding if\nthe window manager has been repeating some action since the pressed\nevent.\n\nThis event is generally sent when some other (possible unbound) key is\npressed after the pressed event is sent and before the released event\nis sent for this binding.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "repeating should be stopped"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "river_xkb_bindings_seat_v1",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "This object manages xkb bindings state associated with a specific seat.",
+        "summary": "xkb bindings seat"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the object and\nthat it may be safely destroyed.",
+            "summary": "destroy the object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "ensure_next_key_eaten",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Ensure that the next non-modifier key press and corresponding release\nevents for this seat are not sent to the currently focused surface.\n\nIf the next non-modifier key press triggers a binding, the\npressed/released events are sent to the river_xkb_binding_v1 object as\nusual.\n\nIf the next non-modifier key press does not trigger a binding, the\nate_unbound_key event is sent instead.\n\nRationale: the window manager may wish to implement \"chorded\"\nkeybindings where triggering a binding activates a \"submap\" with a\ndifferent set of keybindings. Without a way to eat the next key\npress event, there is no good way for the window manager to know that it\nshould error out and exit the submap when a key not bound in the submap\nis pressed.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "ensure the next key press event is eaten"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "cancel_ensure_next_key_eaten",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This requests cancels the effect of the latest ensure_next_key_eaten\nrequest if no key has been eaten due to the request yet. This request\nhas no effect if a key has already been eaten or no\nensure_next_key_eaten was made.\n\nRationale: the window manager may wish cancel an uncompleted \"chorded\"\nkeybinding after a timeout of a few seconds. Note that since this\ntimeout use-case requires the window manager to trigger a manage sequence\nwith the river_window_manager_v1.manage_dirty request it is possible that\nthe ate_unbound_key key event may be sent before the window manager has\na chance to make the cancel_ensure_next_key_eaten request.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "cancel an ensure_next_key_eaten request"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "ate_unbound_key",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "An unbound key press event was eaten due to the ensure_next_key_eaten\nrequest.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "an unbound key press event was eaten"
           },
           "args": []
         }

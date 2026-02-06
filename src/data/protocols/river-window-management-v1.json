@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows a single \"window manager\" client to determine the\nwindow management policy of the compositor. State is globally\ndouble-buffered allowing for frame perfect state changes involving multiple\nwindows.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can only\nbe done by creating a new major version of the extension.",
+    "text": "This protocol allows a single \"window manager\" client to determine the\nwindow management policy of the compositor. State is globally\ndouble-buffered allowing for frame perfect state changes involving multiple\nwindows.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "frame-perfect window management"
   },
   "interfaces": [

@@ -127,6 +127,46 @@
               "interface": "treeland_lockscreen_v1"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "set_xwindow_position_relative",
+          "description": {
+            "type": "description",
+            "text": "Move the top-left point of a XWayland surface\nspecified with Window ID, to a position that has\n(dx, dy) offset from the top-left point of a wl_surface\n\nOnce the server finished process it send \"done\" to the\ncallback. The callback data 0 means no error occured,\n1 means something went wrong and the move cannot be\ndone.",
+            "summary": "Move a XWayland surface to a position relative to a wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "interface": "wl_callback",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "wid",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed"
+            }
+          ]
         }
       ],
       "events": [],

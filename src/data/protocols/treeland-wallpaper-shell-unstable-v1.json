@@ -1,0 +1,289 @@
+{
+  "type": "protocol",
+  "name": "treeland_wallpaper_shell_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_wallpaper_notifier_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_wallpaper_notifier_v1 interface provides notifications\nabout the availability and lifetime of wallpaper sources managed by\nthe compositor.\n\nThis interface is purely event-driven. Clients receive events when\nwallpaper sources are added, become active, or are removed, and may\nupdate their internal state or user interface accordingly.",
+        "summary": "Notification interface for wallpaper source changes"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys this treeland_wallpaper_notifier_v1 object.\n\nDestroying a bound treeland_wallpaper_notifier_v1 object while\nwallpaper surface objects created from it are still alive is\nillegal and will result in a protocol error.",
+            "summary": "Destroy the wallpaper notifier object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "add",
+          "description": {
+            "type": "description",
+            "text": "This event is sent by the compositor when a new wallpaper source\nis added or becomes active.\n\nThe source_type argument describes the type of the wallpaper\nsource. The meaning of the file_source argument depends on the\nreported source_type.",
+            "summary": "Notify about a new wallpaper source"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source_type",
+              "argType": "uint",
+              "summary": "The type of the wallpaper source",
+              "enum": "wallpaper_source_type"
+            },
+            {
+              "type": "arg",
+              "name": "file_source",
+              "argType": "string",
+              "summary": "The file path or identifier of the wallpaper source"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "remove",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the wallpaper source identified by\nfile_source is no longer available.\n\nAfter receiving this event, the client should discard any internal\nstate associated with the wallpaper source and must not reference\nit anymore.",
+            "summary": "Notify that a wallpaper source has been removed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "file_source",
+              "argType": "string",
+              "summary": "The file path or identifier of the wallpaper source"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "wallpaper_source_type",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "image",
+              "value": "0",
+              "summary": "The wallpaper source is an image"
+            },
+            {
+              "type": "entry",
+              "name": "video",
+              "value": "1",
+              "summary": "The wallpaper source is a video"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_wallpaper_shell_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_wallpaper_shell_v1 interface is a global object exposed by\nthe compositor that allows a client to assign the wallpaper role to\na wl_surface and create wallpaper surface objects.\n\nA wallpaper surface represents content intended to be displayed as\nthe desktop wallpaper, such as a static image or a dynamic media\nsource, and is associated with exactly one wl_surface.\n\nThis interface follows the shell pattern used by other Wayland\nprotocols: it assigns a specific role to a wl_surface and manages\nthe lifetime and behavior of wallpaper surfaces.\n\nThis interface is a singleton. At most one client may bind to\ntreeland_wallpaper_shell_v1 at any given time.",
+        "summary": "Wallpaper shell global"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys this treeland_wallpaper_shell_v1 object.\n\nDestroying a bound treeland_wallpaper_shell_v1 object while there\nare still treeland_wallpaper_surface_v1 objects created from it\nis illegal and will result in a protocol error.",
+            "summary": "Destroy the wallpaper shell object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_treeland_wallpaper_surface",
+          "description": {
+            "type": "description",
+            "text": "Creates a treeland_wallpaper_surface_v1 object and assigns the\nwallpaper role to the given wl_surface.\n\nThe provided wl_surface must not already have a role, and while\nit is used as a wallpaper surface, it must not be assigned any\nother role.\n\nThe file_source argument specifies the initial wallpaper source\nidentifier. Its interpretation depends on the wallpaper source\ntype selected by the compositor.",
+            "summary": "Create a wallpaper surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "The newly created wallpaper surface object",
+              "interface": "treeland_wallpaper_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "The wl_surface to which the wallpaper role is assigned",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "file_source",
+              "argType": "string",
+              "summary": "The initial wallpaper source identifier"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_wallpaper_surface_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_wallpaper_surface_v1 interface controls the behavior of a\nwallpaper surface.\n\nA wallpaper surface is bound to exactly one wl_surface and defines how\nthat surface should be sized, positioned, and synchronized with the\ncompositor's wallpaper management logic.",
+        "summary": "Wallpaper surface controller"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the wallpaper surface object and release its association with\nthe underlying wl_surface.\n\nAfter calling this request, the wallpaper surface object becomes\ninvalid and must not be used again.\n\nThis request should only be sent when the client intends to\npermanently stop using the wallpaper surface, such as when the\nclient is shutting down or after receiving the\ntreeland_wallpaper_produce_v1.removed event for this surface.",
+            "summary": "Destroy the wallpaper surface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "source_failed",
+          "description": {
+            "type": "description",
+            "text": "Reports to the compositor that a wallpaper-related operation has\nfailed on the client side.\n\nThis request may be sent by the client when it fails to open,\nload, or otherwise process the configured wallpaper source.\nThe compositor may use this information for diagnostics, policy\ndecisions, or to adjust internal state.\n\nPossible error values include:\n- invalid_source: The specified wallpaper source is invalid,\nunsupported, or could not be processed. This is a fatal error and\nindicates that the source should be verified before retrying.\n- permission_denied: The client does not have permission to access\nthe specified wallpaper source.",
+            "summary": "Report a wallpaper source failure"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "error",
+              "argType": "uint",
+              "summary": "The error code indicating the failure reason",
+              "enum": "error"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "position",
+          "description": {
+            "type": "description",
+            "text": "This event provides a position value associated with the wallpaper.\n\nThe semantic meaning of the position value is compositor-defined.\nIt may represent a scroll offset, animation progress, or playback\nposition. The value is expressed as a fixed-point number[0, 1.0].",
+            "summary": "Update wallpaper position or progress"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "position",
+              "argType": "fixed",
+              "summary": "Position or progress value in fixed-point format"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "pause",
+          "description": {
+            "type": "description",
+            "text": "This event instructs the client to pause wallpaper updates or\nanimations.\n\nAfter receiving this event, the client should stop advancing any\ntime-based or animated wallpaper content until a play event is\nreceived.",
+            "summary": "Pause wallpaper updates"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "set_playback_rate",
+          "description": {
+            "type": "description",
+            "text": "Sets the playback speed of the wallpaper content.\n\nA rate of 1.0 represents normal speed.\nA rate of 0.0 represents a paused state.",
+            "summary": "Set wallpaper playback rate"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "rate",
+              "argType": "fixed",
+              "summary": "Playback rate multiplier"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "play",
+          "description": {
+            "type": "description",
+            "text": "This event instructs the client to resume wallpaper updates or\nanimations after a pause.",
+            "summary": "Resume wallpaper updates"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "slow_down",
+          "description": {
+            "type": "description",
+            "text": "This event instructs the client to progressively reduce the playback\nor animation update rate of the wallpaper content until it comes to\na complete stop.\n\nThe slowdown should be smooth and continuous rather than abrupt.\n\nThe duration argument specifies the amount of time, in milliseconds,\nover which the slowdown should occur. After this duration has elapsed,\nthe client should consider the wallpaper paused.\n\nA duration of 0 means the client should pause immediately.",
+            "summary": "Request a gradual slowdown of wallpaper updates"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "duration",
+              "argType": "uint",
+              "summary": "Duration in milliseconds over which the slowdown occurs"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_source",
+              "value": "1",
+              "summary": "The specified wallpaper source is invalid, unsupported, or failed to load."
+            },
+            {
+              "type": "entry",
+              "name": "permission_denied",
+              "value": "2",
+              "summary": "Permission denied when opening the specified wallpaper source"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

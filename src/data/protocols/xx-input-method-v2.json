@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "xx_input_method_v1",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "An input method object allows for clients to compose text.\n\nThe objects connects the client to a text input in an application, and\nlets the client to serve as an input method for a seat.\n\nThe xx_input_method_v1 object can occupy two distinct states: active and\ninactive. In the active state, the object is associated to and\ncommunicates with a text input. In the inactive state, there is no\nassociated text input, and the only communication is with the compositor.\nInitially, the input method is in the inactive state.\n\nRequests issued in the inactive state must be accepted by the compositor.\nBecause of the serial mechanism, and the state reset on activate event,\nthey will not have any effect on the state of the next text input.\n\nThere must be no more than one input method object per seat.",
@@ -62,7 +62,7 @@
           "name": "set_preedit_string",
           "description": {
             "type": "description",
-            "text": "Send the pre-edit string text to the application text input.\n\nPlace a new composing text (pre-edit) at the current cursor position.\nAny previously set composing text must be removed. Any previously\nexisting selected text must be removed. The cursor is moved to a new\nposition within the preedit string.\n\nThe argument text is a buffer containing the preedit string. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nThe arguments cursor_begin and cursor_end are counted in bytes relative\nto the beginning of the submitted string buffer. Cursor should be\nhidden by the text input when both are equal to -1.\n\ncursor_begin indicates the beginning of the cursor. cursor_end\nindicates the end of the cursor. It may be equal or different than\ncursor_begin.\n\nValues set with this request are double-buffered. They must be applied on\nthe next xx_input_method_v1.commit request.\nThey must be reset to initial on the next committed disable event.\n\nThe initial value of text is an empty string. The initial value of\ncursor_begin, and cursor_end are both 0.",
+            "text": "Send the pre-edit string text to the application text input.\n\nPlace a new composing text (pre-edit) at the current cursor position.\nAny previously set composing text must be removed. Any previously\nexisting selected text must be removed. The cursor is moved to a new\nposition within the preedit string.\n\nThe argument text is a buffer containing the preedit string. There is\na maximum length of wayland messages, so text can not be longer than\n4000 bytes.\n\nThe arguments cursor_begin and cursor_end are counted in bytes relative\nto the beginning of the submitted string buffer. Cursor should be\nhidden by the text input when both are equal to -1.\n\ncursor_begin indicates the beginning of the cursor. cursor_end\nindicates the end of the cursor. It may be equal or different than\ncursor_begin.\n\nValues set with this request are double-buffered. They must be applied on\nthe next xx_input_method_v1.commit request.\nThey must be reset to initial on the next committed .deactivate event.\n\nThe initial value of text is an empty string. The initial value of\ncursor_begin, and cursor_end are both 0.",
             "summary": "pre-edit string"
           },
           "args": [
@@ -88,7 +88,7 @@
           "name": "delete_surrounding_text",
           "description": {
             "type": "description",
-            "text": "Remove the surrounding text.\n\nbefore_length and after_length are the number of bytes before and after\nthe current cursor index (excluding the preedit text) to delete.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event. In effect before_length is counted from the\nbeginning of preedit text, and after_length from its end (see commit\nevent sequence).\n\nValues set with this request are double-buffered. They must be applied\nand reset to initial on the next xx_input_method_v1.commit request.\n\nThe initial values of both before_length and after_length are 0.",
+            "text": "Remove the surrounding text.\n\nbefore_length and after_length are the number of bytes before and after\nthe current cursor index (excluding the preedit text) to delete.\n\nIf text is selected, it must be deleted.\n\nIf indices exceed the available text boundaries, they should be adjusted to fit in boundaries and deletion reattempted.\nIf indices do not lie on byte boundaries, then the text input client should delete at least that many bytes. In this case, the client decides the end point, but a character boundary same as when deleting using the keyboard is recommended.\n\nIf any preedit text is present, it is replaced with the cursor for the\npurpose of this event. In effect before_length is counted from the\nbeginning of preedit text, and after_length from its end (see commit\nevent sequence).\n\nValues set with this request are double-buffered. They must be applied\nand reset to initial on the next xx_input_method_v1.commit request.\n\nThe initial values of both before_length and after_length are 0.",
             "summary": "delete text"
           },
           "args": [
@@ -131,7 +131,7 @@
           "name": "commit",
           "description": {
             "type": "description",
-            "text": "Apply state changes from commit_string, set_preedit_string and\ndelete_surrounding_text requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe connected text input is expected to proceed by evaluating the\nchanges in the following order:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Move the cursor and selection.\n5. Calculate surrounding text to send.\n6. Insert new preedit text in cursor position.\n7. Place cursor inside preedit text.\n8. Perform the requested action.\n\nNote that the input method can not receive more than 4000 bytes of selection text, which might be the case for example when the entire document is selected. Nevertheless, the text input must delete the entire selected range before inserting the commit string.\n\nThe serial number reflects the last state of the xx_input_method_v1\nobject known to the client. The value of the serial argument must be\nequal to the number of done events already issued by that object. When\nthe compositor receives a commit request with a serial different than\nthe number of past done events, it must proceed as normal, except it\nshould not change the current state of the xx_input_method_v1 object.",
+            "text": "Apply state changes from commit_string, set_preedit_string and\ndelete_surrounding_text requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe connected text input is expected to proceed by evaluating the\nchanges in the following order:\n\n1. Replace existing preedit string with the cursor.\n2. Delete requested surrounding text.\n3. Insert commit string with the cursor at its end.\n4. Move the cursor and selection.\n5. Calculate surrounding text to send.\n6. Insert new preedit text in cursor position.\n7. Place cursor inside preedit text.\n8. Perform the requested action.\n\nNote that the input method can not receive more than 4000 bytes of selection text, which might be the case for example when the entire document is selected. Nevertheless, the text input must delete the entire selected range before inserting the commit string.\n\nSerial handling with protocol_compat == xx_text_input\n\nThe serial number should be set to 0.\n\nSerial handling with protocol_compat == text_input_v3\n\nThe serial number reflects the last state of the xx_input_method_v1\nobject known to the client. The value of the serial argument must be\nequal to the number of done events already issued by that object. When\nthe compositor receives a commit request with a serial different than\nthe number of past done events, it must proceed as normal, except it\nshould not change the current state of the xx_input_method_v1 object.",
             "summary": "apply state"
           },
           "args": [
@@ -314,6 +314,24 @@
         },
         {
           "type": "event",
+          "name": "announce_protocol_compat",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Tells the input method client what kinds of events the text input client supports.\n\n\n\nValues set with this event are double-buffered. They will get applied\non the next .done event.\nThey get reset to initial on the next committed deactivate event.\n\nThe compositor may send this event as part of a .done chain that switches the active state from inactive to active. It must not send this event otherwise.\n\nThe initial value for version is text_input_v3.",
+            "summary": "set text input's compatibility level"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "compat_level",
+              "argType": "uint",
+              "enum": "protocol_compat"
+            }
+          ]
+        },
+        {
+          "type": "event",
           "name": "done",
           "description": {
             "type": "description",
@@ -352,6 +370,35 @@
               "summary": "operation requires the input method to be active"
             }
           ]
+        },
+        {
+          "type": "enum",
+          "name": "protocol_compat",
+          "since": "4",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Tells the input method client what kinds of events the text input client supports.",
+            "summary": "protocol comatibility value"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "text_input_v3",
+              "value": "0x0",
+              "summary": "zwp-text-input-v3 semantics"
+            },
+            {
+              "type": "entry",
+              "name": "xx_text_input",
+              "value": "0x1",
+              "description": {
+                "type": "description",
+                "text": "Changes the meaning of serial compared to v3.\nThe text input client now applies requested updates on a \"best-effort\" basis.",
+                "summary": "xx-text-input semantics"
+              }
+            }
+          ]
         }
       ]
     },
@@ -361,7 +408,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "An input method popup surface is a short-lived, temporary surface.\nIt is meant as an area to show suggestions, candidates, or for other input-related uses.\n\nThe compositor should anchor it at the active text input cursor area.\n\nThe client must call wl_surface.commit on the corresponding wl_surface\nfor input_popup_surface state updates to take effect, unless otherwise noted.\n\nAfter the initial wl_surface.commit, the compositor must reply with a configure sequence (see .start_configure) initializing all the compositor-provided state of the popup. That means providing values for:\n\n- width\n- height\n- anchor_x\n- anchor_y\n- anchor_width\n- anchor_height\n- serial\n\nusing the appropriate events.\n\nThe popup will only be presented to the user after the client receives the configure sequence and replies with .ack_configure.\n\nAn example init sequence could look like this:\n\n1. client (Cl): popup = input_method.get_popup(wl_surface, positioner)\n2. Cl: wl_surface.commit()\n3. compositor (Co): popup.start_configure(150, 150, 10, -2, 5, 30)\n5. Co: input_method.done()\n6. Cl: ack_configure()\n7. Cl: wl_surface.commit()\n\nA newly created input_popup_surface will be stacked on top of all previously created\ninput_popup_surfaces associated with the same text input.\n\nA typical sequence resulting from the user selecting a new text field and typing some text:\n\n1. compositor (Co): input_method.enable()\n2. Co: input_method.done()\n3. [init sequence]\n4. Co: input_method.set_surrounding_text(\"new text\")\n5. Co: popup.start_configure(150, 150, -60, -2, 55, 30)\n6. Co: input_method.done()\n7. client (Cl): ack_configure()\n8. Cl: wl_surface.commit()\n\nWhen the corresponding input_method receives a commited .disable event, the popup gets destroyed and becomes invalid and its surface gets unmapped.\n\nThe client must not destroy the underlying wl_surface while the\nxx_input_popup_surface_v2 object exists.",
+        "text": "An input method popup surface is a short-lived, temporary surface.\nIt is meant as an area to show suggestions, candidates, or for other input-related uses.\n\nThe compositor should anchor it at the active text input cursor area.\n\nThe client must call wl_surface.commit on the corresponding wl_surface\nfor input_popup_surface state updates to take effect, unless otherwise noted.\n\nAfter the initial wl_surface.commit, the compositor must reply with a configure sequence (see .start_configure) initializing all the compositor-provided state of the popup. That means providing values for:\n\n- width\n- height\n- anchor_x\n- anchor_y\n- anchor_width\n- anchor_height\n- serial\n\nusing the appropriate events.\n\nThe popup will only be presented to the user after the client receives the configure sequence and replies with .ack_configure.\n\nAn example init sequence could look like this:\n\n1. client (Cl): popup = input_method.get_popup(wl_surface, positioner)\n2. Cl: wl_surface.commit()\n3. compositor (Co): popup.start_configure(150, 150, 10, -2, 5, 30)\n5. Co: input_method.done()\n6. Cl: ack_configure()\n7. Cl: wl_surface.commit()\n\nA newly created input_popup_surface will be stacked on top of all previously created\ninput_popup_surfaces associated with the same text input.\n\nA typical sequence resulting from the user selecting a new text field and typing some text:\n\n1. compositor (Co): input_method.activate()\n2. Co: input_method.done()\n3. [init sequence]\n4. Co: input_method.set_surrounding_text(\"new text\")\n5. Co: popup.start_configure(150, 150, -60, -2, 55, 30)\n6. Co: input_method.done()\n7. client (Cl): ack_configure()\n8. Cl: wl_surface.commit()\n\nWhen the corresponding input_method receives a commited .deactivate event, the popup gets destroyed and becomes invalid and its surface gets unmapped.\n\nThe client must not destroy the underlying wl_surface while the\nxx_input_popup_surface_v2 object exists.",
         "summary": "popup surface"
       },
       "requests": [
@@ -845,7 +892,7 @@
     {
       "type": "interface",
       "name": "xx_input_method_manager_v2",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "The input method manager allows the client to become the input method on\na chosen seat.\n\nNo more than one input method must be associated with any seat at any\ngiven time.",

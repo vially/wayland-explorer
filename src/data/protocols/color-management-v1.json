@@ -1742,7 +1742,7 @@
           "name": "target_primaries",
           "description": {
             "type": "description",
-            "text": "Provides the color primaries and white point of the target color volume\nusing CIE 1931 xy chromaticity coordinates. This is compatible with the\nSMPTE ST 2086 definition of HDR static metadata for mastering displays.\n\nWhile primary color volume is about how color is encoded, the target\ncolor volume is the actually displayable color volume. If target color\nvolume is equal to the primary color volume, then this event is not\nsent.\n\nEach coordinate value is multiplied by 1 million to get the argument\nvalue to carry precision of 6 decimals.",
+            "text": "Provides the color primaries and white point of the target color volume\nusing CIE 1931 xy chromaticity coordinates. This is compatible with the\nSMPTE ST 2086 definition of HDR static metadata for mastering displays.\n\nWhile primary color volume is about how color is encoded, the target\ncolor volume is the actually displayable color volume.\n\nEach coordinate value is multiplied by 1 million to get the argument\nvalue to carry precision of 6 decimals.",
             "summary": "target primaries as chromaticity coordinates"
           },
           "args": [
