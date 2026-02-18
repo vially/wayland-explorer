@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1750408048623,
-  "version": "6.4",
+  "generationTimestamp": 1771433691408,
+  "version": "6.6",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -20,11 +20,11 @@
     },
     {
       "interface": "kde_output_device_v2",
-      "version": 16
+      "version": 20
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 16
+      "version": 19
     },
     {
       "interface": "kde_output_order_v1",
@@ -55,6 +55,10 @@
       "version": 1
     },
     {
+      "interface": "org_kde_kwin_keystate",
+      "version": 5
+    },
+    {
       "interface": "org_kde_kwin_server_decoration_manager",
       "version": 1
     },
@@ -76,7 +80,7 @@
     },
     {
       "interface": "org_kde_plasma_virtual_desktop_management",
-      "version": 2
+      "version": 3
     },
     {
       "interface": "wl_compositor",
@@ -87,12 +91,16 @@
       "version": 3
     },
     {
+      "interface": "wl_fixes",
+      "version": 1
+    },
+    {
       "interface": "wl_output",
       "version": 4
     },
     {
       "interface": "wl_seat",
-      "version": 9
+      "version": 10
     },
     {
       "interface": "wl_shm",
@@ -136,6 +144,10 @@
     },
     {
       "interface": "wp_linux_drm_syncobj_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_pointer_warp_v1",
       "version": 1
     },
     {
@@ -185,10 +197,6 @@
     {
       "interface": "xdg_wm_dialog_v1",
       "version": 1
-    },
-    {
-      "interface": "zwlr_data_control_manager_v1",
-      "version": 2
     },
     {
       "interface": "zwlr_layer_shell_v1",
