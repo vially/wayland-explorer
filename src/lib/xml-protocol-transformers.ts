@@ -69,6 +69,7 @@ const transformers: Record<WaylandElementType, WaylandXMLElementTransformer> = {
         type: WaylandElementType.Interface,
         name: xmlData['name'],
         version: xmlData['version'],
+        frozen: xmlData['frozen'] === "true",
         description: transformXMLElement<WaylandDescription>(
             xmlData['description'],
             WaylandElementType.Description
