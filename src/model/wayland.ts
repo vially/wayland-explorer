@@ -33,6 +33,7 @@ export interface WaylandInterface {
     type: WaylandElementType.Interface
     name: string
     version: string
+    frozen: boolean
     description?: WaylandDescription
     requests?: WaylandRequest[]
     events?: WaylandEvent[]

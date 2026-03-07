@@ -41,6 +41,18 @@ export const WaylandInterface: React.FC<
                 ) : (
                     <></>
                 )}
+                
+                {element.frozen ? (
+                    <Badge
+                        bgColor="bg-blue-500"
+                        textColor="text-white"
+                        fontWeigth='font-bold'
+                    >
+                        Frozen
+                    </Badge>
+                ) : (
+                    <></>
+                )}
                 <Badge>version {element.version}</Badge>
             </div>
         </div>
