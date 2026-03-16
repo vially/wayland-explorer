@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1753539514083,
-  "version": "1.11.0",
+  "generationTimestamp": 1773664369030,
+  "version": "1.12.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -40,7 +40,7 @@
     },
     {
       "interface": "jay_compositor",
-      "version": 20
+      "version": 28
     },
     {
       "interface": "jay_damage_tracking",
@@ -48,6 +48,10 @@
     },
     {
       "interface": "jay_head_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "jay_popup_ext_manager_v1",
       "version": 1
     },
     {
@@ -60,11 +64,11 @@
     },
     {
       "interface": "wl_compositor",
-      "version": 6
+      "version": 7
     },
     {
       "interface": "wl_data_device_manager",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "wl_drm",
@@ -80,7 +84,7 @@
     },
     {
       "interface": "wl_seat",
-      "version": 9
+      "version": 10
     },
     {
       "interface": "wl_shm",
@@ -96,6 +100,10 @@
     },
     {
       "interface": "wp_color_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "wp_color_representation_manager_v1",
       "version": 1
     },
     {
@@ -179,6 +187,10 @@
       "version": 3
     },
     {
+      "interface": "zwlr_gamma_control_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "zwlr_layer_shell_v1",
       "version": 5
     },
@@ -232,7 +244,7 @@
     },
     {
       "interface": "zxdg_decoration_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "zxdg_output_manager_v1",
