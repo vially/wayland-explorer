@@ -228,6 +228,7 @@
       "type": "interface",
       "name": "wl_callback",
       "version": "1",
+      "frozen": true,
       "description": {
         "type": "description",
         "text": "Clients can handle the 'done' event to get notified when\nthe related request is done.\n\nNote, because wl_callback objects are created from multiple independent\nfactory interfaces, the wl_callback interface is frozen at version 1.",
@@ -1377,6 +1378,7 @@
       "type": "interface",
       "name": "wl_buffer",
       "version": "1",
+      "frozen": true,
       "description": {
         "type": "description",
         "text": "A buffer provides the content for a wl_surface. Buffers are\ncreated through factory interfaces such as wl_shm, wp_linux_buffer_params\n(from the linux-dmabuf protocol extension) or similar. It has a width and\na height and can be attached to a wl_surface, but the mechanism by which a\nclient provides and updates the contents is defined by the buffer factory\ninterface.\n\nColor channels are assumed to be electrical rather than optical (in other\nwords, encoded with a transfer function) unless otherwise specified. If\nthe buffer uses a format that has an alpha channel, the alpha channel is\nassumed to be premultiplied into the electrical color channel values\n(after transfer function encoding) unless otherwise specified.\n\nNote, because wl_buffer objects are created from multiple independent\nfactory interfaces, the wl_buffer interface is frozen at version 1.",
