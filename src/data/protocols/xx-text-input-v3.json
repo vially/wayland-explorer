@@ -570,6 +570,16 @@
           "entries": [
             {
               "type": "entry",
+              "name": "none",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "This enum value exists only to provide a default to make double-buffering implementation easier. It should not be used explicitly.",
+                "summary": "no action"
+              }
+            },
+            {
+              "type": "entry",
               "name": "finish",
               "value": "0",
               "description": {

@@ -1207,7 +1207,7 @@
           "name": "modes",
           "description": {
             "type": "description",
-            "text": "Sent on zwp_tablet_pad_group_v2 initialization to announce that the pad\ngroup may switch between modes. A client may use a mode to store a\nspecific configuration for buttons, rings and strips and use the\nzwp_tablet_pad_group_v2.mode_switch event to toggle between these\nconfigurations. Mode indices start at 0.\n\nSwitching modes is compositor-dependent. See the\nzwp_tablet_pad_group_v2.mode_switch event for more details.\n\nThis event is sent in the initial burst of events before the\nzwp_tablet_pad_group_v2.done event. This event is only sent when more than\nmore than one mode is available.",
+            "text": "Sent on zwp_tablet_pad_group_v2 initialization to announce that the pad\ngroup may switch between modes. A client may use a mode to store a\nspecific configuration for buttons, rings and strips and use the\nzwp_tablet_pad_group_v2.mode_switch event to toggle between these\nconfigurations. Mode indices start at 0.\n\nSwitching modes is compositor-dependent. See the\nzwp_tablet_pad_group_v2.mode_switch event for more details.\n\nThis event is sent in the initial burst of events before the\nzwp_tablet_pad_group_v2.done event. This event is only sent when\nmore than one mode is available.",
             "summary": "mode-switch ability announced"
           },
           "args": [

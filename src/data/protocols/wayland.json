@@ -259,7 +259,7 @@
     {
       "type": "interface",
       "name": "wl_compositor",
-      "version": "6",
+      "version": "7",
       "description": {
         "type": "description",
         "text": "A compositor.  This object is a singleton global.  The\ncompositor is in charge of combining the contents of multiple\nsurfaces into one displayable output.",
@@ -301,6 +301,18 @@
               "interface": "wl_region"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "7",
+          "description": {
+            "type": "description",
+            "text": "This request destroys the wl_compositor. This has no effect on any other objects.",
+            "summary": "destroy wl_compositor"
+          },
+          "args": []
         }
       ],
       "events": [],
@@ -456,7 +468,7 @@
           "name": "format",
           "description": {
             "type": "description",
-            "text": "Informs the client about a valid pixel format that\ncan be used for buffers. Known formats include\nargb8888 and xrgb8888.",
+            "text": "Informs the client about a valid pixel format that\ncan be used for buffers. Known formats include\nargb8888 and xrgb8888.\n\nExtensions to drm_fourcc.h (or the format enum) do not require\nincreasing the wl_shm version; as a result, clients may receive format\ncodes which were not in the list at the time the client was made.",
             "summary": "pixel format description"
           },
           "args": [
@@ -507,7 +519,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "This describes the memory layout of an individual pixel.\n\nAll renderers should support argb8888 and xrgb8888 but any other\nformats are optional and may not be supported by the particular\nrenderer in use.\n\nThe drm format codes match the macros defined in drm_fourcc.h, except\nargb8888 and xrgb8888. The formats actually supported by the compositor\nwill be reported by the format event.\n\nFor all wl_shm formats and unless specified in another protocol\nextension, pre-multiplied alpha is used for pixel values.",
+            "text": "This describes the memory layout of an individual pixel.\n\nAll renderers should support argb8888 and xrgb8888 but any other\nformats are optional and may not be supported by the particular\nrenderer in use.\n\nThe drm format codes match the macros defined in drm_fourcc.h, except\nargb8888 and xrgb8888. The formats actually supported by the compositor\nwill be reported by the format event. See drm_fourcc.h for more detailed\nformat descriptions.\n\nFor all wl_shm formats and unless specified in another protocol\nextension, pre-multiplied alpha is used for pixel values.",
             "summary": "pixel formats"
           },
           "entries": [
@@ -1400,7 +1412,7 @@
     {
       "type": "interface",
       "name": "wl_data_offer",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "A wl_data_offer represents a piece of data offered for transfer\nby another client (the source client).  It is used by the\ncopy-and-paste and drag-and-drop mechanisms.  The offer\ndescribes the different mime types that the data can be\nconverted to and provides the mechanism for transferring the\ndata directly from the source client.",
@@ -1597,7 +1609,7 @@
     {
       "type": "interface",
       "name": "wl_data_source",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "The wl_data_source object is the source side of a wl_data_offer.\nIt is created by the source client in a data transfer and\nprovides a way to describe the offered data and a way to respond\nto requests to transfer the data.",
@@ -1771,7 +1783,7 @@
     {
       "type": "interface",
       "name": "wl_data_device",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "There is one wl_data_device per seat which can be obtained\nfrom the global wl_data_device_manager singleton.\n\nA wl_data_device provides access to inter-client data transfer\nmechanisms such as copy-and-paste and drag-and-drop.",
@@ -2013,7 +2025,7 @@
     {
       "type": "interface",
       "name": "wl_data_device_manager",
-      "version": "3",
+      "version": "4",
       "description": {
         "type": "description",
         "text": "The wl_data_device_manager is a singleton global object that\nprovides access to inter-client data transfer mechanisms such as\ncopy-and-paste and drag-and-drop.  These mechanisms are tied to\na wl_seat and this interface lets a client get a wl_data_device\ncorresponding to a wl_seat.\n\nDepending on the version bound, the objects created from the bound\nwl_data_device_manager object will have different requirements for\nfunctioning properly. See wl_data_source.set_actions,\nwl_data_offer.accept and wl_data_offer.finish for details.",
@@ -2062,6 +2074,18 @@
               "interface": "wl_seat"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "This request destroys the wl_data_device_manager. This has no effect on any other\nobjects.",
+            "summary": "destroy wl_data_device_manager"
+          },
+          "args": []
         }
       ],
       "events": [],
@@ -2608,7 +2632,7 @@
     {
       "type": "interface",
       "name": "wl_surface",
-      "version": "6",
+      "version": "7",
       "description": {
         "type": "description",
         "text": "A surface is a rectangular area that may be displayed on zero\nor more outputs, and shown any number of times at the compositor's\ndiscretion. They can present wl_buffers, receive user input, and\ndefine a local coordinate system.\n\nThe size of a surface (and relative positions on it) is described\nin surface-local coordinates, which may differ from the buffer\ncoordinates of the pixel content, in case a buffer_transform\nor a buffer_scale is used.\n\nA surface without a \"role\" is fairly useless: a compositor does\nnot know where, when or how to present it. The role is the\npurpose of a wl_surface. Examples of roles are a cursor for a\npointer (as set by wl_pointer.set_cursor), a drag icon\n(wl_data_device.start_drag), a sub-surface\n(wl_subcompositor.get_subsurface), and a window as defined by a\nshell protocol (e.g. wl_shell.get_shell_surface).\n\nA surface can have only one role at a time. Initially a\nwl_surface does not have a role. Once a wl_surface is given a\nrole, it is set permanently for the whole lifetime of the\nwl_surface object. Giving the current role again is allowed,\nunless explicitly forbidden by the relevant interface\nspecification.\n\nSurface roles are given by requests in other interfaces such as\nwl_pointer.set_cursor. The request should explicitly mention\nthat this request gives a role to a wl_surface. Often, this\nrequest also creates a new protocol object that represents the\nrole and adds additional functionality to wl_surface. When a\nclient wants to destroy a wl_surface, they must destroy this role\nobject before the wl_surface, otherwise a defunct_role_object error is\nsent.\n\nDestroying the role object does not remove the role from the\nwl_surface, but it may stop the wl_surface from \"playing the role\".\nFor instance, if a wl_subsurface object is destroyed, the wl_surface\nit was created for will be unmapped and forget its position and\nz-order. It is allowed to create a wl_subsurface for the same\nwl_surface again, but it is not allowed to use the wl_surface as\na cursor (cursor is a different role than sub-surface, and role\nswitching is not allowed).",
@@ -2631,7 +2655,7 @@
           "name": "attach",
           "description": {
             "type": "description",
-            "text": "Set a buffer as the content of this surface.\n\nThe new size of the surface is calculated based on the buffer\nsize transformed by the inverse buffer_transform and the\ninverse buffer_scale. This means that at commit time the supplied\nbuffer size must be an integer multiple of the buffer_scale. If\nthat's not the case, an invalid_size error is sent.\n\nThe x and y arguments specify the location of the new pending\nbuffer's upper left corner, relative to the current buffer's upper\nleft corner, in surface-local coordinates. In other words, the\nx and y, combined with the new surface size define in which\ndirections the surface's size changes. Setting anything other than 0\nas x and y arguments is discouraged, and should instead be replaced\nwith using the separate wl_surface.offset request.\n\nWhen the bound wl_surface version is 5 or higher, passing any\nnon-zero x or y is a protocol violation, and will result in an\n'invalid_offset' error being raised. The x and y arguments are ignored\nand do not change the pending state. To achieve equivalent semantics,\nuse wl_surface.offset.\n\nSurface contents are double-buffered state, see wl_surface.commit.\n\nThe initial surface contents are void; there is no content.\nwl_surface.attach assigns the given wl_buffer as the pending\nwl_buffer. wl_surface.commit makes the pending wl_buffer the new\nsurface contents, and the size of the surface becomes the size\ncalculated from the wl_buffer, as described above. After commit,\nthere is no pending buffer until the next attach.\n\nCommitting a pending wl_buffer allows the compositor to read the\npixels in the wl_buffer. The compositor may access the pixels at\nany time after the wl_surface.commit request. When the compositor\nwill not access the pixels anymore, it will send the\nwl_buffer.release event. Only after receiving wl_buffer.release,\nthe client may reuse the wl_buffer. A wl_buffer that has been\nattached and then replaced by another attach instead of committed\nwill not receive a release event, and is not used by the\ncompositor.\n\nIf a pending wl_buffer has been committed to more than one wl_surface,\nthe delivery of wl_buffer.release events becomes undefined. A well\nbehaved client should not rely on wl_buffer.release events in this\ncase. Alternatively, a client could create multiple wl_buffer objects\nfrom the same backing storage or use a protocol extension providing\nper-commit release notifications.\n\nDestroying the wl_buffer after wl_buffer.release does not change\nthe surface contents. Destroying the wl_buffer before wl_buffer.release\nis allowed as long as the underlying buffer storage isn't re-used (this\ncan happen e.g. on client process termination). However, if the client\ndestroys the wl_buffer before receiving the wl_buffer.release event and\nmutates the underlying buffer storage, the surface contents become\nundefined immediately.\n\nIf wl_surface.attach is sent with a NULL wl_buffer, the\nfollowing wl_surface.commit will remove the surface content.\n\nIf a pending wl_buffer has been destroyed, the result is not specified.\nMany compositors are known to remove the surface content on the following\nwl_surface.commit, but this behaviour is not universal. Clients seeking to\nmaximise compatibility should not destroy pending buffers and should\nensure that they explicitly remove content from surfaces, even after\ndestroying buffers.",
+            "text": "Set a buffer as the content of this surface.\n\nThe new size of the surface is calculated based on the buffer\nsize transformed by the inverse buffer_transform and the\ninverse buffer_scale. This means that at commit time the supplied\nbuffer size must be an integer multiple of the buffer_scale. If\nthat's not the case, an invalid_size error is sent.\n\nThe x and y arguments specify the location of the new pending\nbuffer's upper left corner, relative to the current buffer's upper\nleft corner, in surface-local coordinates. In other words, the\nx and y, combined with the new surface size define in which\ndirections the surface's size changes. Setting anything other than 0\nas x and y arguments is discouraged, and should instead be replaced\nwith using the separate wl_surface.offset request.\n\nWhen the bound wl_surface version is 5 or higher, passing any\nnon-zero x or y is a protocol violation, and will result in an\n'invalid_offset' error being raised. The x and y arguments are ignored\nand do not change the pending state. To achieve equivalent semantics,\nuse wl_surface.offset.\n\nSurface contents are double-buffered state, see wl_surface.commit.\n\nThe initial surface contents are void; there is no content.\nwl_surface.attach assigns the given wl_buffer as the pending\nwl_buffer. wl_surface.commit makes the pending wl_buffer the new\nsurface contents, and the size of the surface becomes the size\ncalculated from the wl_buffer, as described above. After commit,\nthere is no pending buffer until the next attach.\n\nCommitting a pending wl_buffer allows the compositor to read the\npixels in the wl_buffer. The compositor may access the pixels at\nany time after the wl_surface.commit request. When the compositor\nwill not access the pixels anymore, it will send the\nwl_buffer.release event. Only after receiving wl_buffer.release,\nthe client may reuse the wl_buffer. A wl_buffer that has been\nattached and then replaced by another attach instead of committed\nwill not receive a release event, and is not used by the\ncompositor.\n\nIf a pending wl_buffer has been committed to more than one wl_surface,\nthe delivery of wl_buffer.release events becomes undefined. A well\nbehaved client should not rely on wl_buffer.release events in this\ncase. Instead, clients hitting this case should use\nwl_surface.get_release or use a protocol extension providing per-commit\nrelease notifications (if none of these options are available, a\nfallback can be implemented by creating multiple wl_buffer objects from\nthe same backing storage).\n\nDestroying the wl_buffer after wl_buffer.release does not change\nthe surface contents. Destroying the wl_buffer before wl_buffer.release\nis allowed as long as the underlying buffer storage isn't re-used (this\ncan happen e.g. on client process termination). However, if the client\ndestroys the wl_buffer before receiving the wl_buffer.release event and\nmutates the underlying buffer storage, the surface contents become\nundefined immediately.\n\nIf wl_surface.attach is sent with a NULL wl_buffer, the\nfollowing wl_surface.commit will remove the surface content.\n\nIf a pending wl_buffer has been destroyed, the result is not specified.\nMany compositors are known to remove the surface content on the following\nwl_surface.commit, but this behaviour is not universal. Clients seeking to\nmaximise compatibility should not destroy pending buffers and should\nensure that they explicitly remove content from surfaces, even after\ndestroying buffers.",
             "summary": "set the surface contents"
           },
           "args": [
@@ -2854,6 +2878,25 @@
               "summary": "surface-local y coordinate"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "get_release",
+          "since": "7",
+          "description": {
+            "type": "description",
+            "text": "Create a callback for the release of the buffer attached by the client\nwith wl_surface.attach.\n\nThe compositor will release the buffer when it has finished its usage of\nthe underlying storage for the relevant commit. Once the client receives\nthis event, and assuming the associated buffer is not pending release\nfrom other wl_surface.commit requests, the client can safely re-use the\nbuffer.\n\nRelease callbacks are double-buffered state, and will be associated\nwith the pending buffer at wl_surface.commit time.\n\nThe callback_data passed in the wl_callback.done event is unused and\nis always zero.\n\nSending this request without attaching a non-null buffer in the same\ncontent update is a protocol error. The compositor will send the\nno_buffer error in this case.",
+            "summary": "get a release callback"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "callback object for the release",
+              "interface": "wl_callback"
+            }
+          ]
         }
       ],
       "events": [
@@ -2971,6 +3014,12 @@
               "name": "defunct_role_object",
               "value": "4",
               "summary": "surface was destroyed before its role object"
+            },
+            {
+              "type": "entry",
+              "name": "no_buffer",
+              "value": "5",
+              "summary": "no buffer was attached"
             }
           ]
         }
@@ -4420,7 +4469,7 @@
     {
       "type": "interface",
       "name": "wl_region",
-      "version": "1",
+      "version": "7",
       "description": {
         "type": "description",
         "text": "A region object describes an area.\n\nRegion objects are used to describe the opaque and input\nregions of a surface.",
