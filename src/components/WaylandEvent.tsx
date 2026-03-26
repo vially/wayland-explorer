@@ -25,7 +25,7 @@ export const WaylandEvent: React.FC<
                     <span>{element.name}</span>
                 </span>
             </a>
-            {(element.eventType || element.since) && (
+            {(element.eventType || element.since || element.deprecatedSince) && (
                 <div className="flex items-center gap-1">
                     {element.deprecatedSince && (
                         <Badge
