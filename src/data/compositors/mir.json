@@ -1,7 +1,31 @@
 {
-  "generationTimestamp": 1733165065880,
-  "version": "2.19",
+  "generationTimestamp": 1776407649079,
+  "version": "2.26",
   "globals": [
+    {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_list_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_input_trigger_action_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_input_trigger_registration_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_session_lock_manager_v1",
       "version": 1
@@ -12,15 +36,11 @@
     },
     {
       "interface": "wl_compositor",
-      "version": 4
+      "version": 6
     },
     {
       "interface": "wl_data_device_manager",
       "version": 3
-    },
-    {
-      "interface": "wl_drm",
-      "version": 2
     },
     {
       "interface": "wl_output",
@@ -28,7 +48,7 @@
     },
     {
       "interface": "wl_seat",
-      "version": 8
+      "version": 9
     },
     {
       "interface": "wl_shell",
@@ -92,7 +112,7 @@
     },
     {
       "interface": "zwp_linux_dmabuf_v1",
-      "version": 3
+      "version": 5
     },
     {
       "interface": "zwp_pointer_constraints_v1",
