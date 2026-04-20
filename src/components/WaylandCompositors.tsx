@@ -36,33 +36,41 @@ const CompositorVersion: React.FC<{ compositor: CompositorRegistryItem }> = ({
     ).toLocaleDateString()
 
     return (
-        <span className="text-xs text-gray-500 mt-1" title={timestamp}>
+        <td className="text-xs text-gray-500 mt-1 border border-gray-700 border-l-0 p-1" title={timestamp}>
             {version ? version : '...'}
-        </span>
+        </td>
     )
 }
 
-/** Column header for displaying compositor name icon and version */
+/** Row header for displaying compositor name icon and version */
 const CompositorHeader: React.FC<{ compositor: CompositorRegistryItem }> = ({
     compositor,
 }) => (
-    <th className="px-2 pt-1 align-bottom">
-        <div className="flex flex-col justify-end items-center gap-2">
-            <div className="[writing-mode:vertical-rl] rotate-180">
-                {compositor.name}
-            </div>
-            <div className="aspect-square h-5">
-                {compositor.icon && (
-                    <img
-                        alt={compositor.name}
-                        src={`/protocols/logos/${compositor.icon}.svg`}
-                        className="dark:invert h-5 m-auto"
-                    />
-                )}
-            </div>
-        </div>
+    <>
+        <td className="border border-gray-700 text-center border-r-0 p-1">
+            {compositor.icon && (
+                <img
+                    alt={compositor.name}
+                    src={`/protocols/logos/${compositor.icon}.svg`}
+                    className="dark:invert h-5 inline"
+                />
+            )}
+        </td>
+        <td className="border border-gray-700 border-l-0 border-r-0 p-1">
+            {compositor.name}
+        </td>
         <CompositorVersion compositor={compositor} />
-    </th>
+    </>
+)
+
+const InterfaceHeader: React.FC<{
+    name: string
+    index: number
+}> = ({ name, index }) => (
+    <tr>
+        <td className="border border-gray-700 text-right border-r-0 p-1" colSpan={index + 3}>{name}</td>
+        <td className="border border-gray-700 border-l-0 text-center" rowSpan={index + 2}>↓</td>
+    </tr>
 )
 
 /** Green/Red box for displaying supported interface version */
@@ -73,7 +81,7 @@ const InterfaceVersion: React.FC<{
     const label = version !== null ? version : 'x'
 
     return (
-        <td className="border-b border-gray-300 dark:border-gray-900">
+        <td className="border border-gray-700 p-1">
             <div className="flex justify-center">
                 <div
                     className={`w-7 h-7 leading-7 text-white rounded-lg text-center ${color}`}
@@ -84,20 +92,6 @@ const InterfaceVersion: React.FC<{
         </td>
     )
 }
-
-const InterfaceRow: React.FC<{
-    name: string
-    versions: (number | null)[]
-}> = ({ name, versions }) => (
-    <tr>
-        <td className="border-b border-gray-300 dark:border-gray-900 p-2">
-            {name}
-        </td>
-        {versions.map((version, index) => (
-            <InterfaceVersion key={index} version={version} />
-        ))}
-    </tr>
-)
 
 const CanIUseTable: React.FC<{
     protocol: WaylandProtocolModel
@@ -128,24 +122,26 @@ const CanIUseTable: React.FC<{
     }
 
     return (
-        <table className="border-collapse bg-gray-50 rounded dark:bg-neutral-900">
-            <thead>
-                <tr>
-                    <th className="p-4"></th>
-                    {compositorRegistry.map((compositor) => (
-                        <CompositorHeader key={compositor.id} compositor={compositor} />
-                    ))}
-                </tr>
-            </thead>
-
-            <tbody className="bg-white dark:bg-neutral-800">
-                {interfaces.map((data, index) => (
-                    <InterfaceRow
-                        name={data.name}
-                        versions={data.versions}
-                        key={index}
-                    />
-                ))}
+        <table className="border-solid border border-gray-800 bg-gray-50 rounded dark:bg-neutral-900">
+            <tbody>
+            {interfaces.map((data, index) => (
+                <InterfaceHeader key={index} name={data.name} index={index} />
+            )).reverse()}
+            <tr>
+                <td className="border  border-gray-700 text-sm font-semibold text-gray-600 p-1" colSpan={3}>
+                    Compositors
+                </td>
+            </tr>
+            {compositorRegistry.map((compositor, index) => {
+                return (
+                    <tr key={index}>
+                        <CompositorHeader compositor={compositor} />
+                        {interfaces.map((data, index2) => (
+                            <InterfaceVersion key={index2} version={data.versions[index]} />
+                        ))}
+                    </tr>
+                )
+            })}
             </tbody>
         </table>
     )
