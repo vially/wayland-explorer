@@ -1,9 +1,17 @@
 {
-  "generationTimestamp": 1764414801094,
-  "version": "25.11",
+  "generationTimestamp": 1777188705477,
+  "version": "26.04",
   "globals": [
     {
+      "interface": "ext_background_effect_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_list_v1",
       "version": 1
     },
     {
@@ -88,7 +96,7 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 6
+      "version": 7
     },
     {
       "interface": "zwlr_data_control_manager_v1",
