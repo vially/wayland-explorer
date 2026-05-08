@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1773664369030,
-  "version": "1.12.0",
+  "generationTimestamp": 1778254542699,
+  "version": "1.13.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -40,14 +40,10 @@
     },
     {
       "interface": "jay_compositor",
-      "version": 28
+      "version": 33
     },
     {
       "interface": "jay_damage_tracking",
-      "version": 1
-    },
-    {
-      "interface": "jay_head_manager_v1",
       "version": 1
     },
     {
@@ -76,7 +72,7 @@
     },
     {
       "interface": "wl_fixes",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_output",
@@ -163,7 +159,15 @@
       "version": 1
     },
     {
+      "interface": "xdg_session_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "xdg_toplevel_drag_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_toplevel_icon_manager_v1",
       "version": 1
     },
     {
@@ -201,6 +205,10 @@
     {
       "interface": "zwlr_screencopy_manager_v1",
       "version": 3
+    },
+    {
+      "interface": "zwlr_virtual_pointer_manager_v1",
+      "version": 2
     },
     {
       "interface": "zwp_idle_inhibit_manager_v1",
