@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_management_v2",
-      "version": "19",
+      "version": "21",
       "description": {
         "type": "description",
         "text": "This interface enables clients to set properties of output devices for screen\nconfiguration purposes via the server. To this end output devices are referenced\nby global kde_output_device_v2 objects.\n\noutputmanagement (wl_global)\n--------------------------\nrequest:\n* create_configuration -> outputconfiguration (wl_resource)\n\noutputconfiguration (wl_resource)\n--------------------------\nrequests:\n* enable(outputdevice, bool)\n* mode(outputdevice, mode)\n* transformation(outputdevice, flag)\n* position(outputdevice, x, y)\n* apply\n\nevents:\n* applied\n* failed\n\nThe server registers one outputmanagement object as a global object. In order\nto configure outputs a client requests create_configuration, which provides a\nresource referencing an outputconfiguration for one-time configuration. That\nway the server knows which requests belong together and can group them by that.\n\nOn the outputconfiguration object the client calls for each output whether the\noutput should be enabled, which mode should be set (by referencing the mode from\nthe list of announced modes) and the output's global position. Once all outputs\nare configured that way, the client calls apply.\nAt that point and not earlier the server should try to apply the configuration.\nIf this succeeds the server emits the applied signal, otherwise the failed\nsignal, such that the configuring client is noticed about the success of its\nconfiguration request.\n\nThrough this design the interface enables atomic output configuration changes if\ninternally supported by the server.\n\nWarning! The protocol described in this file is a desktop environment implementation\ndetail. Regular clients must not use this protocol. Backward incompatible\nchanges may be added without bumping the major version of the extension.",
@@ -57,7 +57,7 @@
     {
       "type": "interface",
       "name": "kde_output_configuration_v2",
-      "version": "19",
+      "version": "21",
       "description": {
         "type": "description",
         "text": "outputconfiguration is a client-specific resource that can be used to ask\nthe server to apply changes to available output devices.\n\nThe client receives a list of output devices from the registry. When it wants\nto apply new settings, it creates a configuration object from the\noutputmanagement global, writes changes through this object's enable, scale,\ntransform and mode calls. It then asks the server to apply these settings in\nan atomic fashion, for example through Linux' DRM interface.\n\nThe server signals back whether the new settings have applied successfully\nor failed to apply. outputdevice objects are updated after the changes have been\napplied to the hardware and before the server side sends the applied event.",
@@ -446,7 +446,7 @@
           "since": "6",
           "description": {
             "type": "description",
-            "summary": "change the used icc profile"
+            "summary": "change the used icc profile for SDR mode"
           },
           "args": [
             {
@@ -533,7 +533,7 @@
           "since": "8",
           "description": {
             "type": "description",
-            "summary": "which source the compositor should use for the color profile on an output"
+            "summary": "which source the compositor should use for the color profile on an output in SDR mode"
           },
           "args": [
             {
@@ -809,6 +809,82 @@
               "summary": "1 for enabled, 0 for disabled"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "set_hdr_icc_profile_path",
+          "since": "20",
+          "description": {
+            "type": "description",
+            "summary": "change the used icc profile for HDR mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "profile_path",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_hdr_color_profile_source",
+          "since": "20",
+          "description": {
+            "type": "description",
+            "summary": "which source the compositor should use for the color profile on an output in HDR mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "color_profile_source",
+              "argType": "uint",
+              "summary": "the color profile source",
+              "enum": "color_profile_source"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_abm_level",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "Adaptive backlight modulation is a feature that reduces the backlight\nand increases contrast of colors on the screen to improve power usage.",
+            "summary": "set the allowed level of adaptive backlight modulation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "outputdevice",
+              "argType": "object",
+              "summary": "outputdevice this setting applies to",
+              "interface": "kde_output_device_v2",
+              "protocol": "kde-output-device-v2"
+            },
+            {
+              "type": "arg",
+              "name": "level",
+              "argType": "uint",
+              "summary": "0 is off, 4 is the maximum level"
+            }
+          ]
         }
       ],
       "events": [
@@ -1028,7 +1104,7 @@
     {
       "type": "interface",
       "name": "kde_mode_list_v2",
-      "version": "18",
+      "version": "20",
       "description": {
         "type": "description",
         "text": "This list is populated by first setting each relevant property,\nand then calling add_mode to add a mode with these properties.\nOne would for example call\n- set_resolution\n- set_refresh_rate\n- set_reduced_blanking\n- add_mode\n\nadd_mode does not reset the properties that were previously set,\nthey are valid until the object is destroyed.\nThe compositor may additionally have sensible defaults for some\nproperties like reduced_blanking, but for consistent results,\nit's best to always set each known property every time.\n\nThe parameters resolution and refresh rate are required, if they\nare not set, the missing_parameters error will be emitted.",

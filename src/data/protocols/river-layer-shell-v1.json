@@ -7,8 +7,8 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows the river-window-management-v1 window manager to\nsupport the wlr-layer-shell-v1 protocol.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
-    "summary": "layer shell support for river"
+    "text": "This protocol allows the river-window-management-v1 window manager to\nsupport the wlr-layer-shell-unstable-v1 protocol.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
+    "summary": "optional layer shell support"
   },
   "interfaces": [
     {
@@ -143,22 +143,26 @@
             {
               "type": "arg",
               "name": "x",
-              "argType": "int"
+              "argType": "int",
+              "summary": "global x coordinate"
             },
             {
               "type": "arg",
               "name": "y",
-              "argType": "int"
+              "argType": "int",
+              "summary": "global y coordinate"
             },
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "area width"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "area height"
             }
           ]
         }
@@ -194,7 +198,7 @@
           "description": {
             "type": "description",
             "text": "A layer shell surface will be given exclusive keyboard focus at the end\nof the manage sequence in which this event is sent. The window manager\nmay want to update window decorations or similar to indicate that no\nwindow is focused.\n\nUntil the focus_non_exclusive or focus_none event is sent, all window\nmanager requests to change focus are ignored.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
-            "summary": ""
+            "summary": "layer shell surface has exclusive focus"
           },
           "args": []
         },
@@ -203,8 +207,8 @@
           "name": "focus_non_exclusive",
           "description": {
             "type": "description",
-            "text": "A layer shell surface will be given non-exclusive keyboard focus at the\nend of the manage sequence in which this event is sent. The window\nmanager may want to update window decorations or similar to indicate\nthat no window is focused.\n\nThe window manager continues to control focus and may choose to focus a\ndifferent window/shell surface at any time. If the window manager sets\nfocus during the same manage sequence in which this event is sent, the\nlayer surface will not be focused.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
-            "summary": ""
+            "text": "A layer shell surface will be given non-exclusive keyboard focus at the\nend of the manage sequence in which this event is sent. The window\nmanager may want to update window decorations or similar to indicate\nthat no window is focused.\n\nThe window manager continues to control focus and may choose to focus a\ndifferent window/shell surface at any time. If the window manager sets\nfocus during the same manage sequence in which this event is sent, the\nlayer surface will not be focused.\n\nIf the layer surface with non-exclusive focus is closed or the window\nmanager chooses to move focus away from the layer surface, a focus_none\nevent will be sent in the next manage sequence.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "layer shell surface wants non-exclusive focus"
           },
           "args": []
         },
@@ -214,7 +218,7 @@
           "description": {
             "type": "description",
             "text": "No layer shell surface will have keyboard focus at the end of the manage\nsequence in which this event is sent. The window manager may want to\nreturn focus to whichever window last had focus, for example.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
-            "summary": ""
+            "summary": "no layer shell surface has focus"
           },
           "args": []
         }

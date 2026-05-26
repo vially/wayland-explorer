@@ -105,7 +105,7 @@
               "value": "2",
               "description": {
                 "type": "description",
-                "text": "A app instance is recovering from for example a compositor or app crash.",
+                "text": "An app instance is recovering from for example a compositor or app crash.",
                 "summary": "an app recovered"
               }
             },
@@ -115,7 +115,7 @@
               "value": "3",
               "description": {
                 "type": "description",
-                "text": "A app instance is restored, for example part of a restored session, or\nrestored from having been temporarily terminated due to resource\nconstraints.",
+                "text": "An app instance is restored, for example part of a restored session, or\nrestored from having been temporarily terminated due to resource\nconstraints.",
                 "summary": "an app restored"
               }
             }

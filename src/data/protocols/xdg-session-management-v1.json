@@ -1,0 +1,374 @@
+{
+  "type": "protocol",
+  "name": "xdg_session_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright 2018 Mike Blumenkrantz\nCopyright 2018 Samsung Electronics Co., Ltd\nCopyright 2018 Red Hat Inc.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This description provides a high-level overview of the interplay between\nthe interfaces defined this protocol. For details, see the protocol\nspecification.\n\nThe xdg_session_manager protocol declares interfaces necessary to\nallow clients to restore toplevel state from previous executions. The\nxdg_session_manager_v1.get_session request can be used to obtain a\nxdg_session_v1 resource representing the state of a set of toplevels.\n\nClients may obtain the session string to use in future calls through\nthe xdg_session_v1.created event. Compositors will use this string\nas an identifiable token for future runs, possibly storing data about\nthe related toplevels in persistent storage. Clients that wish to\ntrack sessions in multiple environments may use the $XDG_CURRENT_DESKTOP\nenvironment variable.\n\nToplevels are managed through the xdg_session_v1.add_toplevel and\nxdg_session_v1.remove_toplevel pair of requests. Clients will explicitly\nrequest a toplevel to be restored according to prior state through the\nxdg_session_v1.restore_toplevel request before the toplevel is mapped.\n\nCompositors may store session information up to any arbitrary level, and\napply any limits and policies to the amount of data stored and its lifetime.\nClients must account for missing sessions and partial session restoration.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "Protocol for managing application sessions"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xdg_session_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The xdg_session_manager_v1 interface defines base requests for creating and\nmanaging a session for an application. Sessions persist across application\nand compositor restarts unless explicitly destroyed. A session is created\nfor the purpose of maintaining an application's xdg_toplevel surfaces\nacross compositor or application restarts. The compositor should remember\nas many states as possible for surfaces in a given session, but there is\nno requirement for which states must be remembered.\n\nPolicies such as cache eviction are declared an implementation detail of\nthe compositor. Clients should account for no longer existing sessions.",
+        "summary": "manage sessions for applications"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object. The existing session objects will be\nunaffected.",
+            "summary": "Destroy this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_session",
+          "description": {
+            "type": "description",
+            "text": "Create a session object corresponding to either an existing session\nidentified by the given session identifier string or a new session.\nWhile the session object exists, the session is considered to be \"in\nuse\".\n\nIf an identifier string represents a session that is currently actively\nin use by the the same client, an 'in_use' error is raised. If some\nother client is currently using the same session, the new session will\nreplace managing the associated state.\n\nIf the reason is not a valid enum entry, the 'invalid_reason' protocol\nerror is raised.\n\nNULL is passed to initiate a new session. If a session_id is passed\nwhich does not represent a valid session, the compositor treats it as if\nNULL had been passed.\n\nThe session id string must be UTF-8 encoded. It is also limited by the\nmaximum length of wayland messages (around 4KB). The 'invalid_session_id'\nprotocol error will be raised if an invalid string is provided.\n\nA client is allowed to have any number of in use sessions at the same\ntime.",
+            "summary": "create or restore a session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xdg_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "reason for session",
+              "enum": "reason"
+            },
+            {
+              "type": "arg",
+              "name": "session_id",
+              "argType": "string",
+              "summary": "the session to restore",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "in_use",
+              "value": "1",
+              "summary": "a requested session is already in use"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_session_id",
+              "value": "2",
+              "summary": "invalid session identifier"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_reason",
+              "value": "3",
+              "summary": "invalid reason"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The reason may determine in what way a session restores the window\nmanagement state of associated toplevels.\n\nFor example newly launched applications might be launched on the active\nworkspace with restored size and position, while a recovered\napplication might restore additional state such as active workspace and\nstacking order.",
+            "summary": "reason for getting a session"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "launch",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "A new app instance is launched, for example from an app launcher.",
+                "summary": "an app is newly launched"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "recover",
+              "value": "2",
+              "description": {
+                "type": "description",
+                "text": "An app instance is recovering from for example a compositor or app crash.",
+                "summary": "an app recovered"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "session_restore",
+              "value": "3",
+              "description": {
+                "type": "description",
+                "text": "An app instance is restored, for example part of a restored session, or\nrestored from having been temporarily terminated due to resource\nconstraints.",
+                "summary": "an app restored"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xdg_session_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A xdg_session_v1 object represents a session for an application. While the\nobject exists, all surfaces which have been added to the session will\nhave states stored by the compositor which can be reapplied at a later\ntime. Two sessions cannot exist for the same identifier string.\n\nStates for surfaces added to a session are automatically updated by the\ncompositor when they are changed.",
+        "summary": "A session for an application"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy a session object, preserving the current state but not continuing\nto make further updates if state changes occur. This makes the associated\nxdg_toplevel_session_v1 objects inert.",
+            "summary": "Destroy the session"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "remove",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Remove the session, making it no longer available for restoration. A\ncompositor should in response to this request remove the data related to\nthis session from its storage.",
+            "summary": "Remove the session"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "add_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Attempt to add a given surface to the session. The passed name is used\nto identify what window is being restored, and may be used to store\nwindow specific state within the session.\n\nThe name given to the toplevel must not correspond to any previously\nexisting toplevel names in the session. If the name matches an already\nknown toplevel name in the session, a 'name_in_use' protocol error will\nbe raised.\n\nThe toplevel object must not be added more than once to any session\ncreated by the client, otherwise the 'already_added' protocol error\nwill be raised.\n\nThis request will return a xdg_toplevel_session_v1 for later\nmanipulation. As this resource is created from an empty initial state,\ncompositors must not emit a xdg_toplevel_session_v1.restored event for\nresources created through this request.\n\nThe name string must be UTF-8 encoded. It is also limited by the maximum\nlength of wayland messages (around 4KB). The 'invalid_name' protocol\nerror will be raised if an invalid string is provided.",
+            "summary": "add a new surface to the session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xdg_toplevel_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name identifying the toplevel"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "restore_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Inform the compositor that the toplevel associated with the passed name\nshould have its window management state restored.\n\nIf the toplevel name was previously granted to another xdg_toplevel,\nthe 'name_in_use' protocol error will be raised.\n\nThe toplevel object must not be added more than once to any session\ncreated by the client, otherwise the 'already_added' protocol error\nwill be raised.\n\nThis request must be called prior to the first commit on the associated\nwl_surface after creating the toplevel, otherwise an 'already_mapped'\nerror is raised.\n\nAs part of the initial configure sequence, if the toplevel was\nsuccessfully restored, a xdg_toplevel_session_v1.restored event is\nemitted. If the toplevel name was not known in the session, this request\nwill be equivalent to the xdg_toplevel_session_v1.add_toplevel request,\nand no such event will be emitted. See the xdg_toplevel_session_v1.restored\nevent for further details.\n\nThe name string must be UTF-8 encoded. It is also limited by the maximum\nlength of wayland messages (around 4KB). The 'invalid_name' protocol\nerror will be raised if an invalid string is provided.",
+            "summary": "restore a surface state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xdg_toplevel_session_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name identifying the toplevel"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "remove_toplevel",
+          "description": {
+            "type": "description",
+            "text": "Remove a specified surface from the session and render any related\nxdg_toplevel_session_v1 object inert. The compositor should remove any\ndata related to the toplevel in the corresponding session from its internal\nstorage.\n\nThe window is specified by its name in the session. The name string\nmust be encoded in UTF-8, and it is limited in size by the maximum\nlength of wayland messages (around 4KB).",
+            "summary": "remove a surface from the session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name identifying the toplevel"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "created",
+          "description": {
+            "type": "description",
+            "text": "Emitted at most once some time after getting a new session object. It\nmeans that no previous state was restored, and a new session was created.\nThe passed id can be persistently stored and used to restore previous\nsessions.",
+            "summary": "newly-created session id"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "session_id",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "restored",
+          "description": {
+            "type": "description",
+            "text": "Emitted at most once some time after getting a new session object. It\nmeans that previous state was at least partially restored. The same id\ncan again be used to restore previous sessions.",
+            "summary": "the session has been restored"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "replaced",
+          "description": {
+            "type": "description",
+            "text": "Emitted at most once, if the session was taken over by some other\nclient. When this happens, the session and all its toplevel session\nobjects become inert, and should be destroyed.",
+            "summary": "the session has been replaced"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "name_in_use",
+              "value": "1",
+              "summary": "toplevel name is already in use"
+            },
+            {
+              "type": "entry",
+              "name": "already_mapped",
+              "value": "2",
+              "summary": "toplevel was already mapped when restored"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_name",
+              "value": "3",
+              "summary": "provided toplevel name is invalid"
+            },
+            {
+              "type": "entry",
+              "name": "already_added",
+              "value": "4",
+              "summary": "toplevel already added"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xdg_toplevel_session_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A xdg_toplevel_session_v1 resource acts as a handle for the given\ntoplevel in the session. It allows for receiving events after a\ntoplevel state was restored, and has the requests to manage them.",
+        "summary": "A session for an application"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the object. This has no effect over window management of the\nassociated toplevel.",
+            "summary": "Destroy the object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "rename",
+          "description": {
+            "type": "description",
+            "text": "Renames the toplevel session. The new name can be used in subsequent requests\nto identify this session object. The state associated with this toplevel\nsession will be preserved.\n\nIf the xdg_session_v1 already contains a toplevel with the specified name,\nthe 'name_in_use' protocol error will be raised.",
+            "summary": "change the name of toplevel session"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "new name to identify the toplevel"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "restored",
+          "description": {
+            "type": "description",
+            "text": "The \"restored\" event is emitted prior to the first\nxdg_toplevel.configure for the toplevel. It will only be emitted after\nxdg_session_v1.restore_toplevel, and the initial empty surface state has\nbeen applied, and it indicates that the surface's session is being\nrestored with this configure event.",
+            "summary": "a toplevel's session has been restored"
+          },
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

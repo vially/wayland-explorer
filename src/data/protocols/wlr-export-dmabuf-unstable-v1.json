@@ -82,7 +82,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Unreferences the frame. This request must be called as soon as its no\nlonger used.\n\nIt can be called at any time by the client. The client will still have\nto close any FDs it has been given.",
+            "text": "Unreferences the frame. This request must be called as soon as it's no\nlonger used.\n\nIt can be called at any time by the client. The client will still have\nto close any FDs it has been given.",
             "summary": "delete this object, used or not"
           },
           "args": []

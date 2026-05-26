@@ -1,0 +1,154 @@
+{
+  "type": "protocol",
+  "name": "xx_fractional_scale_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2022 Xaver Hugl\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows compositors and clients to communicate the\ncoordinate space their surfaces act in.",
+    "summary": "Protocol for fractional scaling"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xx_fractional_scale_manager_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global interface to create xx_fractional_scale_v2 interfaces.",
+        "summary": "creates surface scale interfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will not be using this protocol\nobject anymore. This does not affect any other objects.",
+            "summary": "release the global"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_fractional_scale",
+          "description": {
+            "type": "description",
+            "text": "Create an interface object for a wl_surface to communicate scale.\nIf the given wl_surface already has a xx_fractional_scale_v2 object\nassociated, the fractional_scale_exists protocol error is raised.",
+            "summary": "create an interface to enable fractional scaling"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new scale interface",
+              "interface": "xx_fractional_scale_v2"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "fractional_scale_exists",
+              "value": "0",
+              "summary": "xx_fractional_scale_v2 for the surface already exists"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_fractional_scale_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An additional interface for a wl_surface object that allows compositor and\nclient to communicate in a different coordinate space, in order to enable\nthem to accurately describe coordinates and sizes in pixels.\nThe two coordinate spaces in consideration are logical and pixels, where\nlogical coordinates describe the size content should have and pixels\ndescribe the size of buffers.\n\nA scale of one equals a lack of scaling, where the communicated values\ndefine both logical coordinates and pixels.\nA scale greater than one describes that for every logical coordinate,\nmore than one pixel is used, and a scale less than one describes that\nmultiple logical coordinates make up one pixel.\nIn mathematical terms, logical coordinates can be obtained by dividing\nthe provided values by the currently active scale.\n\nThe initial compositor and client coordinate scale factors are 1.",
+        "summary": "interface for fractional scaling"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_scale_factor",
+          "description": {
+            "type": "description",
+            "text": "This request sets a scale factor for the associated wl_surface that\ndescribes the coordinate system the client uses for requests following\nxx_fractional_scale_v2.set_scale_factor.\n\nThe scale factor is encoded in a 8.24 fixed point format.\n\nIf this scale factor does not match the scale factor provided by the\ncompositor with xx_fractional_scale_v2.scale_factor, the compositor may\napply transformations to the wl_surface that can result in blurriness\nor other artifacts.\n\nIf scale_8_24 is zero, the error invalid_scale will be raised.",
+            "summary": "set the client coordinate space scale factor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale_8_24",
+              "argType": "uint",
+              "summary": "surface scale factor"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The wl_surface's xx_fractional_scale_v2 object is destroyed, and the\nassociated scale is reset to 1.",
+            "summary": "remove the scale interface from the surface"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "scale_factor",
+          "description": {
+            "type": "description",
+            "text": "This event sets a scale factor for the associated wl_surface that\ndescribes the coordinate system the compositor will use for events\nfollowing xx_fractional_scale_v2.scale_factor.\n\nThe scale factor is encoded in a 8.24 fixed point format.\n\nThe compositor must not send a scale of zero.\n\nThe client should re-render and commit a new buffer with the new scale\nas soon as possible, in order to avoid artifacts caused by the mismatch\nin compositor and client scales.",
+            "summary": "set the compositor coordinate space scale factor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale_8_24",
+              "argType": "uint",
+              "summary": "surface scale factor"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_scale",
+              "value": "0",
+              "summary": "scale value is not valid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

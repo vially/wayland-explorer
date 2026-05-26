@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_dde_shell_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows DDE change some treeland function.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
@@ -167,6 +167,18 @@
               "argType": "fixed"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_dde_shell_manager_v1 object.",
+            "summary": "destroy the dde shell manager"
+          },
+          "args": []
         }
       ],
       "events": [],

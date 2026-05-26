@@ -8,14 +8,102 @@
   "interfaces": [
     {
       "type": "interface",
+      "name": "kde_output_device_registry_v2",
+      "version": "23",
+      "description": {
+        "type": "description",
+        "text": "This interface can be used to list output devices.\n\nIf this global is bound with a version less than 21, the unsupported_version\nprotocol error will be posted.",
+        "summary": "output devices"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "stop",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wants to receive new\noutput announcements. The compositor will send the\nkde_output_device_registry_v2.finished event in response to this request.\nThe compositor may still send new output announcements after calling this\nrequest until the kde_output_device_registry_v2.finished event is sent.",
+            "summary": "stop receiving updates"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "finished",
+          "eventType": "destructor",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "This event is sent in response to the stop request. The compositor will\nimmediately destroy the object after sending this event.",
+            "summary": "no new output announcements"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "output",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when a new output is connected or after binding this\nglobal to list all available outputs.",
+            "summary": "new available output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "new_id",
+              "interface": "kde_output_device_v2"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These errors can be emitted in response to some requests.",
+            "summary": "kde_output_device_registry_v2 error values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unsupported_version",
+              "value": "0",
+              "summary": "the registry was bound with an unsupported version"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "20",
+      "version": "23",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
         "summary": "output configuration representation"
       },
-      "requests": [],
+      "requests": [
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "This notifies the compositor that the client no longer wishes to use\nthe kde_output_device_v2 object.",
+            "summary": "destroy the output device"
+          },
+          "args": []
+        }
+      ],
       "events": [
         {
           "type": "event",
@@ -383,7 +471,7 @@
           "since": "5",
           "description": {
             "type": "description",
-            "summary": "describes when auto rotate is used"
+            "summary": "describes the path to the ICC profile used in SDR mode"
           },
           "args": [
             {
@@ -475,7 +563,7 @@
           "since": "7",
           "description": {
             "type": "description",
-            "summary": "describes which source the compositor uses for the color profile on an output"
+            "summary": "describes which source the compositor uses for the color profile on an output in SDR mode"
           },
           "args": [
             {
@@ -702,6 +790,68 @@
               "summary": "1 for enabled, 0 for disabled"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "removed",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the output device is disconnected and no new\nupdates will be sent. The client should call the kde_output_device_v2.release\nrequest after receiving this event.",
+            "summary": "the output has been removed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "hdr_icc_profile_path",
+          "since": "22",
+          "description": {
+            "type": "description",
+            "summary": "describes the path to the ICC profile used in HDR mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profile_path",
+              "argType": "string"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "hdr_color_profile_source",
+          "since": "22",
+          "description": {
+            "type": "description",
+            "summary": "describes which source the compositor uses for the color profile on an output in HDR mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "uint",
+              "enum": "color_profile_source"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "abm_level",
+          "since": "23",
+          "description": {
+            "type": "description",
+            "text": "Adaptive backlight modulation is a feature that reduces the backlight\nand increases contrast of colors on the screen to improve power usage.",
+            "summary": "allowed level of adaptive backlight modulation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "level",
+              "argType": "uint",
+              "summary": "0 is off, 4 is the maximum level"
+            }
+          ]
         }
       ],
       "enums": [
@@ -909,6 +1059,20 @@
               "name": "auto_brightness",
               "value": "0x4000",
               "since": "19"
+            },
+            {
+              "type": "entry",
+              "name": "hdr_icc_profile",
+              "value": "0x8000",
+              "summary": "if this outputdevice supports HDR ICC profiles",
+              "since": "22"
+            },
+            {
+              "type": "entry",
+              "name": "abm_level",
+              "value": "0x10000",
+              "summary": "if this outputdevice supports the abm level setting",
+              "since": "23"
             }
           ]
         },
@@ -1070,7 +1234,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_mode_v2",
-      "version": "20",
+      "version": "22",
       "description": {
         "type": "description",
         "text": "This object describes an output mode.\n\nSome heads don't support output modes, in which case modes won't be\nadvertised.\n\nProperties sent via this interface are applied atomically via the\nkde_output_device.done event. No guarantees are made regarding the order\nin which properties are sent.",

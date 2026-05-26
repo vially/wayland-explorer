@@ -1,0 +1,104 @@
+{
+  "type": "protocol",
+  "name": "treeland_prelaunch_splash_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_prelaunch_splash_manager_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager for creating prelaunch splash screens.\nA prelaunch splash screen is a placeholder surface that is shown\nbefore an application's main window is mapped. This helps to improve\nthe perceived startup time.\n\nIt is particularly useful for application launchers to provide immediate\nfeedback to the user.\n\nCompared to treeland_prelaunch_splash_manager_v1, this version returns\na splash object from create_splash. The caller can destroy the object\nto dismiss the splash, and the compositor can send events (e.g. timeout)\nback to the caller through the object.",
+        "summary": "prelaunch splash screen manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_splash",
+          "description": {
+            "type": "description",
+            "text": "Creates a new prelaunch splash screen and returns a splash object.\n\nThe `app_id` is a string that identifies the application. The compositor\nwill use this ID together with `sandbox_engine_name` to match the splash\nscreen with the actual application window when it appears. This\nmatching mechanism should also work for XWayland windows.\n\nThe `instance_id` identifies a specific application instance, allowing\nmultiple splashes for non-singleton applications. The compositor can\nuse this to associate a splash with a particular launch instance.\n\nCallers MUST provide a non-empty `sandbox_engine_name` string which\nidentifies the sandboxing/container.",
+            "summary": "create a new splash screen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "splash",
+              "argType": "new_id",
+              "summary": "new splash object",
+              "interface": "treeland_prelaunch_splash_v2"
+            },
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "summary": "the application ID"
+            },
+            {
+              "type": "arg",
+              "name": "instance_id",
+              "argType": "string",
+              "summary": "the application instance ID"
+            },
+            {
+              "type": "arg",
+              "name": "sandbox_engine_name",
+              "argType": "string",
+              "summary": "the sandbox engine / security context name (required, non-empty)"
+            },
+            {
+              "type": "arg",
+              "name": "icon_buffer",
+              "argType": "object",
+              "summary": "optional icon image as wl_buffer (e.g. wl_shm)",
+              "interface": "wl_buffer",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_prelaunch_splash_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a single prelaunch splash screen created by the manager.\n\nThe caller can destroy this object to dismiss the corresponding splash.\nThe compositor may also send events through this object, for example\nto notify the caller that the splash was closed due to a timeout.",
+        "summary": "prelaunch splash screen object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Dismisses the splash screen and destroys this object.",
+            "summary": "dismiss and destroy the splash"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

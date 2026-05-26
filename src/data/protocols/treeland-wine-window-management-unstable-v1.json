@@ -1,0 +1,270 @@
+{
+  "type": "protocol",
+  "name": "treeland_wine_window_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol provides privileged window management capabilities\nrequired by Wine (the Windows API compatibility layer) that are not\navailable through standard Wayland protocols.\n\nStandard xdg-shell intentionally prevents clients from setting their\nown screen position or controlling z-order.  Wine applications rely\nheavily on absolute positioning (SetWindowPos, MoveWindow) and\nstacking control (HWND_TOPMOST, HWND_TOP) to implement the Windows\nwindow management model.  This protocol bridges that gap by allowing\na trusted Wine client to request positioning and stacking changes\nwhile leaving the compositor the final authority over actual\nplacement.\n\nA client obtains a treeland_wine_window_control_v1 object for each\nxdg_toplevel it wishes to manage.  Requests on that object express\nthe client's desired geometry and stacking.  The compositor applies\nor adjusts them and reports the actual result through events.\n\nA Wine session is the set of all treeland_wine_window_control_v1\nobjects created through the same treeland_wine_window_manager_v1\nglobal binding.  window_id values emitted by the window_id event are\nunique and valid only within that set.  The compositor must enforce\nthis boundary: a sibling_id supplied to set_z_order that refers to a\ncontrol object from a different manager binding must be treated as if\nno matching sibling exists, causing hwnd_insert_after to have no\neffect.\n\nThe key words \"must\", \"must not\", \"should\", \"should not\", and \"may\"\nin this document are to be interpreted as described in IETF RFC 2119.",
+    "summary": "window geometry and stacking control for Wine"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_wine_window_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Lets a Wine client create per-toplevel control objects.  The\ncompositor should restrict binding to trusted clients identified\nby app_id or an equivalent policy mechanism.\n\nThe client must destroy all child\ntreeland_wine_window_control_v1 objects before destroying this\nobject.",
+        "summary": "global entry point for Wine window management"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys this manager object.  The client must destroy every\ntreeland_wine_window_control_v1 created through this manager\nbefore sending this request; otherwise the compositor must\nraise an implementation-defined protocol error.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_window_control",
+          "description": {
+            "type": "description",
+            "text": "Creates a treeland_wine_window_control_v1 bound to the given\nxdg_toplevel.  At most one control object may exist for each\ntoplevel; requesting a second one is a\ntoplevel_already_controlled error.  If the xdg_toplevel has\nbeen destroyed or has no configured role the compositor must\nraise a defunct_toplevel error.",
+            "summary": "create a control object for an xdg_toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_wine_window_control_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "toplevel_already_controlled",
+              "value": "0",
+              "summary": "a control object already exists for the given toplevel"
+            },
+            {
+              "type": "entry",
+              "name": "defunct_toplevel",
+              "value": "1",
+              "summary": "the xdg_toplevel has no associated role or has been destroyed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_wine_window_control_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Controls the screen geometry and stacking order for one\nxdg_toplevel surface.\n\nAll coordinate values are in the compositor's global logical\ncoordinate space (the same space used by wl_output.geometry and\nxdg_output.logical_position).\n\nPosition requests are not applied immediately.  The\ncompositor processes them and reports the result via\nconfigure_position.  The client should treat the values in\nconfigure_position as authoritative and update its internal\nstate accordingly.\n\nIf the associated xdg_toplevel is destroyed, this object becomes\ninert.  All subsequent requests are ignored and no further events\nare emitted.  The client should destroy the inert object.\n\nWindow size is managed through the standard xdg_toplevel\nconfigure / xdg_surface.ack_configure mechanism.  This interface\nonly controls screen position and stacking order.",
+        "summary": "per-toplevel position, size, and stacking control"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the control object.  This does not affect the\nassociated xdg_toplevel or its current position on screen.",
+            "summary": "destroy this control object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_position",
+          "description": {
+            "type": "description",
+            "text": "Requests that the compositor place this window at the\nspecified position in the compositor's global logical\ncoordinate space.\n\nThe requested position must fall within the bounds of an\nactive screen.  If the compositor determines that\n(x, y) is outside all screen regions, it rejects the\nrequest and emits a configure_position event reporting the\ncurrent unchanged position.\n\nEven for valid positions the compositor does not guarantee\nexact placement: it may adjust the position to respect\nwindow management rules or layer-shell exclusive zones.\nThe client must treat the values in the resulting\nconfigure_position event as authoritative and update its\ninternal state accordingly.\n\nWindow size changes must use the standard xdg_toplevel\nconfigure / xdg_surface.ack_configure flow and are outside\nthe scope of this protocol.\n\nCorresponds to the position component of the Windows\nSetWindowPos and MoveWindow APIs.",
+            "summary": "request a new absolute screen position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "desired x in global logical coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "desired y in global logical coordinates"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_z_order",
+          "description": {
+            "type": "description",
+            "text": "Requests a Z-order change that directly encodes the Windows\nSetWindowPos hWndInsertAfter parameter.\n\nFor ops hwnd_top, hwnd_bottom, hwnd_topmost, and\nhwnd_notopmost, sibling_id must be 0; a non-zero value is\nan invalid_sibling error.\n\nFor op hwnd_insert_after, sibling_id must be the window_id\nof a control object in the same Wine session as emitted by\nthe window_id event on that control.  The compositor places\nthis surface directly below the identified sibling in\nZ-order.  If sibling_id is 0 or does not identify a live\nsurface in the same session, the compositor must ignore the\nrequest and leave the current Z-order unchanged.\n\nhwnd_insert_after must not mix tiers: if the sibling is in\na different tier from this surface, the compositor must clamp\nto hwnd_top within the appropriate tier.\n\nThe compositor reports the resulting stacking state via\nconfigure_stacking.\n\nNote: hwnd_top and hwnd_insert_after do not change tier\nmembership and therefore do not emit configure_stacking.",
+            "summary": "request a Z-order change using Windows SetWindowPos semantics"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "op",
+              "argType": "uint",
+              "summary": "Z-order operation",
+              "enum": "z_order_op"
+            },
+            {
+              "type": "arg",
+              "name": "sibling_id",
+              "argType": "uint",
+              "summary": "window_id of the sibling for hwnd_insert_after; 0 for all other ops"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "window_id",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor immediately after this control\nobject is created, before any configure_position or\nconfigure_stacking event.\n\nThe id is a non-zero uint32 that uniquely identifies this\ntoplevel within the current Wine session for the lifetime of\nthis control object.\n\nThe Wine driver must store this mapping (HWND to window_id)\nin wineserver shared memory so that other Wine processes in\nthe same session can look up the sibling_id to use in\nset_z_order requests.",
+            "summary": "compositor-assigned session-scoped identifier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "uint",
+              "summary": "non-zero session-scoped window identifier"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "configure_position",
+          "description": {
+            "type": "description",
+            "text": "Sent by the compositor to inform the client of the actual\nwindow position in the compositor's global logical coordinate\nspace.\n\nThis event is emitted:\n- immediately after window_id on initial creation,\n- in response to set_position requests,\n- when the user or compositor moves the window.\n\nWindow size is communicated via the standard xdg_toplevel\nconfigure event and is not reported here.\n\nThe client should use these coordinates to synchronize its\ninternal window state (e.g. update the wineserver window\nrectangles with the correct screen origin).",
+            "summary": "compositor reports actual window position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "actual x in global logical coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "actual y in global logical coordinates"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "configure_stacking",
+          "description": {
+            "type": "description",
+            "text": "Sent by the compositor to report whether this toplevel is\ncurrently in the topmost tier (WS_EX_TOPMOST equivalent).\n\nThis event is emitted:\n- immediately after window_id and configure_position on\ninitial creation, to report the current tier state,\n- in response to set_z_order requests that change tier\nmembership (hwnd_topmost, hwnd_notopmost, hwnd_bottom),\n- when the compositor changes tiers on its own initiative.\n\nNote: hwnd_top and hwnd_insert_after do not change tier\nmembership and therefore do not trigger this event.",
+            "summary": "compositor reports actual topmost tier state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "topmost",
+              "argType": "uint",
+              "summary": "non-zero if the toplevel is in the topmost tier"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_sibling",
+              "value": "0",
+              "summary": "sibling_id is non-zero for an op that does not accept a sibling"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "z_order_op",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Encodes the Windows SetWindowPos hWndInsertAfter parameter\ndirectly.  The first four values correspond to the four\nspecial HWND constants.  hwnd_insert_after requires a\nnon-zero sibling_id in set_z_order.\n\nhwnd_topmost and hwnd_notopmost change WS_EX_TOPMOST tier\nmembership; the compositor must preserve the resulting tier\nuntil explicitly changed.  hwnd_bottom also clears topmost.\nhwnd_top does not alter tier membership.\n\nThis is a superset of what the Wine X11 driver implements:\nthe X11 driver tracks only the topmost flag and a boolean\n\"raise to top\", skipping HWND_BOTTOM and sibling-relative\nordering (see sync_window_position comment in winex11.drv).\nThis protocol implements all five Windows cases.",
+            "summary": "Z-order operation matching Windows SetWindowPos hWndInsertAfter"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "hwnd_top",
+              "value": "0",
+              "summary": "raise to top of current tier; no tier change (HWND_TOP)"
+            },
+            {
+              "type": "entry",
+              "name": "hwnd_bottom",
+              "value": "1",
+              "summary": "lower to absolute bottom of Z-order; clears topmost (HWND_BOTTOM)"
+            },
+            {
+              "type": "entry",
+              "name": "hwnd_topmost",
+              "value": "2",
+              "summary": "enter topmost tier at its top; sets WS_EX_TOPMOST (HWND_TOPMOST)"
+            },
+            {
+              "type": "entry",
+              "name": "hwnd_notopmost",
+              "value": "3",
+              "summary": "leave topmost tier; raise to top of normal tier (HWND_NOTOPMOST)"
+            },
+            {
+              "type": "entry",
+              "name": "hwnd_insert_after",
+              "value": "4",
+              "summary": "place directly below the sibling identified by sibling_id"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

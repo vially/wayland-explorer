@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_virtual_desktop_management",
-      "version": "3",
+      "version": "4",
       "requests": [
         {
           "type": "request",
@@ -143,7 +143,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_virtual_desktop",
-      "version": "3",
+      "version": "4",
       "requests": [
         {
           "type": "request",
@@ -154,6 +154,24 @@
             "summary": "Requests this desktop to be activated"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "request_enter_output",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "Request the server to activate the desktop on a given output.\nThe server may deny the request.\nIf the request is granted, the server will deactivate the previous desktop on the output.\nThe server may activate the desktop on other outputs as well.",
+            "summary": "Requests this desktop to be activated on an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string",
+              "summary": "name of the output"
+            }
+          ]
         }
       ],
       "events": [
@@ -241,6 +259,24 @@
               "name": "index",
               "argType": "uint",
               "summary": "virtual desktop position"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_entered",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the desktop becomes active on an output. The desktop can be active on multiple\noutputs simultaneously. Each output has exactly one active desktop at a time (the one that entered it last).",
+            "summary": "This desktop became active on an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output_name",
+              "argType": "string",
+              "summary": "name of the output"
             }
           ]
         }

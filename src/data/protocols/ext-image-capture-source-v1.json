@@ -15,6 +15,7 @@
       "type": "interface",
       "name": "ext_image_capture_source_v1",
       "version": "1",
+      "frozen": true,
       "description": {
         "type": "description",
         "text": "The image capture source object is an opaque descriptor for a capturable\nresource.  This resource may be any sort of entity from which an image\nmay be derived.\n\nNote, because ext_image_capture_source_v1 objects are created from multiple\nindependent factory interfaces, the ext_image_capture_source_v1 interface is\nfrozen at version 1.",

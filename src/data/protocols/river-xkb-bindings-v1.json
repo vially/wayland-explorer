@@ -8,13 +8,13 @@
   "description": {
     "type": "description",
     "text": "This protocol allows the river-window-management-v1 window manager to\ndefine key bindings in terms of xkbcommon keysyms and other configurable\nproperties.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
-    "summary": "define xkbcommon-based key bindings"
+    "summary": "xkbcommon-based key bindings"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "river_xkb_bindings_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This global interface should only be advertised to the client if the\nriver_window_manager_v1 global is also advertised.",
@@ -116,7 +116,7 @@
     {
       "type": "interface",
       "name": "river_xkb_binding_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This object allows the window manager to configure a xkbcommon key binding\nand receive events when the key binding is triggered.\n\nThe new key binding is not enabled until the enable request is made during\na manage sequence.\n\nNormally, all key events are sent to the surface with keyboard focus by\nthe compositor. Key events that trigger a key binding are not sent to the\nsurface with keyboard focus.\n\nIf multiple key bindings would be triggered by a single physical key event\non the compositor side, it is compositor policy which key binding(s) will\nreceive press/release events or if all of the matched key bindings receive\npress/release events.\n\nKey bindings might be matched by the same physical key event due to shared\nkeysym and modifiers. The layout override feature may also cause the same\nphysical key event to trigger two key bindings with different keysyms and\ndifferent layout overrides configured.",
@@ -199,7 +199,7 @@
           "since": "2",
           "description": {
             "type": "description",
-            "text": "This event indicates that repeating should be stopped for the binding if\nthe window manager has been repeating some action since the pressed\nevent.\n\nThis event is generally sent when some other (possible unbound) key is\npressed after the pressed event is sent and before the released event\nis sent for this binding.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "text": "This event indicates that repeating should be stopped for the binding if\nthe window manager has been repeating some action since the pressed\nevent.\n\nThis event is generally sent when some other (possibly unbound) key is\npressed after the pressed event is sent and before the released event\nis sent for this binding.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
             "summary": "repeating should be stopped"
           },
           "args": []
@@ -210,7 +210,7 @@
     {
       "type": "interface",
       "name": "river_xkb_bindings_seat_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This object manages xkb bindings state associated with a specific seat.",
@@ -250,6 +250,25 @@
             "summary": "cancel an ensure_next_key_eaten request"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "modifiers_watch",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Request that the server send the modifiers_update event whenever a state\nchange occurs for at least one of the modifiers specified by the\nmodifiers argument.\n\nThe window manager should make this request with the modifiers argument\nset to 0 when it no longer wishes to take action based on a change in\nmodifiers.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "watch for change in active modifiers"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "enum": "river_seat_v1.modifiers",
+              "protocol": "river-window-management-v1"
+            }
+          ]
         }
       ],
       "events": [
@@ -263,6 +282,34 @@
             "summary": "an unbound key press event was eaten"
           },
           "args": []
+        },
+        {
+          "type": "event",
+          "name": "modifiers_update",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "The set of currently active modifiers for the seat changed. This event\nis only sent when there is a change in state for modifiers marked as\nwatched using the modifiers_watch request.\n\nThe old and new arguments convey the set of modifiers active before and\nafter the change. All modifiers are included in the old and new\narguments, including modifiers that are not watched.\n\nSince this event is only sent when there is a change in state for\nwatched modifiers, it follows that at least one watched modifier is\nactive in old but inactive in new or vice-versa.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.\n\nThe compositor should wait for the manage sequence to complete before\nprocessing further input events. This allows the window manager client\nto, for example, modify key bindings and keyboard focus without racing\nagainst future input events. The window manager should of course respond\nas soon as possible as the capacity of the compositor to buffer incoming\ninput events is finite.",
+            "summary": "active modifiers for the seat changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "old",
+              "argType": "uint",
+              "summary": "previously active modifiers",
+              "enum": "river_seat_v1.modifiers",
+              "protocol": "river-window-management-v1"
+            },
+            {
+              "type": "arg",
+              "name": "new",
+              "argType": "uint",
+              "summary": "currently active modifiers",
+              "enum": "river_seat_v1.modifiers",
+              "protocol": "river-window-management-v1"
+            }
+          ]
         }
       ],
       "enums": []
