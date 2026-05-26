@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_ddm_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This is the treeland - ddm private communication protocol.\n\nThis object is primarily used for establish connection between\ntreeland and ddm.",
@@ -89,6 +89,18 @@
               "protocol": "wayland"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroys this treeland_ddm_v1 object.",
+            "summary": "Destroy the treeland_ddm_v1"
+          },
+          "args": []
         }
       ],
       "events": [

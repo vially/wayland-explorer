@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_screensaver_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This object implements a simple idle inhibit protocol used\nto implement org.freedesktop.ScreenSaver D-Bus interface.\n\nCall inhibit to prevent treeland from entering idle state.\nCall uninhibit or disconnect from the global to release\nthe inhibit.\n\nIf the client disconnects from the compositor, the inhibit\nassociated with that client is automatically released.\n\nThere can be only one inhibit per client per time. Calling\ninhibit multiple times will raise an error. Call uninhibit\nbefore inhibit to update application_name and reason\nrecorded.\n\nWarning! The protocol described in this file is currently\nin the testing phase. Backward compatible changes may be\nadded together with the corresponding interface version\nbump. Backward incompatible changes can only be done by\ncreating a new major version of the extension.",
@@ -44,6 +44,17 @@
             "type": "description",
             "text": "Uninhibit idleness previously inhibited by inhibit request.",
             "summary": "Uninhibit idleness"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "destroy treeland_screensaver_v1 object"
           },
           "args": []
         }

@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_unstable_v1",
-      "version": "5",
+      "version": "6",
       "description": {
         "type": "description",
         "text": "Warning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -275,7 +275,7 @@
     {
       "type": "interface",
       "name": "zkde_screencast_stream_unstable_v1",
-      "version": "5",
+      "version": "6",
       "requests": [
         {
           "type": "request",
@@ -301,8 +301,10 @@
         {
           "type": "event",
           "name": "created",
+          "deprecatedSince": "6",
           "description": {
             "type": "description",
+            "text": "Deprecated since version 6, use the object serial from the serial event instead",
             "summary": "Notifies about a pipewire feed being created"
           },
           "args": [
@@ -327,6 +329,30 @@
               "name": "error",
               "argType": "string",
               "summary": "A human readable translated error message."
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "serial",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "text": "The pipewire object serial of the stream. Should be preferred over the node id which is prone to id reuse.\nWill be sent before the created event.",
+            "summary": "the pipewire object serial"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "object_serial_hi",
+              "argType": "uint",
+              "summary": "high bits of the pipewire object serial"
+            },
+            {
+              "type": "arg",
+              "name": "object_serial_low",
+              "argType": "uint",
+              "summary": "low bits of the pipewire object serial"
             }
           ]
         }

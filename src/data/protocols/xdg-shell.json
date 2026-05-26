@@ -49,7 +49,7 @@
           "name": "get_xdg_surface",
           "description": {
             "type": "description",
-            "text": "This creates an xdg_surface for the given surface. While xdg_surface\nitself is not a role, the corresponding surface may only be assigned\na role extending xdg_surface, such as xdg_toplevel or xdg_popup. It is\nillegal to create an xdg_surface for a wl_surface which already has an\nassigned role and this will result in a role error.\n\nThis creates an xdg_surface for the given surface. An xdg_surface is\nused as basis to define a role to a given surface, such as xdg_toplevel\nor xdg_popup. It also manages functionality shared between xdg_surface\nbased surface roles.\n\nSee the documentation of xdg_surface for more details about what an\nxdg_surface is and how it is used.",
+            "text": "This creates an xdg_surface for the given surface. An xdg_surface is\nused as basis to define a role to a given surface, such as xdg_toplevel\nor xdg_popup. It also manages functionality shared between xdg_surface\nbased surface roles.\n\nWhile xdg_surface itself is not a role, the corresponding surface may\nonly be assigned a role extending xdg_surface, such as xdg_toplevel or\nxdg_popup. It is illegal to create an xdg_surface for a wl_surface which\nalready has anassigned role and this will result in a role error.\n\nSee the documentation of xdg_surface for more details about what an\nxdg_surface is and how it is used.",
             "summary": "create a shell surface from a surface"
           },
           "args": [
@@ -241,7 +241,7 @@
           "name": "set_anchor",
           "description": {
             "type": "description",
-            "text": "Defines the anchor point for the anchor rectangle. The specified anchor\nis used derive an anchor point that the child surface will be\npositioned relative to. If a corner anchor is set (e.g. 'top_left' or\n'bottom_right'), the anchor point will be at the specified corner;\notherwise, the derived anchor point will be centered on the specified\nedge, or in the center of the anchor rectangle if no edge is specified.",
+            "text": "Defines the anchor point for the anchor rectangle. The specified anchor\nis used to derive an anchor point that the child surface will be\npositioned relative to. If a corner anchor is set (e.g. 'top_left' or\n'bottom_right'), the anchor point will be at the specified corner;\notherwise, the derived anchor point will be centered on the specified\nedge, or in the center of the anchor rectangle if no edge is specified.",
             "summary": "set anchor rectangle anchor"
           },
           "args": [
@@ -249,7 +249,7 @@
               "type": "arg",
               "name": "anchor",
               "argType": "uint",
-              "summary": "anchor",
+              "summary": "anchor point",
               "enum": "anchor"
             }
           ]
@@ -331,7 +331,7 @@
           "description": {
             "type": "description",
             "text": "Set the parent window geometry the compositor should use when\npositioning the popup. The compositor may use this information to\ndetermine the future state the popup should be constrained using. If\nthis doesn't match the dimension of the parent the popup is eventually\npositioned against, the behavior is undefined.\n\nThe arguments are given in the surface-local coordinate space.",
-            "summary": ""
+            "summary": "set parent size"
           },
           "args": [
             {
@@ -627,6 +627,7 @@
               "type": "arg",
               "name": "parent",
               "argType": "object",
+              "summary": "parent surface for this popup",
               "interface": "xdg_surface",
               "allowNull": "true"
             },
@@ -634,6 +635,7 @@
               "type": "arg",
               "name": "positioner",
               "argType": "object",
+              "summary": "positioner for this popup",
               "interface": "xdg_positioner"
             }
           ]
@@ -650,22 +652,26 @@
             {
               "type": "arg",
               "name": "x",
-              "argType": "int"
+              "argType": "int",
+              "summary": "x coordinate of the top-left corner of the window inside this surface"
             },
             {
               "type": "arg",
               "name": "y",
-              "argType": "int"
+              "argType": "int",
+              "summary": "y coordinate of the top-left corner of the window inside this surface"
             },
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "width of the window"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "height of the window"
             }
           ]
         },
@@ -758,7 +764,7 @@
       "version": "7",
       "description": {
         "type": "description",
-        "text": "This interface defines an xdg_surface role which allows a surface to,\namong other things, set window-like properties such as maximize,\nfullscreen, and minimize, set application-specific metadata like title and\nid, and well as trigger user interactive operations such as interactive\nresize and move.\n\nA xdg_toplevel by default is responsible for providing the full intended\nvisual representation of the toplevel, which depending on the window\nstate, may mean things like a title bar, window controls and drop shadow.\n\nUnmapping an xdg_toplevel means that the surface cannot be shown\nby the compositor until it is explicitly mapped again.\nAll active operations (e.g., move, resize) are canceled and all\nattributes (e.g. title, state, stacking, ...) are discarded for\nan xdg_toplevel surface when it is unmapped. The xdg_toplevel returns to\nthe state it had right after xdg_surface.get_toplevel. The client\ncan re-map the toplevel by performing a commit without any buffer\nattached, waiting for a configure event and handling it as usual (see\nxdg_surface description).\n\nAttaching a null buffer to a toplevel unmaps the surface.",
+        "text": "This interface defines an xdg_surface role which allows a surface to,\namong other things, set window-like properties such as maximize,\nfullscreen, and minimize, set application-specific metadata like title and\nid, and well as trigger user interactive operations such as interactive\nresize and move.\n\nAn xdg_toplevel by default is responsible for providing the full intended\nvisual representation of the toplevel, which depending on the window\nstate, may mean things like a title bar, window controls and drop shadow.\n\nUnmapping an xdg_toplevel means that the surface cannot be shown\nby the compositor until it is explicitly mapped again.\nAll active operations (e.g., move, resize) are canceled and all\nattributes (e.g. title, state, stacking, ...) are discarded for\nan xdg_toplevel surface when it is unmapped. The xdg_toplevel returns to\nthe state it had right after xdg_surface.get_toplevel. The client\ncan re-map the toplevel by performing a commit without any buffer\nattached, waiting for a configure event and handling it as usual (see\nxdg_surface description).\n\nAttaching a null buffer to a toplevel unmaps the surface.",
         "summary": "toplevel surface"
       },
       "requests": [
@@ -786,6 +792,7 @@
               "type": "arg",
               "name": "parent",
               "argType": "object",
+              "summary": "parent surface for this surface",
               "interface": "xdg_toplevel",
               "allowNull": "true"
             }
@@ -803,7 +810,8 @@
             {
               "type": "arg",
               "name": "title",
-              "argType": "string"
+              "argType": "string",
+              "summary": "title of the surface"
             }
           ]
         },
@@ -819,7 +827,8 @@
             {
               "type": "arg",
               "name": "app_id",
-              "argType": "string"
+              "argType": "string",
+              "summary": "application identifier surface belongs to"
             }
           ]
         },
@@ -922,19 +931,21 @@
           "name": "set_max_size",
           "description": {
             "type": "description",
-            "text": "Set a maximum size for the window.\n\nThe client can specify a maximum size so that the compositor does\nnot try to configure the window beyond this size.\n\nThe width and height arguments are in window geometry coordinates.\nSee xdg_surface.set_window_geometry.\n\nValues set in this way are double-buffered, see wl_surface.commit.\n\nThe compositor can use this information to allow or disallow\ndifferent states like maximize or fullscreen and draw accurate\nanimations.\n\nSimilarly, a tiling window manager may use this information to\nplace and resize client windows in a more effective way.\n\nThe client should not rely on the compositor to obey the maximum\nsize. The compositor may decide to ignore the values set by the\nclient and request a larger size.\n\nIf never set, or a value of zero in the request, means that the\nclient has no expected maximum size in the given dimension.\nAs a result, a client wishing to reset the maximum size\nto an unspecified state can use zero for width and height in the\nrequest.\n\nRequesting a maximum size to be smaller than the minimum size of\na surface is illegal and will result in an invalid_size error.\n\nThe width and height must be greater than or equal to zero. Using\nstrictly negative values for width or height will result in a\ninvalid_size error.",
+            "text": "Set a maximum size for the window.\n\nThe client can specify a maximum size so that the compositor does\nnot try to configure the window beyond this size.\n\nThe width and height arguments are in window geometry coordinates.\nSee xdg_surface.set_window_geometry.\n\nValues set in this way are double-buffered, see wl_surface.commit.\n\nThe compositor can use this information to allow or disallow\ndifferent states like maximize or fullscreen and draw accurate\nanimations.\n\nSimilarly, a tiling window manager may use this information to\nplace and resize client windows in a more effective way.\n\nThe client should not rely on the compositor to obey the maximum\nsize. The compositor may decide to ignore the values set by the\nclient and request a larger size.\n\nIf never set, or a value of zero in the request, means that the\nclient has no expected maximum size in the given dimension.\nAs a result, a client wishing to reset the maximum size\nto an unspecified state can use zero for width and height in the\nrequest.\n\nRequesting a maximum size to be smaller than the minimum size of\na surface is illegal and will result in an invalid_size error.\n\nThe width and height must be greater than or equal to zero. Using\nstrictly negative values for width or height will result in an\ninvalid_size error.",
             "summary": "set the maximum size"
           },
           "args": [
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "maximum width of the window"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "maximum height of the window"
             }
           ]
         },
@@ -943,19 +954,21 @@
           "name": "set_min_size",
           "description": {
             "type": "description",
-            "text": "Set a minimum size for the window.\n\nThe client can specify a minimum size so that the compositor does\nnot try to configure the window below this size.\n\nThe width and height arguments are in window geometry coordinates.\nSee xdg_surface.set_window_geometry.\n\nValues set in this way are double-buffered, see wl_surface.commit.\n\nThe compositor can use this information to allow or disallow\ndifferent states like maximize or fullscreen and draw accurate\nanimations.\n\nSimilarly, a tiling window manager may use this information to\nplace and resize client windows in a more effective way.\n\nThe client should not rely on the compositor to obey the minimum\nsize. The compositor may decide to ignore the values set by the\nclient and request a smaller size.\n\nIf never set, or a value of zero in the request, means that the\nclient has no expected minimum size in the given dimension.\nAs a result, a client wishing to reset the minimum size\nto an unspecified state can use zero for width and height in the\nrequest.\n\nRequesting a minimum size to be larger than the maximum size of\na surface is illegal and will result in an invalid_size error.\n\nThe width and height must be greater than or equal to zero. Using\nstrictly negative values for width and height will result in a\ninvalid_size error.",
+            "text": "Set a minimum size for the window.\n\nThe client can specify a minimum size so that the compositor does\nnot try to configure the window below this size.\n\nThe width and height arguments are in window geometry coordinates.\nSee xdg_surface.set_window_geometry.\n\nValues set in this way are double-buffered, see wl_surface.commit.\n\nThe compositor can use this information to allow or disallow\ndifferent states like maximize or fullscreen and draw accurate\nanimations.\n\nSimilarly, a tiling window manager may use this information to\nplace and resize client windows in a more effective way.\n\nThe client should not rely on the compositor to obey the minimum\nsize. The compositor may decide to ignore the values set by the\nclient and request a smaller size.\n\nIf never set, or a value of zero in the request, means that the\nclient has no expected minimum size in the given dimension.\nAs a result, a client wishing to reset the minimum size\nto an unspecified state can use zero for width and height in the\nrequest.\n\nRequesting a minimum size to be larger than the maximum size of\na surface is illegal and will result in an invalid_size error.\n\nThe width and height must be greater than or equal to zero. Using\nstrictly negative values for width and height will result in an\ninvalid_size error.",
             "summary": "set the minimum size"
           },
           "args": [
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "minimum width of the window"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "minimum height of the window"
             }
           ]
         },
@@ -984,7 +997,7 @@
           "name": "set_fullscreen",
           "description": {
             "type": "description",
-            "text": "Make the surface fullscreen.\n\nAfter requesting that the surface should be fullscreened, the\ncompositor will respond by emitting a configure event. Whether the\nclient is actually put into a fullscreen state is subject to compositor\npolicies. The client must also acknowledge the configure when\ncommitting the new content (see ack_configure).\n\nThe output passed by the request indicates the client's preference as\nto which display it should be set fullscreen on. If this value is NULL,\nit's up to the compositor to choose which display will be used to map\nthis surface.\n\nIf the surface doesn't cover the whole output, the compositor will\nposition the surface in the center of the output and compensate with\nwith border fill covering the rest of the output. The content of the\nborder fill is undefined, but should be assumed to be in some way that\nattempts to blend into the surrounding area (e.g. solid black).\n\nIf the fullscreened surface is not opaque, the compositor must make\nsure that other screen content not part of the same surface tree (made\nup of subsurfaces, popups or similarly coupled surfaces) are not\nvisible below the fullscreened surface.",
+            "text": "Make the surface fullscreen.\n\nAfter requesting that the surface should be fullscreened, the\ncompositor will respond by emitting a configure event. Whether the\nclient is actually put into a fullscreen state is subject to compositor\npolicies. The client must also acknowledge the configure when\ncommitting the new content (see ack_configure).\n\nThe output passed by the request indicates the client's preference as\nto which display it should be set fullscreen on. If this value is NULL,\nit's up to the compositor to choose which display will be used to map\nthis surface.\n\nIf the surface doesn't cover the whole output, the compositor will\nposition the surface in the center of the output and compensate with\nborder fill covering the rest of the output. The content of the\nborder fill is undefined, but should be assumed to be in some way that\nattempts to blend into the surrounding area (e.g. solid black).\n\nIf the fullscreened surface is not opaque, the compositor must make\nsure that other screen content not part of the same surface tree (made\nup of subsurfaces, popups or similarly coupled surfaces) are not\nvisible below the fullscreened surface.",
             "summary": "set the window as fullscreen on an output"
           },
           "args": [
@@ -992,6 +1005,7 @@
               "type": "arg",
               "name": "output",
               "argType": "object",
+              "summary": "preferred output to place surface on",
               "interface": "wl_output",
               "allowNull": "true",
               "protocol": "wayland"
@@ -1032,17 +1046,20 @@
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "suggested width of window"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "suggested height of window"
             },
             {
               "type": "arg",
               "name": "states",
-              "argType": "array"
+              "argType": "array",
+              "summary": "suggested states of the window"
             }
           ]
         },
@@ -1069,12 +1086,14 @@
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "suggested maximum width of surface"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "suggested maximum height of surface"
             }
           ]
         },

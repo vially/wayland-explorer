@@ -169,7 +169,7 @@
               "type": "arg",
               "name": "id",
               "argType": "new_id",
-              "summary": "bounded object"
+              "summary": "bound object"
             }
           ]
         }
@@ -1724,7 +1724,7 @@
           "since": "3",
           "description": {
             "type": "description",
-            "text": "The user performed the drop action. This event does not indicate\nacceptance, wl_data_source.cancelled may still be emitted afterwards\nif the drop destination does not accept any mime type.\n\nHowever, this event might however not be received if the compositor\ncancelled the drag-and-drop operation before this event could happen.\n\nNote that the data_source may still be used in the future and should\nnot be destroyed here.",
+            "text": "The user performed the drop action. This event does not indicate\nacceptance, wl_data_source.cancelled may still be emitted afterwards\nif the drop destination does not accept any mime type.\n\nHowever, this event might not be received if the compositor cancelled\nthe drag-and-drop operation before this event could happen.\n\nNote that the data_source may still be used in the future and should\nnot be destroyed here.",
             "summary": "the drag-and-drop operation physically finished"
           },
           "args": []
@@ -1746,7 +1746,7 @@
           "since": "3",
           "description": {
             "type": "description",
-            "text": "This event indicates the action selected by the compositor after\nmatching the source/destination side actions. Only one action (or\nnone) will be offered here.\n\nThis event can be emitted multiple times during the drag-and-drop\noperation, mainly in response to destination side changes through\nwl_data_offer.set_actions, and as the data device enters/leaves\nsurfaces.\n\nIt is only possible to receive this event after\nwl_data_source.dnd_drop_performed if the drag-and-drop operation\nended in an \"ask\" action, in which case the final wl_data_source.action\nevent will happen immediately before wl_data_source.dnd_finished.\n\nCompositors may also change the selected action on the fly, mainly\nin response to keyboard modifier changes during the drag-and-drop\noperation.\n\nThe most recent action received is always the valid one. The chosen\naction may change alongside negotiation (e.g. an \"ask\" action can turn\ninto a \"move\" operation), so the effects of the final action must\nalways be applied in wl_data_offer.dnd_finished.\n\nClients can trigger cursor surface changes from this point, so\nthey reflect the current action.",
+            "text": "This event indicates the action selected by the compositor after\nmatching the source/destination side actions. Only one action (or\nnone) will be offered here.\n\nThis event can be emitted multiple times during the drag-and-drop\noperation, mainly in response to destination side changes through\nwl_data_offer.set_actions, and as the data device enters/leaves\nsurfaces.\n\nIt is only possible to receive this event after\nwl_data_source.dnd_drop_performed if the drag-and-drop operation\nended in an \"ask\" action, in which case the final wl_data_source.action\nevent will happen immediately before wl_data_source.dnd_finished.\n\nCompositors may also change the selected action on the fly, mainly\nin response to keyboard modifier changes during the drag-and-drop\noperation.\n\nThe most recent action received is always the valid one. The chosen\naction may change alongside negotiation (e.g. an \"ask\" action can turn\ninto a \"move\" operation), so the effects of the final action must\nalways be applied in wl_data_source.dnd_finished.\n\nClients can trigger cursor surface changes from this point, so\nthey reflect the current action.",
             "summary": "notify the selected action"
           },
           "args": [
@@ -3129,7 +3129,7 @@
           "since": "2",
           "description": {
             "type": "description",
-            "text": "In a multi-seat configuration the seat name can be used by clients to\nhelp identify which physical devices the seat represents.\n\nThe seat name is a UTF-8 string with no convention defined for its\ncontents. Each name is unique among all wl_seat globals. The name is\nonly guaranteed to be unique for the current compositor instance.\n\nThe same seat names are used for all clients. Thus, the name can be\nshared across processes to refer to a specific wl_seat global.\n\nThe name event is sent after binding to the seat global, and should be sent\nbefore announcing capabilities. This event only sent once per seat object,\nand the name does not change over the lifetime of the wl_seat global.\n\nCompositors may re-use the same seat name if the wl_seat global is\ndestroyed and re-created later.",
+            "text": "In a multi-seat configuration the seat name can be used by clients to\nhelp identify which physical devices the seat represents.\n\nThe seat name is a UTF-8 string with no convention defined for its\ncontents. Each name is unique among all wl_seat globals. The name is\nonly guaranteed to be unique for the current compositor instance.\n\nThe same seat names are used for all clients. Thus, the name can be\nshared across processes to refer to a specific wl_seat global.\n\nThe name event is sent after binding to the seat global, and should be sent\nbefore announcing capabilities. This event is only sent once per seat object,\nand the name does not change over the lifetime of the wl_seat global.\n\nCompositors may re-use the same seat name if the wl_seat global is\ndestroyed and re-created later.",
             "summary": "unique identifier for this seat"
           },
           "args": [
@@ -4095,7 +4095,7 @@
           "since": "6",
           "description": {
             "type": "description",
-            "text": "Sent when a touchpoint has changed its shape.\n\nThis event does not occur on its own. It is sent before a\nwl_touch.frame event and carries the new shape information for\nany previously reported, or new touch points of that frame.\n\nOther events describing the touch point such as wl_touch.down,\nwl_touch.motion or wl_touch.orientation may be sent within the\nsame wl_touch.frame. A client should treat these events as a single\nlogical touch point update. The order of wl_touch.shape,\nwl_touch.orientation and wl_touch.motion is not guaranteed.\nA wl_touch.down event is guaranteed to occur before the first\nwl_touch.shape event for this touch ID but both events may occur within\nthe same wl_touch.frame.\n\nA touchpoint shape is approximated by an ellipse through the major and\nminor axis length. The major axis length describes the longer diameter\nof the ellipse, while the minor axis length describes the shorter\ndiameter. Major and minor are orthogonal and both are specified in\nsurface-local coordinates. The center of the ellipse is always at the\ntouchpoint location as reported by wl_touch.down or wl_touch.move.\n\nThis event is only sent by the compositor if the touch device supports\nshape reports. The client has to make reasonable assumptions about the\nshape if it did not receive this event.",
+            "text": "Sent when a touchpoint has changed its shape.\n\nThis event does not occur on its own. It is sent before a\nwl_touch.frame event and carries the new shape information for\nany previously reported, or new touch points of that frame.\n\nOther events describing the touch point such as wl_touch.down,\nwl_touch.motion or wl_touch.orientation may be sent within the\nsame wl_touch.frame. A client should treat these events as a single\nlogical touch point update. The order of wl_touch.shape,\nwl_touch.orientation and wl_touch.motion is not guaranteed.\nA wl_touch.down event is guaranteed to occur before the first\nwl_touch.shape event for this touch ID but both events may occur within\nthe same wl_touch.frame.\n\nA touchpoint shape is approximated by an ellipse through the major and\nminor axis length. The major axis length describes the longer diameter\nof the ellipse, while the minor axis length describes the shorter\ndiameter. Major and minor are orthogonal and both are specified in\nsurface-local coordinates. The center of the ellipse is always at the\ntouchpoint location as reported by wl_touch.down or wl_touch.motion.\n\nThis event is only sent by the compositor if the touch device supports\nshape reports. The client has to make reasonable assumptions about the\nshape if it did not receive this event.",
             "summary": "update shape of touch point"
           },
           "args": [
@@ -4761,7 +4761,7 @@
     {
       "type": "interface",
       "name": "wl_fixes",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This global fixes problems with other core-protocol interfaces that\ncannot be fixed in these interfaces themselves.",
@@ -4795,10 +4795,54 @@
               "interface": "wl_registry"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "ack_global_remove",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Acknowledge the removal of the specified global.\n\nIf no global with the specified name exists or the global is not removed,\nthe wl_fixes.invalid_ack_remove protocol error will be posted.\n\nDue to the Wayland protocol being asynchronous, the wl_global objects\ncannot be destroyed immediately. For example, if a wl_global is removed\nand a client attempts to bind that global around same time, it can\nresult in a protocol error due to an unknown global name in the bind\nrequest.\n\nIn order to avoid crashing clients, the compositor should remove the\nwl_global once it is guaranteed that no more bind requests will come.\n\nThe wl_fixes.ack_global_remove() request is used to signal to the\ncompositor that the client will not bind the given global anymore. After\nall clients acknowledge the removal of the global, the compositor can\nsafely destroy it.\n\nThe client must call the wl_fixes.ack_global_remove() request in\nresponse to a wl_registry.global_remove() event even if it did not bind\nthe corresponding global.",
+            "summary": "acknowledge global removal"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "registry",
+              "argType": "object",
+              "summary": "the registry object",
+              "interface": "wl_registry"
+            },
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "uint",
+              "summary": "unique name of the global"
+            }
+          ]
         }
       ],
       "events": [],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These errors can be emitted in response to wl_fixes requests.",
+            "summary": "wl_fixes error values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_ack_remove",
+              "value": "0",
+              "summary": "unknown global or the global is not removed"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

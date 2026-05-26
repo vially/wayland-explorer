@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_virtual_output_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface is a manager that allows the creation of copied output.",
@@ -21,7 +21,7 @@
           "name": "create_virtual_output",
           "description": {
             "type": "description",
-            "text": "Create virtual output that can be used when setting screen copy mode for use\non multiple screens. Virtual outputs are created to mirror multiple wl_output\noutputs.\n\nThe element of the array is the name of the screen.\n\nThe first element of the array outputs is the screen to be copied, and\nthe subsequent elements are the screens to be mirrored.\n\nThe client calling this interface will not generate an additional wl_output\nobject on the client.",
+            "text": "Create virtual output that can be used when setting screen copy mode for use\non multiple screens. Virtual outputs are created to mirror multiple wl_output\noutputs.\n\nThe name argument must not be empty. If name is empty, the compositor\nemits an error event with code invalid_group_name.\n\nThe element of the array is the name of the screen.\n\nThe first element of the array outputs is the screen to be copied, and\nthe subsequent elements are the screens to be mirrored.\n\nThe outputs array must contain at least two elements. If the number\nof elements is less than two, the compositor emits an error event\nwith code invalid_screen_number.\n\nIf any output name in the outputs array does not exist, the compositor\nemits an error event with code invalid_output.\n\nThe client calling this interface will not generate an additional wl_output\nobject on the client.",
             "summary": "Create a virtual output"
           },
           "args": [
@@ -50,7 +50,7 @@
           "name": "get_virtual_output_list",
           "description": {
             "type": "description",
-            "text": "Gets a list of virtual output names.",
+            "text": "Gets a list of virtual output names.\n\nThe compositor emits one virtual_output_list event for each request.\nClients should avoid issuing a new get_virtual_output_list request\nbefore receiving the corresponding event.",
             "summary": "Gets a list of virtual output names"
           },
           "args": []
@@ -77,6 +77,17 @@
               "interface": "treeland_virtual_output_v1"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "summary": "destroy treeland_virtual_output_manager_v1 object"
+          },
+          "args": []
         }
       ],
       "events": [
@@ -151,7 +162,7 @@
           "name": "error",
           "description": {
             "type": "description",
-            "text": "When an error occurs, an error event is emitted, terminating the replication\nmode request issued by the client.",
+            "text": "When an error occurs, an error event is emitted, terminating the replication\nmode request issued by the client.\n\nThe code argument uses treeland_virtual_output_v1.error.",
             "summary": "Screen copy mode error event"
           },
           "args": [
@@ -159,7 +170,8 @@
               "type": "arg",
               "name": "code",
               "argType": "uint",
-              "summary": "error code"
+              "summary": "error code",
+              "enum": "treeland_virtual_output_v1.error"
             },
             {
               "type": "arg",

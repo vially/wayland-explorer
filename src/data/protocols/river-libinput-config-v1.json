@@ -7,14 +7,14 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol exposes libinput device configuration APIs. The libinput\ndocumentation should be referred to for detailed information on libinput's\nbehavior.\n\nThis protocol is designed so that (hopefully) any backwards compatible\nchange to libinput's API can be matched with a backwards compatible change\nto this protocol.\n\nNote: the libinput API uses floating point types (float and double in C)\nwhich are not (yet?) natively supported by the Wayland protocol. However,\nthe Wayland protocol does support sending arbitrary bytes through the array\nargument type. This protocol uses e.g. type=\"array\" summary=\"double\" to\nindicate a native-endian IEEE-754 64-bit double value.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
+    "text": "This protocol exposes libinput device configuration APIs. The libinput\ndocumentation should be referred to for detailed information on libinput's\nbehavior.\n\nNote that the compositor will not be able to expose libinput devices through\nthis protocol when it does not have access to the hardware, for example when\nrunning nested in another Wayland compositor or X11 session.\n\nThis protocol is designed so that (hopefully) any backwards compatible\nchange to libinput's API can be matched with a backwards compatible change\nto this protocol.\n\nNote: the libinput API uses floating point types (float and double in C)\nwhich are not (yet?) natively supported by the Wayland protocol. However,\nthe Wayland protocol does support sending arbitrary bytes through the array\nargument type. This protocol uses e.g. type=\"array\" summary=\"double\" to\nindicate a native-endian IEEE-754 64-bit double value.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "configure libinput devices"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "river_libinput_config_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Global interface for configuring libinput devices. This global should\nonly be advertised if river_input_manager_v1 is advertised as well.",
@@ -119,7 +119,7 @@
     {
       "type": "interface",
       "name": "river_libinput_device_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "In general, *_support events will be sent exactly once directly after the\nriver_libinput_device_v1 is created. *_default events will be sent after\n*_support events if the config option is supported, and *_current events\nwilll be sent after the *_default events and again whenever the config\noption is changed.",
@@ -304,7 +304,7 @@
           "description": {
             "type": "description",
             "text": "Set the acceleration profile.",
-            "summary": "set send events mode"
+            "summary": "set acceleration profile"
           },
           "args": [
             {
@@ -992,7 +992,7 @@
           "description": {
             "type": "description",
             "text": "Current acceleration profile.",
-            "summary": "current send events mode"
+            "summary": "current acceleration profile"
           },
           "args": [
             {
@@ -1542,6 +1542,17 @@
               "argType": "uint"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all information about the libinput device has\nbeen sent.\n\nThis allows changes to one or more river_libinput_device_v1 properties\nto be seen as atomic, even if they happen via multiple events.",
+            "summary": "all information has been sent"
+          },
+          "args": []
         }
       ],
       "enums": [

@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "treeland_foreign_toplevel_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows a client to get toplevel some info.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
@@ -81,7 +81,7 @@
     {
       "type": "interface",
       "name": "treeland_foreign_toplevel_handle_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "A treeland_foreign_toplevel_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
@@ -425,6 +425,13 @@
               "name": "fullscreen",
               "value": "3",
               "summary": "the toplevel is fullscreen"
+            },
+            {
+              "type": "entry",
+              "name": "attention",
+              "value": "4",
+              "summary": "the toplevel is demanding attention",
+              "since": "2"
             }
           ]
         },

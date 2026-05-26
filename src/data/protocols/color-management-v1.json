@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "wp_color_manager_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A singleton global interface used for getting color management extensions\nfor wl_surface and wl_output objects, and for creating client defined\nimage description objects. The extension interfaces allow\ngetting the image description of outputs and setting the image\ndescription of surfaces.\n\nCompositors should never remove this global.",
@@ -178,6 +178,24 @@
               "name": "reference",
               "argType": "object",
               "interface": "wp_image_description_reference_v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_windows_bt2100",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "This creates a pre-defined image description for the so-called\nWindows-BT.2100 stimulus encoding. This comes from the Windows 10\nhandling of its own definition of a BT.2100 color space for an HDR\nscreen driven in BT.2100/PQ signalling mode.\n\nWindows-BT.2100 uses BT.2020 color primaries and white point.\nThe transfer characteristic is st2084_pq.\n\nWindows-BT.2100 is generally displayed by Windows 10 without any\nadjustments to the signal to account for viewing conditions.\n\nThe reference white level of Windows-BT.2100 is unknown. If a\nreference white level must be assumed for compositor processing, it\nshould be 203 cd/m² of Report ITU-R BT.2408-7.\n\nThe target color volume of Windows-BT.2100 is unknown. The color gamut\nmay be anything up to BT.2100.\n\nThis request can be used when the compositor advertises\nwp_color_manager_v1.feature.windows_bt2100.\nOtherwise this request raises the protocol error unsupported_feature.\n\nThe resulting image description object does not allow get_information\nrequest. The wp_image_description_v1.ready event shall be sent.",
+            "summary": "create Windows-BT.2100 image description object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "image_description",
+              "argType": "new_id",
+              "interface": "wp_image_description_v1"
             }
           ]
         }
@@ -403,6 +421,12 @@
               "name": "windows_scrgb",
               "value": "7",
               "summary": "create_windows_scrgb request"
+            },
+            {
+              "type": "entry",
+              "name": "windows_bt2100",
+              "value": "8",
+              "summary": "create_windows_bt2100 request"
             }
           ]
         },
@@ -678,7 +702,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_output_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A wp_color_management_output_v1 describes the color properties of an\noutput.\n\nThe wp_color_management_output_v1 is associated with the wl_output global\nunderlying the wl_output object. Therefore the client destroying the\nwl_output object has no impact, but the compositor removing the output\nglobal makes the wp_color_management_output_v1 object inert.",
@@ -731,7 +755,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_surface_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A wp_color_management_surface_v1 allows the client to set the color\nspace and HDR properties of a surface.\n\nIf the wl_surface associated with the wp_color_management_surface_v1 is\ndestroyed, the wp_color_management_surface_v1 object becomes inert.",
@@ -820,7 +844,7 @@
     {
       "type": "interface",
       "name": "wp_color_management_surface_feedback_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A wp_color_management_surface_feedback_v1 allows the client to get the\npreferred image description of a surface.\n\nIf the wl_surface associated with this object is destroyed, the\nwp_color_management_surface_feedback_v1 object becomes inert.",
@@ -946,7 +970,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_creator_icc_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This type of object is used for collecting all the information required\nto create a wp_image_description_v1 object from an ICC file. A complete\nset of required parameters consists of these properties:\n- ICC file\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nThe link between a pixel value (a device value in ICC) and its respective\ncolorimetry is defined by the details of the particular ICC profile.\nThose details also determine when colorimetry becomes undefined.",
@@ -1049,7 +1073,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_creator_params_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This type of object is used for collecting all the parameters required\nto create a wp_image_description_v1 object. A complete set of required\nparameters consists of these properties:\n- transfer characteristic function (tf)\n- chromaticities of primaries and white point (primary color volume)\n\nThe following properties are optional and have a well-defined default\nif not explicitly set:\n- primary color volume luminance range\n- reference white luminance level\n- mastering display primaries and white point (target color volume)\n- mastering luminance range\n\nThe following properties are optional and will be ignored\nif not explicitly set:\n- maximum content light level\n- maximum frame-average light level\n\nEach required property must be set exactly once if the client is to create\nan image description. The set requests verify that a property was not\nalready set. The create request verifies that all required properties are\nset. There may be several alternative requests for setting each property,\nand in that case the client must choose one of them.\n\nOnce all properties have been set, the create request must be used to\ncreate the image description object, destroying the creator in the\nprocess.\n\nA viewer, who is viewing the display defined by the resulting image\ndescription (the viewing environment included), is assumed to be fully\nadapted to the primary color volume's white point.\n\nAny of the following conditions will cause the colorimetry of a pixel\nto become undefined:\n- Values outside of the defined range of the transfer characteristic.\n- Tristimulus that exceeds the target color volume.\n- If extended_target_volume is not supported: tristimulus that exceeds\nthe primary color volume.\n\nThe closest correspondence to an image description created through this\ninterface is the Display class of profiles in ICC.",
@@ -1386,7 +1410,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "An image description carries information about the pixel color encoding\nand its intended display and viewing environment. The image description is\nattached to a wl_surface via\nwp_color_management_surface_v1.set_image_description. A compositor can use\nthis information to decode pixel values into colorimetrically meaningful\nquantities, which allows the compositor to transform the surface contents\nto become suitable for various displays and viewing environments.\n\nNote, that the wp_image_description_v1 object is not ready to be used\nimmediately after creation. The object eventually delivers either the\n'ready' or the 'failed' event, specified in all requests creating it. The\nobject is deemed \"ready\" after receiving the 'ready' event.\n\nAn object which is not ready is illegal to use, it can only be destroyed.\nAny other request in this interface shall result in the 'not_ready'\nprotocol error. Attempts to use an object which is not ready through other\ninterfaces shall raise protocol errors defined there.\n\nOnce created and regardless of how it was created, a\nwp_image_description_v1 object always refers to one fixed image\ndescription. It cannot change after creation.",
@@ -1554,7 +1578,7 @@
     {
       "type": "interface",
       "name": "wp_image_description_info_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "Sends all matching events describing an image description object exactly\nonce and finally sends the 'done' event.\n\nThis means\n- if the image description is parametric, it must send\n- primaries\n- named_primaries, if applicable\n- at least one of tf_power and tf_named, as applicable\n- luminances\n- target_primaries\n- target_luminance\n- if the image description is parametric, it may send, if applicable,\n- target_max_cll\n- target_max_fall\n- if the image description contains an ICC profile, it must send the\nicc_file event\n\nOnce a wp_image_description_info_v1 object has delivered a 'done' event it\nis automatically destroyed.\n\nEvery wp_image_description_info_v1 created from the same\nwp_image_description_v1 shall always return the exact same data.",
@@ -1860,6 +1884,7 @@
       "type": "interface",
       "name": "wp_image_description_reference_v1",
       "version": "1",
+      "frozen": true,
       "description": {
         "type": "description",
         "text": "This object is a reference to an image description. This interface is\nfrozen at version 1 to allow other protocols to create\nwp_image_description_v1 objects.\n\nThe wp_color_manager_v1.get_image_description request can be used to\nretrieve the underlying image description.",

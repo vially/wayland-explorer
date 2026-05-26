@@ -8,13 +8,13 @@
   "description": {
     "type": "description",
     "text": "This protocol supports creating/destroying seats, assigning input devices to\nseats, and configuring input devices (e.g. setting keyboard repeat rate).\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
-    "summary": "configure input devices"
+    "summary": "manage seats and input devices"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "river_input_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Input manager global interface.",
@@ -122,7 +122,7 @@
     {
       "type": "interface",
       "name": "river_input_device_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "An input device represents a physical keyboard, mouse, touchscreen, or\ndrawing tablet tool. It is assigned to exactly one seat at a time.\nBy default, all input devices are assigned to the default seat.",
@@ -290,6 +290,17 @@
               "argType": "string"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event is sent after all information about the input device has\nbeen sent.\n\nThis allows changes to one or more river_input_device_v1 properties to\nbe seen as atomic, even if they happen via multiple events.",
+            "summary": "all information has been sent"
+          },
+          "args": []
         }
       ],
       "enums": [

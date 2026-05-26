@@ -1,0 +1,275 @@
+{
+  "type": "protocol",
+  "name": "treeland_wine_window_state_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol provides window state management capabilities required\nby Wine (the Windows API compatibility layer) that are not available\nthrough standard Wayland protocols.\n\nStandard xdg-shell lacks:\n- any way to read whether a toplevel is minimized,\n- any way to programmatically unminimize a toplevel,\n- any way to request activation without a valid xdg-activation token\noriginating from a prior user interaction,\n- any way to request a visual attention hint (taskbar flash) without\nstealing focus.\n\nThis protocol fills those gaps.  A client obtains a\ntreeland_wine_window_state_v1 object for each xdg_toplevel whose\nstate it needs to observe or control.  The compositor remains the\nfinal authority: every request is advisory, and the compositor\nreports the authoritative state through events.\n\nThe key words \"must\", \"must not\", \"should\", \"should not\", and \"may\"\nin this document are to be interpreted as described in IETF RFC 2119.",
+    "summary": "window state query and control for Wine"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_wine_window_state_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Lets a Wine client create per-toplevel state objects.  The\ncompositor should restrict binding to trusted clients identified\nby app_id or an equivalent policy mechanism.\n\nThe client must destroy all child\ntreeland_wine_window_state_v1 objects before destroying this\nobject.",
+        "summary": "global entry point for Wine window state control"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys this manager object.  The client must destroy every\ntreeland_wine_window_state_v1 created through this manager\nbefore sending this request; otherwise the compositor must\nraise an implementation-defined protocol error.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_window_state",
+          "description": {
+            "type": "description",
+            "text": "Creates a treeland_wine_window_state_v1 bound to the given\nxdg_toplevel.  At most one state object may exist for each\ntoplevel; requesting a second one is a\ntoplevel_already_bound error.  If the xdg_toplevel has been\ndestroyed or has no configured role, the compositor must\nraise a defunct_toplevel error.\n\nUpon creation, the compositor immediately sends a\nstate_changed event to report the current state of the\ntoplevel.",
+            "summary": "create a state object for an xdg_toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_wine_window_state_v1"
+            },
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "object",
+              "interface": "xdg_toplevel",
+              "protocol": "xdg-shell"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "toplevel_already_bound",
+              "value": "0",
+              "summary": "a state object already exists for the given toplevel"
+            },
+            {
+              "type": "entry",
+              "name": "defunct_toplevel",
+              "value": "1",
+              "summary": "the xdg_toplevel has no associated role or has been destroyed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_wine_window_state_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Observes and controls the lifecycle state for one xdg_toplevel\nsurface.\n\nState flags are reported via the state_changed event.  Each\nflag corresponds to a Windows window state that xdg-shell does\nnot expose to clients.\n\nIf the associated xdg_toplevel is destroyed, this object\nbecomes inert.  All subsequent requests are ignored and no\nfurther events are emitted.  The client should destroy the\ninert object.",
+        "summary": "per-toplevel state observation and control"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the state object.  This does not affect the\nassociated xdg_toplevel.",
+            "summary": "destroy this state object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unminimize",
+          "description": {
+            "type": "description",
+            "text": "Requests that the compositor restore this toplevel from the\nminimized state.\n\nStandard xdg-shell provides xdg_toplevel.set_minimized but\nno way to reverse it.  This request fills that gap.\n\nIf the toplevel is not currently minimized, this request has\nno effect.  If the compositor honors the request, it emits a\nstate_changed event with the minimized flag cleared.\n\nThis corresponds to the Wine/Windows ShowWindow(SW_RESTORE)\ncall on a minimized window.",
+            "summary": "request that the toplevel be unminimized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "Requests that the compositor give keyboard focus to this\ntoplevel and raise it in the stacking order.\n\nserial is a client-assigned value that is echoed back in\nany activate_denied event for this request, allowing the\nclient to correlate denials when multiple activations are\nin flight.\n\nThe reason argument informs the compositor about the context\nof the activation.  Compositors should generally honor\nuser_request and restore activations, and may choose to\ndeny or convert programmatic activations into attention\nrequests based on focus-stealing prevention policy.\n\nIf the compositor accepts the request, no activate_denied\nevent is sent.  Acceptance does not guarantee immediate\nkeyboard focus: if another surface (e.g. a layer-shell\nsurface with exclusive keyboard interactivity) currently\nholds focus, the compositor places this toplevel at the\nhead of the focus fallback queue and activates it once\nthe exclusive focus is released.  The client will\nobserve the eventual focus grant through the normal\nxdg_toplevel.configure activated state.\n\nIf the compositor denies the request, it emits an\nactivate_denied event carrying the same serial, and may\nset the attention flag via state_changed.\n\nCorresponds to the Wine/Windows SetForegroundWindow API.\nUnder X11, Wine sends a _NET_ACTIVE_WINDOW client message\nwith source indication; this request serves the same role\nunder Wayland.",
+            "summary": "request that the toplevel be activated"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "client-assigned serial for correlating with activate_denied"
+            },
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "why the client is requesting activation",
+              "enum": "activate_reason"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "the seat on which to activate",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_attention",
+          "description": {
+            "type": "description",
+            "text": "Asks the compositor to signal that this toplevel needs user\nattention in the taskbar or dock.  This must not steal\nkeyboard focus.\n\nThe compositor forwards this hint to the taskbar via the\nforeign toplevel manager protocol.  Whether the taskbar\nhonors count and timeout_ms is implementation-defined and\nnot guaranteed by the compositor; clients must not rely on\nexact flash behavior.\n\ncount specifies how many times to flash.  0 means flash\nindefinitely until the window is activated, corresponding\nto FLASHW_TIMER in the Windows FlashWindowEx API.\n\ntimeout_ms specifies the desired interval between flashes\nin milliseconds.  0 requests the compositor or taskbar\ndefault rate.  This value is forwarded as a hint only.\n\nSending this request replaces any currently active\nattention hint.  To stop flashing, use clear_attention.\n\nThis request covers the taskbar/tray component\n(FLASHW_TRAY) of the Windows FlashWindowEx API.\nTitle-bar caption flashing (FLASHW_CAPTION) is handled\nby Wine's client-side decoration layer and is outside\nthe scope of this protocol.\n\nUnder X11, Wine sets _NET_WM_STATE_DEMANDS_ATTENTION;\nthis request serves the same role under Wayland.",
+            "summary": "request a user attention hint (taskbar flash)"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "count",
+              "argType": "uint",
+              "summary": "number of flashes; 0 for indefinite"
+            },
+            {
+              "type": "arg",
+              "name": "timeout_ms",
+              "argType": "uint",
+              "summary": "desired flash interval in milliseconds; 0 for default; forwarded as a hint only"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "clear_attention",
+          "description": {
+            "type": "description",
+            "text": "Cancels any active attention hint set via set_attention.\nIf no hint is active, this request has no effect.\n\nThe compositor emits a state_changed event with the\nattention flag cleared.\n\nCorresponds to FlashWindowEx with FLASHW_STOP.",
+            "summary": "cancel a user attention hint"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "state_changed",
+          "description": {
+            "type": "description",
+            "text": "Emitted whenever the state flags of the toplevel change.\n\nThis event is sent:\n- immediately after the treeland_wine_window_state_v1 is\ncreated, to report current state,\n- when the user or compositor minimizes or restores the\nwindow,\n- when an attention hint is set or cleared.\n\nThe state argument is a bitfield of treeland_wine_window_state_v1.state\nvalues.  Flags not present in the bitfield are considered\nunset.",
+            "summary": "window state flags have changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "current state bitfield",
+              "enum": "state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "activate_denied",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the compositor denies an activate request.\nThe serial matches the serial field of the activate request\nthat was denied.\n\nThe compositor may have set the attention flag via\nstate_changed instead.  The client must not retry the\nactivation automatically.",
+            "summary": "activation request was denied"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial from the corresponding activate request"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Bitfield of window states that the compositor tracks for\nthis toplevel.  These supplement the states delivered by\nxdg_toplevel.configure.  Keyboard focus (activated) is\nexcluded because it is already delivered by xdg_toplevel;\nduplicating it here would create two conflicting sources of\ntruth.",
+            "summary": "window state flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "minimized",
+              "value": "1",
+              "summary": "the toplevel is minimized (iconified)"
+            },
+            {
+              "type": "entry",
+              "name": "attention",
+              "value": "2",
+              "summary": "the toplevel is requesting user attention (taskbar flash active)"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "activate_reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Provides semantic context for an activate request so the\ncompositor can apply appropriate focus-stealing prevention\npolicy.",
+            "summary": "reason for an activation request"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "user_request",
+              "value": "0",
+              "summary": "the user explicitly asked to activate this window (e.g. taskbar click)"
+            },
+            {
+              "type": "entry",
+              "name": "programmatic",
+              "value": "1",
+              "summary": "the application is activating itself (e.g. SetForegroundWindow without direct user gesture)"
+            },
+            {
+              "type": "entry",
+              "name": "restore",
+              "value": "2",
+              "summary": "the window is being restored from a minimized or hidden state"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
