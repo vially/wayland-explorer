@@ -1,10 +1,10 @@
 {
-  "generationTimestamp": 1764893787856,
-  "version": "49.2",
+  "generationTimestamp": 1779798302756,
+  "version": "50.1",
   "globals": [
     {
       "interface": "gtk_shell1",
-      "version": 6
+      "version": 7
     },
     {
       "interface": "wl_compositor",
@@ -36,7 +36,7 @@
     },
     {
       "interface": "wp_color_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_color_representation_manager_v1",
