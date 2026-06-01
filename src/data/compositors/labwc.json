@@ -1,9 +1,13 @@
 {
-  "generationTimestamp": 1764894708216,
-  "version": "0.9.2",
+  "generationTimestamp": 1780341584040,
+  "version": "0.20.0"
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -47,6 +51,10 @@
       "version": 2
     },
     {
+      "interface": "wl_fixes",
+      "version": 1
+    },
+    {
       "interface": "wl_output",
       "version": 4
     },
@@ -64,6 +72,10 @@
     },
     {
       "interface": "wp_alpha_modifier_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_color_representation_manager_v1",
       "version": 1
     },
     {
@@ -115,7 +127,7 @@
       "version": 6
     },
     {
-      "interface": "zcosmic_workspace_manager_v1",
+      "interface": "xdg_wm_dialog_v1",
       "version": 1
     },
     {
