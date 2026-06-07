@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "river_window_manager_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "This global interface should only be advertised to the window manager\nprocess. Only one window management client may be active at a time. The\ncompositor should use the unavailable event if necessary to enforce this.\n\nThere are two disjoint categories of state managed by this protocol:\n\nWindow management state influences the communication between the\ncompositor and individual windows (e.g. xdg_toplevels). Window management\nstate includes window dimensions, fullscreen state, keyboard focus,\nkeyboard bindings, and more.\n\nRendering state only affects the rendered output of the compositor and\ndoes not influence communication between the compositor and individual\nwindows. Rendering state includes the position and rendering order of\nwindows, shell surfaces, decoration surfaces, borders, and more.\n\nWindow management state may only be modified by the window manager as part\nof a manage sequence. A manage sequence is started with the manage_start\nevent and ended with the manage_finish request. It is a protocol error to\nmodify window management state outside of a manage sequence.\n\nA manage sequence is always followed by at least one render sequence. A\nrender sequence is started with the render_start event and ended with the\nrender_finish request.\n\nRendering state may be modified by the window manager during a manage\nsequence or a render sequence. Regardless of when the rendering state is\nmodified, it is applied with the next render_finish request. It is a\nprotocol error to modify rendering state outside of a manage or render\nsequence.\n\nThe server will start a manage sequence by sending new state and the\nmanage_start event as soon as possible whenever there is a change in state\nthat must be communicated with the window manager.\n\nIf the window manager client needs to ensure a manage sequence is started\ndue to a state change the compositor is not aware of, it may send the\nmanage_dirty request.\n\nThe server will start a render sequence by sending new state and the\nrender_start event as soon as possible whenever there is a change in\nwindow dimensions that must be communicated with the window manager.\nMultiple render sequences may be made consecutively without a manage\nsequence in between, for example if a window independently changes its own\ndimensions.\n\nTo summarize, the main loop of this protocol is as follows:\n\n1. The server sends events indicating all changes since the last\nmanage sequence followed by the manage_start event.\n\n2. The client sends requests modifying window management state or\nrendering state (as defined above) followed by the manage_finish\nrequest.\n\n3. The server sends new state to windows and waits for responses.\n\n4. The server sends new window dimensions to the client followed by the\nrender_start event.\n\n5. The client sends requests modifying rendering state (as defined above)\nfollowed by the render_finish request.\n\n6. If window dimensions change, loop back to step 4.\nIf state that requires a manage sequence changes or if the client makes\na manage_dirty request, loop back to step 1.\n\nFor the purposes of frame perfection, the server may delay rendering new\nstate committed by the windows in step 3 until after step 5 is finished.\n\nIt is a protocol error for the client to make a manage_finish or\nrender_finish request that violates this ordering.",
@@ -257,7 +257,7 @@
     {
       "type": "interface",
       "name": "river_window_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "This represents a logical window. For example, a window may correspond to\nan xdg_toplevel or Xwayland window.\n\nA newly created window will not be displayed until the window manager\nmakes a propose_dimensions or fullscreen request as part of a manage\nsequence, the server replies with a dimensions event as part of a render\nsequence, and that render sequence is finished.",
@@ -1008,6 +1008,24 @@
               "summary": "unique identifier"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "capture_sessions",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "text": "This event informs the window manager of the number of active screen\ncapture sessions for the window.\n\nThis event is sent once when the river_window_v1 is created and again\nwhenever the number of capture sessions changes.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "window screen capture sessions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "count",
+              "argType": "uint",
+              "summary": "count of screen capture sessions"
+            }
+          ]
         }
       ],
       "enums": [
@@ -1137,7 +1155,7 @@
     {
       "type": "interface",
       "name": "river_decoration_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "The rendering order of windows with decorations is follows:\n\n1. Decorations created with get_decoration_below at the bottom\n2. Window content\n3. Borders configured with river_window_v1.set_borders\n4. Decorations created with get_decoration_above at the top\n\nThe relative ordering of decoration surfaces above/below a window is\nundefined by this protocol and left up to the compositor.",
@@ -1209,7 +1227,7 @@
     {
       "type": "interface",
       "name": "river_shell_surface_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "The window manager might use a shell surface to display a status bar,\nbackground image, desktop notifications, launcher, desktop menu, or\nwhatever else it wants.",
@@ -1282,7 +1300,7 @@
     {
       "type": "interface",
       "name": "river_node_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "The render list is a list of nodes that determines the rendering order of\nthe compositor. Nodes may correspond to windows or shell surfaces. The\nrelative ordering of nodes may be changed with the place_above and\nplace_below requests, changing the rendering order.\n\nThe initial position of a node in the render list is undefined, the window\nmanager client must use the place_above or place_below request to\nguarantee a specific rendering order.",
@@ -1386,7 +1404,7 @@
     {
       "type": "interface",
       "name": "river_output_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "An area in the compositor's logical coordinate space that should be\ntreated as a single output for window management purposes. This area may\ncorrespond to a single physical output or multiple physical outputs in the\ncase of mirroring or tiled monitors depending on the hardware and\ncompositor configuration.",
@@ -1497,6 +1515,24 @@
               "summary": "output height"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "capture_sessions",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "text": "This event informs the window manager of the number of active screen\ncapture sessions for the output.\n\nThis event is sent once when the river_output_v1 is created and again\nwhenever the number of capture sessions changes.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "output screen capture sessions"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "count",
+              "argType": "uint",
+              "summary": "count of screen capture sessions"
+            }
+          ]
         }
       ],
       "enums": [
@@ -1548,7 +1584,7 @@
     {
       "type": "interface",
       "name": "river_seat_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "This object represents a single user's collection of input devices. It\nallows the window manager to route keyboard input to windows, get\nhigh-level information about pointer input, define pointer bindings, etc.\n\nFor keyboard bindings, see the river-xkb-bindings-v1 protocol.\n\nSince version 4: The cursor surface/shape set by the window manager on the\nwl_pointer of this seat is used when no client has pointer focus, for\nexample during a pointer operation. Since the window manager is allowed to\nset cursor surface/shape even when it does not have pointer focus, the\ncompositor must ignore the serial argument of wl_pointer.set_cursor and\nwp_cursor_shape_device_v1.set_shape requests made by the window manager.\n\nThe most recent cursor surface/shape set by the window manager is\nremembered by the compositor and restored whenever no client has pointer\nfocus. If the window manager never sets a cursor surface/shape, the\n\"default\" shape is used.",
@@ -1917,7 +1953,7 @@
     {
       "type": "interface",
       "name": "river_pointer_binding_v1",
-      "version": "4",
+      "version": "5",
       "description": {
         "type": "description",
         "text": "This object allows the window manager to configure a pointer binding and\nreceive events when the binding is triggered.\n\nThe new pointer binding is not enabled until the enable request is made\nduring a manage sequence.\n\nNormally, all pointer button events are sent to the surface with pointer\nfocus by the compositor. Pointer button events that trigger a pointer\nbinding are not sent to the surface with pointer focus.\n\nIf multiple pointer bindings would be triggered by a single physical\npointer event on the compositor side, it is compositor policy which\npointer binding(s) will receive press/release events or if all of the\nmatched pointer bindings receive press/release events.",

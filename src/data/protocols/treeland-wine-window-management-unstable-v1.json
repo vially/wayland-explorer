@@ -106,7 +106,7 @@
           "name": "set_position",
           "description": {
             "type": "description",
-            "text": "Requests that the compositor place this window at the\nspecified position in the compositor's global logical\ncoordinate space.\n\nThe requested position must fall within the bounds of an\nactive screen.  If the compositor determines that\n(x, y) is outside all screen regions, it rejects the\nrequest and emits a configure_position event reporting the\ncurrent unchanged position.\n\nEven for valid positions the compositor does not guarantee\nexact placement: it may adjust the position to respect\nwindow management rules or layer-shell exclusive zones.\nThe client must treat the values in the resulting\nconfigure_position event as authoritative and update its\ninternal state accordingly.\n\nWindow size changes must use the standard xdg_toplevel\nconfigure / xdg_surface.ack_configure flow and are outside\nthe scope of this protocol.\n\nCorresponds to the position component of the Windows\nSetWindowPos and MoveWindow APIs.",
+            "text": "Requests that the compositor place this window at the\nspecified position in the compositor's global logical\ncoordinate space.\n\nThe client must supply a non-zero serial that monotonically\nincreases with each request, starting from 1.  The\ncompositor echoes this serial in the resulting\nconfigure_position event so the client can correlate\nresponses to requests.\n\nThe requested position must fall within the bounds of an\nactive screen.  If the compositor determines that\n(x, y) is outside all screen regions, it rejects the\nrequest and emits a configure_position event reporting the\ncurrent unchanged position.\n\nEven for valid positions the compositor does not guarantee\nexact placement: it may adjust the position to respect\nwindow management rules or layer-shell exclusive zones.\nThe client must treat the values in the resulting\nconfigure_position event as authoritative and update its\ninternal state accordingly.\n\nWindow size changes must use the standard xdg_toplevel\nconfigure / xdg_surface.ack_configure flow and are outside\nthe scope of this protocol.\n\nCorresponds to the position component of the Windows\nSetWindowPos and MoveWindow APIs.",
             "summary": "request a new absolute screen position"
           },
           "args": [
@@ -121,6 +121,12 @@
               "name": "y",
               "argType": "int",
               "summary": "desired y in global logical coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "client-generated serial, starting from 1, incremented per request"
             }
           ]
         },
@@ -172,7 +178,7 @@
           "name": "configure_position",
           "description": {
             "type": "description",
-            "text": "Sent by the compositor to inform the client of the actual\nwindow position in the compositor's global logical coordinate\nspace.\n\nThis event is emitted:\n- immediately after window_id on initial creation,\n- in response to set_position requests,\n- when the user or compositor moves the window.\n\nWindow size is communicated via the standard xdg_toplevel\nconfigure event and is not reported here.\n\nThe client should use these coordinates to synchronize its\ninternal window state (e.g. update the wineserver window\nrectangles with the correct screen origin).",
+            "text": "Sent by the compositor to inform the client of the actual\nwindow position in the compositor's global logical coordinate\nspace.\n\nThis event is emitted:\n- immediately after window_id on initial creation,\n- in response to set_position requests,\n- when the user or compositor moves the window.\n\nThe serial field echoes the serial from the set_position\nrequest that caused this event.  If the position change was\nnot initiated by a set_position request (e.g. initial\ncreation, user drag, or compositor policy), serial is 0.\n\nWindow size is communicated via the standard xdg_toplevel\nconfigure event and is not reported here.\n\nThe client should use these coordinates to synchronize its\ninternal window state (e.g. update the wineserver window\nrectangles with the correct screen origin).",
             "summary": "compositor reports actual window position"
           },
           "args": [
@@ -187,6 +193,12 @@
               "name": "y",
               "argType": "int",
               "summary": "actual y in global logical coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "echoes the set_position serial, or 0 if not in response to a client request"
             }
           ]
         },

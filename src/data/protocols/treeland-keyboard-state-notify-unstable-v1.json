@@ -1,0 +1,261 @@
+{
+  "type": "protocol",
+  "name": "treeland_keyboard_state_notify_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows privileged clients to subscribe to global keyboard\nstate changes (e.g. Caps Lock, Num Lock).\n\nClients create watcher objects through the manager global, each bound\nto a seat. The client then configures the watcher with set_modifiers to\nchoose which modifiers to monitor, and set_flags to choose which event\ntypes (locked, unlocked, or both) to receive. Configuration changes are\ndouble-buffered and take effect atomically when the client sends apply.\nBoth set_modifiers and set_flags can be called multiple times before\napply; only the values from the most recent calls are committed. This\nallows changing the configuration at runtime without destroying and\nrecreating the watcher. After apply, the compositor sends a\ncurrent_state event for each watched modifier containing its\ncurrent lock state, so the client can synchronize its initial\nstate without waiting for the next physical key press. The\ncompositor then sends\nstate_changed events on the watcher whenever any of the watched\nmodifiers changes lock state globally, regardless of which surface\nhas keyboard focus.\n\nThis protocol is observation-only. Keyboard state changes are never\nconsumed or intercepted by this protocol.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "global keyboard state notification"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_keyboard_state_notify_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_keyboard_state_notify_manager_v1 interface is a\nsingleton global object used to create watcher objects for monitoring\nkeyboard state changes on a given seat.\n\nA client may create multiple watcher objects for the same seat if\nneeded.",
+        "summary": "global keyboard state notification manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this\ntreeland_keyboard_state_notify_manager_v1 object.\n\nExisting watcher objects created through this interface are not\ndestroyed automatically. Clients should destroy those objects\nbefore destroying the manager.",
+            "summary": "destroy the keyboard state notify manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_keyboard_state_watcher",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_keyboard_state_watcher_v1 object for\nmonitoring keyboard state changes on the given seat, or on\nall seats if seat is null.\n\nThe watcher is created with no modifiers and no flags set by\ndefault. The client should use set_modifiers and set_flags on\nthe watcher to configure what to monitor.\n\nNote:\n1. The treeland_keyboard_state_watcher_v1 object must be destroyed\nbefore the associated wl_seat is destroyed.",
+            "summary": "create a keyboard state watcher object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_keyboard_state_watcher_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat to monitor keyboard state on, or null for all seats",
+              "interface": "wl_seat",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_keyboard_state_watcher_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_keyboard_state_watcher_v1 interface represents a\nsubscription to keyboard state changes on a specific\nseat.\n\nThis object is created via get_keyboard_state_watcher on the\ntreeland_keyboard_state_notify_manager_v1 global. The client\nconfigures the watcher with set_modifiers to choose which modifiers\nto monitor and set_flags to choose which state transitions to\nreceive. Both can be changed at runtime. Configuration changes are\ndouble-buffered: set_modifiers and set_flags only update the pending\nstate, which is applied atomically when apply is called.\n\nThe compositor sends a current_state event for each modifier in\nthe committed modifier set immediately after apply is called.\nIt then sends\nstate_changed events whenever any of the watched modifiers\nchanges lock state, according to the committed modifiers and\nflags.",
+        "summary": "keyboard state watcher"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this treeland_keyboard_state_watcher_v1 object and\nstop receiving keyboard state notifications.",
+            "summary": "destroy the keyboard state watcher"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_modifiers",
+          "description": {
+            "type": "description",
+            "text": "Set the keyboard modifiers to watch on this watcher.\n\nThe modifiers argument is a bitfield of values from the modifier\nenum (e.g. caps_lock = 1, num_lock = 2, scroll_lock = 4).\nMultiple modifiers can be combined using bitwise OR.\n\nCalling set_modifiers replaces any previously pending modifiers.\n\nThis request only updates the pending configuration. The change\ntakes effect when apply is called. If set_modifiers is called\nmultiple times before apply, only the values from the most\nrecent call are used.",
+            "summary": "set the modifiers to watch"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "summary": "bitfield of modifier enum values to watch",
+              "enum": "modifier"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_flags",
+          "description": {
+            "type": "description",
+            "text": "Change the watch flags for this watcher, selecting which modifier\nstate transitions (locked, unlocked, or both) the client wants\nto be notified about.\n\nThis request only updates the pending configuration. The change\ntakes effect when apply is called. If set_flags is called\nmultiple times before apply, only the values from the most\nrecent call are used.",
+            "summary": "change which state transitions to notify about"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "new watch flags",
+              "enum": "watch_flag"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "apply",
+          "description": {
+            "type": "description",
+            "text": "Apply the pending configuration state for this watcher\natomically.\n\nThe compositor will use the modifiers and flags set by the most\nrecent set_modifiers and set_flags calls as the new active\nconfiguration for this watcher. If set_modifiers or set_flags\nhave not been called since the last apply (or since the watcher\nwas created), the corresponding pending values remain unchanged.\n\nAfter this request, the pending configuration is considered\nconsumed. Subsequent calls to set_modifiers or set_flags will\nbegin a new pending configuration.\n\nThe compositor will send a current_state event for each\nmodifier in the newly committed modifier set immediately\nafter processing this request.",
+            "summary": "apply pending configuration changes"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "current_state",
+          "description": {
+            "type": "description",
+            "text": "Sent for each modifier in the committed modifier set after\neach apply call to provide its current lock state. For\nexample, if the client watches caps_lock and num_lock, the\ncompositor will send two current_state events, one for each\nmodifier.\n\nThis event is emitted before any subsequent state_changed\nevents for the new configuration. It may be sent again\nafter future apply calls if the client reconfigures the\nwatcher.",
+            "summary": "current state of a watched modifier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "modifier",
+              "argType": "uint",
+              "summary": "the modifier whose lock state is being reported",
+              "enum": "modifier"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the current lock state of the modifier",
+              "enum": "modifier_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "state_changed",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when one of the watched modifiers changes\nlock state globally, according to the modifiers and flags\ncurrently set on this watcher.\n\nThe modifier argument identifies which modifier changed state.\nThe state argument indicates whether the modifier is now locked\nor unlocked.",
+            "summary": "a watched modifier has changed state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "modifier",
+              "argType": "uint",
+              "summary": "the modifier that changed lock state",
+              "enum": "modifier"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the new lock state of the modifier",
+              "enum": "modifier_state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "modifier",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Bitfield of keyboard modifiers whose lock state can be\nmonitored. Multiple modifier values can be combined using\nbitwise OR.\n\ncaps_lock: the Caps Lock modifier.\nnum_lock: the Num Lock modifier.\nscroll_lock: the Scroll Lock modifier.\n\nExamples:\ncaps_lock: monitor only Caps Lock.\ncaps_lock | num_lock: monitor both Caps Lock and Num Lock.",
+            "summary": "keyboard modifier type"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "caps_lock",
+              "value": "1",
+              "summary": "Caps Lock modifier"
+            },
+            {
+              "type": "entry",
+              "name": "num_lock",
+              "value": "2",
+              "summary": "Num Lock modifier"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "watch_flag",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Flags to specify which modifier lock state transitions the\nclient wants to be notified about.\n\nnone: do not notify on any state transition.\nlocked: notify when a watched modifier becomes locked.\nunlocked: notify when a watched modifier becomes unlocked.\n\nExamples:\nlocked: the client receives events only when a modifier is\nlocked.\nunlocked: the client receives events only when a modifier is\nunlocked.\nlocked | unlocked: the client receives events on both.",
+            "summary": "modifier state transition flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "locked",
+              "value": "1",
+              "summary": "notify when modifier is locked"
+            },
+            {
+              "type": "entry",
+              "name": "unlocked",
+              "value": "2",
+              "summary": "notify when modifier is unlocked"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "modifier_state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The current lock state of a keyboard modifier.",
+            "summary": "modifier lock state"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "unlocked",
+              "value": "0",
+              "summary": "modifier is now unlocked"
+            },
+            {
+              "type": "entry",
+              "name": "locked",
+              "value": "1",
+              "summary": "modifier is now locked"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

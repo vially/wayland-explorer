@@ -1,0 +1,1014 @@
+{
+  "type": "protocol",
+  "name": "treeland_input_manager_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows a privileged client to discover seat capabilities\nand configure compositor-managed mouse, touchpad, and keyboard devices.\n\nA treeland_input_manager_v1 object is a global manager. It creates\nsettings objects that represent configuration state for existing input\ndevices; those settings objects are not the device objects themselves.\n\nFor mouse and touchpad devices, pointer device settings such as\nacceleration speed, acceleration profile, natural scrolling, scroll\nfactor, handed mode, double-click interval, send events mode,\ndisable-while-typing and tap-to-click are managed through a\ntreeland_pointer_device_configuration_v1 object created from the\ndevice-specific settings interface.",
+    "summary": "configure input devices managed by treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_input_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_input_manager_v1 interface is a global object used to\ncreate per-device settings objects for input devices exposed by the\ncompositor.\n\nThe compositor advertises device capability changes with the\ncapability_available and capability_unavailable events.\n\nFor each target device or seat-level settings scope, the compositor\nmay allow at most one live settings object of a given interface\ncreated from one manager object.\n\nvirtual-pointer and virtual-keyboard are not included in the list.",
+        "summary": "global input device manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This informs the compositor that the treeland input manager object\nwill no longer be used.\n\nExisting objects created through this interface are not destroyed\nautomatically. Clients should destroy those objects before destroying\nthe manager.",
+            "summary": "destroy the input manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_mouse_settings",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_mouse_settings_v1 object bound to the\nspecified wl_seat.\n\nThe created object acts as a factory for\ntreeland_pointer_device_configuration_v1 objects that manage\nmouse device settings on the target seat.\n\nThe seat must currently expose mouse capability. If the seat\ndoes not identify a valid mouse-capable target, the compositor\nraises the protocol error.\n\nNote:\n1. The treeland_mouse_settings_v1 object must be destroyed\nbefore the associated wl_seat is destroyed.",
+            "summary": "create a mouse-specific settings object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_mouse_settings_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat whose mouse-specific settings are being managed",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_touchpad_settings",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_touchpad_settings_v1 object bound to the\nspecified wl_seat.\n\nThe created object acts as a factory for\ntreeland_pointer_device_configuration_v1 objects that manage\ntouchpad device settings on the target seat.\n\nThe seat must currently expose touchpad capability. If the seat\ndoes not identify a valid touchpad-capable target, the\ncompositor raises the protocol error.\n\nNote:\n1. The treeland_touchpad_settings_v1 object must be destroyed\nbefore the associated wl_seat is destroyed.",
+            "summary": "create a touchpad-specific settings object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_touchpad_settings_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat whose touchpad-specific settings are being managed",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_keyboard_settings",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_keyboard_settings_v1 object bound to the\nspecified wl_seat.\n\nThe seat must currently expose keyboard capability. If the seat\ndoes not identify a valid keyboard-capable target, the\ncompositor raises the protocol error.\n\nNote:\n1. The treeland_keyboard_settings_v1 object must be destroyed\nbefore the associated wl_seat is destroyed.",
+            "summary": "create a keyboard settings object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_keyboard_settings_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat whose keyboard-specific settings are being managed",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "capability_available",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted when the compositor detects that a seat\nnow exposes the specified device capability.\n\nThe compositor sends this event immediately after the\ntreeland_input_manager_v1 object is created to report\ncapabilities currently available on a seat.\n\nThe compositor may also send this event later when input\ndevices are hot-plugged and a seat gains the specified\ncapability.\n\nA client may create a treeland_mouse_settings_v1 object for a\ngiven seat only if the compositor has advertised device_type\nmouse capability for that seat. Likewise, a client may create a\ntreeland_touchpad_settings_v1 or treeland_keyboard_settings_v1\nobject for a given seat only if the compositor has advertised\ndevice_type touchpad or keyboard capability for that seat.",
+            "summary": "report an available device capability"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "type of the device capability",
+              "enum": "device_type"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat associated with the capability",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "capability_unavailable",
+          "description": {
+            "type": "description",
+            "text": "This event is emitted when the compositor detects that a seat no\nlonger exposes the specified device capability.\n\nThe compositor may also send this event later when input\ndevices are hot-unplugged and a seat loses the specified\ncapability.\n\nIf type includes mouse capability, the client must destroy any\ntreeland_mouse_settings_v1 objects targeting the seat. This\nalso destroys any treeland_pointer_device_configuration_v1\nobjects created from those mouse settings objects.\n\nIf type includes touchpad capability, the client must destroy\nany treeland_touchpad_settings_v1 objects targeting the seat.\nThis also destroys any treeland_pointer_device_configuration_v1\nobjects created from those touchpad settings objects.\n\nIf type includes keyboard capability, the client must destroy any\ntreeland_keyboard_settings_v1 objects targeting the seat.",
+            "summary": "report an unavailable device capability"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "type of the device capability",
+              "enum": "device_type"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat associated with the capability",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "device_type",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "mouse",
+              "value": "1",
+              "summary": "mouse input device"
+            },
+            {
+              "type": "entry",
+              "name": "touchpad",
+              "value": "2",
+              "summary": "touchpad input device"
+            },
+            {
+              "type": "entry",
+              "name": "keyboard",
+              "value": "4",
+              "summary": "keyboard input device"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "0",
+              "summary": "disabled state"
+            },
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "1",
+              "summary": "enabled state"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_pointer_device_configuration_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_pointer_device_configuration_v1 interface represents\npending configuration for pointer devices associated with the parent\ndevice settings object.\n\nThis object is created via get_pointer_configuration on a\ntreeland_mouse_settings_v1 or treeland_touchpad_settings_v1 object.\nIt collects configuration that applies to the associated device\ntype.\n\nRequests on this object update pending state. The compositor\napplies the accumulated settings when the client sends apply.\nDestroying the object before apply discards any pending state that\nhas not yet been applied.\n\nThe compositor sends configuration events after object creation to\nreport the current effective settings. It may later send additional\nstate batches when those effective settings change for\ncompositor-defined reasons. A done event terminates each event\nbatch.",
+        "summary": "pointer device configuration object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this treeland_pointer_device_configuration_v1 object.\n\nDestroying the object discards any pending state that has not\nyet been applied.",
+            "summary": "destroy the pointer device configuration object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_scroll_factor",
+          "description": {
+            "type": "description",
+            "text": "Set a scaling factor applied to scroll axis delta generated\nby wheel and other continuous scrolling input sources. This\nrequest requires the scroll_factor feature to be advertised via\nthe feature event.\n\nThe compositor multiplies scroll axis values by the specified\nfactor before forwarding them to clients. This affects\ncontinuous scroll delta only and does not modify discrete\nscroll step events.\n\nThis request updates only the pending state associated with\nthis object. The change takes effect after the next apply\nrequest.\n\nSending this request or the corresponding apply request does\nnot by itself cause a scroll_factor event to be emitted.\n\ndelta = factor * _delta",
+            "summary": "set the scroll delta scaling factor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "factor",
+              "argType": "fixed",
+              "summary": "scaling factor applied to scroll axis delta,\n                The factor must be greater than 0."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_handed_mode",
+          "description": {
+            "type": "description",
+            "text": "Set whether primary and secondary buttons use left-handed or\nright-handed ordering. This request requires the handed_mode\nfeature to be advertised via the feature event. The change\ntakes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a handed_mode event to be emitted.",
+            "summary": "set the handedness mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "desired handedness mode",
+              "enum": "handed_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_accel_speed",
+          "description": {
+            "type": "description",
+            "text": "Set the pointer acceleration speed. This request requires the\naccel_speed feature to be advertised via the feature event. The\nchange takes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause an accel_speed event to be emitted.",
+            "summary": "set the pointer acceleration speed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "accel_speed",
+              "argType": "fixed",
+              "summary": "desired pointer acceleration speed, The valid range is -1.0 to 1.0,\n                 where 0.0 is the neutral default meaning no acceleration adjustment. Negative\n                 values reduce acceleration (cursor moves more slowly at higher speeds), positive\n                 values increase acceleration (cursor moves faster at higher speeds)."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_acceleration_profile",
+          "description": {
+            "type": "description",
+            "text": "Set the acceleration profile. This request requires the\nacceleration_profile feature to be advertised via the feature\nevent. The change takes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause an acceleration_profile event to be\nemitted.",
+            "summary": "set the acceleration profile"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "summary": "desired acceleration profile",
+              "enum": "treeland_pointer_device_configuration_v1.acceleration_profile"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_send_events_mode",
+          "description": {
+            "type": "description",
+            "text": "Set how events from the target pointer device are delivered.\nThis request requires the send_events_mode feature to be\nadvertised via the feature event. The change takes effect on the\nnext apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a send_events_mode event to be emitted.",
+            "summary": "set the pointer event delivery mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "desired pointer event delivery mode",
+              "enum": "treeland_pointer_device_configuration_v1.send_events_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_natural_scroll",
+          "description": {
+            "type": "description",
+            "text": "Enable or disable natural scrolling. This request requires the\nnatural_scroll feature to be advertised via the feature event.\nThe change takes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a natural_scroll event to be emitted.",
+            "summary": "enable or disable natural scrolling"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "desired natural scrolling state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_disable_while_typing",
+          "description": {
+            "type": "description",
+            "text": "Enable or disable temporarily disabling pointer devices while\nthe user is typing. This request requires the\ndisable_while_typing feature to be advertised via the feature\nevent. The change takes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a disable_while_typing event to be\nemitted.",
+            "summary": "set disable-while-typing"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "desired disable-while-typing state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_tap_to_click",
+          "description": {
+            "type": "description",
+            "text": "Enable or disable tap-to-click. This request requires the\ntap_to_click feature to be advertised via the feature event.\nThe change takes effect on the next apply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a tap_to_click event to be emitted.",
+            "summary": "set tap-to-click"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "desired tap-to-click state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "apply",
+          "description": {
+            "type": "description",
+            "text": "Ask the compositor to apply the pending pointer device\nconfiguration carried by this object.",
+            "summary": "apply pending pointer device configuration changes"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "feature",
+          "description": {
+            "type": "description",
+            "text": "This event reports which optional features are supported by at\nleast one device associated with the parent settings object.\n\nThe compositor sends this event as part of the initial state\nbatch after the treeland_pointer_device_configuration_v1 object\nis created.\n\nThe compositor may also send this event again when devices are\nadded to or removed from the target seat and the set of\nsupported features changes.",
+            "summary": "report supported pointer device features"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "feature",
+              "argType": "uint",
+              "summary": "supported pointer device features",
+              "enum": "feature"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scroll_factor",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current scroll factor used for wheel and\nsimilar scroll input.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_scroll_factor do not cause this\nevent to be emitted automatically.",
+            "summary": "report the current scroll factor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "factor",
+              "argType": "fixed",
+              "summary": "current scroll factor"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "handed_mode",
+          "description": {
+            "type": "description",
+            "text": "This event reports whether left-handed or right-handed button\nordering is currently used.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_handed_mode do not cause this\nevent to be emitted automatically.",
+            "summary": "report the current handedness mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "current handedness mode",
+              "enum": "handed_mode"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accel_speed",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current pointer acceleration speed.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_accel_speed do not cause this\nevent to be emitted automatically.",
+            "summary": "report the current pointer acceleration speed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "accel_speed",
+              "argType": "fixed",
+              "summary": "current pointer acceleration speed"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "acceleration_profile",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current acceleration profile.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_acceleration_profile do not cause\nthis event to be emitted automatically.",
+            "summary": "report the current acceleration profile"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "profile",
+              "argType": "uint",
+              "summary": "current acceleration profile",
+              "enum": "treeland_pointer_device_configuration_v1.acceleration_profile"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "send_events_mode",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current event delivery mode used for\nthe target pointer device.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_send_events_mode do not cause\nthis event to be emitted automatically.",
+            "summary": "report the current pointer event delivery mode"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "current pointer event delivery mode",
+              "enum": "treeland_pointer_device_configuration_v1.send_events_mode"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "natural_scroll",
+          "description": {
+            "type": "description",
+            "text": "This event reports whether natural scrolling is enabled.\n\nThe compositor sends this event immediately after the\ntreeland_pointer_device_configuration_v1 object is created as\npart of the initial state batch.\n\nChanges requested through set_natural_scroll do not cause this\nevent to be emitted automatically.",
+            "summary": "report natural scrolling state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "current natural scrolling state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "disable_while_typing",
+          "description": {
+            "type": "description",
+            "text": "This event reports whether pointer devices are temporarily\ndisabled while the user is typing.\n\nThe compositor sends this event as part of the initial state\nbatch if the disable_while_typing feature has been advertised.\n\nChanges requested through set_disable_while_typing do not cause\nthis event to be emitted automatically.",
+            "summary": "report disable-while-typing state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "current disable-while-typing state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "tap_to_click",
+          "description": {
+            "type": "description",
+            "text": "This event reports whether tap-to-click is enabled.\n\nThe compositor sends this event as part of the initial state\nbatch if the tap_to_click feature has been advertised.\n\nChanges requested through set_tap_to_click do not cause this\nevent to be emitted automatically.",
+            "summary": "report tap-to-click state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "current tap-to-click state",
+              "enum": "treeland_input_manager_v1.state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor failed to apply one or\nmore pending pointer device configuration changes carried by\nthis object.\n\nThis event does not destroy the object. The client may continue\nusing the object and send further requests.",
+            "summary": "apply failed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once when all pointer device configuration\nstate events in the current batch have been sent.\n\nThe compositor must always end a batch of pointer device\nconfiguration state events with this event, regardless of\nwhether it sends the initial state or a later update.\n\nThe serial is used in a future get_pointer_configuration\nrequest to ensure the client's configuration is based on\nup-to-date state.",
+            "summary": "end of a pointer device state batch"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "current configuration serial"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "feature",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Optional features supported by pointer devices. The compositor\nsends a feature event to indicate which features are supported\nby at least one device associated with the parent settings\nobject. A client must only send a set request if the\ncorresponding feature has been advertised. It is a protocol error\nto send a set request for a feature that has not been\nadvertised.",
+            "summary": "pointer device features"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "scroll_factor",
+              "value": "1",
+              "summary": "device supports configuring scroll factor"
+            },
+            {
+              "type": "entry",
+              "name": "handed_mode",
+              "value": "2",
+              "summary": "device supports configuring handed mode"
+            },
+            {
+              "type": "entry",
+              "name": "accel_speed",
+              "value": "4",
+              "summary": "device supports configuring acceleration speed"
+            },
+            {
+              "type": "entry",
+              "name": "acceleration_profile",
+              "value": "8",
+              "summary": "device supports configuring acceleration profile"
+            },
+            {
+              "type": "entry",
+              "name": "send_events_mode",
+              "value": "16",
+              "summary": "device supports configuring event delivery mode"
+            },
+            {
+              "type": "entry",
+              "name": "natural_scroll",
+              "value": "32",
+              "summary": "device supports configuring natural scrolling"
+            },
+            {
+              "type": "entry",
+              "name": "disable_while_typing",
+              "value": "64",
+              "summary": "device supports disable-while-typing"
+            },
+            {
+              "type": "entry",
+              "name": "tap_to_click",
+              "value": "128",
+              "summary": "device supports tap-to-click"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "handed_mode",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "0",
+              "summary": "right-handed mode"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "1",
+              "summary": "left-handed mode"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "acceleration_profile",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Pointer acceleration profiles. The semantics correspond to\nlibinput acceleration profiles.",
+            "summary": "pointer acceleration profiles"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "summary": "device does not have a configurable acceleration profile"
+            },
+            {
+              "type": "entry",
+              "name": "flat",
+              "value": "1",
+              "summary": "use a flat acceleration profile"
+            },
+            {
+              "type": "entry",
+              "name": "adaptive",
+              "value": "2",
+              "summary": "use an adaptive acceleration profile"
+            },
+            {
+              "type": "entry",
+              "name": "custom",
+              "value": "4",
+              "summary": "use a custom acceleration profile"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "send_events_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Modes controlling whether the target pointer device should send\nevents and whether those events depend on the presence of an\nexternal pointer device on the same seat.",
+            "summary": "pointer event delivery mode"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "enabled",
+              "value": "0",
+              "summary": "send events from this device normally"
+            },
+            {
+              "type": "entry",
+              "name": "disabled",
+              "value": "1",
+              "summary": "do not send events from this device"
+            },
+            {
+              "type": "entry",
+              "name": "disabled_on_external_mouse",
+              "value": "2",
+              "summary": "if an external pointer device is plugged in, do not send events from this device; may be available on built-in pointer devices"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_mouse_settings_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_mouse_settings_v1 interface acts as a factory for\ntreeland_pointer_device_configuration_v1 objects that manage mouse\ndevice settings on the target seat.\n\nA treeland_pointer_device_configuration_v1 object is created via\nget_pointer_configuration on this object.",
+        "summary": "mouse settings factory object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this treeland_mouse_settings_v1 object.\n\nExisting treeland_pointer_device_configuration_v1 objects\ncreated from this object are also destroyed.",
+            "summary": "destroy the mouse settings object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_pointer_configuration",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_pointer_device_configuration_v1 object for\nthis mouse settings scope.\n\nThe created object manages mouse device configuration on the\ntarget seat. The serial argument must match the serial from the\nmost recent done event sent on the previous\ntreeland_pointer_device_configuration_v1 object for this\ntreeland_mouse_settings_v1 object. For the first creation, the\nserial should be 0.\n\nOnly one treeland_pointer_device_configuration_v1 object may\nexist for this treeland_mouse_settings_v1 object at a time.\nCreating a second one without destroying the first is a\nprotocol error.\n\nIf the serial does not match the current state, the compositor\nmay immediately send a failed event on the new\ntreeland_pointer_device_configuration_v1 object.",
+            "summary": "create a pointer device configuration object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_pointer_device_configuration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial from the last done event"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_touchpad_settings_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_touchpad_settings_v1 interface acts as a factory for\ntreeland_pointer_device_configuration_v1 objects that manage\ntouchpad device settings on the target seat.\n\nA treeland_pointer_device_configuration_v1 object is created via\nget_pointer_configuration on this object.",
+        "summary": "touchpad settings factory object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this treeland_touchpad_settings_v1 object.\n\nExisting treeland_pointer_device_configuration_v1 objects\ncreated from this object are also destroyed.",
+            "summary": "destroy the touchpad settings object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_pointer_configuration",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_pointer_device_configuration_v1 object for\nthis touchpad settings scope.\n\nThe created object manages touchpad device configuration on the\ntarget seat. The serial argument must match the serial from the\nmost recent done event sent on the previous\ntreeland_pointer_device_configuration_v1 object for this\ntreeland_touchpad_settings_v1 object. For the first creation,\nthe serial should be 0.\n\nOnly one treeland_pointer_device_configuration_v1 object may\nexist for this treeland_touchpad_settings_v1 object at a time.\nCreating a second one without destroying the first is a\nprotocol error.\n\nIf the serial does not match the current state, the compositor\nmay immediately send a failed event on the new\ntreeland_pointer_device_configuration_v1 object.",
+            "summary": "create a pointer device configuration object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_pointer_device_configuration_v1"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial from the last done event"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_keyboard_settings_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The treeland_keyboard_settings_v1 interface represents pending\nsettings for all keyboard associated with the target seat.\n\nRequests on this object update pending keyboard state. The\ncompositor applies the accumulated settings when the client sends\napply.\n\nThe compositor sends keyboard-specific state events after object\ncreation to report the current effective settings for the target\nseat. It may later send additional state batches when those\neffective settings change for compositor-defined reasons. A done\nevent terminates each event batch.",
+        "summary": "keyboard settings object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this treeland_keyboard_settings_v1 object.\n\nDestroying the object discards any pending state that has not\nyet been applied.",
+            "summary": "destroy the keyboard settings object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_repeat",
+          "description": {
+            "type": "description",
+            "text": "Set the keyboard repeat rate and delay to apply on the next\napply request.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a repeat event to be emitted.",
+            "summary": "set keyboard repeat rate and delay"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "rate",
+              "argType": "int",
+              "summary": "repeat rate in characters per second"
+            },
+            {
+              "type": "arg",
+              "name": "delay",
+              "argType": "int",
+              "summary": "delay in milliseconds before repeating starts"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_num_lock",
+          "description": {
+            "type": "description",
+            "text": "Set the num lock state to apply on the next apply request.\nThis request requires the num_lock feature to be advertised\nvia the feature event.\n\nThis request updates only the pending state tracked by this\nobject. Sending this request, or the following apply request,\ndoes not by itself cause a num_lock event to be emitted.",
+            "summary": "set num lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "desired num lock state",
+              "enum": "treeland_keyboard_settings_v1.toggle_state"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "apply",
+          "description": {
+            "type": "description",
+            "text": "Ask the compositor to apply the pending keyboard settings\ncarried by this object.",
+            "summary": "apply pending keyboard changes"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "feature",
+          "description": {
+            "type": "description",
+            "text": "This event reports which optional features are supported by at\nleast one keyboard device associated with the target seat.\n\nThe compositor sends this event as part of the initial state\nbatch after the treeland_keyboard_settings_v1 object is created.\n\nThe compositor may also send this event again when keyboard\ndevices are added to or removed from the target seat and the\nset of supported features changes.",
+            "summary": "report supported keyboard features"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "feature",
+              "argType": "uint",
+              "summary": "supported keyboard features",
+              "enum": "feature"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "repeat",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current keyboard repeat configuration.\n\nThe compositor sends this event immediately after the\ntreeland_keyboard_settings_v1 object is created as part of the\ninitial keyboard state batch.\n\nChanges requested through set_repeat do not cause this event to\nbe emitted automatically.",
+            "summary": "report the current repeat configuration"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "rate",
+              "argType": "int",
+              "summary": "repeat rate in characters per second"
+            },
+            {
+              "type": "arg",
+              "name": "delay",
+              "argType": "int",
+              "summary": "delay in milliseconds before repeating starts"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "num_lock",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current num lock state.\n\nThe compositor sends this event immediately after the\ntreeland_keyboard_settings_v1 object is created as part of the\ninitial keyboard state batch.\n\nChanges requested through set_num_lock do not cause this event\nto be emitted automatically.",
+            "summary": "report the current num lock state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "current num lock state",
+              "enum": "treeland_keyboard_settings_v1.toggle_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor failed to apply one or\nmore pending keyboard settings carried by this object.\n\nThis event does not destroy the object. The client may continue\nusing the object and send further requests.",
+            "summary": "apply failed"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once when all keyboard state events in the\ncurrent batch have been sent.\n\nThe compositor must always end a batch of keyboard state events\nwith this event, regardless of whether it sends the initial\nstate or a later update.",
+            "summary": "end of a keyboard state batch"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "toggle_state",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "off",
+              "value": "0",
+              "summary": "off state"
+            },
+            {
+              "type": "entry",
+              "name": "on",
+              "value": "1",
+              "summary": "on state"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "feature",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Optional features supported by keyboard devices. The compositor\nsends a feature event to indicate which features are supported\nby at least one keyboard device associated with the target seat.\nA client must only send a set request if the corresponding\nfeature has been advertised. It is a protocol error to send a\nset request for a feature that has not been advertised.",
+            "summary": "keyboard features"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "num_lock",
+              "value": "1",
+              "summary": "device supports configuring num lock state"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
