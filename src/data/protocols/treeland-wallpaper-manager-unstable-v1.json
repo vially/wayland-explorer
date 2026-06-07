@@ -32,7 +32,7 @@
           "name": "get_treeland_wallpaper",
           "description": {
             "type": "description",
-            "text": "Creates a treeland_wallpaper_v1 object bound to the specified wl_output.\n\nThe compositor may enforce that only one wallpaper exists for a given\n(output, role) combination.\n\nWhen a surface is associated, the compositor will track the workspace\nthe surface belongs to. Whenever the workspace changes, the compositor\nmay notify the client of the current wallpaper file path used by that\nworkspace.\n\nNote: The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_surface is destroyed.",
+            "text": "Creates a treeland_wallpaper_v1 object bound to the specified wl_output.\n\nThe compositor may enforce that only one wallpaper exists for a given\n(output, role) combination.\n\nWhen a surface is associated, the compositor will track the workspace\nthe surface belongs to. Whenever the workspace changes, the compositor\nmay notify the client of the current wallpaper file path used by that\nworkspace.\n\nNote:\n1. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_output is destroyed.\n1. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_surface is destroyed.",
             "summary": "Create a wallpaper object for an output."
           },
           "args": [

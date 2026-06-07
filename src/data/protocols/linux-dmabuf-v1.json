@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "zwp_linux_dmabuf_v1",
-      "version": "5",
+      "version": "6",
       "description": {
         "type": "description",
         "text": "This interface offers ways to create generic dmabuf-based wl_buffers.\n\nFor more information about dmabuf, see:\nhttps://www.kernel.org/doc/html/next/userspace-api/dma-buf-alloc-exchange.html\n\nClients can use the get_surface_feedback request to get dmabuf feedback\nfor a particular surface. If the client wants to retrieve feedback not\ntied to a surface, they can use the get_default_feedback request.\n\nThe following are required from clients:\n\n- Clients must ensure that either all data in the dma-buf is\ncoherent for all subsequent read access or that coherency is\ncorrectly handled by the underlying kernel-side dma-buf\nimplementation.\n\n- Don't make any more attachments after sending the buffer to the\ncompositor. Making more attachments later increases the risk of\nthe compositor not being able to use (re-import) an existing\ndmabuf-based wl_buffer.\n\nThe underlying graphics stack must ensure the following:\n\n- The dmabuf file descriptors relayed to the server will stay valid\nfor the whole lifetime of the wl_buffer. This means the server may\nat any time use those fds to import the dmabuf into any kernel\nsub-system that might accept it.\n\nHowever, when the underlying graphics stack fails to deliver the\npromise, because of e.g. a device hot-unplug which raises internal\nerrors, after the wl_buffer has been successfully created the\ncompositor must not raise protocol errors to the client when dmabuf\nimport later fails.\n\nTo create a wl_buffer from one or more dmabufs, a client creates a\nzwp_linux_buffer_params_v1 object with a zwp_linux_dmabuf_v1.create_params\nrequest. All planes required by the intended format are added with\nthe 'add' request. Finally, a 'create' or 'create_immed' request is\nissued, which has the following outcome depending on the import success.\n\nThe 'create' request,\n- on success, triggers a 'created' event which provides the final\nwl_buffer to the client.\n- on failure, triggers a 'failed' event to convey that the server\ncannot use the dmabufs received from the client.\n\nFor the 'create_immed' request,\n- on success, the server immediately imports the added dmabufs to\ncreate a wl_buffer. No event is sent from the server in this case.\n- on failure, the server can choose to either:\n- terminate the client by raising a fatal error.\n- mark the wl_buffer as failed, and send a 'failed' event to the\nclient. If the client uses a failed wl_buffer as an argument to any\nrequest, the behaviour is compositor implementation-defined.\n\nFor all DRM formats and unless specified in another protocol extension,\npre-multiplied alpha is used for pixel values.\n\nUnless specified otherwise in another protocol extension, implicit\nsynchronization is used. In other words, compositors and clients must\nwait and signal fences implicitly passed via the DMA-BUF's reservation\nmechanism.",
@@ -145,7 +145,7 @@
     {
       "type": "interface",
       "name": "zwp_linux_buffer_params_v1",
-      "version": "5",
+      "version": "6",
       "description": {
         "type": "description",
         "text": "This temporary object is a collection of dmabufs and other\nparameters that together form a single logical buffer. The temporary\nobject may eventually create one wl_buffer unless cancelled by\ndestroying it before requesting 'create'.\n\nSingle-planar formats only require one dmabuf, however\nmulti-planar formats may require more than one dmabuf. For all\nformats, an 'add' request must be called once per plane (even if the\nunderlying dmabuf fd is identical).\n\nYou must use consecutive plane indices ('plane_idx' argument for 'add')\nfrom zero to the number of planes used by the drm_fourcc format code.\nAll planes required by the format must be given exactly once, but can\nbe given in any order. Each plane index can only be set once; subsequent\ncalls with a plane index which has already been set will result in a\nplane_set error being generated.",
@@ -290,6 +290,24 @@
               "enum": "flags"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "set_sampling_device",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "text": "Set the device the compositor should import the dmabufs to for sampling\nin the next create or create_immed request.\n\nTo avoid race conditions when the compositor removes a device from the\ntranches, it is not a protocol error if the device hasn't been advertised\nby the compositor in a tranche with the sampling flag, but the import is\nlikely to fail in that case.\n\nIf the client doesn't know a suitable target device, it shouldn't set one,\nand the compositor should attempt import on all devices it supports.\n\nIf the array is too small to contain a dev_t or larger than required, the\ninvalid_dev_t_size error will be emitted.",
+            "summary": "set the target device of the wl_buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "device",
+              "argType": "array",
+              "summary": "device dev_t value"
+            }
+          ]
         }
       ],
       "events": [
@@ -376,6 +394,12 @@
               "name": "invalid_wl_buffer",
               "value": "7",
               "summary": "invalid wl_buffer resulted from importing dmabufs via\n               the create_immed request on given buffer_params"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_dev_t_size",
+              "value": "8",
+              "summary": "an array with mismatching size for a dev_t was used"
             }
           ]
         },
@@ -409,10 +433,10 @@
     {
       "type": "interface",
       "name": "zwp_linux_dmabuf_feedback_v1",
-      "version": "5",
+      "version": "6",
       "description": {
         "type": "description",
-        "text": "This object advertises dmabuf parameters feedback. This includes the\npreferred devices and the supported formats/modifiers.\n\nThe parameters are sent once when this object is created and whenever they\nchange. The done event is always sent once after all parameters have been\nsent. When a single parameter changes, all parameters are re-sent by the\ncompositor.\n\nCompositors can re-send the parameters when the current client buffer\nallocations are sub-optimal. Compositors should not re-send the\nparameters if re-allocating the buffers would not result in a more optimal\nconfiguration. In particular, compositors should avoid sending the exact\nsame parameters multiple times in a row.\n\nThe tranche_target_device and tranche_formats events are grouped by\ntranches of preference. For each tranche, a tranche_target_device, one\ntranche_flags and one or more tranche_formats events are sent, followed\nby a tranche_done event finishing the list. The tranches are sent in\ndescending order of preference. All formats and modifiers in the same\ntranche have the same preference.\n\nTo send parameters, the compositor sends one main_device event, tranches\n(each consisting of one tranche_target_device event, one tranche_flags\nevent, tranche_formats events and then a tranche_done event), then one\ndone event.",
+        "text": "This object advertises dmabuf parameters feedback. This includes the\npreferred devices and the supported formats/modifiers.\n\nThe parameters are sent once when this object is created and whenever they\nchange. The done event is always sent once after all parameters have been\nsent. When a single parameter changes, all parameters are re-sent by the\ncompositor.\n\nCompositors can re-send the parameters when the current client buffer\nallocations are sub-optimal. Compositors should not re-send the\nparameters if re-allocating the buffers would not result in a more optimal\nconfiguration. In particular, compositors should avoid sending the exact\nsame parameters multiple times in a row.\n\nThe tranche_target_device and tranche_formats events are grouped by\ntranches of preference. For each tranche, a tranche_target_device, one\ntranche_flags and one or more tranche_formats events are sent, followed\nby a tranche_done event finishing the list. The tranches are sent in\ndescending order of preference. All formats and modifiers in the same\ntranche have the same preference.\n\nTo send parameters, the compositor sends one main_device event (unless\nthe client bound version 6 or above), tranches (each consisting of one\ntranche_target_device event, one tranche_flags event, tranche_formats\nevents and then a tranche_done event), then one done event.\n\nWith version 6 and above, the compositor must always advertise at least\none tranche with the sampling flag set.",
         "summary": "dmabuf feedback"
       },
       "requests": [
@@ -465,9 +489,10 @@
         {
           "type": "event",
           "name": "main_device",
+          "deprecatedSince": "6",
           "description": {
             "type": "description",
-            "text": "This event advertises the main device that the server prefers to use\nwhen direct scan-out to the target device isn't possible. The\nadvertised main device may be different for each\nzwp_linux_dmabuf_feedback_v1 object, and may change over time.\n\nThere is exactly one main device. The compositor must send at least\none preference tranche with tranche_target_device equal to main_device.\n\nClients need to create buffers that the main device can import and\nread from, otherwise creating the dmabuf wl_buffer will fail (see the\nzwp_linux_buffer_params_v1.create and create_immed requests for details).\nThe main device will also likely be kept active by the compositor,\nso clients can use it instead of waking up another device for power\nsavings.\n\nIn general the device is a DRM node. The DRM node type (primary vs.\nrender) is unspecified. Clients must not rely on the compositor sending\na particular node type. Clients cannot check two devices for equality\nby comparing the dev_t value.\n\nIf explicit modifiers are not supported and the client performs buffer\nallocations on a different device than the main device, then the client\nmust force the buffer to have a linear layout.",
+            "text": "This event advertises the main device that the server prefers to use\nwhen direct scan-out to the target device isn't possible. The\nadvertised main device may be different for each\nzwp_linux_dmabuf_feedback_v1 object, and may change over time.\n\nThere is exactly one main device. The compositor must send at least\none preference tranche with tranche_target_device equal to main_device.\n\nClients need to create buffers that the main device can import and\nread from, otherwise creating the dmabuf wl_buffer will fail (see the\nzwp_linux_buffer_params_v1.create and create_immed requests for details).\nThe main device will also likely be kept active by the compositor,\nso clients can use it instead of waking up another device for power\nsavings.\n\nIn general the device is a DRM node. The DRM node type (primary vs.\nrender) is unspecified. Clients must not rely on the compositor sending\na particular node type. Clients cannot check two devices for equality\nby comparing the dev_t value.\n\nIf explicit modifiers are not supported and the client performs buffer\nallocations on a different device than the main device, then the client\nmust force the buffer to have a linear layout.\n\nWith version 6 and above, this event is no longer sent. Clients should\nuse a device with the sampling flag in the tranches instead.",
             "summary": "preferred main device"
           },
           "args": [
@@ -494,7 +519,7 @@
           "name": "tranche_target_device",
           "description": {
             "type": "description",
-            "text": "This event advertises the target device that the server prefers to use\nfor a buffer created given this tranche. The advertised target device\nmay be different for each preference tranche, and may change over time.\n\nThere is exactly one target device per tranche.\n\nThe target device may be a scan-out device, for example if the\ncompositor prefers to directly scan-out a buffer created given this\ntranche. The target device may be a rendering device, for example if\nthe compositor prefers to texture from said buffer.\n\nThe client can use this hint to allocate the buffer in a way that makes\nit accessible from the target device, ideally directly. The buffer must\nstill be accessible from the main device, either through direct import\nor through a potentially more expensive fallback path. If the buffer\ncan't be directly imported from the main device then clients must be\nprepared for the compositor changing the tranche priority or making\nwl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and\ncreate_immed requests for details).\n\nIf the device is a DRM node, the DRM node type (primary vs. render) is\nunspecified. Clients must not rely on the compositor sending a\nparticular node type. Clients cannot check two devices for equality by\ncomparing the dev_t value.\n\nThis event is tied to a preference tranche, see the tranche_done event.",
+            "text": "This event advertises the target device that the server prefers to use\nfor a buffer created given this tranche. The advertised target device\nmay be different for each preference tranche, and may change over time.\n\nThere is exactly one target device per tranche.\n\nThe target device may be a scan-out device, for example if the\ncompositor prefers to directly scan-out a buffer created given this\ntranche. The target device may be a rendering device, for example if\nthe compositor prefers to texture from said buffer.\n\nThe client can use this hint to allocate the buffer in a way that makes\nit accessible from the target device, ideally directly. The buffer must\nstill be accessible from a device with the sampling flag, either through\ndirect import or a potentially more expensive fallback path. If the\nbuffer can't be directly imported for sampling, then clients must be\nprepared for the compositor changing the tranche priority or making\nwl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and\ncreate_immed requests for details).\n\nIf the device is a DRM node, the DRM node type (primary vs. render) is\nunspecified. Clients must not rely on the compositor sending a\nparticular node type. Clients cannot check two devices for equality by\ncomparing the dev_t value.\n\nThis event is tied to a preference tranche, see the tranche_done event.",
             "summary": "target device"
           },
           "args": [
@@ -528,7 +553,7 @@
           "name": "tranche_flags",
           "description": {
             "type": "description",
-            "text": "This event sets tranche-specific flags.\n\nThe scanout flag is a hint that direct scan-out may be attempted by the\ncompositor on the target device if the client appropriately allocates a\nbuffer. How to allocate a buffer that can be scanned out on the target\ndevice is implementation-defined.\n\nThis event is tied to a preference tranche, see the tranche_done event.",
+            "text": "This event sets tranche-specific flags. This event is tied to a\npreference tranche, see the tranche_done event.\nWith version 6 and above, the compositor must set at least one flag\nin each tranche.",
             "summary": "tranche flags"
           },
           "args": [
@@ -552,7 +577,23 @@
               "type": "entry",
               "name": "scanout",
               "value": "1",
-              "summary": "direct scan-out tranche"
+              "since": "4",
+              "description": {
+                "type": "description",
+                "text": "The scanout flag is a hint that direct scan-out may be attempted by\nthe compositor on the target device if the client appropriately\nallocates a buffer. How to allocate a buffer that can be scanned out\non the target device is implementation-defined.",
+                "summary": "direct scan-out tranche"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "sampling",
+              "value": "2",
+              "since": "6",
+              "description": {
+                "type": "description",
+                "text": "The sampling flag describes that the compositor is able to efficiently\nsample from buffers imported to the target device if the client\nappropriately allocates a buffer. How to allocate a buffer that can be\nefficiently sampled on the target device is implementation defined.",
+                "summary": "sampling tranche"
+              }
             }
           ]
         }

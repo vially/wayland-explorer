@@ -153,7 +153,7 @@
     {
       "type": "interface",
       "name": "treeland_wallpaper_surface_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The treeland_wallpaper_surface_v1 interface controls the behavior of a\nwallpaper surface.\n\nA wallpaper surface is bound to exactly one wl_surface and defines how\nthat surface should be sized, positioned, and synchronized with the\ncompositor's wallpaper management logic.",
@@ -188,6 +188,17 @@
               "enum": "error"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "ready",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Informs the compositor that the wallpaper surface has completed\nits initial rendering and is ready to be displayed.\n\nThe client should send this request only after a valid buffer\nhas been attached and committed to the associated wl_surface.\n\nBefore receiving this request, the compositor may keep the\nwallpaper hidden or continue displaying a fallback wallpaper.\n\nThis request is typically used to avoid visual glitches such as\nblack frames, incomplete rendering, or uninitialized content\nduring wallpaper startup.\n\nCalling this request multiple times has no additional effect.",
+            "summary": "Notify that wallpaper content is ready"
+          },
+          "args": []
         }
       ],
       "events": [
