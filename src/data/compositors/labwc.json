@@ -1,6 +1,6 @@
 {
   "generationTimestamp": 1780341584040,
-  "version": "0.20.0"
+  "version": "0.20.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
