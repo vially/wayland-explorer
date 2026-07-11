@@ -12,7 +12,7 @@
       "version": "20",
       "description": {
         "type": "description",
-        "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
+        "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.\n\nThis global must be bound with a version at least 17.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
         "summary": "application windows management"
       },
       "requests": [
@@ -794,6 +794,7 @@
         {
           "type": "event",
           "name": "pid_changed",
+          "since": "8",
           "description": {
             "type": "description",
             "text": "This event will be sent when the compositor has set the process id this window belongs to.\nThis should be set once before the initial_state is sent.",

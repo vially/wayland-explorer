@@ -1,0 +1,120 @@
+{
+  "type": "protocol",
+  "name": "cosmic_keyboard_layout_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2026 System76, Inc\n\nPermission to use, copy, modify, distribute, and sell this\nsoftware and its documentation for any purpose is hereby granted\nwithout fee, provided that the above copyright notice appear in\nall copies and that both that copyright notice and this permission\nnotice appear in supporting documentation, and that the name of\nthe copyright holders not be used in advertising or publicity\npertaining to distribution of the software without specific,\nwritten prior permission.  The copyright holders make no\nrepresentations about the suitability of this software for any\npurpose.  It is provided \"as is\" without express or implied\nwarranty.\n\nTHE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN\nAN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol notifies clients of the active keyboard layout group, and allows\nsetting a new value.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+    "summary": "Protocol to control keyboard layout group"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "zcosmic_keyboard_layout_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Manager for creating `zcosmic_keyboard_layout_v1` instances.",
+        "summary": "keyboard layout manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_keyboard_layout",
+          "description": {
+            "type": "description",
+            "text": "Create a `zcosmic_keyboard_layout_v1` to get and set group for given keyboard.",
+            "summary": "Get keyboard layout object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "keyboard_layout",
+              "argType": "new_id",
+              "interface": "zcosmic_keyboard_layout_v1"
+            },
+            {
+              "type": "arg",
+              "name": "keyboard",
+              "argType": "object",
+              "interface": "wl_keyboard",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "zcosmic_keyboard_layout_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Object to get and set `group` for a particular `wl_keyboard`.",
+        "summary": ""
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_group",
+          "description": {
+            "type": "description",
+            "text": "On success, the `group` event will be generated for all clients, and the focused client will\nreceive `wl_keyboard::modifiers` with the new group.\n\nThe request will be ignored if `group` is out of bounds.",
+            "summary": "set layout group"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "group",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "delete this object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "group",
+          "description": {
+            "type": "description",
+            "text": "Unlike `wl_keyboard::modifiers`, this event is received even when the client has no focused window.",
+            "summary": "layout group changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "group",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

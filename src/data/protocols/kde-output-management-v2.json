@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_management_v2",
-      "version": "21",
+      "version": "22",
       "description": {
         "type": "description",
         "text": "This interface enables clients to set properties of output devices for screen\nconfiguration purposes via the server. To this end output devices are referenced\nby global kde_output_device_v2 objects.\n\noutputmanagement (wl_global)\n--------------------------\nrequest:\n* create_configuration -> outputconfiguration (wl_resource)\n\noutputconfiguration (wl_resource)\n--------------------------\nrequests:\n* enable(outputdevice, bool)\n* mode(outputdevice, mode)\n* transformation(outputdevice, flag)\n* position(outputdevice, x, y)\n* apply\n\nevents:\n* applied\n* failed\n\nThe server registers one outputmanagement object as a global object. In order\nto configure outputs a client requests create_configuration, which provides a\nresource referencing an outputconfiguration for one-time configuration. That\nway the server knows which requests belong together and can group them by that.\n\nOn the outputconfiguration object the client calls for each output whether the\noutput should be enabled, which mode should be set (by referencing the mode from\nthe list of announced modes) and the output's global position. Once all outputs\nare configured that way, the client calls apply.\nAt that point and not earlier the server should try to apply the configuration.\nIf this succeeds the server emits the applied signal, otherwise the failed\nsignal, such that the configuring client is noticed about the success of its\nconfiguration request.\n\nThrough this design the interface enables atomic output configuration changes if\ninternally supported by the server.\n\nWarning! The protocol described in this file is a desktop environment implementation\ndetail. Regular clients must not use this protocol. Backward incompatible\nchanges may be added without bumping the major version of the extension.",
@@ -57,7 +57,7 @@
     {
       "type": "interface",
       "name": "kde_output_configuration_v2",
-      "version": "21",
+      "version": "22",
       "description": {
         "type": "description",
         "text": "outputconfiguration is a client-specific resource that can be used to ask\nthe server to apply changes to available output devices.\n\nThe client receives a list of output devices from the registry. When it wants\nto apply new settings, it creates a configuration object from the\noutputmanagement global, writes changes through this object's enable, scale,\ntransform and mode calls. It then asks the server to apply these settings in\nan atomic fashion, for example through Linux' DRM interface.\n\nThe server signals back whether the new settings have applied successfully\nor failed to apply. outputdevice objects are updated after the changes have been\napplied to the hardware and before the server side sends the applied event.",
@@ -1104,10 +1104,10 @@
     {
       "type": "interface",
       "name": "kde_mode_list_v2",
-      "version": "20",
+      "version": "22",
       "description": {
         "type": "description",
-        "text": "This list is populated by first setting each relevant property,\nand then calling add_mode to add a mode with these properties.\nOne would for example call\n- set_resolution\n- set_refresh_rate\n- set_reduced_blanking\n- add_mode\n\nadd_mode does not reset the properties that were previously set,\nthey are valid until the object is destroyed.\nThe compositor may additionally have sensible defaults for some\nproperties like reduced_blanking, but for consistent results,\nit's best to always set each known property every time.\n\nThe parameters resolution and refresh rate are required, if they\nare not set, the missing_parameters error will be emitted.",
+        "text": "This list is populated by first setting each relevant property,\nand then calling add_mode to add a mode with these properties.\nOne would for example call\n- set_resolution\n- set_refresh_rate\n- set_reduced_blanking\n- add_mode\n\nadd_mode does not reset the properties that were previously set,\nthey are valid until the object is destroyed.\nThe compositor may additionally have sensible defaults for some\nproperties like reduced_blanking, but for consistent results,\nit's best to always set each known property every time.\n\nOne can also specify custom modes with CVT timings, for example\n- add_cvt\n- add_cvt\n\nThe parameters resolution and refresh rate are required, if they\nare not set, the missing_parameters error will be emitted.",
         "summary": "a list of custom modes"
       },
       "requests": [
@@ -1172,6 +1172,90 @@
               "name": "reduced",
               "argType": "uint",
               "summary": "1 for reduced blanking, 0 for normal vblank duration"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "add_cvt",
+          "since": "22",
+          "description": {
+            "type": "description",
+            "text": "Adds a new mode with the specified CVT timings.",
+            "summary": "new mode with CVT timings"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dot_clock",
+              "argType": "uint",
+              "summary": "pixel clock in kHz"
+            },
+            {
+              "type": "arg",
+              "name": "hdisplay",
+              "argType": "uint",
+              "summary": "horizontal display size"
+            },
+            {
+              "type": "arg",
+              "name": "hsync_start",
+              "argType": "uint",
+              "summary": "horizontal sync start"
+            },
+            {
+              "type": "arg",
+              "name": "hsync_end",
+              "argType": "uint",
+              "summary": "horizontal sync end"
+            },
+            {
+              "type": "arg",
+              "name": "htotal",
+              "argType": "uint",
+              "summary": "horizontal total size"
+            },
+            {
+              "type": "arg",
+              "name": "hskew",
+              "argType": "uint",
+              "summary": "horizontal skew"
+            },
+            {
+              "type": "arg",
+              "name": "vdisplay",
+              "argType": "uint",
+              "summary": "vertical display size"
+            },
+            {
+              "type": "arg",
+              "name": "vsync_start",
+              "argType": "uint",
+              "summary": "vertical sync start"
+            },
+            {
+              "type": "arg",
+              "name": "vsync_end",
+              "argType": "uint",
+              "summary": "vertical sync end"
+            },
+            {
+              "type": "arg",
+              "name": "vtotal",
+              "argType": "uint",
+              "summary": "vertical total size"
+            },
+            {
+              "type": "arg",
+              "name": "vscan",
+              "argType": "uint",
+              "summary": "vertical scan"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "flags, see DRM_MODE_FLAG_*"
             }
           ]
         }

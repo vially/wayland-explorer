@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_registry_v2",
-      "version": "23",
+      "version": "24",
       "description": {
         "type": "description",
         "text": "This interface can be used to list output devices.\n\nIf this global is bound with a version less than 21, the unsupported_version\nprotocol error will be posted.",
@@ -84,7 +84,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "23",
+      "version": "24",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -1234,7 +1234,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_mode_v2",
-      "version": "22",
+      "version": "24",
       "description": {
         "type": "description",
         "text": "This object describes an output mode.\n\nSome heads don't support output modes, in which case modes won't be\nadvertised.\n\nProperties sent via this interface are applied atomically via the\nkde_output_device.done event. No guarantees are made regarding the order\nin which properties are sent.",
@@ -1319,6 +1319,90 @@
               "enum": "flags"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "cvt",
+          "since": "24",
+          "description": {
+            "type": "description",
+            "text": "This event describes the CVT timings associated with the mode.\n\nIf an output mode has no CVT timings, this event will not be sent.",
+            "summary": "cvt timings"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dot_clock",
+              "argType": "uint",
+              "summary": "pixel clock in kHz"
+            },
+            {
+              "type": "arg",
+              "name": "hdisplay",
+              "argType": "uint",
+              "summary": "horizontal display size"
+            },
+            {
+              "type": "arg",
+              "name": "hsync_start",
+              "argType": "uint",
+              "summary": "horizontal sync start"
+            },
+            {
+              "type": "arg",
+              "name": "hsync_end",
+              "argType": "uint",
+              "summary": "horizontal sync end"
+            },
+            {
+              "type": "arg",
+              "name": "htotal",
+              "argType": "uint",
+              "summary": "horizontal total size"
+            },
+            {
+              "type": "arg",
+              "name": "hskew",
+              "argType": "uint",
+              "summary": "horizontal skew"
+            },
+            {
+              "type": "arg",
+              "name": "vdisplay",
+              "argType": "uint",
+              "summary": "vertical display size"
+            },
+            {
+              "type": "arg",
+              "name": "vsync_start",
+              "argType": "uint",
+              "summary": "vertical sync start"
+            },
+            {
+              "type": "arg",
+              "name": "vsync_end",
+              "argType": "uint",
+              "summary": "vertical sync end"
+            },
+            {
+              "type": "arg",
+              "name": "vtotal",
+              "argType": "uint",
+              "summary": "vertical total size"
+            },
+            {
+              "type": "arg",
+              "name": "vscan",
+              "argType": "uint",
+              "summary": "vertical scan"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "flags, see DRM_MODE_FLAG_*"
+            }
+          ]
         }
       ],
       "enums": [
@@ -1339,7 +1423,8 @@
             {
               "type": "entry",
               "name": "reduced_blanking",
-              "value": "0x2"
+              "value": "0x2",
+              "deprecatedSince": "24"
             }
           ]
         }
