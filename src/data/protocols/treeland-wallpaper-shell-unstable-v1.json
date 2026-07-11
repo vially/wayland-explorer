@@ -96,7 +96,7 @@
     {
       "type": "interface",
       "name": "treeland_wallpaper_shell_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The treeland_wallpaper_shell_v1 interface is a global object exposed by\nthe compositor that allows a client to assign the wallpaper role to\na wl_surface and create wallpaper surface objects.\n\nA wallpaper surface represents content intended to be displayed as\nthe desktop wallpaper, such as a static image or a dynamic media\nsource, and is associated with exactly one wl_surface.\n\nThis interface follows the shell pattern used by other Wayland\nprotocols: it assigns a specific role to a wl_surface and manages\nthe lifetime and behavior of wallpaper surfaces.\n\nThis interface is a singleton. At most one client may bind to\ntreeland_wallpaper_shell_v1 at any given time.",

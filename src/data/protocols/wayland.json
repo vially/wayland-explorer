@@ -88,7 +88,7 @@
           "name": "delete_id",
           "description": {
             "type": "description",
-            "text": "This event is used internally by the object ID management\nlogic. When a client deletes an object that it had created,\nthe server will send this event to acknowledge that it has\nseen the delete request. When the client receives this event,\nit will know that it can safely reuse the object ID.",
+            "text": "This event is used internally by the object ID management logic.\n\nWhen the server stops using an object created by the client, the server\nsends this event. In particular, after sending this event, the server\nwill no longer send any events that contain the object as the receiver\nor as an argument.\n\nWhen the client receives this event, it knows that it can reuse the\nobject ID.",
             "summary": "acknowledge object ID deletion"
           },
           "args": [
@@ -322,7 +322,7 @@
     {
       "type": "interface",
       "name": "wl_shm_pool",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "The wl_shm_pool object encapsulates a piece of memory shared\nbetween the compositor and client.  Through the wl_shm_pool\nobject, the client can allocate shared memory wl_buffer objects.\nAll objects created through the same pool share the same\nunderlying mapped memory. Reusing the mapped memory avoids the\nsetup/teardown overhead and is useful when interactively resizing\na surface or for many small buffers.",
@@ -408,12 +408,38 @@
         }
       ],
       "events": [],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "3",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These errors can be emitted in response to wl_shm_pool requests.",
+            "summary": "wl_shm_pool error values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_format",
+              "value": "0",
+              "summary": "buffer format is not known"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_stride",
+              "value": "1",
+              "summary": "invalid size or stride during buffer creation"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",
       "name": "wl_shm",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A singleton global object that provides support for shared\nmemory.\n\nClients can create wl_shm_pool objects using the create_pool\nrequest.\n\nOn binding the wl_shm object one or more format events\nare emitted to inform clients about the valid pixel formats\nthat can be used for buffers.",
@@ -487,6 +513,7 @@
         {
           "type": "enum",
           "name": "error",
+          "since": "3",
           "bitfield": false,
           "description": {
             "type": "description",
@@ -498,13 +525,14 @@
               "type": "entry",
               "name": "invalid_format",
               "value": "0",
-              "summary": "buffer format is not known"
+              "summary": "buffer format is not known",
+              "deprecatedSince": "3"
             },
             {
               "type": "entry",
               "name": "invalid_stride",
               "value": "1",
-              "summary": "invalid size or stride during pool or buffer creation"
+              "summary": "invalid size or stride during pool creation"
             },
             {
               "type": "entry",
@@ -594,7 +622,7 @@
               "type": "entry",
               "name": "rgba4444",
               "value": "0x32314152",
-              "summary": "16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian"
+              "summary": "16-bit RGBA format, [15:0] R:G:B:A 4:4:4:4 little endian"
             },
             {
               "type": "entry",
@@ -1290,19 +1318,19 @@
               "type": "entry",
               "name": "gr3232f",
               "value": "0x46205247",
-              "summary": "[63:0] R:G 32:32 little endian"
+              "summary": "[63:0] G:R 32:32 little endian"
             },
             {
               "type": "entry",
               "name": "bgr323232f",
               "value": "0x46524742",
-              "summary": "[95:0] R:G:B 32:32:32 little endian"
+              "summary": "[95:0] B:G:R 32:32:32 little endian"
             },
             {
               "type": "entry",
               "name": "abgr32323232f",
               "value": "0x46384241",
-              "summary": "[127:0] R:G:B:A 32:32:32:32 little endian"
+              "summary": "[127:0] A:B:G:R 32:32:32:32 little endian"
             },
             {
               "type": "entry",
@@ -1369,6 +1397,35 @@
               "name": "s416",
               "value": "0x36313453",
               "summary": "non-subsampled Cb (1) and Cr (2) planes 16 bits per channel"
+            },
+            {
+              "type": "entry",
+              "name": "xvuy2101010",
+              "value": "0x30335958",
+              "summary": "[31:0] x:Cr:Cb:Y 2:10:10:10 little endian"
+            },
+            {
+              "type": "entry",
+              "name": "p230",
+              "value": "0x30333250",
+              "summary": "2x1 subsampled Cr:Cb plane 10 bits per channel packed"
+            },
+            {
+              "type": "entry",
+              "name": "t430",
+              "value": "0x30333454"
+            },
+            {
+              "type": "entry",
+              "name": "y8",
+              "value": "0x59455247",
+              "summary": "8-bit Y-only"
+            },
+            {
+              "type": "entry",
+              "name": "xyyy2101010",
+              "value": "0x34415059",
+              "summary": "[31:0] x:Y2:Y1:Y0 2:10:10:10 little endian"
             }
           ]
         }
@@ -3030,7 +3087,7 @@
     {
       "type": "interface",
       "name": "wl_seat",
-      "version": "10",
+      "version": "11",
       "description": {
         "type": "description",
         "text": "A seat is a group of keyboards, pointer and touch devices. This\nobject is published as a global during start up, or when such a\ndevice is hot plugged.  A seat typically has a pointer and\nmaintains a keyboard focus and a pointer focus.",
@@ -3196,7 +3253,7 @@
     {
       "type": "interface",
       "name": "wl_pointer",
-      "version": "10",
+      "version": "11",
       "description": {
         "type": "description",
         "text": "The wl_pointer interface represents one or more input devices,\nsuch as mice, which control the pointer location and pointer_focus\nof a seat.\n\nThe wl_pointer interface generates motion, enter and leave\nevents for the surfaces that the pointer is located over,\nand button and axis events for button presses, button releases\nand scrolling.",
@@ -3348,7 +3405,7 @@
           "name": "button",
           "description": {
             "type": "description",
-            "text": "Mouse button click and release notifications.\n\nThe location of the click is given by the last motion or\nenter event.\nThe time argument is a timestamp with millisecond\ngranularity, with an undefined base.\n\nThe button is a button code as defined in the Linux kernel's\nlinux/input-event-codes.h header file, e.g. BTN_LEFT.\n\nAny 16-bit button code value is reserved for future additions to the\nkernel's event code list. All other button codes above 0xFFFF are\ncurrently undefined but may be used in future versions of this\nprotocol.",
+            "text": "Mouse button click and release notifications.\n\nThe location of the click is given by the last motion, warp or\nenter event.\nThe time argument is a timestamp with millisecond\ngranularity, with an undefined base.\n\nThe button is a button code as defined in the Linux kernel's\nlinux/input-event-codes.h header file, e.g. BTN_LEFT.\n\nAny 16-bit button code value is reserved for future additions to the\nkernel's event code list. All other button codes above 0xFFFF are\ncurrently undefined but may be used in future versions of this\nprotocol.",
             "summary": "pointer button event"
           },
           "args": [
@@ -3540,6 +3597,30 @@
               "enum": "axis_relative_direction"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "warp",
+          "since": "11",
+          "description": {
+            "type": "description",
+            "text": "Notification of pointer location change within a surface.\n\nThis location change is not due to events on the input device,\nbut because either the surface under the pointer was moved and\nthus the relative position of the pointer changed, or because\nthe compositor changed the pointer position in response to an\nevent like pointer confinement being exited.\n\nThe arguments surface_x and surface_y are the location relative to\nthe focused surface.\n\nThis event must not occur in the same wl_pointer.frame as a\nwl_pointer.enter or wl_pointer.motion event.",
+            "summary": "pointer warp event"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface_x",
+              "argType": "fixed",
+              "summary": "surface-local x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "surface_y",
+              "argType": "fixed",
+              "summary": "surface-local y coordinate"
+            }
+          ]
         }
       ],
       "enums": [
@@ -3670,7 +3751,7 @@
     {
       "type": "interface",
       "name": "wl_keyboard",
-      "version": "10",
+      "version": "11",
       "description": {
         "type": "description",
         "text": "The wl_keyboard interface represents one or more keyboards\nassociated with a seat.\n\nEach wl_keyboard has the following logical state:\n\n- an active surface (possibly null),\n- the keys currently logically down,\n- the active modifiers,\n- the active group.\n\nBy default, the active surface is null, the keys currently logically down\nare empty, the active modifiers and the active group are 0.",
@@ -3937,7 +4018,7 @@
     {
       "type": "interface",
       "name": "wl_touch",
-      "version": "10",
+      "version": "11",
       "description": {
         "type": "description",
         "text": "The wl_touch interface represents a touchscreen\nassociated with a seat.\n\nTouch interactions can consist of one or more contacts.\nFor each contact, a series of events is generated, starting\nwith a down event, followed by zero or more motion events,\nand ending with an up event. Events relating to the same\ncontact point can be identified by the ID of the sequence.",

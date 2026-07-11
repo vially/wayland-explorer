@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1779798302756,
-  "version": "50.1",
+  "generationTimestamp": 1783809621473,
+  "version": "50.3", 
   "globals": [
     {
       "interface": "gtk_shell1",
@@ -140,7 +140,7 @@
     },
     {
       "interface": "zwp_text_input_manager_v3",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "zxdg_exporter_v1",

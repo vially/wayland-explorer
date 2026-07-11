@@ -1366,7 +1366,7 @@
           "name": "place_above",
           "description": {
             "type": "description",
-            "text": "This request places the node directly above another node in the\ncompositor's render list.\n\nAttempting to place a node above itself has no effect.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "text": "This request places the node directly above another node in the\ncompositor's render list.\n\nAttempting to place a node above itself has no effect.\n\nGiven nodes A, B, C currently rendered in that order with C on top\nand A on the bottom, the following example demonstrates the behavior\nof this request and the meaning of \"directly above\":\n\n1. A.place_above(C) -> B, C, A\n2. A.place_above(B) -> B, A, C\n3. B.place_above(A) -> A, B, C\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
             "summary": "place node above another node"
           },
           "args": [
@@ -1384,7 +1384,7 @@
           "name": "place_below",
           "description": {
             "type": "description",
-            "text": "This request places the node directly below another node in the\ncompositor's render list.\n\nAttempting to place a node below itself has no effect.\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
+            "text": "This request places the node directly below another node in the\ncompositor's render list.\n\nAttempting to place a node below itself has no effect.\n\nGiven nodes A, B, C currently rendered in that order with C on top\nand A on the bottom, the following example demonstrates the behavior\nof this request and the meaning of \"directly below\":\n\n1. C.place_below(A) -> C, A, B\n2. C.place_below(B) -> A, C, B\n3. B.place_below(C) -> A, B, C\n\nThis request modifies rendering state and may only be made as part of a\nrender sequence, see the river_window_manager_v1 description.",
             "summary": "place node below another node"
           },
           "args": [
