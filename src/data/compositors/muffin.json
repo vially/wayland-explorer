@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1759057772065,
-  "version": "6.6.0",
+  "generationTimestamp": 1784291142288,
+  "version": "6.7.4",
   "globals": [
     {
       "interface": "gtk_shell1",
@@ -8,7 +8,7 @@
     },
     {
       "interface": "wl_compositor",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "wl_data_device_manager",
@@ -19,12 +19,8 @@
       "version": 2
     },
     {
-      "interface": "wl_eglstream_controller",
-      "version": 1
-    },
-    {
       "interface": "wl_output",
-      "version": 2
+      "version": 4
     },
     {
       "interface": "wl_seat",
@@ -32,10 +28,22 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_subcompositor",
+      "version": 1
+    },
+    {
+      "interface": "wp_cursor_shape_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "wp_pointer_warp_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_single_pixel_buffer_manager_v1",
       "version": 1
     },
     {
@@ -43,7 +51,19 @@
       "version": 1
     },
     {
+      "interface": "xapp_shell_v1",
+      "version": 1
+    },
+    {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_system_bell_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_toplevel_icon_manager_v1",
       "version": 1
     },
     {
@@ -52,11 +72,15 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "xdg_wm_dialog_v1",
       "version": 1
+    },
+    {
+      "interface": "zwlr_layer_shell_v1",
+      "version": 4
     },
     {
       "interface": "zwp_idle_inhibit_manager_v1",
@@ -68,7 +92,7 @@
     },
     {
       "interface": "zwp_linux_dmabuf_v1",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "zwp_pointer_constraints_v1",
