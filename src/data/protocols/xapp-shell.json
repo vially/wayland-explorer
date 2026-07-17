@@ -1,0 +1,170 @@
+{
+  "type": "protocol",
+  "name": "xapp_shell",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2026 Linux Mint\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xapp_shell_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "xapp_shell is a private protocol extension that lets clients attach\nXApp-specific window-manager hints to their toplevel surfaces. It is the\nWayland counterpart of the X11 _NET_WM_XAPP_* window properties used by\nthe Cinnamon desktop: a themed icon name (resolved crisply by the\ncompositor at any scale) and task-manager progress information.\n\nThe compositor advertises which hints it understands through the\n'capabilities' event, allowing clients to negotiate features instead of\nrelying on the interface version alone.",
+        "summary": "XApp window-manager hints"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "get_xapp_surface",
+          "description": {
+            "type": "description",
+            "text": "Create an xapp_surface_v1 object associated with the given wl_surface,\nthrough which XApp hints can be set on the corresponding window.",
+            "summary": "create an xapp surface for a wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "xapp_surface_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the xapp_shell_v1 object. This does not affect any xapp_surface_v1\nobjects created with it.",
+            "summary": "destroy the xapp shell object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "capabilities",
+          "description": {
+            "type": "description",
+            "text": "This event is sent once when the client binds the global, describing the\nset of hints the compositor supports.",
+            "summary": "advertise supported hints"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "capabilities",
+              "argType": "uint",
+              "enum": "capability"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "capability",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "icon_name",
+              "value": "1",
+              "summary": "set_icon_name is supported"
+            },
+            {
+              "type": "entry",
+              "name": "progress",
+              "value": "2",
+              "summary": "set_progress/set_progress_pulse are supported"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xapp_surface_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "An xapp_surface_v1 carries XApp hints for the wl_surface it was created for.\nSetting a hint takes effect immediately. The hints persist until changed\nor unset; destroying the object does not reset them.",
+        "summary": "XApp hints for a single window"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "set_icon_name",
+          "description": {
+            "type": "description",
+            "text": "Set a themed icon name, or an absolute path to an icon file, that the\ncompositor and its desktop shell should use for this window in titlebars,\ntask lists and window switchers. Pass a null name to unset it.",
+            "summary": "set a themed icon name or icon path"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "icon_name",
+              "argType": "string",
+              "allowNull": "true"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_progress",
+          "description": {
+            "type": "description",
+            "text": "Set a progress value, from 0 to 100, to be displayed by a task manager\nfor this window. A value of 0 clears the progress. Setting an explicit\nprogress value also clears the pulsing state.",
+            "summary": "set progress (0-100)"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "progress",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_progress_pulse",
+          "description": {
+            "type": "description",
+            "text": "Set whether the window should show indeterminate ('pulsing') progress.\nA non-zero value enables pulsing.",
+            "summary": "set indeterminate progress"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "pulse",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the xapp_surface_v1 object. Hints already set on the window are\nleft untouched.",
+            "summary": "destroy the xapp surface object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

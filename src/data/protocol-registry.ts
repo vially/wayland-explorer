@@ -1169,6 +1169,15 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://github.com/canonical/mir/blob/v2.17.0/wayland-protocols/mir-shell-unstable-v1.xml',
     },
+    {
+        id: 'xapp-shell',
+        name: 'XApp Shell',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/xapp-shell.json'),
+        externalUrl:
+            'https://github.com/linuxmint/xapp/blob/3.3.3-unstable/libxapp/xapp-shell.xml',
+    },
 ]
 
 class WaylandProtocolRegistry {
