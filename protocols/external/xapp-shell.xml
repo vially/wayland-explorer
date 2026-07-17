@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="xapp_shell">
+
+  <copyright>
+    Copyright © 2026 Linux Mint
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <interface name="xapp_shell_v1" version="1">
+    <description summary="XApp window-manager hints">
+      xapp_shell is a private protocol extension that lets clients attach
+      XApp-specific window-manager hints to their toplevel surfaces. It is the
+      Wayland counterpart of the X11 _NET_WM_XAPP_* window properties used by
+      the Cinnamon desktop: a themed icon name (resolved crisply by the
+      compositor at any scale) and task-manager progress information.
+
+      The compositor advertises which hints it understands through the
+      'capabilities' event, allowing clients to negotiate features instead of
+      relying on the interface version alone.
+    </description>
+
+    <enum name="capability" bitfield="true">
+      <entry name="icon_name" value="1" summary="set_icon_name is supported"/>
+      <entry name="progress" value="2" summary="set_progress/set_progress_pulse are supported"/>
+    </enum>
+
+    <event name="capabilities">
+      <description summary="advertise supported hints">
+        This event is sent once when the client binds the global, describing the
+        set of hints the compositor supports.
+      </description>
+      <arg name="capabilities" type="uint" enum="capability"/>
+    </event>
+
+    <request name="get_xapp_surface">
+      <description summary="create an xapp surface for a wl_surface">
+        Create an xapp_surface_v1 object associated with the given wl_surface,
+        through which XApp hints can be set on the corresponding window.
+      </description>
+      <arg name="id" type="new_id" interface="xapp_surface_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xapp shell object">
+        Destroy the xapp_shell_v1 object. This does not affect any xapp_surface_v1
+        objects created with it.
+      </description>
+    </request>
+  </interface>
+
+  <interface name="xapp_surface_v1" version="1">
+    <description summary="XApp hints for a single window">
+      An xapp_surface_v1 carries XApp hints for the wl_surface it was created for.
+      Setting a hint takes effect immediately. The hints persist until changed
+      or unset; destroying the object does not reset them.
+    </description>
+
+    <request name="set_icon_name">
+      <description summary="set a themed icon name or icon path">
+        Set a themed icon name, or an absolute path to an icon file, that the
+        compositor and its desktop shell should use for this window in titlebars,
+        task lists and window switchers. Pass a null name to unset it.
+      </description>
+      <arg name="icon_name" type="string" allow-null="true"/>
+    </request>
+
+    <request name="set_progress">
+      <description summary="set progress (0-100)">
+        Set a progress value, from 0 to 100, to be displayed by a task manager
+        for this window. A value of 0 clears the progress. Setting an explicit
+        progress value also clears the pulsing state.
+      </description>
+      <arg name="progress" type="int"/>
+    </request>
+
+    <request name="set_progress_pulse">
+      <description summary="set indeterminate progress">
+        Set whether the window should show indeterminate ('pulsing') progress.
+        A non-zero value enables pulsing.
+      </description>
+      <arg name="pulse" type="uint"/>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xapp surface object">
+        Destroy the xapp_surface_v1 object. Hints already set on the window are
+        left untouched.
+      </description>
+    </request>
+  </interface>
+</protocol>
