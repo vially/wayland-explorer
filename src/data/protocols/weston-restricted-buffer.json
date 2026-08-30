@@ -1,0 +1,74 @@
+{
+  "type": "protocol",
+  "name": "weston_restricted_buffer",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (C) 2026 Amazon.com, Inc. or its affiliates\nCopyright © 2019 Collabora Ltd.\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "weston_restricted_buffer_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Weston extension to instruct the compositor that the dmabuf created by\n'linux-dmabuf' protocol is in protected memory. Protected has hardware\nlevel access restrictions, and if used improperly will result in\ncompositor crashes, hardware faults, or other manner of undefined\nbehaviour.\n\nRestricted buffers may only be imported to the GPU if the GPU is using a\nrestricted context - otherwise if the buffer is to be rendered, it will\nbe censored (displayed as a solid color).\n\nOutside of GPU restrictions, the compositor's policy dictates when\nrestricted buffers may be displayed.\n\nThis extension depends on the 'linux-dmabuf' protocol. After a\n'zwp_linux_buffer_params_v1' object is created by 'zwp_linux_buffer_v1'\nand before it is used to create a buffer, this extension's 'enable'\nrequest may be used to indicate that the buffer is restricted.",
+        "summary": "weston restricted buffer"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "enable",
+          "description": {
+            "type": "description",
+            "text": "This request tells the compositor that the buffer is restricted.\n\nEven if the GPU is not using a restricted context and the dmabuf can't\nbe scanned out directly, the compositor should censor it with a\nplaceholder instead of refusing to create the wl_buffer.\n\nAssumes that 'zwp_linux_buffer_params_v1' was already created\nby 'zwp_linux_dmabuf_v1_create_params', as stated in\n'weston_restricted_buffer_v1' interface description.",
+            "summary": "Flag the buffer as restricted"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dmabuf",
+              "argType": "object",
+              "summary": "enable restricted handling of dmabuf",
+              "interface": "zwp_linux_buffer_params_v1",
+              "protocol": "linux-dmabuf-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the factory object, but does not affect any other objects.",
+            "summary": "destroy factory object"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "params_already_used",
+              "value": "0",
+              "summary": "dmabuf params already used"
+            },
+            {
+              "type": "entry",
+              "name": "already_set",
+              "value": "1",
+              "summary": "restricted already set"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
