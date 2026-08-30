@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "weston_direct_display_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Weston extension to instruct the compositor to avoid any import\nof the dmabuf created by 'linux-dmabuf' protocol other than the display\ncontroller.\n\nCompositors are already going to use direct scan-out as much as possible but\nthere's no assurance that while doing so, they won't first import the dmabuf\nin to the GPU. This extension assures the client that the compositor will\nnever attempt to import in to the GPU and pass it directly to the display\ncontroller.\n\nClients can make use of this extension to pass the dmabuf buffer to the\ndisplay controller, potentially increasing the performance and lowering the\nbandwidth usage.\n\nLastly, clients can make use of this extension in tandem with content-protection\none thus avoiding any GPU interaction and providing a secure-content path.\nAlso, in some cases, the memory where dmabuf are allocated are in specially\ncrafted memory zone which would be seen as an illegal memory access when the\nGPU will attempt to read it.\n\nWARNING: This interface by design might break screenshoting functionality\nas compositing might be involved while doing that. Also, do note, that in\ncase the dmabufer provided can't be imported by KMS, the client connection\nwill be terminated.\n\nWARNING: This extension requires 'linux-dmabuf' protocol and\n'zwp_linux_buffer_params_v1' be already created by 'zwp_linux_buffer_v1'.",
@@ -48,7 +48,28 @@
         }
       ],
       "events": [],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "since": "2",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "params_already_used",
+              "value": "0",
+              "summary": "dmabuf params already used"
+            },
+            {
+              "type": "entry",
+              "name": "already_set",
+              "value": "1",
+              "summary": "already set"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

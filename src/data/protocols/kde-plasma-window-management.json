@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_window_management",
-      "version": "20",
+      "version": "21",
       "description": {
         "type": "description",
         "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.\n\nThis global must be bound with a version at least 17.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -350,7 +350,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_window",
-      "version": "20",
+      "version": "21",
       "description": {
         "type": "description",
         "text": "Manages and control an application window.\n\nOnly one client can bind this interface at a time.",
@@ -719,7 +719,7 @@
           "since": "4",
           "description": {
             "type": "description",
-            "text": "This event will be sent immediately after all initial state been sent to the client.\nIf the Plasma window is already unmapped, the unmapped event will be sent before the\ninitial_state event.",
+            "text": "This event will be sent immediately after all initial state been sent to the client.",
             "summary": "All initial known state is submitted"
           },
           "args": []
@@ -956,6 +956,17 @@
               "summary": "height of the org_kde_plasma_window"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "mapped",
+          "since": "21",
+          "description": {
+            "type": "description",
+            "text": "Specifies that the window is ready for painting. A window can be\nmapped some time later after getting created. This event may be sent\nbefore or after the initial_state event.",
+            "summary": "ready for painting"
+          },
+          "args": []
         }
       ],
       "enums": []
@@ -1052,7 +1063,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_stacking_order",
-      "version": "17",
+      "version": "21",
       "description": {
         "type": "description",
         "text": "When this object is created, the compositor sends a window event for\neach window in the stacking order, and afterwards sends the done event\nand destroys this object.",
