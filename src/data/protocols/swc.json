@@ -1,0 +1,165 @@
+{
+  "type": "protocol",
+  "name": "swc",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (c) 2013, 2014 Michael Forney\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "swc_screen",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A screen represents an area in which windows may be placed. It\ncorresponds to one or monitors displaying the same content (in\nmirror mode).",
+        "summary": "an area in which windows may be placed"
+      },
+      "requests": [],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "swc_panel_manager",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_panel",
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "swc_panel"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "swc_panel",
+      "version": "2",
+      "requests": [
+        {
+          "type": "request",
+          "name": "dock",
+          "args": [
+            {
+              "type": "arg",
+              "name": "edge",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "screen",
+              "argType": "object",
+              "interface": "swc_screen",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "focus",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_y_offset",
+          "args": [
+            {
+              "type": "arg",
+              "name": "offset",
+              "argType": "uint"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_strut",
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "begin",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "end",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "docked",
+          "args": [
+            {
+              "type": "arg",
+              "name": "length",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "edge",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
