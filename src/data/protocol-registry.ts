@@ -1169,6 +1169,33 @@ const protocols: WaylandProtocolRegistryItem[] = [
         externalUrl:
             'https://raw.githubusercontent.com/linuxmint/xapp/refs/heads/master/libxapp/xapp-shell.xml',
     },
+    {
+        id: 'swc',
+        name: 'swc',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc.xml',
+    },
+    {
+        id: 'swc_snap',
+        name: 'swc_snap',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc_snap.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc-snap.xml',
+    },
+    {
+        id: 'swc_select',
+        name: 'swc_select',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc_select.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc-select.xml',
+    },
 ]
 
 class WaylandProtocolRegistry {
