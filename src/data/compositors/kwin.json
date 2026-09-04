@@ -1,7 +1,11 @@
 {
-  "generationTimestamp": 1771433691408,
-  "version": "6.6",
+  "generationTimestamp": 1788507321619,
+  "version": "6.7",
   "globals": [
+    {
+      "interface": "ext_background_effect_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_data_control_manager_v1",
       "version": 1
@@ -19,12 +23,12 @@
       "version": 3
     },
     {
-      "interface": "kde_output_device_v2",
-      "version": 20
+      "interface": "kde_output_device_registry_v2",
+      "version": 23
     },
     {
       "interface": "kde_output_management_v2",
-      "version": 19
+      "version": 21
     },
     {
       "interface": "kde_output_order_v1",
@@ -36,14 +40,6 @@
     },
     {
       "interface": "org_kde_kwin_appmenu_manager",
-      "version": 2
-    },
-    {
-      "interface": "org_kde_kwin_blur_manager",
-      "version": 1
-    },
-    {
-      "interface": "org_kde_kwin_contrast_manager",
       "version": 2
     },
     {
@@ -71,16 +67,12 @@
       "version": 2
     },
     {
-      "interface": "org_kde_kwin_slide_manager",
-      "version": 1
-    },
-    {
       "interface": "org_kde_plasma_shell",
       "version": 8
     },
     {
       "interface": "org_kde_plasma_virtual_desktop_management",
-      "version": 3
+      "version": 4
     },
     {
       "interface": "wl_compositor",
@@ -92,7 +84,7 @@
     },
     {
       "interface": "wl_fixes",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_output",
@@ -116,7 +108,7 @@
     },
     {
       "interface": "wp_color_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_color_representation_manager_v1",
@@ -175,6 +167,10 @@
       "version": 1
     },
     {
+      "interface": "xdg_session_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "xdg_system_bell_v1",
       "version": 1
     },
@@ -207,6 +203,14 @@
       "version": 1
     },
     {
+      "interface": "zwp_input_method_v1",
+      "version": 1
+    },
+    {
+      "interface": "zwp_input_panel_v1",
+      "version": 1
+    },
+    {
       "interface": "zwp_keyboard_shortcuts_inhibit_manager_v1",
       "version": 1
     },
@@ -235,20 +239,16 @@
       "version": 2
     },
     {
-      "interface": "zwp_text_input_manager_v1",
-      "version": 1
-    },
-    {
       "interface": "zwp_text_input_manager_v2",
       "version": 1
     },
     {
       "interface": "zwp_text_input_manager_v3",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "zxdg_decoration_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "zxdg_exporter_v2",
