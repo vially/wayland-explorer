@@ -1,10 +1,10 @@
 {
-  "generationTimestamp": 1764897910939,
-  "version": "14.0.2",
+  "generationTimestamp": 1788574680369,
+  "version": "15.0.1",
   "globals": [
     {
       "interface": "weston_capture_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "weston_content_protection",
@@ -43,8 +43,20 @@
       "version": 1
     },
     {
-      "interface": "wp_presentation",
+      "interface": "wp_color_representation_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "wp_commit_timing_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_fifo_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "wp_presentation",
+      "version": 2
     },
     {
       "interface": "wp_single_pixel_buffer_manager_v1",
