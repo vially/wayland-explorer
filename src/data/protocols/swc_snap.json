@@ -1,0 +1,187 @@
+{
+  "type": "protocol",
+  "name": "swc_snap",
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "swc_snap",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "gives a screen capture capability where the client supplies a\nwl_shm buffer and the compositor fills it with a raw frame.",
+        "summary": "raw screen capture into client buffers"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the capture object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "capture",
+          "description": {
+            "type": "description",
+            "text": "captures the current primary screen into the supplied wl_shm\nbuffer. The compositor writes raw pixels and reports ready or\nfailed state",
+            "summary": "capture a frame into a client buffer"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "buffer",
+              "argType": "object",
+              "summary": "client-provided wl_shm buffer to fill",
+              "interface": "wl_buffer",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "bitmask of swc_snap.flags"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "buffer",
+          "description": {
+            "type": "description",
+            "text": "describes the current frame geometry and pixel format expected\nby the capture stream",
+            "summary": "current capture frame metadata"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint"
+            },
+            {
+              "type": "arg",
+              "name": "format",
+              "argType": "uint",
+              "summary": "swc_snap.pixel_format value"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "ready",
+          "description": {
+            "type": "description",
+            "text": "the requested buffer has been filled and is ready for client",
+            "summary": "capture complete"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "tv_sec",
+              "argType": "uint",
+              "summary": "CLOCK_MONOTONIC seconds"
+            },
+            {
+              "type": "arg",
+              "name": "tv_nsec",
+              "argType": "uint",
+              "summary": "CLOCK_MONOTONIC nanoseconds"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "the capture request failed, the object still usable and the\nclient may retry with another buffer or after a mode change",
+            "summary": "capture failed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "swc_snap.failure_reason value"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "flags",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "overlay_cursor",
+              "value": "1",
+              "summary": "composite the current cursor into the frame"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "pixel_format",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "xrgb8888",
+              "value": "0",
+              "summary": "WL_SHM_FORMAT_XRGB8888"
+            },
+            {
+              "type": "entry",
+              "name": "argb8888",
+              "value": "1",
+              "summary": "WL_SHM_FORMAT_ARGB8888"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "failure_reason",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "no_screen",
+              "value": "0",
+              "summary": "no captureable screen is available"
+            },
+            {
+              "type": "entry",
+              "name": "unsupported_buffer",
+              "value": "1",
+              "summary": "buffer is not a wl_shm xrgb/argb8888 buffer"
+            },
+            {
+              "type": "entry",
+              "name": "size_mismatch",
+              "value": "2",
+              "summary": "buffer dimensions are too small for the screen"
+            },
+            {
+              "type": "entry",
+              "name": "internal",
+              "value": "3",
+              "summary": "compositor capture failed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

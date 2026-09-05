@@ -1,0 +1,89 @@
+{
+  "type": "protocol",
+  "name": "swc_select",
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "swc_select",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Allows clients to get an interactive selction box.",
+        "summary": "Get a selection box"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "grab",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "update",
+          "args": [
+            {
+              "type": "arg",
+              "name": "x1",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y1",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "x2",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y2",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "args": [
+            {
+              "type": "arg",
+              "name": "x1",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y1",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "x2",
+              "argType": "int"
+            },
+            {
+              "type": "arg",
+              "name": "y2",
+              "argType": "int"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cancelled",
+          "args": []
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

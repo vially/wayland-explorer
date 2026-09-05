@@ -1089,15 +1089,6 @@ const protocols: WaylandProtocolRegistryItem[] = [
             'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/aura-shell.xml',
     },
     {
-        id: 'chrome-color-management',
-        name: 'Chromium color management',
-        source: WaylandProtocolSource.External,
-        stability: WaylandProtocolStability.Unstable,
-        protocol: require('./protocols/chrome-color-management.json'),
-        externalUrl:
-            'https://source.chromium.org/chromium/chromium/src/+/master:components/exo/wayland/protocol/chrome-color-management.xml',
-    },
-    {
         id: 'overlay-prioritizer',
         name: 'Chromium overlay prioritizer',
         source: WaylandProtocolSource.External,
@@ -1167,7 +1158,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/mir-shell-unstable-v1.json'),
         externalUrl:
-            'https://github.com/canonical/mir/blob/v2.17.0/wayland-protocols/mir-shell-unstable-v1.xml',
+            'https://github.com/canonical/mir/blob/main/wayland-protocols/mir-shell-unstable-v1.xml',
     },
     {
         id: 'xapp-shell',
@@ -1176,7 +1167,34 @@ const protocols: WaylandProtocolRegistryItem[] = [
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/xapp-shell.json'),
         externalUrl:
-            'https://github.com/linuxmint/xapp/blob/3.3.3-unstable/libxapp/xapp-shell.xml',
+            'https://raw.githubusercontent.com/linuxmint/xapp/refs/heads/master/libxapp/xapp-shell.xml',
+    },
+    {
+        id: 'swc',
+        name: 'swc',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc.xml',
+    },
+    {
+        id: 'swc_snap',
+        name: 'swc_snap',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc_snap.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc-snap.xml',
+    },
+    {
+        id: 'swc_select',
+        name: 'swc_select',
+        source: WaylandProtocolSource.External,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/swc_select.json'),
+        externalUrl:
+            'https://git.sr.ht/~shrub900/neuswc/tree/main/item/protocol/swc-select.xml',
     },
 ]
 
