@@ -38,7 +38,8 @@
               "type": "arg",
               "name": "surface",
               "argType": "object",
-              "interface": "wl_surface"
+              "interface": "wl_surface",
+              "protocol": "wayland"
             }
           ]
         }

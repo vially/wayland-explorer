@@ -36,7 +36,8 @@
               "name": "buffer",
               "argType": "object",
               "summary": "client-provided wl_shm buffer to fill",
-              "interface": "wl_buffer"
+              "interface": "wl_buffer",
+              "protocol": "wayland"
             },
             {
               "type": "arg",
