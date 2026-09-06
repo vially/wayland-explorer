@@ -1,7 +1,11 @@
 {
-  "generationTimestamp": 1788069591427,
-  "version": "50.4",
+  "generationTimestamp": 1788711174989,
+  "version": "51",
   "globals": [
+    {
+      "interface": "ext_background_effect_manager_v1",
+      "version": 1
+    },
     {
       "interface": "gtk_shell1",
       "version": 7
@@ -84,6 +88,10 @@
     },
     {
       "interface": "xdg_activation_v1",
+      "version": 1
+    },
+    {
+      "interface": "xdg_session_manager_v1",
       "version": 1
     },
     {
