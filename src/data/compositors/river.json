@@ -1,7 +1,15 @@
 {
-  "generationTimestamp": 1763051170447,
-  "version": "0.3.13",
+  "generationTimestamp": 1791297352519,
+  "version": "0.4.8",
   "globals": [
+    {
+      "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
+      "version": 1
+    },
     {
       "interface": "ext_foreign_toplevel_list_v1",
       "version": 1
@@ -11,11 +19,39 @@
       "version": 2
     },
     {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "ext_session_lock_manager_v1",
       "version": 1
     },
     {
-      "interface": "river_layout_manager_v3",
+      "interface": "river_input_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "river_layer_shell_v1",
+      "version": 1
+    },
+    {
+      "interface": "river_libinput_config_v1",
+      "version": 2
+    },
+    {
+      "interface": "river_window_manager_v1",
+      "version": 5
+    },
+    {
+      "interface": "river_xkb_bindings_v1",
+      "version": 3
+    },
+    {
+      "interface": "river_xkb_config_v1",
       "version": 2
     },
     {
@@ -27,8 +63,8 @@
       "version": 3
     },
     {
-      "interface": "wl_output",
-      "version": 4
+      "interface": "wl_fixes",
+      "version": 1
     },
     {
       "interface": "wl_output",
@@ -40,7 +76,7 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_subcompositor",
@@ -51,8 +87,12 @@
       "version": 1
     },
     {
-      "interface": "wp_cursor_shape_manager_v1",
+      "interface": "wp_color_representation_manager_v1",
       "version": 1
+    },
+    {
+      "interface": "wp_cursor_shape_manager_v1",
+      "version": 2
     },
     {
       "interface": "wp_fractional_scale_manager_v1",
@@ -89,14 +129,6 @@
     {
       "interface": "xdg_wm_base",
       "version": 5
-    },
-    {
-      "interface": "zriver_control_v1",
-      "version": 1
-    },
-    {
-      "interface": "zriver_status_manager_v1",
-      "version": 4
     },
     {
       "interface": "zwlr_data_control_manager_v1",
@@ -144,7 +176,7 @@
     },
     {
       "interface": "zwp_linux_dmabuf_v1",
-      "version": 4
+      "version": 5
     },
     {
       "interface": "zwp_pointer_constraints_v1",
@@ -176,6 +208,14 @@
     },
     {
       "interface": "zxdg_decoration_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_exporter_v2",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v2",
       "version": 1
     },
     {
