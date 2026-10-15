@@ -37,7 +37,7 @@
           "name": "get_session",
           "description": {
             "type": "description",
-            "text": "Create a session object corresponding to either an existing session\nidentified by the given session identifier string or a new session.\nWhile the session object exists, the session is considered to be \"in\nuse\".\n\nIf a identifier string represents a session that is currently actively\nin use by the the same client, an 'in_use' error is raised. If some\nother client is currently using the same session, the new session will\nreplace managing the associated state.\n\nNULL is passed to initiate a new session. If an id is passed which does\nnot represent a valid session, the compositor treats it as if NULL had\nbeen passed.\n\nA client is allowed to have any number of in use sessions at the same\ntime.",
+            "text": "Create a session object corresponding to either an existing session\nidentified by the given session identifier string or a new session.\nWhile the session object exists, the session is considered to be \"in\nuse\".\n\nIf a identifier string represents a session that is currently actively\nin use by the same client, an 'in_use' error is raised. If some\nother client is currently using the same session, the new session will\nreplace managing the associated state.\n\nNULL is passed to initiate a new session. If an id is passed which does\nnot represent a valid session, the compositor treats it as if NULL had\nbeen passed.\n\nA client is allowed to have any number of in use sessions at the same\ntime.",
             "summary": "create or restore a session"
           },
           "args": [

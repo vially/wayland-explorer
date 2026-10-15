@@ -313,6 +313,12 @@
               "name": "post_latch",
               "value": "1",
               "summary": "after output latch (filter type: wl_output)"
+            },
+            {
+              "type": "entry",
+              "name": "immediate",
+              "value": "2",
+              "summary": "immediately"
             }
           ]
         }

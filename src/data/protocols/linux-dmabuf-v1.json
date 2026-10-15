@@ -324,7 +324,7 @@
               "type": "arg",
               "name": "buffer",
               "argType": "new_id",
-              "summary": "id for the the newly created wl_buffer",
+              "summary": "id for the newly created wl_buffer",
               "interface": "wl_buffer",
               "protocol": "wayland"
             }

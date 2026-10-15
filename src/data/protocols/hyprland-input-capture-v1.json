@@ -14,7 +14,7 @@
     {
       "type": "interface",
       "name": "hyprland_input_capture_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "This interface allows to create an input capture session.",
@@ -50,7 +50,7 @@
     {
       "type": "interface",
       "name": "hyprland_input_capture_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "Interface that is used to create barrier, and trigger capture and release of the pointer.\nThe inputs are sent through an EIS socket, when the cursor hit a barrier.\nBarriers can only be placed on screen edges and need to be a straight line that cover one corner to another.",
@@ -158,6 +158,18 @@
               "summary": "the y position of the cursor"
             }
           ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Destroy the input capture session.\n\nAny barriers registered by this session are removed, input capturing is\nstopped, and the eis socket associated with this session is closed by the\ncompositor. The client must not use the object after this request.",
+            "summary": "destroy the session"
+          },
+          "args": []
         }
       ],
       "events": [

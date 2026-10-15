@@ -49,7 +49,7 @@
           "name": "get_xdg_surface",
           "description": {
             "type": "description",
-            "text": "This creates an xdg_surface for the given surface. An xdg_surface is\nused as basis to define a role to a given surface, such as xdg_toplevel\nor xdg_popup. It also manages functionality shared between xdg_surface\nbased surface roles.\n\nWhile xdg_surface itself is not a role, the corresponding surface may\nonly be assigned a role extending xdg_surface, such as xdg_toplevel or\nxdg_popup. It is illegal to create an xdg_surface for a wl_surface which\nalready has anassigned role and this will result in a role error.\n\nSee the documentation of xdg_surface for more details about what an\nxdg_surface is and how it is used.",
+            "text": "This creates an xdg_surface for the given surface. An xdg_surface is\nused as basis to define a role to a given surface, such as xdg_toplevel\nor xdg_popup. It also manages functionality shared between xdg_surface\nbased surface roles.\n\nWhile xdg_surface itself is not a role, the corresponding surface may\nonly be assigned a role extending xdg_surface, such as xdg_toplevel or\nxdg_popup. It is illegal to create an xdg_surface for a wl_surface which\nalready has an assigned role and this will result in a role error.\n\nSee the documentation of xdg_surface for more details about what an\nxdg_surface is and how it is used.",
             "summary": "create a shell surface from a surface"
           },
           "args": [

@@ -1,0 +1,132 @@
+{
+  "type": "protocol",
+  "name": "weston_fast_forward",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright (C) 2026 Amazon.com, Inc. or its affiliates\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "weston_fast_forward_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A Wayland compositor may have a queue of content updates for a\nwl_surface. Various protocol extensions may impose readiness\nconstraints on these updates, controlling when each update may\nbe applied: for example, FIFO ordering or target presentation\ntimestamps.\n\nThis protocol provides a way to \"fast forward\" through upcoming\nupdates in a mailbox fashion.",
+        "summary": "protocol to clear content update constraints"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the factory object, but does not affect objects it has\ncreated.",
+            "summary": "destroy factory object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_fast_forward",
+          "description": {
+            "type": "description",
+            "text": "Create a fast_forward object that may be used to ignore content\nupdates on a specified surface.\n\nOnly one such object may exist for a surface and attempting to\ncreate more than one will result in an already_exists protocol\nerror. If a surface is acted on by multiple software components,\ngeneral best practice is that only the component performing\nwl_surface.attach operations should use this protocol.",
+            "summary": "request fast forward interface for surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "weston_fast_forward_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These fatal protocol errors may be emitted in response to illegal\nrequests.",
+            "summary": "fatal protocol error"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_exists",
+              "value": "0",
+              "summary": "fast forward object already exists for this surface"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "weston_fast_forward_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A fast_forward object to ignore content update constraints.",
+        "summary": "fast_forward interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Informs the server that the client will no longer be using this\nprotocol object.\n\nSurface state changes previously made by this protocol are\nunaffected by this object's destruction.",
+            "summary": "destroy the fast_forward object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "fast_forward",
+          "description": {
+            "type": "description",
+            "text": "Upon wl_surface.commit of a content update containing a fast forward\nrequest, the compositor must immediately ignore all previously\ncommitted constraints on that surface.\n\nThe content update containing the fast forward request also has\nits constraints ignored. Normal constraint handling resumes for\nsubsequent commits.\n\nsurface_destroyed error will be emitted if associated surface no\nlonger exists.\n\n\"fast_forward\" is double-buffered state, see wl_surface.commit.",
+            "summary": "fast forwards through upcoming constraints"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "These fatal protocol errors may be emitted in response to illegal\nrequests.",
+            "summary": "fatal error"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "surface_destroyed",
+              "value": "0",
+              "summary": "the associated surface no longer exists"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

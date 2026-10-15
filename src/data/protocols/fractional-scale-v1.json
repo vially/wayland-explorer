@@ -37,7 +37,7 @@
           "name": "get_fractional_scale",
           "description": {
             "type": "description",
-            "text": "Create an add-on object for the the wl_surface to let the compositor\nrequest fractional scales. If the given wl_surface already has a\nwp_fractional_scale_v1 object associated, the fractional_scale_exists\nprotocol error is raised.",
+            "text": "Create an add-on object for the wl_surface to let the compositor\nrequest fractional scales. If the given wl_surface already has a\nwp_fractional_scale_v1 object associated, the fractional_scale_exists\nprotocol error is raised.",
             "summary": "extend surface interface for scale information"
           },
           "args": [

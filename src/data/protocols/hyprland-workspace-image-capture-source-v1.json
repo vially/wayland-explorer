@@ -1,0 +1,120 @@
+{
+  "type": "protocol",
+  "name": "hyprland_workspace_image_capture_source_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2026 Vaxry\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\nlist of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\nthis list of conditions and the following disclaimer in the documentation\nand/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol is a Hyprland extension for capturing workspace contents.",
+    "summary": "image capture sources for workspaces"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "hyprland_workspace_image_capture_source_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This manager can create ICC capture sources from ext-workspace handles.",
+        "summary": "image capture source manager for workspaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "create_source",
+          "description": {
+            "type": "description",
+            "text": "Create an ICC capture source from a given workspace handle.\n\nThis source does not own the workspace handle. If the workspace is\nremoved, further attempts to share this source's contents will produce\na transparent, empty image.",
+            "summary": "create an image capture source for a workspace"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "new_id",
+              "summary": "new workspace image capture source",
+              "interface": "ext_image_capture_source_v1",
+              "protocol": "ext-image-capture-source-v1"
+            },
+            {
+              "type": "arg",
+              "name": "workspace",
+              "argType": "object",
+              "summary": "workspace to capture",
+              "interface": "ext_workspace_handle_v1",
+              "protocol": "ext-workspace-v1"
+            },
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "content to include in the source image",
+              "enum": "capture_mode"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this manager. Sources and capture sessions created through\nthis manager remain valid after its destruction.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "capture_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "This enum describes the allowed capture modes.",
+            "summary": "content included in the source image"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "windows_only",
+              "value": "0",
+              "description": {
+                "type": "description",
+                "text": "Include only the selected workspace's windows and their associated\nsurfaces and decorations. The background will be transparent.",
+                "summary": "workspace windows only"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "everything",
+              "value": "1",
+              "description": {
+                "type": "description",
+                "text": "Include the selected workspace's windows together with wallpaper,\npanels, pinned windows, and other output-global surfaces, including\nlayer-shell surfaces, associated with its output.",
+                "summary": "workspace windows and output-global desktop elements"
+              }
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_mode",
+              "value": "0",
+              "summary": "unknown capture mode"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

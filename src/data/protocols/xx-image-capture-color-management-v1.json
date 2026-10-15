@@ -1,0 +1,177 @@
+{
+  "type": "protocol",
+  "name": "xx_image_capture_color_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2025-2026 Julian Orth\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol provides extensions to the ext-image-capture-source-v1 and\next-image-copy-capture-v1 protocols to allow clients to capture frames in\ncolor spaces other than srgb/gamma22.\n\nWarning! The protocol described in this file is currently in the\nexperimental phase. Backwards incompatible major versions of the\nprotocol are to be expected. Exposing this protocol without an opt-in\nmechanism is discouraged.",
+    "summary": "image-copy-capture extension to support color management"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xx_image_capture_color_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global allows clients to retrieve information about the preferred\nimage description of a capture source and to define the image description\nof a capture frame.",
+        "summary": "global to add color-management support for image captures"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the object. This request can be sent at any time by the\nclient.",
+            "summary": "destroy this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_capture_source_colors",
+          "description": {
+            "type": "description",
+            "text": "This creates a new xx_image_capture_source_colors_v1 for a given\next_image_capture_source_v1.\n\nSee xx_image_capture_source_colors_v1 for more details.",
+            "summary": "create a color management interface for an ext_image_capture_source_v1"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "colors",
+              "argType": "new_id",
+              "interface": "xx_image_capture_source_colors_v1"
+            },
+            {
+              "type": "arg",
+              "name": "source",
+              "argType": "object",
+              "interface": "ext_image_capture_source_v1",
+              "protocol": "ext-image-capture-source-v1"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_frame_image_description",
+          "description": {
+            "type": "description",
+            "text": "If the frame is successfully captured, it will be encoded according to\nthis image description.\n\nThis request must not be used if the image description is not ready.\nOtherwise the image_description_not_ready error is emitted.\n\nThis request must not be used if the frame has already been captured.\nOtherwise the already_captured error is emitted.",
+            "summary": "set the image description of a frame"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame",
+              "argType": "object",
+              "interface": "ext_image_copy_capture_frame_v1",
+              "protocol": "ext-image-copy-capture-v1"
+            },
+            {
+              "type": "arg",
+              "name": "image_description",
+              "argType": "object",
+              "interface": "wp_image_description_v1",
+              "protocol": "color-management-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "image_description_not_ready",
+              "value": "1",
+              "summary": "the image description is not ready"
+            },
+            {
+              "type": "entry",
+              "name": "already_captured",
+              "value": "2",
+              "summary": "capture request has been sent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_image_capture_source_colors_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object describes the color properties of a capture source.\n\nThe xx_image_capture_source_colors_v1 is associated with the compositor\nobject backing the source. Therefore the client destroying the\next_image_capture_source_v1 object has no impact. The object becomes inert\nwhen the compositor object backing the source is destroyed. How the client\ncan detect this depends on the source.",
+        "summary": "capture source color properties"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys this object.",
+            "summary": "destroys this object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_preferred",
+          "description": {
+            "type": "description",
+            "text": "The preferred image description represents the compositor's preferred\ncolor encoding for this capture source at the current time. There might\nbe performance and power advantages, as well as improved color\nreproduction, if the image description of a capture frame matches the\npreferred image description.\n\nThis creates a new wp_image_description_reference_v1 object for the\ncurrently preferred image description for the capture source. The client\nshould stop using and destroy the image descriptions created by earlier\ninvocations of this request for the associated capture source. This\nrequest is usually sent as a reaction to the\nxx_image_capture_source_colors_v1.preferred_changed event or when\ncreating a xx_image_capture_source_colors_v1 object if the client is\ncapable of adapting to image descriptions.\n\nThe created wp_image_description_reference_v1 object preserves the\npreferred image description of the capture source from the time the\nobject was created.\n\nThe resulting image description object allows the\nwp_image_description_v1.get_information request.",
+            "summary": "retrieve the preferred description"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the preferred description",
+              "interface": "wp_image_description_reference_v1",
+              "protocol": "color-management-v1"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "preferred_changed",
+          "description": {
+            "type": "description",
+            "text": "The preferred image description is the one which likely has the most\nperformance and/or quality benefits for the compositor if used by the\nclient for its capture frames. This event is sent whenever\nthe compositor changes the capture source's preferred image description.\n\nThis event sends the identity of the new preferred state as the\nargument, so clients who are aware of the image description already can\nreuse it. Otherwise, if the client wants to know what the preferred\nimage description is, it shall use the\nxx_image_capture_source_colors_v1.get_preferred request.\n\nThe preferred image description is not automatically used for anything.\nIt is only a hint, and clients may set any valid image description with\nxx_image_capture_color_manager_v1.set_frame_image_description, but there\nmight be performance and color accuracy improvements by providing the\ncapture frame's contents in the preferred image description. Therefore\nclients that can, should capture frames in the preferred image\ndescription.",
+            "summary": "the preferred image description changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identity_hi",
+              "argType": "uint",
+              "summary": "image description id number (high 32 bits)"
+            },
+            {
+              "type": "arg",
+              "name": "identity_lo",
+              "argType": "uint",
+              "summary": "image description id number (low 32 bits)"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

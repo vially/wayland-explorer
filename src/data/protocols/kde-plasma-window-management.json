@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "org_kde_plasma_window_management",
-      "version": "21",
+      "version": "22",
       "description": {
         "type": "description",
         "text": "This interface manages application windows.\nIt provides requests to show and hide the desktop and emits\nan event every time a window is created so that the client can\nuse it to manage the window.\n\nOnly one client can bind this interface at a time.\n\nThis global must be bound with a version at least 17.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -325,6 +325,12 @@
               "name": "exclude_from_capture",
               "value": "0x200000",
               "since": "20"
+            },
+            {
+              "type": "entry",
+              "name": "movable_across_screens",
+              "value": "0x400000",
+              "since": "22"
             }
           ]
         },

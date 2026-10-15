@@ -295,6 +295,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/xx-keyboard-filter-v1.json'),
     },
     {
+        id: 'xx-hotkey-v1',
+        name: 'Hotkey',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Experimental,
+        protocol: require('./protocols/xx-hotkey-v1.json'),
+    },
+    {
+        id: 'xx-image-capture-color-management-v1',
+        name: 'Image capture color management',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Experimental,
+        protocol: require('./protocols/xx-image-capture-color-management-v1.json'),
+    },
+    {
         id: 'xx-text-input-v3',
         name: 'Text input',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -741,6 +755,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/hyprland-toplevel-mapping-v1.json'),
     },
     {
+        id: 'hyprland-workspace-image-capture-source-v1',
+        name: 'Hyprland workspace image capture source',
+        source: WaylandProtocolSource.HyprlandProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/hyprland-workspace-image-capture-source-v1.json'),
+    },
+    {
         id: 'cosmic-a11y-unstable-v1',
         name: 'COSMIC a11y',
         source: WaylandProtocolSource.CosmicProtocols,
@@ -781,6 +802,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-overlap-notify-unstable-v1.json'),
+    },
+    {
+        id: 'cosmic-session-lock-layer-v1',
+        name: 'COSMIC session lock layer',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-session-lock-layer-v1.json'),
     },
     {
         id: 'cosmic-screencopy-unstable-v1',
@@ -872,6 +900,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WestonProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/weston-direct-display.json'),
+    },
+    {
+        id: 'weston-fast-forward',
+        name: 'Weston fast forward',
+        source: WaylandProtocolSource.WestonProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/weston-fast-forward.json'),
     },
     {
         id: 'weston-output-capture',
@@ -1012,6 +1047,20 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.RiverProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/river-status-unstable-v1.json'),
+    },
+    {
+        id: 'river-touch-gestures-v1',
+        name: 'River touch gestures',
+        source: WaylandProtocolSource.RiverProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/river-touch-gestures-v1.json'),
+    },
+    {
+        id: 'river-virtual-keyboard-v1',
+        name: 'River virtual keyboard',
+        source: WaylandProtocolSource.RiverProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/river-virtual-keyboard-v1.json'),
     },
     {
         id: 'river-window-management-v1',

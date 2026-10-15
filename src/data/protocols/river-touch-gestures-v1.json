@@ -1,0 +1,463 @@
+{
+  "type": "protocol",
+  "name": "river_touch_gestures_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "SPDX-FileCopyrightText: © 2026 Isaac Freund\nSPDX-License-Identifier: MIT\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to\ndeal in the Software without restriction, including without limitation the\nrights to use, copy, modify, merge, publish, distribute, sublicense, and/or\nsell copies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows the river-window-management-v1 window manager to\ndefine touchscreen gestures and the conditions under which they should be\ntriggered. It also provides continuous updates on e.g. motion and pinch\nscale while a gesture is in progress.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
+    "summary": "define touchscreen gestures"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "river_touch_gestures_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This global interface should only be advertised to the client if the\nriver_window_manager_v1 global is also advertised.",
+        "summary": "touch gestures global interface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the\nriver_touch_gestures_v1 object.",
+            "summary": "destroy the river_touch_gestures_v1 object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_seat",
+          "description": {
+            "type": "description",
+            "text": "Create an object to manage seat-specific touch gestures state.\n\nIt is a protocol error to make this request more than once for a given\nriver_seat_v1 object.",
+            "summary": "get the seat extension object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_touch_gestures_seat_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "river_seat_v1",
+              "protocol": "river-window-management-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "object_already_created",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_touch_gestures_seat_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This object manages touch gesture state associated with a specific seat.",
+        "summary": "touch gestures seat"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the gestures\nseat object and that it may be safely destroyed.",
+            "summary": "destroy the gestures seat object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_arbitration_timeout",
+          "description": {
+            "type": "description",
+            "text": "The arbitration timeout defines the maximum time after the first touch\ndown event the compositor should wait before deciding that the touch\nsequence is not a gesture and instead routing the touch input to the\nrespective clients through the wl_touch interface.\n\nThis timeout should be short enough that it subjectively does not\nnegatively impact the responsiveness. The default if this request is\nnever made for the river_touch_gestures_seat_v1 is 100 milliseconds.\n\nSetting the timeout to 0 milliseconds effectively disables all gestures\nwith e.g. a finger count greater than 1 or with a non-zero motion\nthreshold. However, a gesture with finger count 1 and edge trigger area\ndefined with the river_touch_gesture_v1.set_edge request could still be\ntriggered even with a 0 millisecond arbitration timeout.\n\nThis request may be made at any time but will only take effect on the\nnext touch sequence to be started.",
+            "summary": "define a new gesture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "msec",
+              "argType": "uint",
+              "summary": "arbitration timeout in milliseconds"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_gesture",
+          "description": {
+            "type": "description",
+            "text": "Define a new touch gesture.\n\nThe finger_count argument defines the number of simultaneous touch\npoints necessary to trigger the gesture. The finger_count must be\ngreater than 0.\n\nThe maximum finger count supported is limited by touchscreen hardware.\nIf the requested finger count is greater than the maximum supported,\nthe gesture will never be triggered.\n\nThe new gesture is not enabled until the river_touch_gesture_v1.enable\nrequest is made during a manage sequence.",
+            "summary": "define a new gesture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "river_touch_gesture_v1"
+            },
+            {
+              "type": "arg",
+              "name": "finger_count",
+              "argType": "uint",
+              "summary": "number of touch points"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_finger_count",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "river_touch_gesture_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Define the requirements for a gesture to be triggered and receive\ninformation on e.g. motion and pinch scale when triggered.",
+        "summary": "define a touch gesture, receive trigger events"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client will no longer use the object and\nthat it may be safely destroyed.",
+            "summary": "destroy the touch gesture object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "enable",
+          "description": {
+            "type": "description",
+            "text": "This request should be made after all initial configuration has been\ncompleted and the window manager wishes the gesture to be able to be\ntriggered.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "enable the gesture"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "disable",
+          "description": {
+            "type": "description",
+            "text": "This request may be used to temporarily disable the gesture. It may\nbe later re-enabled with the enable request.\n\nThis request does not affect an in progress gesture that has already\nbeen started. It will prevent the gesture from being triggered again.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "disable the gesture"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_threshold_motion",
+          "description": {
+            "type": "description",
+            "text": "Set the minimum centroid motion required to trigger the gesture.\n\nDistance is measured between the current centroid and the centroid of\nthe touch down events.\n\nIf this request is never made, the threshold is considered to be 0.\n\nThe threshold argument must be greater than or equal to 0.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "set centroid motion threshold to trigger"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "min_distance",
+              "argType": "int",
+              "summary": "minimum distance to trigger"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_direction",
+          "description": {
+            "type": "description",
+            "text": "Set the direction and minimum centroid motion distance required to\ntrigger the gesture.\n\nIf direction is none, there is no directional motion required to trigger\nthe gesture and the min_distance argument is ignored.\n\nIf this request is never made, the direction is considered to be none.\n\nThe min_distance argument must be greater than or equal to 0.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "set centroid motion direction to trigger"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint",
+              "summary": "motion direction",
+              "enum": "direction"
+            },
+            {
+              "type": "arg",
+              "name": "min_distance",
+              "argType": "int",
+              "summary": "minimum distance to trigger"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_threshold_scale",
+          "description": {
+            "type": "description",
+            "text": "Set the pinch scale threshold required to trigger the gesture.\n\nIf threshold_scale is less than 1.0 then the scale must be less than\nthreshold_scale for the gesture to be triggered. If threshold_scale is\ngreater than 1.0 then the scale must be greater than threshold_scale for\nthe gesture to be triggered.\n\nIf this request is never made, threshold_scale is considered to be 1.0.\n\nThis request is ignored if the gesture's finger_count is less than 2.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "set pinch scale threshold to trigger"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "in",
+              "argType": "fixed",
+              "summary": "inward pinch scale threshold"
+            },
+            {
+              "type": "arg",
+              "name": "out",
+              "argType": "fixed",
+              "summary": "outward pinch scale threshold"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_edge",
+          "description": {
+            "type": "description",
+            "text": "Set the touchscreen edge from which the gesture must start and the\nmaximum allowed distance from that edge.\n\nIf edge is none, then there is no required edge to start from and the\nmax_distance argument is ignored.\n\nIf this request is never made, the edge is considered to be none.\n\nThe max_distance argument must be greater than or equal to 0.\n\nThis request modifies window management state and may only be made as\npart of a manage sequence, see the river_window_manager_v1 description.",
+            "summary": "set edge from which the gesture must start"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "edge",
+              "argType": "uint",
+              "summary": "edge to start from",
+              "enum": "edge"
+            },
+            {
+              "type": "arg",
+              "name": "max_distance",
+              "argType": "int",
+              "summary": "max distance from edge"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "start",
+          "description": {
+            "type": "description",
+            "text": "This event is sent when the required finger_count number of touch points\nare active and all threshold requirements are met. After this event is\nsent, no other gesture will be triggered until all touch points are\nreleased and the river_touch_gesture_v1.end event is sent.\n\nIf the threshold requirements for multiple river_touch_gesture_v1\nobjects are met at the same time, it is compositor policy which gesture\nis triggered.\n\nThe wl_touch.cancel event is sent to all surfaces with touch focus, all\ntouch input is eaten till end of gesture.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "gesture started"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "end",
+          "description": {
+            "type": "description",
+            "text": "All touch points have been released and the gesture is ended.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "gesture ended"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "cancel",
+          "description": {
+            "type": "description",
+            "text": "The gesture is canceled, for example because the hardware palm detection\ndecided that the touch input should have been ignored.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "gesture canceled"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "finger_count",
+          "description": {
+            "type": "description",
+            "text": "The number of active touch points changed since the gesture was started.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "number of touch points changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "finger_count",
+              "argType": "uint",
+              "summary": "number of touch points"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "delta_motion",
+          "description": {
+            "type": "description",
+            "text": "The total change in centroid position since gesture start.\n\nThe centroid is defined as the mean position of all touch points.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "total change in centroid position"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "int",
+              "summary": "centroid change in x"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "int",
+              "summary": "centroid change in y"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "scale",
+          "description": {
+            "type": "description",
+            "text": "The pinch distance is defined as the diagonal of the bounding box of all\ntouch points. The pinch scale is defined as the ratio of the current\npinch distance to the distance at gesture start.\n\nThus, the scale is initially 1.0. If the touch points are moved closer\ntogether, the scale decreases and if the touch points are moved further\napart it increases.\n\nThis event is only sent if there are 2 or more touch points.\n\nThis event will be followed by a manage_start event after all other new\nstate has been sent by the server.",
+            "summary": "current pinch scale"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scale",
+              "argType": "fixed",
+              "summary": "current scale"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_distance",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_direction",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_edge",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "direction",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "up",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "down",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "edge",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0"
+            },
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

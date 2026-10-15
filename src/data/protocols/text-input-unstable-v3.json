@@ -83,7 +83,7 @@
           "name": "set_text_change_cause",
           "description": {
             "type": "description",
-            "text": "Tells the compositor why the text surrounding the cursor changed.\n\nWhenever the client detects an external change in text, cursor, or\nanchor posision, it must issue this request to the compositor. This\nrequest is intended to give the input method a chance to update the\npreedit text in an appropriate way, e.g. by removing it when the user\nstarts typing with a keyboard.\n\ncause describes the source of the change.\n\nThe value set with this request is double-buffered. It must be applied\nand reset to initial at the next zwp_text_input_v3.commit request.\n\nThe initial value of cause is input_method.",
+            "text": "Tells the compositor why the text surrounding the cursor changed.\n\nWhenever the client detects an external change in text, cursor, or\nanchor position, it must issue this request to the compositor. This\nrequest is intended to give the input method a chance to update the\npreedit text in an appropriate way, e.g. by removing it when the user\nstarts typing with a keyboard.\n\ncause describes the source of the change.\n\nThe value set with this request is double-buffered. It must be applied\nand reset to initial at the next zwp_text_input_v3.commit request.\n\nThe initial value of cause is input_method.",
             "summary": "indicates the cause of surrounding text change"
           },
           "args": [
@@ -402,7 +402,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "Reason for the change of surrounding text or cursor posision.",
+            "text": "Reason for the change of surrounding text or cursor position.",
             "summary": "text change reason"
           },
           "entries": [

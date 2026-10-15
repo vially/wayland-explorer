@@ -3352,7 +3352,7 @@
           "name": "leave",
           "description": {
             "type": "description",
-            "text": "Notification that this seat's pointer is no longer focused on\na certain surface.\n\nThe leave notification is sent before the enter notification\nfor the new focus.",
+            "text": "Notification that this seat's pointer is no longer focused on\na certain surface.\nUnless there is an enter event on another surface in the same frame,\nthe client should assume the button state is reset, in other words\nthat no buttons are pressed.\nNote that this is different from the buttons being released, the\nclient should avoid triggering actions in response to this.\n\nThe leave notification is sent before the enter notification\nfor the new focus.",
             "summary": "leave event"
           },
           "args": [

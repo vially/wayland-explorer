@@ -83,7 +83,7 @@
           "name": "set_text_change_cause",
           "description": {
             "type": "description",
-            "text": "Tells the compositor why the text surrounding the cursor changed.\n\nWhenever the client detects an external change in text, cursor, or\nanchor posision, it must issue this request to the compositor. This\nrequest is intended to give the input method a chance to update the\npreedit text in an appropriate way, e.g. by removing it when the user\nstarts typing with a keyboard.\n\ncause describes the source of the change.\n\nThe value set with this request is double-buffered. It must be applied\nand reset to initial at the next xx_text_input_v3.commit request.\n\nThe initial value of cause is input_method.",
+            "text": "Tells the compositor why the text surrounding the cursor changed.\n\nWhenever the client detects an external change in text, cursor, or\nanchor position, it must issue this request to the compositor. This\nrequest is intended to give the input method a chance to update the\npreedit text in an appropriate way, e.g. by removing it when the user\nstarts typing with a keyboard.\n\ncause describes the source of the change.\n\nThe value set with this request is double-buffered. It must be applied\nand reset to initial at the next xx_text_input_v3.commit request.\n\nThe initial value of cause is input_method.",
             "summary": "indicates the cause of surrounding text change"
           },
           "args": [
@@ -306,7 +306,7 @@
           "since": "2",
           "description": {
             "type": "description",
-            "text": "Unselects text, moves the cursor and selects text.\n\nThis is equivalent to dragging the mouse over some text: it deselects whatever might be currently selected and selects a new range of text.\n\nThe offsets used in arguments are in bytes relative to the current cursor position. Cursor is the new position of the cursor, and anchor is the opposite end of selection. If there's no selection, anchor should be equal to cursor.\nIn terms of dragging the mouse, the anchor is the start, and cursor the end.\n\nThe offsets do not take preedit contents into account, nor is preedit changed in any way with this request.\n\nBoth cursor and anchor must fall on code point boundaries, otherwise text input client may ignore the request. It is therefore not recommended for an input method to move any of them beyond the text received in surrounding_text.\n\n\nWhen surrounding_text is not supported, the offsets must not be interpreted as bytes, but as some human-readable unit at least as big as a code point, for example a grapheme.\n\nThe cursor and anchor arguments can also take the following special values:\nBEGINNING := 0x8000_0000 = i32::MIN\nEND := 0x7fff_ffff = i32::MAX\nmeaning, respectively, the beginning and the end of of all text in the input field.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next commit request.\n\nThe initial values of both cursor and anchor are 0.",
+            "text": "Unselects text, moves the cursor and selects text.\n\nThis is equivalent to dragging the mouse over some text: it deselects whatever might be currently selected and selects a new range of text.\n\nThe offsets used in arguments are in bytes relative to the current cursor position. Cursor is the new position of the cursor, and anchor is the opposite end of selection. If there's no selection, anchor should be equal to cursor.\nIn terms of dragging the mouse, the anchor is the start, and cursor the end.\n\nThe offsets do not take preedit contents into account, nor is preedit changed in any way with this request.\n\nBoth cursor and anchor must fall on code point boundaries, otherwise text input client may ignore the request. It is therefore not recommended for an input method to move any of them beyond the text received in surrounding_text.\n\n\nWhen surrounding_text is not supported, the offsets must not be interpreted as bytes, but as some human-readable unit at least as big as a code point, for example a grapheme.\n\nThe cursor and anchor arguments can also take the following special values:\nBEGINNING := 0x8000_0000 = i32::MIN\nEND := 0x7fff_ffff = i32::MAX\nmeaning, respectively, the beginning and the end of all text in the input field.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next commit request.\n\nThe initial values of both cursor and anchor are 0.",
             "summary": "move cursor and change selection"
           },
           "args": [
@@ -365,7 +365,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
-            "text": "Reason for the change of surrounding text or cursor posision.",
+            "text": "Reason for the change of surrounding text or cursor position.",
             "summary": "text change reason"
           },
           "entries": [

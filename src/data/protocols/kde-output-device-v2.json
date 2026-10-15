@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_registry_v2",
-      "version": "25",
+      "version": "26",
       "description": {
         "type": "description",
         "text": "This interface can be used to list output devices.\n\nIf this global is bound with a version less than 21, the unsupported_version\nprotocol error will be posted.",
@@ -84,7 +84,7 @@
     {
       "type": "interface",
       "name": "kde_output_device_v2",
-      "version": "25",
+      "version": "26",
       "description": {
         "type": "description",
         "text": "An output device describes a display device available to the compositor.\noutput_device is similar to wl_output, but focuses on output\nconfiguration management.\n\nA client can query all global output_device objects to enlist all\navailable display devices, even those that may currently not be\nrepresented by the compositor as a wl_output.\n\nThe client sends configuration changes to the server through the\noutputconfiguration interface, and the server applies the configuration\nchanges to the hardware and signals changes to the output devices\naccordingly.\n\nThis object is published as global during start up for every available\ndisplay devices, or when one later becomes available, for example by\nbeing hotplugged via a physical connector.\n\nWarning! The protocol described in this file is a desktop environment\nimplementation detail. Regular clients must not use this protocol.\nBackward incompatible changes may be added without bumping the major\nversion of the extension.",
@@ -1241,13 +1241,26 @@
     {
       "type": "interface",
       "name": "kde_output_device_mode_v2",
-      "version": "25",
+      "version": "26",
       "description": {
         "type": "description",
         "text": "This object describes an output mode.\n\nSome heads don't support output modes, in which case modes won't be\nadvertised.\n\nProperties sent via this interface are applied atomically via the\nkde_output_device.done event. No guarantees are made regarding the order\nin which properties are sent.",
         "summary": "output mode"
       },
-      "requests": [],
+      "requests": [
+        {
+          "type": "request",
+          "name": "release",
+          "requestType": "destructor",
+          "since": "26",
+          "description": {
+            "type": "description",
+            "text": "Notifies the compositor that this mode will not be used anymore.",
+            "summary": "destroy mode"
+          },
+          "args": []
+        }
+      ],
       "events": [
         {
           "type": "event",
@@ -1304,7 +1317,7 @@
           "name": "removed",
           "description": {
             "type": "description",
-            "text": "The compositor will destroy the object immediately after sending this\nevent, so it will become invalid and the client should release any\nresources associated with it.",
+            "text": "The compositor will destroy the object immediately after sending this\nevent, so it will become invalid and the client should release any\nresources associated with it.\n\nThe client should call the kde_output_device_mode_v2.release request\nafter receiving this event.",
             "summary": "the mode has been destroyed"
           },
           "args": []

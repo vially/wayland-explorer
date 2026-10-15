@@ -1,0 +1,397 @@
+{
+  "type": "protocol",
+  "name": "xx_hotkey_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2026 Aurelien Brabant\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol lets a client bind, and freely reconfigure, its own global\nhotkeys: it describes a trigger and the compositor accepts it or rejects it\nwith a reason. A hotkey fires regardless of which surface holds keyboard\nfocus. The compositor remains the arbiter and may deny a commit or revoke a\nbinding at any time, but the client chooses the trigger.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.\n\nA bound hotkey always has exactly the trigger the client committed; the\ncompositor never substitutes one of its own.\n\nA binding lives only as long as its xx_hotkey_v1 object and the client\nconnection; nothing is persisted by the protocol.\n\nWhether a trigger is exclusive is compositor policy. A compositor may treat\ntriggers as exclusive and reject a clashing commit with \"already_bound\", or\nmay grant the same trigger to several bindings, in which case each bound\nhotkey receives the events. Clients must cope with either.\n\nSecurity considerations:\n\nA global hotkey lets an unfocused client observe that a specific trigger\nfired. Compositors are the security boundary and should apply policy when\ndeciding whether to accept a commit. As a default, we suggest the following\npseudo-code. This is not a wire requirement: every compositor is free to apply\na different policy and can expose settings to allow the user to configure it.\n\nfn acceptable(trigger) {\nif trigger.modifiers contains any of {ctrl, alt, super}:\nreturn true   # modified triggers are always acceptable\nmatch trigger:\nbutton(code):\nreturn code is an auxiliary button\n# side, extra, forward, back, task\nkey(keysym):\nif keysym is a modifier keysym:\nreturn true   # a lone modifier, see set_key_trigger\nif keysym is a keypad key:\nreturn true   # commonly a dedicated macro cluster\nif keysym is a dead key:\nreturn false  # no character mapping, but composes text\nif keysym has a character mapping:\nreturn false  # letters, digits, punctuation, space, Enter, Tab, ...\nreturn true     # purely functional: function, media, navigation keys\n}\n\nThe protocol's one hard guarantee is containment: a compositor must not\ndeliver events for a trigger the client did not successfully bind, and never\nforwards the raw input stream.\n\nWarning! The protocol described in this file is currently in the\nexperimental phase. Backwards incompatible major versions of the protocol\nare to be expected. Exposing this protocol without an opt-in mechanism is\ndiscouraged.",
+    "summary": "client-managed global hotkeys"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "xx_hotkey_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Identifies the application and creates global hotkeys.",
+        "summary": "global hotkey factory"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object. Hotkey objects created through this manager\nare unaffected and remain valid.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_app_id",
+          "description": {
+            "type": "description",
+            "text": "Identify the application, for use in compositor policy and user-facing\naudit interfaces. It applies to every hotkey created by this manager.\n\nOptional; if sent, it must not be empty, must be sent at most once, and\nmust be sent before the first commit, so that every policy decision\nsees the same identity.\n\nWhere the application has a desktop entry, app_id should be its desktop\nfile ID as defined by the freedesktop.org Desktop Entry specification,\nmatching the convention used by xdg_toplevel.set_app_id.\n\nIt is advisory and may be spoofed; a compositor that needs a trustworthy\nidentity should obtain it through the security-context mechanism.",
+            "summary": "set the application identifier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "summary": "advisory application identifier (should be the desktop file ID)"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_hotkey",
+          "description": {
+            "type": "description",
+            "text": "Create a new hotkey object. No binding exists and no input events are\nsent before the first successful commit.",
+            "summary": "create a hotkey"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new hotkey object",
+              "interface": "xx_hotkey_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Fatal protocol errors.",
+            "summary": "illegal request sequences"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_app_id",
+              "value": "0",
+              "summary": "the app id was empty, set more than once, or set after a hotkey was committed"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "modifiers",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "A bitmask of the modifiers that must be held for the trigger to fire.\nThe match is exact: a trigger does not fire while a modifier outside\nits mask is held, so Super+Space does not fire on Super+Shift+Space.\nBits outside this enum raise the \"invalid_trigger\" error.\n\nThese are fixed, keymap-independent semantic bits. A compositor matches\neach bit against the corresponding modifier in its keyboard state as the\nkeymap defines it; for the xkb_v1 keymap format that is shift ->\nXKB_MOD_NAME_SHIFT, ctrl -> XKB_MOD_NAME_CTRL, alt -> XKB_MOD_NAME_ALT\n(\"Mod1\"), super -> XKB_MOD_NAME_LOGO (\"Mod4\").\n\nA client needs neither a wl_keyboard nor a keymap to describe a trigger.\n\nLock modifiers (Caps Lock, Num Lock, Scroll Lock) are never part of a\nbinding and are ignored when matching.",
+            "summary": "modifier keys required by a trigger"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "shift",
+              "value": "1",
+              "summary": "the Shift modifier"
+            },
+            {
+              "type": "entry",
+              "name": "ctrl",
+              "value": "2",
+              "summary": "the Control modifier"
+            },
+            {
+              "type": "entry",
+              "name": "alt",
+              "value": "4",
+              "summary": "the Alt modifier"
+            },
+            {
+              "type": "entry",
+              "name": "super",
+              "value": "8",
+              "summary": "the Super/Logo modifier"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "xx_hotkey_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents one global hotkey. The object is built up with set_* requests\nand applied with commit; a trigger is required, everything else is\noptional. Requests have no effect on the binding until commit is sent.\n\nExactly one \"bound\" or \"denied\" event is sent per commit, in the order the\ncommits were issued. While the hotkey is bound, \"triggered\" and \"released\"\nare sent as the trigger is activated. The compositor may send \"revoked\" at\nany time to withdraw the binding.",
+        "summary": "a single global hotkey"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Release the binding and destroy the object.\nDestroying the object with a commit still in flight cancels it.",
+            "summary": "release the hotkey"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_description",
+          "description": {
+            "type": "description",
+            "text": "Set a human-readable, localized description of what the hotkey does\n(e.g. \"Toggle the launcher\"), for display in compositor user interface.\nOptional.",
+            "summary": "set the human-readable description"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "localized action description"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_seat",
+          "description": {
+            "type": "description",
+            "text": "Restrict the hotkey to the given seat, or pass null for all of the\nclient's seats, virtual ones included. Optional; the default is null.\nIf the given seat is removed, the compositor sends \"revoked\".",
+            "summary": "restrict the hotkey to one seat"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "target seat, or null for all of the client's seats",
+              "interface": "wl_seat",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_key_trigger",
+          "description": {
+            "type": "description",
+            "text": "Describe the trigger as a key pressed while the given modifiers are\nheld. Replaces any trigger previously described. Takes effect on the\nnext commit.\n\nThe keysym uses the numbering shared with the keymap delivered over\nwl_keyboard (for the xkb_v1 keymap format, an XKB_KEY_* value), in its\nunshifted form (XKB_KEY_b, not XKB_KEY_B). The compositor matches it\nagainst the keysym each key produces at its first shift level in any of\nthe user's layout groups, ignoring the effect Shift has on the key, so\nthat Shift is handled through the modifier mask like every other\nmodifier and a binding keeps firing after a layout group switch. A\nbinding whose keysym no group of the current keymap produces stays\nbound and simply does not fire until the keymap changes again.\n\nThe trigger fires on key press; the compositor does not wait to see\nwhether another key follows. The press and the matching release are\nconsumed and must not be delivered to the focused surface.\n\nThe keysym may be one that contributes to modifier state, such as\nXKB_KEY_Super_L; whether it does is decided by the seat's keymap. Such a\ntrigger is a tap: it fires when the key is released, and only if no\nother key, button or axis event occurred while it was held. A\ncompositor may additionally require that it was held no longer than\nsome interval. The modifier mask is evaluated as the state before the\nkey was pressed, so a lone left Super key is (XKB_KEY_Super_L, 0) and\n(XKB_KEY_Shift_L, ctrl) is a tap on Shift while Control is held.\n\nA tap is never consumed: the key must still update modifier state and\nreach the focused surface, so binding it does not stop it composing\nother shortcuts. \"triggered\" and \"released\" are sent together on\nrelease, so a tap cannot drive press-and-hold.\n\nA null keysym raises the \"invalid_trigger\" error.",
+            "summary": "trigger on a key"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "keysym",
+              "argType": "uint",
+              "summary": "keysym of the trigger key"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "summary": "bitmask of required modifiers",
+              "enum": "xx_hotkey_manager_v1.modifiers"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_button_trigger",
+          "description": {
+            "type": "description",
+            "text": "Describe the trigger as a pointer button pressed while the given\nmodifiers are held. Replaces any trigger previously described. Takes\neffect on the next commit.\n\nThe button is a button code in the same space as wl_pointer.button.\n\nThe press and the matching release are consumed and must not be\ndelivered to the surface under the pointer.",
+            "summary": "trigger on a pointer button"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint",
+              "summary": "button code, as in wl_pointer.button"
+            },
+            {
+              "type": "arg",
+              "name": "modifiers",
+              "argType": "uint",
+              "summary": "bitmask of required modifiers",
+              "enum": "xx_hotkey_manager_v1.modifiers"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Apply the state built up on this object. The compositor replies with\nexactly one \"bound\" or \"denied\" event per commit, in order.\n\nSending commit before a trigger has been described raises the\n\"no_trigger\" error.\n\nCommit may be sent again to apply a changed trigger, description or\nseat, keeping the binding's identity. Values set with set_* requests are\nretained across commits, accepted or denied, and each commit applies\nall of them; committing with nothing changed is accepted with \"bound\".\nAn established binding survives a rejected commit: the previous state\nstays active, so a denied reconfiguration never leaves the user with no\nhotkey.",
+            "summary": "apply the hotkey"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "bound",
+          "description": {
+            "type": "description",
+            "text": "The commit was accepted and the binding is active with the trigger that\nwas committed. \"triggered\" and \"released\" events may follow.",
+            "summary": "the hotkey is now active"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "denied",
+          "description": {
+            "type": "description",
+            "text": "The committed trigger was not bound. Any previously established binding\nremains active with its previous trigger.\n\nmessage is an optional, advisory, human-readable explanation in the\ncompositor's locale, intended for verbatim display. It may be empty.\nClients must not parse it; all programmatic behavior keys off reason.",
+            "summary": "the commit was rejected"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "why it was rejected",
+              "enum": "deny_reason"
+            },
+            {
+              "type": "arg",
+              "name": "message",
+              "argType": "string",
+              "summary": "optional human-readable detail for display (may be empty)"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "revoked",
+          "description": {
+            "type": "description",
+            "text": "A binding that was previously \"bound\" is no longer active. No further\ninput events will be sent for it. The client should destroy this object\nand must not silently commit the same trigger again; whether to retry\nis the user's decision.\n\nmessage has the same meaning as in the \"denied\" event.",
+            "summary": "a previously active hotkey was withdrawn"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "message",
+              "argType": "string",
+              "summary": "optional human-readable detail for display (may be empty)"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "triggered",
+          "description": {
+            "type": "description",
+            "text": "The bound trigger fired. This event is sent once each time it fires; the\ncompositor does not auto-repeat the hotkey.\n\nserial is an input serial that counts as a recent user interaction. A\nclient may pass it to xdg_activation_token_v1.set_serial to raise or\nfocus a surface, and a compositor should honor activation carried by it.\n\ntime is the event timestamp, on the same millisecond clock as\nwl_pointer and wl_keyboard input events.",
+            "summary": "the hotkey fired"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "input serial for the activation"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp in milliseconds"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "released",
+          "description": {
+            "type": "description",
+            "text": "The key or button of a previously triggered hotkey was released,\nregardless of modifier state. This enables press-and-hold uses such as\npush-to-talk; clients that only act on the initial firing may ignore\nit.\n\nserial and time have the same meaning as in the \"triggered\" event.",
+            "summary": "the hotkey was released"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "input serial for the activation"
+            },
+            {
+              "type": "arg",
+              "name": "time",
+              "argType": "uint",
+              "summary": "timestamp in milliseconds"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Fatal protocol errors. A trigger that is merely unacceptable to the\ncompositor is reported through \"denied\" and is not an error.",
+            "summary": "illegal request sequences"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_trigger",
+              "value": "0",
+              "summary": "a null keysym, or unknown modifier bits"
+            },
+            {
+              "type": "entry",
+              "name": "no_trigger",
+              "value": "1",
+              "summary": "commit was sent before any trigger was described"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "deny_reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "A reason code describing why the commit got denied. The object remains\nvalid, any previously established binding is unaffected, and the client\nmay describe a different trigger and commit again.\n\nA compositor is not obliged to distinguish \"already_bound\" from\n\"not_permitted\" and may report the latter for both.",
+            "summary": "why a commit was rejected"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_bound",
+              "value": "0",
+              "summary": "held by another hotkey the compositor treats as exclusive"
+            },
+            {
+              "type": "entry",
+              "name": "not_permitted",
+              "value": "1",
+              "summary": "the trigger is disallowed by compositor policy"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

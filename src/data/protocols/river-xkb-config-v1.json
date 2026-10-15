@@ -7,14 +7,14 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allow a client to set the xkbcommon keymap of individual\nkeyboard input devices. It also allows switching between the layouts of a\nkeymap and toggling capslock/numlock state.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
+    "text": "This protocol allow a client to set the xkbcommon keymap of individual\nkeyboard input devices. It also allows switching between the layouts of a\nkeymap and toggling capslock/numlock/scrolllock state.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in IETF RFC 2119.",
     "summary": "configure xkbcommon keyboards"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "river_xkb_config_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "Global interface for configuring xkb devices.\n\nThis global should only be advertised if river_input_manager_v1 is\nadvertised as well.",
@@ -142,7 +142,7 @@
     {
       "type": "interface",
       "name": "river_xkb_keymap_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This object is the result of attempting to create an xkbcommon keymap.",
@@ -194,7 +194,7 @@
     {
       "type": "interface",
       "name": "river_xkb_keyboard_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This object represent a physical keyboard which has its configuration and\nstate managed by xkbcommon.",
@@ -300,6 +300,28 @@
             "summary": "disable numlock"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "scrolllock_enable",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Enable scrolllock for the keyboard.",
+            "summary": "enable scrolllock"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "scrolllock_disable",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Disable scrolllock for the keyboard.",
+            "summary": "disable scrolllock"
+          },
+          "args": []
         }
       ],
       "events": [
@@ -401,6 +423,28 @@
             "type": "description",
             "text": "This event is sent after all information about the keyboard has been\nsent.\n\nThis allows changes to one or more river_xkb_keyboard_v1 properties to\nbe seen as atomic, even if they happen via multiple events.",
             "summary": "all information has been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "scrolllock_enabled",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Scrolllock is currently enabled for the keyboard.\n\nThis event is sent once when the river_xkb_keyboard_v1 is created and\nagain whenever the scrolllock state changes.",
+            "summary": "scrolllock is currently enabled"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "scrolllock_disabled",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Scrolllock is currently disabled for the keyboard.\n\nThis event is sent once when the river_xkb_keyboard_v1 is created and\nagain whenever the scrolllock state changes.",
+            "summary": "scrolllock is currently disabled"
           },
           "args": []
         }
