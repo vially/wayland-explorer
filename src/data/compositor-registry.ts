@@ -124,6 +124,12 @@ const compositorRegistryUnsorted: CompositorRegistryItem[] = [
         icon: 'phosh',
         info: require('./compositors/phoc.json'),
     },
+    {
+        id: 'qtile',
+        name: 'Qtile',
+        icon: 'qtile',
+        info: require('./compositors/qtile.json'),
+    },
 ]
 
 export const compositorRegistry: CompositorRegistryItem[] =
