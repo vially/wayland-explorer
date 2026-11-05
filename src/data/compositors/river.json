@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1791297352519,
-  "version": "0.4.8",
+  "generationTimestamp": 1793903871496,
+  "version" : "0.5.0",
   "globals": [
     {
       "interface": "ext_data_control_manager_v1",
@@ -31,6 +31,10 @@
       "version": 1
     },
     {
+      "interface": "ext_transient_seat_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "river_input_manager_v1",
       "version": 2
     },
@@ -43,8 +47,16 @@
       "version": 2
     },
     {
+      "interface": "river_touch_gestures_v1",
+      "version": 1
+    },
+    {
+      "interface": "river_virtual_keyboard_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "river_window_manager_v1",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "river_xkb_bindings_v1",
@@ -52,7 +64,7 @@
     },
     {
       "interface": "river_xkb_config_v1",
-      "version": 2
+      "version": 3
     },
     {
       "interface": "wl_compositor",
