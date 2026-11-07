@@ -130,6 +130,12 @@ const compositorRegistryUnsorted: CompositorRegistryItem[] = [
         icon: 'qtile',
         info: require('./compositors/qtile.json'),
     },
+    {
+        id: 'mangowm',
+        name: 'Mango',
+        icon: 'mangowm',
+        info: require('./compositors/mangowm.json'),
+    },
 ]
 
 export const compositorRegistry: CompositorRegistryItem[] =
