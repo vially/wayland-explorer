@@ -110,8 +110,11 @@
         {
           "type": "event",
           "name": "blocked",
+          "since": "2",
           "description": {
-            "type": "description"
+            "type": "description",
+            "text": "This event is sent if another manager was bound by any client\nat the time the current manager was bound.\nAny set_ctm_for_output requests from a blocked manager will be\nsilently ignored by the compositor.\n\nThe client should destroy the manager after receiving this event.",
+            "summary": "blocked by another client"
           },
           "args": []
         }

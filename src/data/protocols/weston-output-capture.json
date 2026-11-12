@@ -115,7 +115,7 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "An object representing image capturing functionality for a single\nsource. When created, it sends the initial events if and only if the\noutput still exists and the specified pixel source is available on\nthe output.",
+        "text": "An object representing image capturing functionality for a single source.\nWhen created, it sends the initial events. If the output no longer exists\nor the pixel source is unavailable, clients will receive only the\n'formats_done' initial event.",
         "summary": "image capturing source"
       },
       "requests": [
@@ -156,7 +156,7 @@
           "name": "format",
           "description": {
             "type": "description",
-            "text": "This event delivers one pixel format that can be used for the\nimage buffer. Any buffer is incompatible if it does not have\na pixel format delivered by one of this events.\n\nThe format modifier is linear (DRM_FORMAT_MOD_LINEAR).\n\nThis is an initial event, and sent whenever the supported formats\nchange.\n\nThis event may be send multiple times, followed by a format_done event.",
+            "text": "This event delivers one pixel format that can be used for the\nimage buffer. Any buffer is incompatible if it does not have\na pixel format delivered by one of this events.\n\nThe format modifier is linear (DRM_FORMAT_MOD_LINEAR).\n\nThis is an initial event, and sent whenever the supported formats\nchange.\n\nThis event may be send multiple times, followed by a 'formats_done'\nevent.",
             "summary": "pixel format for a buffer"
           },
           "args": [

@@ -292,7 +292,7 @@
           "name": "state",
           "description": {
             "type": "description",
-            "text": "This event is emitted immediately after the zlw_foreign_toplevel_handle_v1\nis created and each time the toplevel state changes, either because of a\ncompositor action or because of a request in this protocol.",
+            "text": "This event is emitted immediately after the zwlr_foreign_toplevel_handle_v1\nis created and each time the toplevel state changes, either because of a\ncompositor action or because of a request in this protocol.",
             "summary": "the toplevel state changed"
           },
           "args": [
