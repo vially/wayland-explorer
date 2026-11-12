@@ -1,14 +1,22 @@
 {
-  "generationTimestamp": 1730471003624,
-  "version": "3.15.14",
+  "generationTimestamp": 1794514681288,
+  "version": "3.17.0",
   "globals": [
     {
+      "interface": "gamescope_action_binding_manager",
+      "version": 1
+    },
+    {
       "interface": "gamescope_control",
-      "version": 3
+      "version": 7
     },
     {
       "interface": "gamescope_input_method_manager",
       "version": 3
+    },
+    {
+      "interface": "gamescope_limiter",
+      "version": 1
     },
     {
       "interface": "gamescope_pipewire",
@@ -24,7 +32,7 @@
     },
     {
       "interface": "gamescope_swapchain_factory_v2",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "gamescope_xwayland",
@@ -33,6 +41,10 @@
     {
       "interface": "wl_compositor",
       "version": 5
+    },
+    {
+      "interface": "wl_data_device_manager",
+      "version": 3
     },
     {
       "interface": "wl_drm",
