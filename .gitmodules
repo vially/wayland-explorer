@@ -25,3 +25,6 @@
 [submodule "protocols/river"]
 	path = protocols/river
 	url = https://codeberg.org/river/river.git
+[submodule "protocols/gamescope"]
+	path = protocols/gamescope
+	url = https://github.com/ValveSoftware/gamescope
