@@ -136,6 +136,11 @@ const compositorRegistryUnsorted: CompositorRegistryItem[] = [
         icon: 'mangowm',
         info: require('./compositors/mangowm.json'),
     },
+    {
+        id: 'pila',
+        name: 'Pila',
+        info: require('./compositors/pila.json'),
+    },
 ]
 
 export const compositorRegistry: CompositorRegistryItem[] =
