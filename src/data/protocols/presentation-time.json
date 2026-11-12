@@ -9,7 +9,7 @@
     {
       "type": "interface",
       "name": "wp_presentation",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "The main feature of this interface is accurate presentation\ntiming feedback to ensure smooth video playback while maintaining\naudio/video synchronization. Some features use the concept of a\npresentation clock, which is defined in the\npresentation.clock_id event.\n\nA content update for a wl_surface is submitted by a\nwl_surface.commit request. Request 'feedback' associates with\nthe wl_surface.commit and provides feedback on the content\nupdate, particularly the final realized presentation time.\n\n\n\nWhen the final realized presentation time is available, e.g.\nafter a framebuffer flip completes, the requested\npresentation_feedback.presented events are sent. The final\npresentation time can differ from the compositor's predicted\ndisplay update time and the update's target time, especially\nwhen the compositor misses its target vertical blanking period.",
@@ -103,7 +103,7 @@
     {
       "type": "interface",
       "name": "wp_presentation_feedback",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "A presentation_feedback object returns an indication that a\nwl_surface content update has become visible to the user.\nOne object corresponds to one content update submission\n(wl_surface.commit). There are two possible outcomes: the\ncontent update is presented to the user, and a presentation\ntimestamp delivered; or, the user did not see the content\nupdate because it was superseded or its surface destroyed,\nand the content update is discarded.\n\nOnce a presentation_feedback object has delivered a 'presented'\nor 'discarded' event it is automatically destroyed.",
@@ -136,7 +136,7 @@
           "eventType": "destructor",
           "description": {
             "type": "description",
-            "text": "The associated content update was displayed to the user at the\nindicated time (tv_sec_hi/lo, tv_nsec). For the interpretation of\nthe timestamp, see presentation.clock_id event.\n\nThe timestamp corresponds to the time when the content update\nturned into light the first time on the surface's main output.\nCompositors may approximate this from the framebuffer flip\ncompletion events from the system, and the latency of the\nphysical display path if known.\n\nThis event is preceded by all related sync_output events\ntelling which output's refresh cycle the feedback corresponds\nto, i.e. the main output for the surface. Compositors are\nrecommended to choose the output containing the largest part\nof the wl_surface, or keeping the output they previously\nchose. Having a stable presentation output association helps\nclients predict future output refreshes (vblank).\n\nThe 'refresh' argument gives the compositor's prediction of how\nmany nanoseconds after tv_sec, tv_nsec the very next output\nrefresh may occur. This is to further aid clients in\npredicting future refreshes, i.e., estimating the timestamps\ntargeting the next few vblanks. If such prediction cannot\nusefully be done, the argument is zero.\n\nFor version 2 and later, if the output does not have a constant\nrefresh rate, explicit video mode switches excluded, then the\nrefresh argument must be either an appropriate rate picked by the\ncompositor (e.g. fastest rate), or 0 if no such rate exists.\nFor version 1, if the output does not have a constant refresh rate,\nthe refresh argument must be zero.\n\nThe 64-bit value combined from seq_hi and seq_lo is the value\nof the output's vertical retrace counter when the content\nupdate was first scanned out to the display. This value must\nbe compatible with the definition of MSC in\nGLX_OML_sync_control specification. Note, that if the display\npath has a non-zero latency, the time instant specified by\nthis counter may differ from the timestamp's.\n\nIf the output does not have a concept of vertical retrace or a\nrefresh cycle, or the output device is self-refreshing without\na way to query the refresh count, then the arguments seq_hi\nand seq_lo must be zero.",
+            "text": "The associated content update was displayed to the user at the\nindicated time (tv_sec_hi/lo, tv_nsec). For the interpretation of\nthe timestamp, see presentation.clock_id event.\n\nThe timestamp corresponds to the time when the content update\nturned into light the first time on the surface's main output.\nCompositors may approximate this from the framebuffer flip\ncompletion events from the system, and the latency of the\nphysical display path if known.\n\nThis event is preceded by all related sync_output events\ntelling which output's refresh cycle the feedback corresponds\nto, i.e. the main output for the surface. Compositors are\nrecommended to choose the output containing the largest part\nof the wl_surface, or keeping the output they previously\nchose. Having a stable presentation output association helps\nclients predict future output refreshes (vblank).\n\nThe 'refresh' argument gives the compositor's prediction of how\nmany nanoseconds after tv_sec, tv_nsec the very next output\nrefresh may occur. This is to further aid clients in\npredicting future refreshes, i.e., estimating the timestamps\ntargeting the next few vblanks. If such prediction cannot\nusefully be done, the argument is zero.\n\nFor version 2 and later, if the output does not have a constant\nrefresh rate, explicit video mode switches excluded, then the\nrefresh argument must be either an appropriate rate picked by the\ncompositor (e.g. fastest rate), or 0 if no such rate exists.\nFor version 1, if the output does not have a constant refresh rate,\nthe refresh argument must be zero.\n\nIf the 'fixed_rate' flag is set, then the refresh argument is\nthe output's constant refresh rate. If the 'variable_rate' flag\nis set, then the refresh argument is the output's fastest refresh\nrate.\n\nThe 64-bit value combined from seq_hi and seq_lo is the value\nof the output's vertical retrace counter when the content\nupdate was first scanned out to the display. This value must\nbe compatible with the definition of MSC in\nGLX_OML_sync_control specification. Note, that if the display\npath has a non-zero latency, the time instant specified by\nthis counter may differ from the timestamp's.\n\nIf the output does not have a concept of vertical retrace or a\nrefresh cycle, or the output device is self-refreshing without\na way to query the refresh count, then the arguments seq_hi\nand seq_lo must be zero.",
             "summary": "the content update was displayed"
           },
           "args": [
@@ -246,6 +246,28 @@
                 "type": "description",
                 "text": "The presentation of this update was done zero-copy. This means\nthe buffer from the client was given to display hardware as\nis, without copying it. Compositing with OpenGL counts as\ncopying, even if textured directly from the client buffer.\nPossible zero-copy cases include direct scanout of a\nfullscreen surface and a surface on a hardware overlay.",
                 "summary": "presentation was done zero-copy"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "fixed_rate",
+              "value": "0x10",
+              "since": "3",
+              "description": {
+                "type": "description",
+                "text": "The display hardware is operating at a fixed refresh rate.\nThe presentation was aligned to a multiple of this event's\n'refresh' argument.\nIf this is set, the refresh argument must not be 0.",
+                "summary": "presentation is at a fixed refresh rate"
+              }
+            },
+            {
+              "type": "entry",
+              "name": "variable_rate",
+              "value": "0x20",
+              "since": "3",
+              "description": {
+                "type": "description",
+                "text": "The display hardware is operating at a variable refresh rate, with\nupdates to this surface consistently determining the display refresh\ntiming. The definition of 'consistent' is compositor policy.\n\nThe content update was displayed as soon as possible after it became\nready, but no sooner than 'refresh' nanoseconds after the previous\npresentation on this surface. In other words, the presentation time\nwas determined by when this surface's content became ready, not by\na periodic display refresh or by updates to other surfaces.\n\nIf this is set, the refresh argument must not be 0.",
+                "summary": "presentation is at a variable refresh rate"
               }
             }
           ]
