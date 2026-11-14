@@ -1,6 +1,6 @@
 {
-  "generationTimestamp": 1764899630247,
-  "version": "1.0.0~beta.8",
+  "generationTimestamp": 1794682043957,
+  "version": "1.11.0",
   "globals": [
     {
       "interface": "cosmic_a11y_manager_v1",
@@ -8,6 +8,14 @@
     },
     {
       "interface": "cosmic_corner_radius_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "cosmic_session_lock_layer_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_background_effect_manager_v1",
       "version": 1
     },
     {
@@ -59,6 +67,10 @@
       "version": 2
     },
     {
+      "interface": "wl_fixes",
+      "version": 1
+    },
+    {
       "interface": "wl_output",
       "version": 4
     },
@@ -95,6 +107,10 @@
       "version": 1
     },
     {
+      "interface": "wp_pointer_warp_v1",
+      "version": 1
+    },
+    {
       "interface": "wp_presentation",
       "version": 2
     },
@@ -116,7 +132,15 @@
     },
     {
       "interface": "xdg_wm_base",
-      "version": 6
+      "version": 7
+    },
+    {
+      "interface": "xdg_wm_dialog_v1",
+      "version": 1
+    },
+    {
+      "interface": "zcosmic_keyboard_layout_manager_v1",
+      "version": 1
     },
     {
       "interface": "zcosmic_output_manager_v1",
@@ -172,7 +196,7 @@
     },
     {
       "interface": "zwp_linux_dmabuf_v1",
-      "version": 5
+      "version": 6
     },
     {
       "interface": "zwp_pointer_constraints_v1",
