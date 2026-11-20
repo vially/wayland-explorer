@@ -141,6 +141,11 @@ const compositorRegistryUnsorted: CompositorRegistryItem[] = [
         name: 'Pila',
         info: require('./compositors/pila.json'),
     },
+    {
+        id: 'flakewm',
+        name: 'flakewm',
+        info: require('./compositors/flakewm.json'),
+    },
 ]
 
 export const compositorRegistry: CompositorRegistryItem[] =
