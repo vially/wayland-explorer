@@ -802,6 +802,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-atspi-unstable-v1.json'),
+        unlisted: true,
         deprecated: [
             {
                 name: 'cosmic_atspi_manager_v1',
@@ -829,6 +830,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-image-source-unstable-v1.json'),
+        unlisted: true,
         deprecated: [
             {
                 name: 'zcosmic_image_source_v1',
@@ -879,6 +881,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-screencopy-unstable-v1.json'),
+        unlisted: true,
         deprecated: [
             {
                 name: 'zcosmic_screencopy_manager_v1',
@@ -896,6 +899,7 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-screencopy-unstable-v2.json'),
+        unlisted: true,
         deprecated: [
             {
                 name: 'zcosmic_screencopy_manager_v2',
@@ -1762,6 +1766,9 @@ const protocols: WaylandProtocolRegistryItem[] = [
 
 class WaylandProtocolRegistry {
     protocols = protocols
+
+    /** Protocols shown on the homepage and in the navigation menu. */
+    listedProtocols = protocols.filter(({ unlisted }) => !unlisted)
 
     getProtocolWithMetadata(
         protocolId: string

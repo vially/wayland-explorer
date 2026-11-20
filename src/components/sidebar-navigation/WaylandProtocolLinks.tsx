@@ -71,7 +71,7 @@ interface Section {
 }
 
 function groupProtocolsIntoSections(): Section[] {
-    const { protocols } = waylandProtocolRegistry
+    const { listedProtocols: protocols } = waylandProtocolRegistry
     const coreSection: Section = {
         name: 'Core',
         items: [protocols.find((protocol) => protocol.id === 'wayland')!],
