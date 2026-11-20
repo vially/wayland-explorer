@@ -1,0 +1,560 @@
+{
+  "type": "protocol",
+  "name": "gamescope_swapchain",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2023 Joshua Ashton for Valve Software\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This is a private Gamescope protocol. Regular Wayland clients must not use\nit.",
+    "summary": "gamescope-specific swapchain protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_swapchain_factory_v2",
+      "version": "2",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_swapchain",
+          "description": {
+            "type": "description",
+            "text": "This constructor only enables the original past_present_timing,\nrefresh_cycle and retired events, regardless of the bound version.\nClients must use create_swapchain_with_timing to opt into newer events.",
+            "summary": "create Gamescope swapchain interface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "target surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "new swapchain object",
+              "interface": "gamescope_swapchain"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "create_swapchain_with_timing",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Creates a swapchain that also receives present_timing and\ntiming_properties. Binding version 2 alone does not enable these\nevents, since older clients may bind the advertised version without\nunderstanding them. The initial properties arrive once the compositor\nknows the surface's timing.",
+            "summary": "create a swapchain with presentation timing events"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "target surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "new swapchain object",
+              "interface": "gamescope_swapchain"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "gamescope_swapchain",
+      "version": "2",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "override_window_content",
+          "description": {
+            "type": "description",
+            "text": "Xwayland creates a wl_surface for each X11 window. It sends a\nWL_SURFACE_ID client message to indicate the mapping between the X11\nwindows and the wl_surface objects.\n\nThis request overrides this mapping for a given X11 window, allowing an\nX11 client to submit buffers via the Wayland protocol. The override\nonly affects buffer submission. Everything else (e.g. input events)\nstill uses Xwayland's WL_SURFACE_ID.\n\nx11_server is gotten by the GAMESCOPE_XWAYLAND_SERVER_ID property on the\nroot window of the associated server.",
+            "summary": "override an X11's window wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "gamescope_xwayland_server_id",
+              "argType": "uint",
+              "summary": "gamescope xwayland server ID"
+            },
+            {
+              "type": "arg",
+              "name": "x11_window",
+              "argType": "uint",
+              "summary": "X11 window ID"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "swapchain_feedback",
+          "description": {
+            "type": "description",
+            "text": "Provide swapchain feedback to the compositor.\n\nThis is what the useless tearing protocol should have been.\nAbsolutely not enough information in the final protocol to do what we want for SteamOS --\nwhich is have the Allow Tearing toggle apply to *both* Mailbox + Immediate and NOT fifo,\nessentially acting as an override for tearing on/off for games.\nThe upstream protocol is very useless for our usecase here.\n\nProvides image count ahead of time instead of needing to try and calculate it from\nan initial stall if we are doing low latency.\n\nProvides colorspace info for us to do HDR for both HDR10 PQ and scRGB.\nThe upstream HDR efforts seem to have no interest in supporting scRGB but we *need* that so /shrug\nWe can do it here now! Yipee!\n\nSwapchain feedback solves so many problems! :D",
+            "summary": "provide swapchain feedback"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "image_count",
+              "argType": "uint",
+              "summary": "image count of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_format",
+              "argType": "uint",
+              "summary": "VkFormat of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_colorspace",
+              "argType": "uint",
+              "summary": "VkColorSpaceKHR of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_composite_alpha",
+              "argType": "uint",
+              "summary": "VkCompositeAlphaFlagBitsKHR of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_pre_transform",
+              "argType": "uint",
+              "summary": "VkSurfaceTransformFlagBitsKHR of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_clipped",
+              "argType": "uint",
+              "summary": "clipped (VkBool32) of swapchain"
+            },
+            {
+              "type": "arg",
+              "name": "vk_engine_name",
+              "argType": "string",
+              "summary": "Engine name"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_present_mode",
+          "description": {
+            "type": "description",
+            "summary": "Add a fifo queue constraint"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "vk_present_mode",
+              "argType": "uint",
+              "summary": "VkPresentModeKHR"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_hdr_metadata",
+          "description": {
+            "type": "description",
+            "text": "Forward HDR metadata from Vulkan to the compositor.\n\nHDR Metadata Infoframe as per CTA 861.G spec.\nThis is expected to match exactly with the spec.\n\ndisplay_primary_*:\nColor Primaries of the Data.\nSpecifies X and Y coordinates.\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.\n\nwhite_point_*:\nWhite Point of Colorspace Data.\nSpecifies X and Y coordinates.\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.\n\nmax_display_mastering_luminance:\nMax Mastering Display Luminance.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.\n\nmax_display_mastering_luminance:\nMin Mastering Display Luminance.\nThis value is coded as an unsigned 16-bit value in units of\n0.0001 cd/m2, where 0x0001 represents 0.0001 cd/m2 and 0xFFFF\nrepresents 6.5535 cd/m2.\n\nmax_cll:\nMax Content Light Level.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.\n\nmax_fall:\nMax Frame Average Light Level.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+            "summary": "set HDR metadata for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "display_primary_red_x",
+              "argType": "uint",
+              "summary": "red primary x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "display_primary_red_y",
+              "argType": "uint",
+              "summary": "red primary y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "display_primary_green_x",
+              "argType": "uint",
+              "summary": "green primary x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "display_primary_green_y",
+              "argType": "uint",
+              "summary": "green primary y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "display_primary_blue_x",
+              "argType": "uint",
+              "summary": "blue primary x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "display_primary_blue_y",
+              "argType": "uint",
+              "summary": "blue primary y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_x",
+              "argType": "uint",
+              "summary": "white point x coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "white_point_y",
+              "argType": "uint",
+              "summary": "white point y coordinate"
+            },
+            {
+              "type": "arg",
+              "name": "max_display_mastering_luminance",
+              "argType": "uint",
+              "summary": "max display mastering luminance"
+            },
+            {
+              "type": "arg",
+              "name": "min_display_mastering_luminance",
+              "argType": "uint",
+              "summary": "min display mastering luminance"
+            },
+            {
+              "type": "arg",
+              "name": "max_cll",
+              "argType": "uint",
+              "summary": "max content light level"
+            },
+            {
+              "type": "arg",
+              "name": "max_fall",
+              "argType": "uint",
+              "summary": "max frame average light level"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_present_time",
+          "description": {
+            "type": "description",
+            "text": "Sets the display timing of the next commit.\n\nThis gets reset to 0s in the compositor's state after a commit.",
+            "summary": "display timing of next commit"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "present_id",
+              "argType": "uint",
+              "summary": "application provided presentation id"
+            },
+            {
+              "type": "arg",
+              "name": "desired_present_time_hi",
+              "argType": "uint",
+              "summary": "high part of the desired presentation time for this commit. Uses CLOCK_MONOTONIC. 0 = present as soon as possible."
+            },
+            {
+              "type": "arg",
+              "name": "desired_present_time_lo",
+              "argType": "uint",
+              "summary": "low part of the desired presentation time for this commit. Uses CLOCK_MONOTONIC. 0 = present as soon as possible."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_present_timing",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Only swapchains created with create_swapchain_with_timing accept this\nrequest. Other swapchains ignore it, including zero-serial requests.\nRegisters a client-local serial for one timing report. Target uses\nCLOCK_MONOTONIC nanoseconds, or a duration with the relative flag. Zero\nrequests presentation as soon as possible, as does a relative target\nbefore this swapchain has latched a frame. Unknown flag bits are ignored.\nThe request applies to the next commit that carries buffer content,\nincluding one that recommits the current buffer. Replacing an armed\nserial reports the old serial as dropped. A zero serial clears any\narmed request and is never reported.",
+            "summary": "timing request for the next commit"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial_hi",
+              "argType": "uint",
+              "summary": "high part of the client timing serial"
+            },
+            {
+              "type": "arg",
+              "name": "serial_lo",
+              "argType": "uint",
+              "summary": "low part of the client timing serial"
+            },
+            {
+              "type": "arg",
+              "name": "target_hi",
+              "argType": "uint",
+              "summary": "high part of target time or relative duration in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "target_lo",
+              "argType": "uint",
+              "summary": "low part of target time or relative duration in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "presentation timing flags",
+              "enum": "present_timing_flags"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "past_present_timing",
+          "description": {
+            "type": "description",
+            "text": "Gives information on the past presentation timing",
+            "summary": "information about past presentation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "present_id",
+              "argType": "uint",
+              "summary": "application provided presentation id"
+            },
+            {
+              "type": "arg",
+              "name": "desired_present_time_hi",
+              "argType": "uint",
+              "summary": "high part of the desired presentation time for the commit. (from the app)"
+            },
+            {
+              "type": "arg",
+              "name": "desired_present_time_lo",
+              "argType": "uint",
+              "summary": "low part of the desired presentation time for the commit. (from the app)"
+            },
+            {
+              "type": "arg",
+              "name": "actual_present_time_hi",
+              "argType": "uint",
+              "summary": "high part of the actual present time for this commit."
+            },
+            {
+              "type": "arg",
+              "name": "actual_present_time_lo",
+              "argType": "uint",
+              "summary": "low part of the actual present time for this commit."
+            },
+            {
+              "type": "arg",
+              "name": "earliest_present_time_hi",
+              "argType": "uint",
+              "summary": "high part of the refresh time that Gamescope thought this commit was done by."
+            },
+            {
+              "type": "arg",
+              "name": "earliest_present_time_lo",
+              "argType": "uint",
+              "summary": "low part of the refresh time that Gamescope thought this commit was done by."
+            },
+            {
+              "type": "arg",
+              "name": "present_margin_hi",
+              "argType": "uint",
+              "summary": "high part of the difference between earliest present time and the earliest latch time"
+            },
+            {
+              "type": "arg",
+              "name": "present_margin_lo",
+              "argType": "uint",
+              "summary": "low part of the difference between earliest present time and the earliest latch time"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "refresh_cycle",
+          "description": {
+            "type": "description",
+            "text": "Gives information on the refresh cycle for this swapchain",
+            "summary": "information about refresh cycle for this swapchain"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "refresh_cycle_hi",
+              "argType": "uint",
+              "summary": "high part of the refresh cycle in nanos"
+            },
+            {
+              "type": "arg",
+              "name": "refresh_cycle_lo",
+              "argType": "uint",
+              "summary": "low part of the refresh cycle in nanos"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "retired",
+          "description": {
+            "type": "description",
+            "summary": "Swapchain was remotely retired"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "present_timing",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Only sent to swapchains created with create_swapchain_with_timing.\nSent once per serial when presented or dropped, unless this object is\ndestroyed first. All timestamps use CLOCK_MONOTONIC nanoseconds. Zero\nmeans unavailable, and a dropped commit has all timestamps zero. Pixel\nout is the compositor's predicted scanout.",
+            "summary": "timing result for the registering swapchain"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial_hi",
+              "argType": "uint",
+              "summary": "high part of the client timing serial"
+            },
+            {
+              "type": "arg",
+              "name": "serial_lo",
+              "argType": "uint",
+              "summary": "low part of the client timing serial"
+            },
+            {
+              "type": "arg",
+              "name": "queue_end_hi",
+              "argType": "uint",
+              "summary": "high part of queue completion time in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "queue_end_lo",
+              "argType": "uint",
+              "summary": "low part of queue completion time in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "dequeued_hi",
+              "argType": "uint",
+              "summary": "high part of latch time in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "dequeued_lo",
+              "argType": "uint",
+              "summary": "low part of latch time in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "pixel_out_hi",
+              "argType": "uint",
+              "summary": "high part of predicted scanout time in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "pixel_out_lo",
+              "argType": "uint",
+              "summary": "low part of predicted scanout time in nanoseconds"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "timing_properties",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Only sent to swapchains created with create_swapchain_with_timing.\nDuration is the effective cycle including the frame limiter, the same\nvalue refresh_cycle carries. Interval is the panel cycle on fixed\nrefresh, or UINT64_MAX for variable refresh.\nSent once the compositor knows the window's timing and whenever the\nvalues change. Until then both values are unknown to the client.",
+            "summary": "effective and base refresh cycles"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "refresh_duration_hi",
+              "argType": "uint",
+              "summary": "high part of effective refresh duration in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "refresh_duration_lo",
+              "argType": "uint",
+              "summary": "low part of effective refresh duration in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "refresh_interval_hi",
+              "argType": "uint",
+              "summary": "high part of base refresh interval in nanoseconds"
+            },
+            {
+              "type": "arg",
+              "name": "refresh_interval_lo",
+              "argType": "uint",
+              "summary": "low part of base refresh interval in nanoseconds"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "present_timing_flags",
+          "since": "2",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "relative",
+              "value": "1",
+              "summary": "target is a duration after this swapchain's previous expected scanout"
+            },
+            {
+              "type": "entry",
+              "name": "nearest_refresh_cycle",
+              "value": "2",
+              "summary": "allow presentation less than half an effective refresh cycle early"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

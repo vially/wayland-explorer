@@ -1,0 +1,108 @@
+{
+  "type": "protocol",
+  "name": "gamescope_reshade",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 Wayne Heaney\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows applications to load and interact with a reshade FX shader in gamescope.",
+    "summary": "gamescope-specific reshade integration"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_reshade",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_effect",
+          "description": {
+            "type": "description",
+            "text": "The effect will be disabled to allow an opportunity to set uniform variables before enabling it.",
+            "summary": "set the path to the reshade FX file"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "path",
+              "argType": "string",
+              "summary": "Path to the FX file"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "enable_effect",
+          "description": {
+            "type": "description",
+            "text": "Enables the effect that was previously loaded by set_effect.",
+            "summary": "turn on the effect"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_uniform_variable",
+          "description": {
+            "type": "description",
+            "text": "Set the value of a uniform variable. Can be called before or after enabling the effect.",
+            "summary": "set a uniform variable for the currently loaded effect"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "string",
+              "summary": "Name of the uniform variable"
+            },
+            {
+              "type": "arg",
+              "name": "value",
+              "argType": "array",
+              "summary": "Value of the uniform variable"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "disable_effect",
+          "description": {
+            "type": "description",
+            "text": "Disables the effect that was previously enabled by enable_effect.",
+            "summary": "turn off the effect"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "effect_ready",
+          "description": {
+            "type": "description",
+            "text": "This event alerts the client when an effect has been enabled.",
+            "summary": "alerts when the requested effect is ready"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "effect_path",
+              "argType": "string",
+              "summary": "Path to the FX file"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

@@ -1,0 +1,497 @@
+{
+  "type": "protocol",
+  "name": "gamescope_control",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2023 Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This is a private Gamescope protocol. Regular Wayland clients must not use\nit.",
+    "summary": "gamescope-specific protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_control",
+      "version": "7",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_app_target_refresh_cycle",
+          "since": "2",
+          "args": [
+            {
+              "type": "arg",
+              "name": "fps",
+              "argType": "uint",
+              "summary": "application's target refresh cycle in frames-per-second. 0 = disabled/native"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "combination of 'target_refresh_cycle_flag' values",
+              "enum": "target_refresh_cycle_flag"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "take_screenshot",
+          "since": "3",
+          "args": [
+            {
+              "type": "arg",
+              "name": "path",
+              "argType": "string",
+              "summary": "Path to write the screenshot. Extension of the file determines the format"
+            },
+            {
+              "type": "arg",
+              "name": "type",
+              "argType": "uint",
+              "summary": "Type of screenshot to save",
+              "enum": "screenshot_type"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "combination of 'screenshot_flags' values",
+              "enum": "screenshot_flags"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "display_sleep",
+          "since": "4",
+          "description": {
+            "type": "description",
+            "summary": "Attempts to make the display go to sleep/idle"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "display_type",
+              "argType": "uint",
+              "summary": "display type",
+              "enum": "display_type_flags"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "sleep flags",
+              "enum": "display_sleep_flags"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_look",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "summary": "Sets a look for the screen based on a 3D LUT."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "lut3d_g22",
+              "argType": "fd",
+              "summary": "file-descriptor containing the data for the look for Gamma 2.2. Expects .cube format"
+            },
+            {
+              "type": "arg",
+              "name": "lut3d_pq",
+              "argType": "fd",
+              "summary": "file-descriptor containing the data for the look for PQ. Expects .cube format"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "look flags",
+              "enum": "look_flags"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_look",
+          "since": "5",
+          "description": {
+            "type": "description",
+            "summary": "Unsets the current look."
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "request_app_performance_stats",
+          "since": "6",
+          "description": {
+            "type": "description",
+            "summary": "Asks the compositor to send the most recent performance stats"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "uint",
+              "summary": "Appid"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_keyboard_layout",
+          "since": "7",
+          "description": {
+            "type": "description",
+            "text": "An empty layout goes back to the layout from the XKB_DEFAULT_*\nenvironment, and a variant without a layout is ignored. A layout\nthat fails to compile is ignored and the current keymap is kept.",
+            "summary": "Sets the XKB layout used for physical keyboards"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "layout",
+              "argType": "string",
+              "summary": "XKB layout name, eg. fr"
+            },
+            {
+              "type": "arg",
+              "name": "variant",
+              "argType": "string",
+              "summary": "XKB layout variant, eg. bepo. Empty for the default variant"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "feature_support",
+          "description": {
+            "type": "description",
+            "text": "Says whether a feature is supported and the version.",
+            "summary": "feature supported"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "feature",
+              "argType": "uint",
+              "summary": "one of the enum features"
+            },
+            {
+              "type": "arg",
+              "name": "version",
+              "argType": "uint",
+              "summary": "feature version"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "feature flags"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "active_display_info",
+          "since": "2",
+          "args": [
+            {
+              "type": "arg",
+              "name": "connector_name",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "display_make",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "display_model",
+              "argType": "string"
+            },
+            {
+              "type": "arg",
+              "name": "display_flags",
+              "argType": "uint",
+              "summary": "combination of 'display_flag' values",
+              "enum": "display_flag"
+            },
+            {
+              "type": "arg",
+              "name": "valid_refresh_rates",
+              "argType": "array",
+              "summary": "valid refresh rates for the display for the purposes of combined fps limiting + refresh. empty if fixed at a mode. 32-bit unsigned integers."
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "screenshot_taken",
+          "since": "3",
+          "args": [
+            {
+              "type": "arg",
+              "name": "path",
+              "argType": "string",
+              "summary": "Path to written screenshot"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_performance_stats",
+          "since": "6",
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "uint",
+              "summary": "Appid for this request"
+            },
+            {
+              "type": "arg",
+              "name": "frametime_ns_lo",
+              "argType": "uint",
+              "summary": "Time delta between the two most recent frames"
+            },
+            {
+              "type": "arg",
+              "name": "frametime_ns_hi",
+              "argType": "uint",
+              "summary": "frametime_ns high bits"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "feature",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Enum of the features supported by Gamescope.",
+            "summary": "gamescope feature types"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "done",
+              "value": "0",
+              "summary": "sent at the end of the feature list"
+            },
+            {
+              "type": "entry",
+              "name": "reshade_shaders",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "display_info",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "pixel_filter",
+              "value": "3"
+            },
+            {
+              "type": "entry",
+              "name": "refresh_cycle_only_change_refresh_rate",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "mura_correction",
+              "value": "5"
+            },
+            {
+              "type": "entry",
+              "name": "look",
+              "value": "6"
+            },
+            {
+              "type": "entry",
+              "name": "perf_query",
+              "value": "7"
+            },
+            {
+              "type": "entry",
+              "name": "keyboard_layout",
+              "value": "8"
+            },
+            {
+              "type": "entry",
+              "name": "sgsr_filter",
+              "value": "9"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "display_flag",
+          "since": "2",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "internal_display",
+              "value": "0x1"
+            },
+            {
+              "type": "entry",
+              "name": "supports_hdr",
+              "value": "0x2"
+            },
+            {
+              "type": "entry",
+              "name": "supports_vrr",
+              "value": "0x4"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "target_refresh_cycle_flag",
+          "since": "2",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "internal_display",
+              "value": "0x1",
+              "summary": "Whether we should change the target refresh cycle under external/internal display"
+            },
+            {
+              "type": "entry",
+              "name": "allow_refresh_switching",
+              "value": "0x2",
+              "summary": "Whether or not to allow refresh rate switching"
+            },
+            {
+              "type": "entry",
+              "name": "only_change_refresh_rate",
+              "value": "0x4",
+              "summary": "Only change refresh rate but don't apply frame limiter fps cap"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "screenshot_type",
+          "since": "3",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "base_plane_only",
+              "value": "1",
+              "summary": "Just the game w/ no display color mgmt"
+            },
+            {
+              "type": "entry",
+              "name": "all_real_layers",
+              "value": "2",
+              "summary": "Just the game + overlays w/ no display color mgmt"
+            },
+            {
+              "type": "entry",
+              "name": "full_composition",
+              "value": "3",
+              "summary": "Every layer w/ no display color mgmt and no mura"
+            },
+            {
+              "type": "entry",
+              "name": "screen_buffer",
+              "value": "4",
+              "summary": "The buffer displayed on-screen - 1:1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "screenshot_flags",
+          "since": "3",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "dummy",
+              "value": "0x1"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "display_type_flags",
+          "since": "4",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "internal_display",
+              "value": "0x1",
+              "summary": "The internal display of the device"
+            },
+            {
+              "type": "entry",
+              "name": "external_display",
+              "value": "0x2",
+              "summary": "The external display attached to the device"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "display_sleep_flags",
+          "since": "4",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "sleep",
+              "value": "0x1",
+              "summary": "Go to sleep... zzz... (Conflicts with wake)"
+            },
+            {
+              "type": "entry",
+              "name": "wake",
+              "value": "0x2",
+              "summary": "Wake up! (Conflicts with sleep)"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "look_flags",
+          "since": "5",
+          "bitfield": true,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "dummy",
+              "value": "0x1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

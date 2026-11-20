@@ -1,0 +1,53 @@
+{
+  "type": "protocol",
+  "name": "gamescope_limiter",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2026 Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "Feedback about gamescope's frame limiter for presenting clients. Any\nclient may bind this interface, it carries no privileged requests.",
+    "summary": "frame limiter state feedback"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_limiter",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Broadcasts the compositor's frame limiter state to presentation\nlayers. This supersedes the GAMESCOPE_LIMITER_FILE mechanism, which\nrelies on a file that may not be visible inside app containers.",
+        "summary": "frame limiter state"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "state",
+          "description": {
+            "type": "description",
+            "text": "Sent once when the client binds and again whenever the state\nchanges. The values match the legacy GAMESCOPE_LIMITER_FILE\ncontents. 1 means the frame limiter is engaged and clients should\npresent in FIFO so the compositor can pace them. 0 means no\noverride. Other values are reserved.",
+            "summary": "current frame limiter state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "frame_limit_state",
+              "argType": "uint",
+              "summary": "1 = present in FIFO, 0 = no override"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

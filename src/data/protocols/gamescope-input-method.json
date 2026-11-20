@@ -1,0 +1,349 @@
+{
+  "type": "protocol",
+  "name": "gamescope_input_method",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2008-2011 Kristian Høgsberg\nCopyright © 2010-2011 Intel Corporation\nCopyright © 2012-2013 Collabora, Ltd.\nCopyright © 2012, 2013 Intel Corporation\nCopyright © 2015, 2016 Jan Arne Petersen\nCopyright © 2017, 2018 Red Hat, Inc.\nCopyright © 2018       Purism SPC\nCopyright © 2021       Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol allows applications to act as input methods for compositors.\n\nAn input method context is used to manage the state of the input method.\n\nText strings are UTF-8 encoded, their indices and lengths are in bytes.\n\nThis iteration of the protocol is a subset of this work-in-progress proposal:\nhttps://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/112\n\nThis is a private Gamescope protocol. Regular Wayland clients must not use\nit.",
+    "summary": "Protocol for creating input methods"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_input_method_manager",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "The input method manager allows the client to become the input method on\na chosen seat.\n\nNo more than one input method must be associated with any seat at any\ngiven time.",
+        "summary": "input method manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the gamescope_input_method_manager object.\n\nThe gamescope_input_method objects originating from it remain valid.",
+            "summary": "destroy the input method manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_input_method",
+          "description": {
+            "type": "description",
+            "text": "Create a new gamescope_input_method object associated with a given\nseat.",
+            "summary": "create an input method object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "input_method",
+              "argType": "new_id",
+              "interface": "gamescope_input_method"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "gamescope_input_method",
+      "version": "3",
+      "description": {
+        "type": "description",
+        "text": "An input method object allows for clients to compose text.\n\nThe objects connects the client to a text input in an application, and\nlets the client to serve as an input method for a seat.\n\nThere must be no more than one input method object per seat.",
+        "summary": "input method"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroys the gamescope_text_input object.",
+            "summary": "destroy the text input"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Apply state changes from set_string and set_action requests.\n\nThe state relating to these events is double-buffered, and each one\nmodifies the pending state. This request replaces the current state\nwith the pending state.\n\nThe client must set the serial to the last received serial in the done\nevent.",
+            "summary": "apply state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "last received serial"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_string",
+          "description": {
+            "type": "description",
+            "text": "Send the string text for insertion to the application.\n\nInserts a string at current cursor position (see commit event\nsequence). The string to commit could be either just a single character\nafter a key press or the result of some composing.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next gamescope_text_input.commit request.\n\nThe initial value of text is an empty string.",
+            "summary": "set string to be committed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "text",
+              "argType": "string",
+              "summary": "text to insert"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_action",
+          "description": {
+            "type": "description",
+            "text": "Set the action to be performed on commit.\n\nValues set with this event are double-buffered. They must be applied\nand reset to initial on the next gamescope_text_input.commit request.",
+            "summary": "perform an action"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "action performed",
+              "enum": "action"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pointer_motion",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "move the cursor!"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed",
+              "summary": "delta x"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed",
+              "summary": "delta y"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pointer_warp",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "warp the cursor!"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "fixed",
+              "summary": "x pos"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "fixed",
+              "summary": "y pos"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pointer_wheel",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "scroll the cursor! Uses the 120 scaling mechanism."
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x * 120 -> 120 = 1.0"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y * 120 -> 120 = 1.0"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "pointer_button",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "summary": "click the cursor!"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "button",
+              "argType": "uint",
+              "summary": "Linux button code, eg. BTN_LEFT"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "wl_pointer_button_state",
+              "enum": "button_state"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "unavailable",
+          "description": {
+            "type": "description",
+            "text": "The input method ceased to be available.\n\nThe compositor must issue this event as the only event on the object if\nthere was another input_method object associated with the same seat at\nthe time of its creation.\n\nThe compositor must issue this request when the object is no longer\nuseable, e.g. due to seat removal.\n\nThe input method context becomes inert and should be destroyed. Any\nfurther requests and events except for the destroy request must be\nignored.",
+            "summary": "input method unavailable"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "Notify the client that the compositor state has changed.\n\nThe serial is used to synchronize compositor state changes and client\nstate changes. The serial allows the compositor to ignore requests\nmeant for a previous text input.\n\nIn the future, will be used to atomically apply compositor state\nchanges sent to the client (but currently there's no such state).",
+            "summary": "compositor state change notification"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "action",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "A possible action to perform on a text input.\n\nThe backspace and delete actions should be handled in a similar manner\nto backpace and delete keys being pressed on a keyboard.",
+            "summary": "action"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "none",
+              "value": "0",
+              "summary": "no action"
+            },
+            {
+              "type": "entry",
+              "name": "submit",
+              "value": "1",
+              "summary": "submit"
+            },
+            {
+              "type": "entry",
+              "name": "delete_left",
+              "value": "2",
+              "summary": "delete one unit before the cursor"
+            },
+            {
+              "type": "entry",
+              "name": "delete_right",
+              "value": "3",
+              "summary": "delete one unit after the cursor"
+            },
+            {
+              "type": "entry",
+              "name": "move_left",
+              "value": "4",
+              "summary": "move the cursor to the left by one unit"
+            },
+            {
+              "type": "entry",
+              "name": "move_right",
+              "value": "5",
+              "summary": "move the cursor to the right by one unit"
+            },
+            {
+              "type": "entry",
+              "name": "move_up",
+              "value": "6",
+              "summary": "move the cursor up by one unit",
+              "since": "2"
+            },
+            {
+              "type": "entry",
+              "name": "move_down",
+              "value": "7",
+              "summary": "move the cursor down by one unit",
+              "since": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "button_state",
+          "since": "3",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Describes the physical state of a button that produced the button\nevent.",
+            "summary": "physical button state"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "released",
+              "value": "0",
+              "summary": "the button is not pressed"
+            },
+            {
+              "type": "entry",
+              "name": "pressed",
+              "value": "1",
+              "summary": "the button is pressed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

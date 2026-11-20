@@ -92,6 +92,14 @@ const sourceRepositoryUrls: Record<
             // eslint-disable-next-line no-template-curly-in-string
             'https://codeberg.org/river/river/src/branch/0.3.x/protocol/${protocol}.xml',
     },
+    [WaylandProtocolSource.GamescopeProtocols]: {
+        repositoryUrl: 'https://github.com/ValveSoftware/gamescope',
+        stabilityUrl:
+            'https://github.com/ValveSoftware/gamescope/tree/master/protocol',
+        protocolUrl:
+            // eslint-disable-next-line no-template-curly-in-string
+            'https://github.com/ValveSoftware/gamescope/blob/master/protocol/${protocol}.xml',
+    },
 
     [WaylandProtocolSource.External]: {
         repositoryUrl: '',

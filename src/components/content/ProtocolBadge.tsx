@@ -71,6 +71,11 @@ const riverProtocolsBadgeTheme: BadgeTheme = {
     backgroundColor: 'bg-cyan-100',
 }
 
+const gamescopeProtocolsBadgeTheme: BadgeTheme = {
+    textColor: 'text-lime-800',
+    backgroundColor: 'bg-lime-100',
+}
+
 const externalProtocolsBadgeTheme: BadgeTheme = {
     textColor: 'text-gray-800',
     backgroundColor: 'bg-gray-100',
@@ -106,6 +111,8 @@ function badgeThemeFor(
         return treelandProtocolsUnstableBadgeTheme
     } else if (source === WaylandProtocolSource.RiverProtocols) {
         return riverProtocolsBadgeTheme
+    } else if (source === WaylandProtocolSource.GamescopeProtocols) {
+        return gamescopeProtocolsBadgeTheme
     } else {
         return externalProtocolsBadgeTheme
     }
@@ -133,6 +140,8 @@ export const ProtocolBadge: React.FC<{ protocol: WaylandProtocolMetadata }> = ({
                 ? 'treeland'
                 : protocol.source === WaylandProtocolSource.RiverProtocols
                 ? 'river'
+                : protocol.source === WaylandProtocolSource.GamescopeProtocols
+                ? 'gamescope'
                 : protocol.source === WaylandProtocolSource.External
                 ? 'external'
                 : protocol.stability}

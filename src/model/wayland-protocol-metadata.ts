@@ -15,6 +15,7 @@ export enum WaylandProtocolSource {
     WestonProtocols = 'weston-protocols',
     TreelandProtocols ='treeland-protocols',
     RiverProtocols ='river-protocols',
+    GamescopeProtocols = 'gamescope-protocols',
     External = 'external',
 }
 

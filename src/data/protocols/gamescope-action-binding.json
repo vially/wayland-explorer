@@ -1,0 +1,180 @@
+{
+  "type": "protocol",
+  "name": "gamescope_action_binding",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2024 Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This is a private Gamescope protocol. Regular Wayland clients must not use\nit.",
+    "summary": "gamescope-specific protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_action_binding_manager",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "create_action_binding",
+          "args": [
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "new action binding object",
+              "interface": "gamescope_action_binding"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "gamescope_action_binding",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_description",
+          "args": [
+            {
+              "type": "arg",
+              "name": "description",
+              "argType": "string",
+              "summary": "human-readable description as to what the action is for, used for debugging purposes."
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "add_keyboard_trigger",
+          "args": [
+            {
+              "type": "arg",
+              "name": "keysyms",
+              "argType": "array",
+              "summary": "array of xkb_keysym_t's"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "clear_triggers",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "arm",
+          "args": [
+            {
+              "type": "arg",
+              "name": "arm_flags",
+              "argType": "uint",
+              "summary": "combination of 'arm_flag' values",
+              "enum": "arm_flag"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "disarm",
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "triggered",
+          "args": [
+            {
+              "type": "arg",
+              "name": "sequence",
+              "argType": "uint",
+              "summary": "global sequence no of actions that have been trigged"
+            },
+            {
+              "type": "arg",
+              "name": "time_lo",
+              "argType": "uint",
+              "summary": "lower bits of 64-bit timestamp in nanos (CLOCK_MONOTONIC)"
+            },
+            {
+              "type": "arg",
+              "name": "time_hi",
+              "argType": "uint",
+              "summary": "upper bits of 64-bit timestamp in nanos (CLOCK_MONOTONIC)"
+            },
+            {
+              "type": "arg",
+              "name": "trigger_flags",
+              "argType": "uint",
+              "summary": "flags for this trigger",
+              "enum": "trigger_flag"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "arm_flag",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Flags that control how the action is armed.",
+            "summary": "arm flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "one_shot",
+              "value": "0x1",
+              "summary": "disarm this action immediately after trigger. unrelated to niko"
+            },
+            {
+              "type": "entry",
+              "name": "no_block",
+              "value": "0x2",
+              "summary": "don't block the result of this shortcut being seen by the app and keep processing hotkeys"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "trigger_flag",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Flags that say how the action was triggered.",
+            "summary": "arm flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "keyboard",
+              "value": "0x1",
+              "summary": "action was triggered by keyboard trigger"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "type": "protocol",
+  "name": "gamescope_xwayland",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2021 Valve Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "This is a private Gamescope protocol. Regular Wayland clients must not use\nit.\n\nThis protocol has been superceded by the 'gamescope-swapchain' protocol.",
+    "summary": "gamescope-specific xwayland protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "gamescope_xwayland",
+      "version": "1",
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "override_window_content",
+          "description": {
+            "type": "description",
+            "text": "Xwayland creates a wl_surface for each X11 window. It sends a\nWL_SURFACE_ID client message to indicate the mapping between the X11\nwindows and the wl_surface objects.\n\nThis request overrides this mapping for a given X11 window, allowing an\nX11 client to submit buffers via the Wayland protocol. The override\nonly affects buffer submission. Everything else (e.g. input events)\nstill uses Xwayland's WL_SURFACE_ID.\n\nx11_server is gotten by the GAMESCOPE_XWAYLAND_SERVER_ID property on the\nroot window of the associated server.",
+            "summary": "override an X11's window wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "Wayland surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x11_window",
+              "argType": "uint",
+              "summary": "X11 window ID"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

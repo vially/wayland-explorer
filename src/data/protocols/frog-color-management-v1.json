@@ -1,0 +1,491 @@
+{
+  "type": "protocol",
+  "name": "frog_color_management_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "Copyright © 2023 Joshua Ashton for Valve Software\nCopyright © 2023 Xaver Hugl\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the \"Software\"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice (including the next\nparagraph) shall be included in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE."
+  },
+  "description": {
+    "type": "description",
+    "text": "The aim of this color management extension is to get HDR games working quickly,\nand have an easy way to test implementations in the wild before the upstream\nprotocol is ready to be merged.\nFor that purpose it's intentionally limited and cut down and does not serve\nall uses cases.",
+    "summary": "experimental color management protocol"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "frog_color_management_factory_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The color management factory singleton creates color managed surface objects.",
+        "summary": "color management factory"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_color_managed_surface",
+          "description": {
+            "type": "description",
+            "summary": "create color management interface for surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "target surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "new color managed surface object",
+              "interface": "frog_color_managed_surface"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "frog_color_managed_surface",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Interface for changing surface color management and HDR state.\n\nAn implementation must: support every part of the version\nof the frog_color_managed_surface interface it exposes.\nIncluding all known enums associated with a given version.",
+        "summary": "color managed surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroying the color managed surface resets all known color\nstate for the surface back to 'undefined' implementation-specific\nvalues.",
+            "summary": "destroy color managed surface"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_known_transfer_function",
+          "description": {
+            "type": "description",
+            "summary": "sets a known transfer function for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transfer_function",
+              "argType": "uint",
+              "summary": "transfer function for the surface",
+              "enum": "transfer_function"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_known_container_color_volume",
+          "description": {
+            "type": "description",
+            "summary": "sets the container color volume (primaries) for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "primaries",
+              "argType": "uint",
+              "summary": "primaries for the surface",
+              "enum": "primaries"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_render_intent",
+          "description": {
+            "type": "description",
+            "text": "NOTE: On a surface with \"perceptual\" (default) render intent, handling of the container's color volume\nis implementation-specific, and may differ between different transfer functions it is paired with:\nie. sRGB + 709 rendering may have it's primaries widened to more of the available display's gamut\nto be be more pleasing for the viewer.\nCompared to scRGB Linear + 709 being treated faithfully as 709\n(including utilizing negatives out of the 709 gamut triangle)",
+            "summary": "sets the render intent for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "render_intent",
+              "argType": "uint",
+              "summary": "render intent for the surface",
+              "enum": "render_intent"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_hdr_metadata",
+          "description": {
+            "type": "description",
+            "text": "Forwards HDR metadata from the client to the compositor.\n\nHDR Metadata Infoframe as per CTA 861.G spec.\n\nUsage of this HDR metadata is implementation specific and\noutside of the scope of this protocol.",
+            "summary": "set HDR metadata for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_red_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Red Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "red primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_red_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Red Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "red primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_green_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Green Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "green primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_green_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Green Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "green primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_blue_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Blue Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "blue primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_display_primary_blue_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering Blue Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "blue primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_white_point_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering White Point X Coordinate of the Data.\n\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "white point x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "mastering_white_point_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Mastering White Point Y Coordinate of the Data.\n\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "white point y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "max_display_mastering_luminance",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Max Mastering Display Luminance.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+                "summary": "max display mastering luminance"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "min_display_mastering_luminance",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Min Mastering Display Luminance.\nThis value is coded as an unsigned 16-bit value in units of\n0.0001 cd/m2, where 0x0001 represents 0.0001 cd/m2 and 0xFFFF\nrepresents 6.5535 cd/m2.",
+                "summary": "min display mastering luminance"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "max_cll",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Max Content Light Level.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+                "summary": "max content light level"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "max_fall",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Max Frame Average Light Level.\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+                "summary": "max frame average light level"
+              }
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "preferred_metadata",
+          "description": {
+            "type": "description",
+            "text": "Current preferred metadata for a surface.\nThe application should use this information to tone-map its buffers\nto this target before committing.\n\nThis metadata does not necessarily correspond to any physical output, but\nrather what the compositor thinks would be best for a given surface.",
+            "summary": "preferred metadata for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "transfer_function",
+              "argType": "uint",
+              "enum": "transfer_function",
+              "description": {
+                "type": "description",
+                "text": "Specifies a known transfer function that corresponds to the\noutput the surface is targeting.",
+                "summary": "output's current transfer function"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_red_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Red Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "red primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_red_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Red Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "red primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_green_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Green Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "green primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_green_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Green Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "green primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_blue_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Blue Color Primary X Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "blue primary x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_display_primary_blue_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output Blue Color Primary Y Coordinate of the Data.\n\nCoded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "blue primary y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_white_point_x",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output White Point X Coordinate of the Data.\n\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "white point x coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "output_white_point_y",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Output White Point Y Coordinate of the Data.\n\nThese are coded as unsigned 16-bit values in units of\n0.00002, where 0x0000 represents zero and 0xC350\nrepresents 1.0000.",
+                "summary": "white point y coordinate"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "max_luminance",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Max Output Luminance\nThe max luminance in nits that the output is capable of rendering in small areas.\nContent should: not exceed this value to avoid clipping.\n\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+                "summary": "maximum luminance"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "min_luminance",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Min Output Luminance\nThe min luminance that the output is capable of rendering.\nContent should: not exceed this value to avoid clipping.\n\nThis value is coded as an unsigned 16-bit value in units of\n0.0001 cd/m2, where 0x0001 represents 0.0001 cd/m2 and 0xFFFF\nrepresents 6.5535 cd/m2.",
+                "summary": "minimum luminance"
+              }
+            },
+            {
+              "type": "arg",
+              "name": "max_full_frame_luminance",
+              "argType": "uint",
+              "description": {
+                "type": "description",
+                "text": "Max Full Frame Luminance\nThe max luminance in nits that the output is capable of rendering for the\nfull frame sustained.\n\nThis value is coded as an unsigned 16-bit value in units of 1 cd/m2,\nwhere 0x0001 represents 1 cd/m2 and 0xFFFF represents 65535 cd/m2.",
+                "summary": "maximum full frame luminance"
+              }
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "transfer_function",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Extended information on the transfer functions described\nhere can be found in the Khronos Data Format specification:\n\nhttps://registry.khronos.org/DataFormat/specs/1.3/dataformat.1.3.html",
+            "summary": "known transfer functions"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "undefined",
+              "value": "0",
+              "summary": "specifies undefined, implementation-specific handling of the surface's transfer function."
+            },
+            {
+              "type": "entry",
+              "name": "srgb",
+              "value": "1",
+              "summary": "specifies the sRGB non-linear EOTF. An implementation may: display this as Gamma 2.2 for the purposes of being consistent with content rendering across displays, rendering_intent and user expectations."
+            },
+            {
+              "type": "entry",
+              "name": "gamma_22",
+              "value": "2",
+              "summary": "specifies gamma 2.2 power curve as the EOTF"
+            },
+            {
+              "type": "entry",
+              "name": "st2084_pq",
+              "value": "3",
+              "summary": "specifies the SMPTE ST2084 Perceptual Quantizer (PQ) EOTF"
+            },
+            {
+              "type": "entry",
+              "name": "scrgb_linear",
+              "value": "4",
+              "summary": "specifies the scRGB (extended sRGB) linear EOTF. Note: Primaries outside the gamut triangle specified can be expressed with negative values for this transfer function."
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "primaries",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "summary": "known primaries"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "undefined",
+              "value": "0",
+              "summary": "specifies undefined, implementation-specific handling"
+            },
+            {
+              "type": "entry",
+              "name": "rec709",
+              "value": "1",
+              "summary": "specifies Rec.709/sRGB primaries with D65 white point"
+            },
+            {
+              "type": "entry",
+              "name": "rec2020",
+              "value": "2",
+              "summary": "specifies Rec.2020/HDR10 primaries with D65 white point"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "render_intent",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Extended information on render intents described\nhere can be found in ICC.1:2022:\n\nhttps://www.color.org/specification/ICC.1-2022-05.pdf",
+            "summary": "known render intents"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "perceptual",
+              "value": "0",
+              "summary": "perceptual"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
