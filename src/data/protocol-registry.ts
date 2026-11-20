@@ -790,11 +790,24 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/cosmic-a11y-unstable-v1.json'),
     },
     {
+        id: 'cosmic-corner-radius-unstable-v1',
+        name: 'COSMIC corner radius',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-corner-radius-unstable-v1.json'),
+    },
+    {
         id: 'cosmic-atspi-unstable-v1',
         name: 'COSMIC atspi',
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-atspi-unstable-v1.json'),
+        deprecated: [
+            {
+                name: 'cosmic_atspi_manager_v1',
+                reason: 'Removed from cosmic-protocols, no longer used by cosmic-comp',
+            },
+        ],
     },
     {
         id: 'cosmic-image-capture-source-unstable-v1',
@@ -804,11 +817,40 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/cosmic-image-capture-source-unstable-v1.json'),
     },
     {
+        id: 'cosmic-keyboard-layout-unstable-v1',
+        name: 'COSMIC keyboard layout',
+        source: WaylandProtocolSource.CosmicProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/cosmic-keyboard-layout-unstable-v1.json'),
+    },
+    {
         id: 'cosmic-image-source-unstable-v1',
         name: 'COSMIC image source',
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-image-source-unstable-v1.json'),
+        deprecated: [
+            {
+                name: 'zcosmic_image_source_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-capture-source',
+            },
+            {
+                name: 'zcosmic_output_image_source_manager_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-capture-source',
+            },
+            {
+                name: 'zcosmic_workspace_image_source_manager_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-capture-source',
+            },
+            {
+                name: 'zcosmic_ext_workspace_image_source_manager_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-capture-source',
+            },
+            {
+                name: 'zcosmic_toplevel_image_source_manager_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-capture-source',
+            },
+        ],
     },
     {
         id: 'cosmic-output-management-unstable-v1',
@@ -837,6 +879,16 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-screencopy-unstable-v1.json'),
+        deprecated: [
+            {
+                name: 'zcosmic_screencopy_manager_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+            {
+                name: 'zcosmic_screencopy_session_v1',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+        ],
     },
     {
         id: 'cosmic-screencopy-unstable-v2',
@@ -844,6 +896,24 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.CosmicProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/cosmic-screencopy-unstable-v2.json'),
+        deprecated: [
+            {
+                name: 'zcosmic_screencopy_manager_v2',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+            {
+                name: 'zcosmic_screencopy_session_v2',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+            {
+                name: 'zcosmic_screencopy_frame_v2',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+            {
+                name: 'zcosmic_screencopy_cursor_session_v2',
+                reason: 'Removed from cosmic-protocols, use ext-image-copy-capture',
+            },
+        ],
     },
     {
         id: 'cosmic-toplevel-info-unstable-v1',
