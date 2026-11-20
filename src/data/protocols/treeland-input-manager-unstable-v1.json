@@ -7,14 +7,14 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows a privileged client to discover seat capabilities\nand configure compositor-managed mouse, touchpad, and keyboard devices.\n\nA treeland_input_manager_v1 object is a global manager. It creates\nsettings objects that represent configuration state for existing input\ndevices; those settings objects are not the device objects themselves.\n\nFor mouse and touchpad devices, pointer device settings such as\nacceleration speed, acceleration profile, natural scrolling, scroll\nfactor, handed mode, double-click interval, send events mode,\ndisable-while-typing and tap-to-click are managed through a\ntreeland_pointer_device_configuration_v1 object created from the\ndevice-specific settings interface.",
+    "text": "This protocol allows a privileged client to discover seat capabilities\nand configure compositor-managed mouse, touchpad, and keyboard devices.\n\nA treeland_input_manager_v1 object is a global manager. It creates\nsettings objects that represent configuration state for existing input\ndevices; those settings objects are not the device objects themselves.\n\nFor mouse and touchpad devices, pointer device settings such as\nacceleration speed, acceleration profile, natural scrolling, scroll\nfactor, handed mode, double-click interval, send events mode,\ndisable-while-typing and tap-to-click are managed through a\ntreeland_pointer_device_configuration_v1 object created from the\ndevice-specific settings interface.\n\nKeyboard settings include repeat behavior, num lock state, and XKB\nlayout, model, variant, and option strings for the target seat.\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
     "summary": "configure input devices managed by treeland"
   },
   "interfaces": [
     {
       "type": "interface",
       "name": "treeland_input_manager_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
         "text": "The treeland_input_manager_v1 interface is a global object used to\ncreate per-device settings objects for input devices exposed by the\ncompositor.\n\nThe compositor advertises device capability changes with the\ncapability_available and capability_unavailable events.\n\nFor each target device or seat-level settings scope, the compositor\nmay allow at most one live settings object of a given interface\ncreated from one manager object.\n\nvirtual-pointer and virtual-keyboard are not included in the list.",
@@ -296,7 +296,7 @@
               "name": "profile",
               "argType": "uint",
               "summary": "desired acceleration profile",
-              "enum": "treeland_pointer_device_configuration_v1.acceleration_profile"
+              "enum": "acceleration_profile"
             }
           ]
         },
@@ -314,7 +314,7 @@
               "name": "mode",
               "argType": "uint",
               "summary": "desired pointer event delivery mode",
-              "enum": "treeland_pointer_device_configuration_v1.send_events_mode"
+              "enum": "send_events_mode"
             }
           ]
         },
@@ -468,7 +468,7 @@
               "name": "profile",
               "argType": "uint",
               "summary": "current acceleration profile",
-              "enum": "treeland_pointer_device_configuration_v1.acceleration_profile"
+              "enum": "acceleration_profile"
             }
           ]
         },
@@ -486,7 +486,7 @@
               "name": "mode",
               "argType": "uint",
               "summary": "current pointer event delivery mode",
-              "enum": "treeland_pointer_device_configuration_v1.send_events_mode"
+              "enum": "send_events_mode"
             }
           ]
         },
@@ -819,10 +819,10 @@
     {
       "type": "interface",
       "name": "treeland_keyboard_settings_v1",
-      "version": "1",
+      "version": "2",
       "description": {
         "type": "description",
-        "text": "The treeland_keyboard_settings_v1 interface represents pending\nsettings for all keyboard associated with the target seat.\n\nRequests on this object update pending keyboard state. The\ncompositor applies the accumulated settings when the client sends\napply.\n\nThe compositor sends keyboard-specific state events after object\ncreation to report the current effective settings for the target\nseat. It may later send additional state batches when those\neffective settings change for compositor-defined reasons. A done\nevent terminates each event batch.",
+        "text": "The treeland_keyboard_settings_v1 interface represents pending\nsettings for all keyboards associated with the target seat.\n\nRequests on this object update pending keyboard state. The\ncompositor applies the accumulated settings when the client sends\napply.\n\nThe compositor sends keyboard-specific state events after object\ncreation to report the current effective settings for the target\nseat. It may later send additional state batches when those\neffective settings change for compositor-defined reasons. A done\nevent terminates each event batch.",
         "summary": "keyboard settings object"
       },
       "requests": [
@@ -874,7 +874,7 @@
               "name": "state",
               "argType": "uint",
               "summary": "desired num lock state",
-              "enum": "treeland_keyboard_settings_v1.toggle_state"
+              "enum": "toggle_state"
             }
           ]
         },
@@ -887,6 +887,46 @@
             "summary": "apply pending keyboard changes"
           },
           "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_xkb_rules",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Set the XKB layout, model, variant, and options to apply on the\nnext apply request. These four values form one configuration\nsnapshot and replace the complete pending XKB rules state.\n\nLayout contains one or more comma-separated layout names, for\nexample \"us\" or \"cz,us\". An empty layout selects the XKB\ndefault layout, which is \"us\".\n\nModel identifies the keyboard model, for example \"pc104\" or\n\"pc105\". An empty model selects the XKB default model.\n\nVariant contains a comma-separated list whose entries\ncorrespond to the layouts, for example \"\" or \",dvorak\".\nEmpty entries select no variant for the corresponding layout.\n\nOptions contains a comma-separated list of XKB options, for\nexample \"grp:win_space_toggle\". An empty options string\nselects no extra options.\n\nThis request updates only the pending state tracked by this\nobject. Multiple calls before apply replace the complete\npending XKB rules configuration; only the last configuration\nis applied. Sending this request, or the following apply\nrequest, does not by itself cause an xkb_rules event to be\nemitted.",
+            "summary": "set the pending XKB rules configuration"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "layout",
+              "argType": "string",
+              "summary": "comma-separated XKB layout names, or empty for the default",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "model",
+              "argType": "string",
+              "summary": "XKB keyboard model, or empty for the default",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "variant",
+              "argType": "string",
+              "summary": "comma-separated XKB variants, or empty for none",
+              "allowNull": "true"
+            },
+            {
+              "type": "arg",
+              "name": "options",
+              "argType": "string",
+              "summary": "comma-separated XKB options, or empty for none",
+              "allowNull": "true"
+            }
+          ]
         }
       ],
       "events": [
@@ -945,7 +985,7 @@
               "name": "state",
               "argType": "uint",
               "summary": "current num lock state",
-              "enum": "treeland_keyboard_settings_v1.toggle_state"
+              "enum": "toggle_state"
             }
           ]
         },
@@ -968,6 +1008,42 @@
             "summary": "end of a keyboard state batch"
           },
           "args": []
+        },
+        {
+          "type": "event",
+          "name": "xkb_rules",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "This event reports the current XKB layout, model, variant, and\noptions as one consistent configuration snapshot. The string\nformats and empty-value semantics match set_xkb_rules.\n\nThe compositor sends this event after object creation as part\nof the initial keyboard state batch. It may send the event\nagain in a later batch when any effective XKB rules value\nchanges.",
+            "summary": "report the current XKB rules configuration"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "layout",
+              "argType": "string",
+              "summary": "comma-separated XKB layout names, or empty for the default"
+            },
+            {
+              "type": "arg",
+              "name": "model",
+              "argType": "string",
+              "summary": "XKB keyboard model, or empty for the default"
+            },
+            {
+              "type": "arg",
+              "name": "variant",
+              "argType": "string",
+              "summary": "comma-separated XKB variants, or empty for none"
+            },
+            {
+              "type": "arg",
+              "name": "options",
+              "argType": "string",
+              "summary": "comma-separated XKB options, or empty for none"
+            }
+          ]
         }
       ],
       "enums": [

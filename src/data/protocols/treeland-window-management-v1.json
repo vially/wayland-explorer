@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "application window management"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -29,7 +34,8 @@
               "type": "arg",
               "name": "state",
               "argType": "uint",
-              "summary": "requested state"
+              "summary": "requested state",
+              "enum": "desktop_state"
             }
           ]
         },
@@ -50,7 +56,7 @@
           "name": "show_desktop",
           "description": {
             "type": "description",
-            "text": "This event will be sent whenever the show desktop mode changes. E.g. when it is\nentered\nor left.\n\nOn binding the interface the current state is sent.",
+            "text": "This event will be sent whenever the show desktop mode changes. For example, this\nevent is sent when the user enters or leaves show desktop mode.\n\nOn binding the interface the current state is sent.",
             "summary": "notify the client when the show desktop mode is entered/left"
           },
           "args": [
@@ -58,7 +64,8 @@
               "type": "arg",
               "name": "state",
               "argType": "uint",
-              "summary": "new state"
+              "summary": "new state",
+              "enum": "desktop_state"
             }
           ]
         }
@@ -72,17 +79,20 @@
             {
               "type": "entry",
               "name": "normal",
-              "value": "0"
+              "value": "0",
+              "summary": "normal desktop state"
             },
             {
               "type": "entry",
               "name": "show",
-              "value": "1"
+              "value": "1",
+              "summary": "show desktop mode"
             },
             {
               "type": "entry",
               "name": "preview_show",
-              "value": "2"
+              "value": "2",
+              "summary": "preview show desktop mode"
             }
           ]
         }

@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "private communication between treeland and ddm"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -31,14 +36,15 @@
           "name": "switch_to_user",
           "description": {
             "type": "description",
-            "text": "Set lockscreen user to username. Ignore when username is \"ddm\".",
+            "text": "Set lockscreen user to username. Ignore when username is \"ddm\". This is used to prevent ddm from triggering a user switch back to the greeter.",
             "summary": "call treeland to switch lockscreen user"
           },
           "args": [
             {
               "type": "arg",
               "name": "username",
-              "argType": "string"
+              "argType": "string",
+              "summary": "the user to switch to"
             }
           ]
         },
@@ -85,6 +91,7 @@
               "type": "arg",
               "name": "callback",
               "argType": "new_id",
+              "summary": "callback sent when rendering has been disabled",
               "interface": "wl_callback",
               "protocol": "wayland"
             }
@@ -116,7 +123,8 @@
             {
               "type": "arg",
               "name": "vtnr",
-              "argType": "int"
+              "argType": "int",
+              "summary": "the virtual terminal number to switch to"
             }
           ]
         },
@@ -132,7 +140,8 @@
             {
               "type": "arg",
               "name": "vtnr",
-              "argType": "int"
+              "argType": "int",
+              "summary": "the virtual terminal number to acquire"
             }
           ]
         }

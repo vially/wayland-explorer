@@ -1,0 +1,272 @@
+{
+  "type": "protocol",
+  "name": "treeland_appearance_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows general applications to query and receive live\nnotifications for user-level appearance settings managed by the\ncompositor, including cursor theme and size, fonts (proportional,\nmonospace, size), and visual appearance (icon theme, accent color,\nwindow opacity, color scheme, titlebar height, and corner radius).\n\nAny client may bind this interface. The compositor pushes the current\nvalue of every setting immediately after the client binds this global,\nand broadcasts events to all bound clients whenever a setting changes.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document are\nto be interpreted as described in RFC 2119.",
+    "summary": "query and observe user-level appearance settings"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_appearance_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A singleton global for observing user-level appearance settings\nof the current user. These settings are shared by all windows\nand clients of the user rather than being per-window. Each\nbound client receives events reporting the initial values of\nall settings immediately after binding, and subsequent events\nwhenever any setting changes.",
+        "summary": "user-level appearance settings observer"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_appearance_v1 object. The\ncompositor will no longer send events on this object after\nthis request.",
+            "summary": "destroy the appearance observer object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "cursor_theme",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor when the cursor theme changes.\nAlso emitted immediately after binding to report the\ncurrent theme.",
+            "summary": "cursor theme has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "current cursor theme name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "cursor_size",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor when the cursor size changes.\nAlso emitted immediately after binding to report the\ncurrent size in pixels. Width and height may differ on\nhardware that supports non-square cursor planes.",
+            "summary": "cursor size has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "current cursor width in pixels"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "current cursor height in pixels"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "font",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the proportional font family changes.\nAlso emitted immediately after binding to report the current\nfont.",
+            "summary": "proportional font has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "current proportional font family name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "monospace_font",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the monospace font family changes.\nAlso emitted immediately after binding to report the current\nfont.",
+            "summary": "monospace font has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "font_name",
+              "argType": "string",
+              "summary": "current monospace font family name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "font_size",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the base font size changes.\nAlso emitted immediately after binding to report the current\nsize in points multiplied by 10.",
+            "summary": "font size has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "size",
+              "argType": "uint",
+              "summary": "current font size in points multiplied by 10"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "icon_theme",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the icon theme changes. Also emitted\nimmediately after binding to report the current theme.",
+            "summary": "icon theme has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "theme_name",
+              "argType": "string",
+              "summary": "current icon theme name"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "accent_color",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the accent color changes. Also emitted\nimmediately after binding to report the current color.\nColor components are unsigned values in the range [0, 255].",
+            "summary": "accent color has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "uint",
+              "summary": "current accent color red component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "uint",
+              "summary": "current accent color green component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "uint",
+              "summary": "current accent color blue component [0, 255]"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "window_opacity",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the global window background opacity changes.\nAlso emitted immediately after binding to report the current\nvalue. The value is a fixed-point value in the range [0.0, 1.0].",
+            "summary": "global window opacity has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "opacity",
+              "argType": "fixed",
+              "summary": "current window background opacity [0.0, 1.0]"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "color_scheme",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the color scheme hint changes. Also\nemitted immediately after binding to report the current\nscheme. Clients should restyle their self-drawn components\nwhenever this event is received.",
+            "summary": "color scheme hint has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "scheme",
+              "argType": "uint",
+              "summary": "current color scheme hint",
+              "enum": "color_scheme"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "titlebar_height",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the compositor titlebar height changes. Also\nemitted immediately after binding to report the current\nvalue in pixels.",
+            "summary": "compositor titlebar height has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "uint",
+              "summary": "current compositor titlebar height in pixels"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the global default corner radius changes.\nAlso emitted immediately after binding to report the current\nvalue in pixels.",
+            "summary": "global window corner radius has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "uint",
+              "summary": "current global corner radius in pixels"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "color_scheme",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "A user-level hint for the preferred color scheme. Clients\nshould use this value to style their self-drawn widgets and\nUI elements accordingly. The compositor also applies this\nhint to server-side decorations. This is semantically\nequivalent to org.freedesktop.appearance color-scheme and\nthe CSS prefers-color-scheme media feature.\n\nThis enum mirrors treeland_appearance_manager_v1.color_scheme\n(in the privileged treeland-appearance-manager-unstable-v1\nprotocol): the entry names and values are identical and must\nstay in sync. Any new value must be added to both at once.",
+            "summary": "user-level color scheme hint"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "light",
+              "value": "0",
+              "summary": "prefer light color scheme"
+            },
+            {
+              "type": "entry",
+              "name": "dark",
+              "value": "1",
+              "summary": "prefer dark color scheme"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

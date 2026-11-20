@@ -1,0 +1,214 @@
+{
+  "type": "protocol",
+  "name": "treeland_active_notify_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows a privileged DDE client such as the dock or shell\nto observe seat activity that the compositor detects: pointer button\nand wheel activity, and drag and drop lifecycle events, scoped to a\ngiven seat.\n\nThe compositor must reject bind attempts from non-privileged\nclients.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "seat activity notification for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_active_notify_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global that creates treeland_active_notify_v1 objects for\nprivileged DDE clients. Each notifier reports activity for\none seat; clients observing several seats create several\nnotifiers.\n\nThe compositor must reject bind attempts from non-privileged\nclients.",
+        "summary": "factory for seat activity notifiers"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_active_notify_manager_v1 object.\nNotifiers created through this manager are not affected.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_active_notify",
+          "description": {
+            "type": "description",
+            "text": "Create a new treeland_active_notify_v1 object that\nreports activity for the given seat. The seat must be a\nvalid, current wl_seat.",
+            "summary": "create a new seat activity notifier"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new activity notifier object",
+              "interface": "treeland_active_notify_v1"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "the seat to observe",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_active_notify_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A notifier object reports seat activity that the compositor\ndetects. Activity is reported as activity_changed events\ntagged with the source that triggered them and the new\nactivity state. Drag and drop lifecycle changes are reported\nas drag_changed events tagged with the new drag state.\n\nThe mouse and wheel sources have different semantics:\n\nFor mouse, activity_changed reports the aggregate state of\nthe left pointer button only. It is sent with state active\nwhen the left button is pressed and state inactive when it\nis released. Other pointer buttons do not generate these\nevents. The compositor sends these events as matched pairs:\nit must not send a state active event before the matching\nstate inactive event, nor a state inactive event when the\nleft button is not pressed.\n\nFor wheel, activity_changed is a discrete per-event pulse,\nnot a persistent state. It is sent with state active for\neach wheel event whose angle delta is positive, and state\ninactive for each whose angle delta is negative; the\ncompositor may send several active (or several inactive)\nevents in a row without an intervening opposite state.\nClients must treat each wheel event independently and must\nnot infer a lasting state from a single event.\n\nThe drag_changed event reports the lifecycle of a drag and\ndrop operation on the seat. It is sent with state started\nwhen the operation begins. Exactly one terminal event\nfollows each started event: one with state dropped when the\noperation completes with a successful drop, or one with\nstate cancelled when the operation ends without a drop\n(for example because the drag was cancelled or the source\ndestroyed). No further drag events are sent after the\nterminal event until the next started event.",
+        "summary": "seat activity notifier"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_active_notify_v1 object. The\ncompositor stops reporting activity for the seat bound\nto this notifier.",
+            "summary": "destroy the activity notifier"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "activity_changed",
+          "description": {
+            "type": "description",
+            "text": "For mouse, sent when the left pointer button is pressed\n(state active) or released (state inactive). The\ncompositor sends these events as matched pairs.\n\nFor wheel, sent for each wheel event: state active when\nthe angle delta is positive, state inactive when it is\nnegative; the compositor may send several active (or\nseveral inactive) events in a row without an\nintervening opposite state.\n\nSee the interface description for the per-source\nsemantics.",
+            "summary": "an activity source changed state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "the activity source",
+              "enum": "reason"
+            },
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the new activity state",
+              "enum": "activity_state"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "drag_changed",
+          "description": {
+            "type": "description",
+            "text": "Sent when the state of a drag and drop operation on the\nseat bound to this notifier changes.\n\nA started event is followed by exactly one terminal\nevent: dropped when the operation completes with a\nsuccessful drop, or cancelled when the operation ends\nwithout a drop (for example because the drag was\ncancelled or the drag source destroyed). No further\ndrag events are sent after the terminal event until\nthe next started event.",
+            "summary": "a drag and drop operation changed state"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "the new drag and drop lifecycle state",
+              "enum": "drag_state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The input source that triggered an activity event. Used\nby the activity_changed event. See the interface\ndescription for the per-source semantics.",
+            "summary": "activity source"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "mouse",
+              "value": "0",
+              "summary": "left pointer button activity"
+            },
+            {
+              "type": "entry",
+              "name": "wheel",
+              "value": "1",
+              "summary": "pointer wheel activity"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "activity_state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The state reported by the activity_changed event. See\nthe interface description for the per-source semantics.",
+            "summary": "activity state"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "inactive",
+              "value": "0",
+              "summary": "the activity source is inactive"
+            },
+            {
+              "type": "entry",
+              "name": "active",
+              "value": "1",
+              "summary": "the activity source is active"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "drag_state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The state reported by the drag_changed event.",
+            "summary": "drag and drop lifecycle state"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "started",
+              "value": "0",
+              "summary": "a drag and drop operation started"
+            },
+            {
+              "type": "entry",
+              "name": "dropped",
+              "value": "1",
+              "summary": "a drag and drop operation completed with a drop"
+            },
+            {
+              "type": "entry",
+              "name": "cancelled",
+              "value": "2",
+              "summary": "a drag and drop operation ended without a drop"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

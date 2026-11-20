@@ -3,7 +3,12 @@
   "name": "treeland_personalization_manager_v1",
   "copyright": {
     "type": "copyright",
-    "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "personalization and theming for treeland"
   },
   "interfaces": [
     {
@@ -12,7 +17,7 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "This interface allows a client to customized display effects.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows a client to customize display effects.",
         "summary": "personalization manager"
       },
       "requests": [
@@ -45,8 +50,8 @@
           "name": "get_cursor_context",
           "description": {
             "type": "description",
-            "text": "custom user cursor",
-            "summary": "custom wallpaper context"
+            "text": "Create a cursor customization context for configuring the system cursor.",
+            "summary": "create a cursor customization context"
           },
           "args": [
             {
@@ -112,7 +117,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows a client personalization cursor.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows a client personalization cursor.",
         "summary": "client custom cursor context"
       },
       "requests": [
@@ -121,6 +126,7 @@
           "name": "set_theme",
           "description": {
             "type": "description",
+            "text": "Set the system cursor theme name.",
             "summary": "set system cursor theme"
           },
           "args": [
@@ -137,6 +143,7 @@
           "name": "get_theme",
           "description": {
             "type": "description",
+            "text": "Query the current system cursor theme name. The compositor will respond with a theme event.",
             "summary": "get system cursor theme"
           },
           "args": []
@@ -146,6 +153,7 @@
           "name": "set_size",
           "description": {
             "type": "description",
+            "text": "Set the system cursor size.",
             "summary": "set system cursor size"
           },
           "args": [
@@ -162,6 +170,7 @@
           "name": "get_size",
           "description": {
             "type": "description",
+            "text": "Query the current system cursor size. The compositor will respond with a size event.",
             "summary": "get system cursor size"
           },
           "args": []
@@ -171,8 +180,8 @@
           "name": "commit",
           "description": {
             "type": "description",
-            "text": "if only one commit fails validation, the commit will fail",
-            "summary": "commit configure"
+            "text": "Apply pending cursor configuration changes.",
+            "summary": "commit pending cursor configuration"
           },
           "args": []
         },
@@ -211,7 +220,7 @@
           "name": "theme",
           "description": {
             "type": "description",
-            "text": "Send this signal after system cursor theme changed.",
+            "text": "Sent when the system cursor theme has changed.",
             "summary": "cursor theme changed event"
           },
           "args": [
@@ -228,7 +237,7 @@
           "name": "size",
           "description": {
             "type": "description",
-            "text": "Send this signal after system cursor size changed.",
+            "text": "Sent when the system cursor size has changed.",
             "summary": "cursor size changed event"
           },
           "args": [
@@ -249,8 +258,8 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows a client personalization window.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
-        "summary": "client custom window context"
+        "text": "This interface allows a client to customize per-window visual properties\nincluding background blend mode, round corner radius, shadow, border,\nand titlebar visibility.",
+        "summary": "per-window personalization context"
       },
       "requests": [
         {
@@ -266,6 +275,7 @@
               "type": "arg",
               "name": "mode",
               "argType": "int",
+              "summary": "the blend mode to apply",
               "enum": "blend_mode"
             }
           ]
@@ -282,7 +292,8 @@
             {
               "type": "arg",
               "name": "radius",
-              "argType": "int"
+              "argType": "int",
+              "summary": "window round corner radius in pixels"
             }
           ]
         },
@@ -291,44 +302,51 @@
           "name": "set_shadow",
           "description": {
             "type": "description",
-            "text": "Set window shadow's radius, offset and color, invoking this request indicates that\nclient want to manage\nthe window shadow by itself. If not invoked, window shadow will be decided by the\ncompositor",
+            "text": "Set window shadow's radius, offset and color.\nWhen enabled, the client manages the window shadow itself.\n- radius = -1: enable shadow with system default parameters\n- radius =  0: disable shadow completely\n- radius >  0: enable shadow with custom parameters\nIf not invoked, the compositor uses its default behavior.",
             "summary": "set window shadow"
           },
           "args": [
             {
               "type": "arg",
               "name": "radius",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow radius, -1 for system default, 0 to disable"
             },
             {
               "type": "arg",
               "name": "offset_x",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow x offset"
             },
             {
               "type": "arg",
               "name": "offset_y",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow y offset"
             },
             {
               "type": "arg",
               "name": "r",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow color red component (0-255)"
             },
             {
               "type": "arg",
               "name": "g",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow color green component (0-255)"
             },
             {
               "type": "arg",
               "name": "b",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow color blue component (0-255)"
             },
             {
               "type": "arg",
               "name": "a",
-              "argType": "int"
+              "argType": "int",
+              "summary": "shadow color alpha component (0-255)"
             }
           ]
         },
@@ -337,34 +355,39 @@
           "name": "set_border",
           "description": {
             "type": "description",
-            "text": "Set window border width and color",
+            "text": "Set window border width and color.\nWhen enabled, the client manages the window border itself.\n- width = -1: enable border with system default parameters\n- width =  0: disable border completely\n- width >  0: enable border with custom parameters\nIf not invoked, the compositor uses its default behavior.",
             "summary": "set window border"
           },
           "args": [
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "border width in pixels, -1 for system default, 0 to disable"
             },
             {
               "type": "arg",
               "name": "r",
-              "argType": "int"
+              "argType": "int",
+              "summary": "border color red component (0-255)"
             },
             {
               "type": "arg",
               "name": "g",
-              "argType": "int"
+              "argType": "int",
+              "summary": "border color green component (0-255)"
             },
             {
               "type": "arg",
               "name": "b",
-              "argType": "int"
+              "argType": "int",
+              "summary": "border color blue component (0-255)"
             },
             {
               "type": "arg",
               "name": "a",
-              "argType": "int"
+              "argType": "int",
+              "summary": "border color alpha component (0-255)"
             }
           ]
         },
@@ -373,7 +396,7 @@
           "name": "set_titlebar",
           "description": {
             "type": "description",
-            "text": "Set if system titlebar is enabled",
+            "text": "Set system titlebar state.\n- mode = enable: force show the system titlebar\n- mode = disable: force hide the system titlebar\nOnce set, the compositor will not use its own default behavior\nfor the titlebar.\nIf not invoked, the compositor uses its default behavior.",
             "summary": "set if system titlebar is enabled"
           },
           "args": [
@@ -381,6 +404,7 @@
               "type": "arg",
               "name": "mode",
               "argType": "int",
+              "summary": "the titlebar enable mode",
               "enum": "enable_mode"
             }
           ]
@@ -461,8 +485,8 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows set treeland window global font settings.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
-        "summary": "treeland window global font settings"
+        "text": "This interface allows a client to configure global font settings\nincluding the general font, monospace font, and font size.",
+        "summary": "global font settings context"
       },
       "requests": [
         {
@@ -619,8 +643,8 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows set treeland window global appearance settings.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
-        "summary": "treeland window global appearance settings"
+        "text": "This interface allows a client to configure global appearance settings\nincluding round corner radius, icon theme, active color, window opacity,\nwindow theme type, and window titlebar height.",
+        "summary": "global appearance settings context"
       },
       "requests": [
         {
@@ -708,8 +732,8 @@
           "name": "set_window_opacity",
           "description": {
             "type": "description",
-            "text": "Set the window window opacity",
-            "summary": "set window window opacity"
+            "text": "Set the window opacity.",
+            "summary": "set window opacity"
           },
           "args": [
             {
@@ -725,8 +749,8 @@
           "name": "get_window_opacity",
           "description": {
             "type": "description",
-            "text": "Get the window window opacity",
-            "summary": "get window window opacity"
+            "text": "Get the current window opacity.",
+            "summary": "get window opacity"
           },
           "args": []
         },
@@ -854,7 +878,7 @@
           "name": "window_opacity",
           "description": {
             "type": "description",
-            "text": "Send this signal after setting the system active color",
+            "text": "Sent when the window opacity has changed.",
             "summary": "window opacity"
           },
           "args": [

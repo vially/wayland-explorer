@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024-2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "manage output display configuration"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -13,7 +18,7 @@
       "description": {
         "type": "description",
         "text": "Protocol for telling which is the primary display among the selection of enabled\noutputs.",
-        "summary": "expose which is the primary display"
+        "summary": "primary output and color control manager"
       },
       "requests": [
         {
@@ -21,6 +26,7 @@
           "name": "set_primary_output",
           "description": {
             "type": "description",
+            "text": "Select the primary output by name. The compositor will emit a primary_output\nevent with the current primary output name upon binding.",
             "summary": "Select which primary output to use"
           },
           "args": [
@@ -28,6 +34,7 @@
               "type": "arg",
               "name": "output",
               "argType": "string",
+              "summary": "the name of the output to set as primary",
               "allowNull": "false"
             }
           ]
@@ -96,7 +103,7 @@
       "description": {
         "type": "description",
         "text": "Protocol for controlling color temperature and brightness settings of a specific output.",
-        "summary": "Color control interface for output."
+        "summary": "per-output color temperature and brightness control"
       },
       "requests": [
         {
@@ -175,7 +182,7 @@
           "name": "color_temperature",
           "description": {
             "type": "description",
-            "text": "Provides the current color temperature setting of the output.\nColor temperature is valued in the range [1000, 20000].\nColor temperature is defined as the corresponding temperature (in Kelvin) of the current white point\nof the display on a Planckian locus.\nWith the current implementation, the neutral temperature is 6600K.\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a color temperature change for the output is successfully commited.",
+            "text": "Provides the current color temperature setting of the output.\nColor temperature is valued in the range [1000, 20000].\nColor temperature is defined as the corresponding temperature (in Kelvin) of the current white point\nof the display on a Planckian locus.\nWith the current implementation, the neutral temperature is 6600K.\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a color temperature change for the output is successfully committed.",
             "summary": "Current color temperature for output."
           },
           "args": [
@@ -192,7 +199,7 @@
           "name": "brightness",
           "description": {
             "type": "description",
-            "text": "Provides the current brightness setting of the output.\nBrightness is valued in the range [0.0, 100.0].\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a brightness change for the output is successfully commited.",
+            "text": "Provides the current brightness setting of the output.\nBrightness is valued in the range [0.0, 100.0].\nThis event is sent once after the treeland_output_color_control_v1 object is created,\nor right after when a brightness change for the output is successfully committed.",
             "summary": "Current brightness for output."
           },
           "args": [

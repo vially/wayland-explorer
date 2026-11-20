@@ -1,0 +1,743 @@
+{
+  "type": "protocol",
+  "name": "treeland_foreign_toplevel_manager_unstable_v3",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows privileged clients such as dock or taskbar\ncomponents to observe and manage toplevel windows on behalf of the\ncompositor. It provides access to window metadata (title, app-id,\nstate, parent, outputs), allows requests to maximize, minimize,\nactivate, close, or fullscreen a toplevel, and supports a dock\npreview context for thumbnail or list display and tooltip overlays.\n\nThe terms \"must\", \"must not\", \"should\", \"may\", and \"recommended\"\nin this document are to be interpreted as described in RFC 2119.",
+    "summary": "manage foreign toplevel windows"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_foreign_toplevel_manager_v3",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A singleton global that emits one treeland_foreign_toplevel_handle_v3\nobject per mapped toplevel window. Clients bind this global to\nreceive the toplevel event stream and to create dock preview\ncontexts.\n\nA toplevel is defined as a surface with a role similar to\nxdg_toplevel. XWayland surfaces may be treated like toplevels\nin this protocol.\n\nClients which only care about the current state can perform a\nroundtrip after binding this global.\n\nThe typical lifecycle is:\n1. Client binds treeland_foreign_toplevel_manager_v3.\n2. Compositor emits a toplevel event for each already-mapped\ntoplevel, followed by individual property events and a done\nevent on each handle.\n3. As windows appear and disappear the compositor emits further\ntoplevel events and closed events on the corresponding handles.\n4. When the client no longer needs the manager it sends stop,\nwaits for the finished event, destroys the handles, and then\nthe manager itself. Outstanding handles remain usable until\nthe client destroys them individually.",
+        "summary": "observe and manage toplevel windows"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "This request should be called either when the client will no\nlonger use the manager, or after the finished event has been\nreceived.\n\nIf a client wishes to destroy this object it should send a\nstop request and wait for a finished event, then destroy the\nhandles and then this object.\n\nExisting treeland_foreign_toplevel_handle_v3 objects created\nthrough this manager are not affected and must be destroyed\nseparately by the client.",
+            "summary": "destroy the manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "stop",
+          "description": {
+            "type": "description",
+            "text": "This request indicates that the client no longer wishes to\nreceive events for new toplevels.\n\nThe Wayland protocol is asynchronous, meaning the compositor\nmay send further toplevel events until the stop request is\nprocessed. The client should wait for a finished event\nbefore destroying this object.",
+            "summary": "stop sending events"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_dock_preview_context",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_dock_preview_context_v3 associated with the\ngiven surface. The surface must be a valid wl_surface owned by\nthe calling client and serves as the anchor for all preview\nand tooltip positioning.\n\nOnly one dock preview context may be active per surface at a\ntime. If the surface already has an active context, the client\nmust destroy it via treeland_dock_preview_context_v3.destroy\nbefore creating a new one; otherwise the compositor raises the\ncontext_already_exists protocol error and does not create the\nrequested object.",
+            "summary": "create a dock preview context for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "relative_surface",
+              "argType": "object",
+              "summary": "anchor surface for preview and tooltip positioning",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new dock preview context object",
+              "interface": "treeland_dock_preview_context_v3"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "toplevel",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor whenever a new toplevel window is\nmapped. The event is sent for all toplevels regardless of\nwhich application created them.\n\nImmediately after this event the compositor will send the\ninitial property events (title, app_id, pid, identifier,\nstate, output_enter, parent, and so on) on the new handle,\nfollowed by a done event. The client should treat all\nproperty events received before the first done as the\ninitial snapshot.",
+            "summary": "a toplevel window has been mapped"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "toplevel",
+              "argType": "new_id",
+              "summary": "the new toplevel handle",
+              "interface": "treeland_foreign_toplevel_handle_v3"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "finished",
+          "description": {
+            "type": "description",
+            "text": "This event indicates that the compositor is done sending\nevents to this object. The client should destroy the object.\nSee treeland_foreign_toplevel_manager_v3.destroy for more\ninformation.\n\nThe compositor must not send any more toplevel events after\nthis event.\n\nOutstanding treeland_foreign_toplevel_handle_v3 objects are\nnot affected by this event.",
+            "summary": "the compositor has finished with the toplevel manager"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error values raised as protocol errors on misuse of\ntreeland_foreign_toplevel_manager_v3 requests.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_surface",
+              "value": "0",
+              "summary": "the relative_surface passed to get_dock_preview_context is not a valid wl_surface owned by the calling client"
+            },
+            {
+              "type": "entry",
+              "name": "context_already_exists",
+              "value": "1",
+              "summary": "get_dock_preview_context was called for a surface that already has an active dock preview context; the client must destroy the existing context first"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_foreign_toplevel_handle_v3",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a single mapped toplevel window. The compositor\ncreates this object in response to the manager's toplevel event\nand destroys the server-side resource when the window is\nunmapped (signalled by the closed event).\n\nAfter the compositor sends closed, the client must not send\nany requests other than destroy. The client should call destroy\npromptly after receiving closed to release compositor-side\ntracking state.\n\nAll property events (title, app_id, pid, identifier,\noutput_enter, output_leave, state, parent) are grouped by a\ntrailing done event so that a batch of related changes appears\natomic to the client.",
+        "summary": "handle for a foreign toplevel window"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_foreign_toplevel_handle_v3 object and\nrelease all associated client-side resources.\n\nThis request may be sent at any time, including before the\ncompositor sends the closed event. When sent after closed,\nit finalizes the destruction sequence initiated by the\ncompositor. When sent before closed, the compositor will\nsilently drop any further events for this handle.\n\nWhen a handle is destroyed, a new handle may not be created\nby the compositor until the toplevel is unmapped and then\nremapped. Destroying a toplevel handle is not recommended\nunless the client is cleaning up child objects before\ndestroying the manager, the toplevel was closed, or the\nhandle will not be used in the future.\n\nOther protocols which extend the\ntreeland_foreign_toplevel_handle_v3 interface should\nrequire destructors for extension interfaces to be called\nbefore allowing the toplevel handle to be destroyed.",
+            "summary": "destroy the handle object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_maximized",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor maximize the toplevel. The\ncompositor may ignore the request. If the maximized state\nchanges, the compositor will reflect this in a subsequent\nstate event followed by done.",
+            "summary": "request that the toplevel be maximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unset_maximized",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor restore the toplevel from the\nmaximized state. The compositor may ignore the request. If\nthe state changes, it is reflected via state and done events.",
+            "summary": "request that the toplevel be unmaximized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_minimized",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor minimize the toplevel. The\ncompositor may ignore the request. If the minimized state\nchanges, the compositor will reflect this in a subsequent\nstate event followed by done.",
+            "summary": "request that the toplevel be minimized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "unset_minimized",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor restore the toplevel from the\nminimized state. The compositor may ignore the request. If\nthe state changes, it is reflected via state and done events.",
+            "summary": "request that the toplevel be unminimized"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor fullscreen the toplevel on the\ngiven output. If output is null, the compositor chooses the\noutput. The output argument is a hint only; the compositor\nmay fullscreen on a different output or not at all.\n\nIf the fullscreen state or visible outputs change, the\ncompositor will reflect this via state and output_enter /\noutput_leave events followed by done.",
+            "summary": "request that the toplevel enter fullscreen"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "summary": "preferred output for fullscreen, or null for compositor choice",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unset_fullscreen",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor exit the fullscreen state for\nthe toplevel. The compositor may ignore the request. If the\nstate changes, it is reflected via state and done events.",
+            "summary": "request that the toplevel leave fullscreen"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "activate",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor give keyboard focus to the\ntoplevel on the given seat. There is no guarantee the\ntoplevel will actually be activated; the compositor may\nignore the request based on seat focus policy or security\nconsiderations.",
+            "summary": "request that the toplevel be activated"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "the seat on which to activate the toplevel",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "Send a close request to the toplevel. The compositor\ntypically forwards this to the application using a\nshell-specific mechanism such as xdg_toplevel.close.\nThere is no guarantee the application will honour the\nrequest. If the toplevel is eventually unmapped, the\ncompositor will emit the closed event on this handle.",
+            "summary": "request that the toplevel close itself"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_icon_geometry",
+          "description": {
+            "type": "description",
+            "text": "Inform the compositor of the rectangle on surface that\nvisually represents this toplevel (for example the taskbar\nicon or thumbnail), similar to the EWMH\n_NET_WM_ICON_GEOMETRY property. The compositor may use this\nas a hint for minimize animations or similar effects.\n\nThe client is not required to set this geometry. If unset,\nthe compositor applies an implementation-defined default.\nIf the client sets multiple rectangles, only the last one\ntakes effect.\n\nCoordinates are in surface-local space of the given surface.\nSetting width = height = 0 removes a previously set geometry.\n\nThe compositor raises the invalid_geometry error if the\nprovided dimensions are otherwise out of range.",
+            "summary": "set the icon geometry of the toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface that contains the visual representation",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset in surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset in surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the rectangle in surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the rectangle in surface-local coordinates"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "pid",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor when it knows the process ID of\nthe application that owns this toplevel. This event is sent\nonce as part of the initial property snapshot, before the\nfirst done event, and is not re-sent unless the owning\nprocess changes.",
+            "summary": "process ID of the owning application"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "pid",
+              "argType": "uint",
+              "summary": "process ID of the application"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "title",
+          "description": {
+            "type": "description",
+            "text": "Emitted whenever the title of the toplevel changes. The\ninitial title is sent as part of the snapshot before the\nfirst done event.",
+            "summary": "toplevel title has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "title",
+              "argType": "string",
+              "summary": "the current title of the toplevel"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "app_id",
+          "description": {
+            "type": "description",
+            "text": "Emitted whenever the app-id of the toplevel changes. The\ninitial app-id is sent as part of the snapshot before the\nfirst done event.",
+            "summary": "toplevel app-id has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "app_id",
+              "argType": "string",
+              "summary": "the current application ID of the toplevel"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "identifier",
+          "description": {
+            "type": "description",
+            "text": "This identifier is used to check if two or more toplevel\nhandles belong to the same toplevel.\n\nThe identifier is useful for command line tools or\nprivileged clients which may need to reference an exact\ntoplevel across processes or instances of the\ntreeland_foreign_toplevel_manager_v3 global.\n\nThe compositor sends this event exactly once, when the\nhandle is created, as part of the initial property\nsnapshot.\n\nThe identifier must be unique per toplevel and its\nhandles. Two different toplevels must not have the same\nidentifier. The identifier is only valid as long as the\ntoplevel is mapped. If the toplevel is unmapped the\nidentifier must not be reused. An identifier must not be\nreused by the compositor to ensure there are no races when\nsharing identifiers between processes.",
+            "summary": "a stable identifier for a toplevel"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifier",
+              "argType": "uint",
+              "summary": "unique stable identifier for this toplevel"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_enter",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the toplevel becomes visible on the given\noutput. A toplevel may be visible on multiple outputs\nsimultaneously. This event is sent as part of the initial\nsnapshot and whenever the set of visible outputs changes.",
+            "summary": "toplevel is now visible on an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "summary": "the output the toplevel entered",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "output_leave",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the toplevel stops being visible on the given\noutput. A corresponding output_enter event for the same\noutput is guaranteed to have been sent before this event.",
+            "summary": "toplevel is no longer visible on an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "summary": "the output the toplevel left",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "state",
+          "description": {
+            "type": "description",
+            "text": "Emitted immediately after the handle is created as part of\nthe initial property snapshot, and again each time the\ntoplevel state changes due to a compositor action or a\nclient request on this protocol.\n\nThe state argument is an array of uint32 values, each\ncorresponding to an entry in the treeland_foreign_toplevel_handle_v3.state\nenum. An entry is present in the array when the corresponding\nstate is active.",
+            "summary": "toplevel state has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "array",
+              "summary": "array of active treeland_foreign_toplevel_handle_v3.state enum values encoded as uint32"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "done",
+          "description": {
+            "type": "description",
+            "text": "Emitted after the compositor has sent all property events for\nthe current atomic update batch (title, app_id, pid,\nidentifier, state, output_enter, output_leave, parent). The\nclient should process the preceding events as a single\ncoherent state snapshot only upon receiving done.\n\nThis allows changes to the\ntreeland_foreign_toplevel_handle_v3 properties to be\natomically applied. Other protocols which extend the\ntreeland_foreign_toplevel_handle_v3 interface may use this\nevent to also atomically apply any pending state.\n\nThis event must not be sent after the\ntreeland_foreign_toplevel_handle_v3.closed event.",
+            "summary": "all pending property changes have been sent"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the toplevel is unmapped or destroyed by the\ncompositor. No further property events will be sent on this\nhandle after closed. The handle becomes inert; the client\nmust not send any requests except destroy, which it should\ncall promptly to release compositor-side tracking resources.\n\nOther protocols which extend the\ntreeland_foreign_toplevel_handle_v3 interface must also\nignore requests other than their destructors.",
+            "summary": "the toplevel window has been unmapped"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "parent",
+          "description": {
+            "type": "description",
+            "text": "Emitted whenever the parent-child relationship of this\ntoplevel changes. The parent arg is null when the toplevel\nhas no parent (i.e. it is a top-level root window).\n\nThis event is not re-sent when the client destroys the\nparent handle; the relationship on the compositor side is\nunchanged by client-side destruction of the parent object.",
+            "summary": "parent toplevel has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "parent",
+              "argType": "object",
+              "summary": "the parent toplevel handle, or null if there is no parent",
+              "interface": "treeland_foreign_toplevel_handle_v3",
+              "allowNull": "true"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Flags that describe the current state of a toplevel window.\nThese correspond to the states with the same names defined\nin the xdg-toplevel interface. Each flag is encoded as a\nuint32 value in the array sent by the state event.",
+            "summary": "toplevel window state flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "maximized",
+              "value": "0",
+              "summary": "the toplevel is maximized"
+            },
+            {
+              "type": "entry",
+              "name": "minimized",
+              "value": "1",
+              "summary": "the toplevel is minimized"
+            },
+            {
+              "type": "entry",
+              "name": "activated",
+              "value": "2",
+              "summary": "the toplevel has keyboard focus"
+            },
+            {
+              "type": "entry",
+              "name": "fullscreen",
+              "value": "3",
+              "summary": "the toplevel is fullscreen"
+            },
+            {
+              "type": "entry",
+              "name": "attention",
+              "value": "4",
+              "summary": "the toplevel is requesting user attention"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error values raised as protocol errors on misuse of\ntreeland_foreign_toplevel_handle_v3 requests.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_geometry",
+              "value": "0",
+              "summary": "the provided set_icon_geometry dimensions are invalid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_dock_preview_context_v3",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "Provides the dock or taskbar component with the ability to\ndisplay a thumbnail preview of one or more toplevels and to\nshow a client-drawn tooltip surface, both positioned relative\nto the anchor surface supplied to get_dock_preview_context.\n\nThe object is created by\ntreeland_foreign_toplevel_manager_v3.get_dock_preview_context\nand is valid until the client calls destroy. The compositor\nemits enter and leave events when the pointer enters or leaves\nthe active preview area.\n\nThe preview and the tooltip share one popover slot: showing\neither one replaces whatever the context displayed before.\n\nVersion 2 adds the show_list request, which shows the same\npreview as show but asks for a vertical list of rows instead\nof thumbnails. show keeps its thumbnail meaning in both\nversions.",
+        "summary": "dock preview and tooltip context for a surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_dock_preview_context_v3 object and\nrelease all associated compositor resources. Any visible\npreview or tooltip is hidden immediately. After this request\nthe compositor will no longer send any event.",
+            "summary": "destroy the dock preview context"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "show",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor display thumbnail previews for\nthe toplevels identified by the identifiers array. The popup\nis positioned at (x, y) in the coordinate space of the\nanchor surface supplied at context creation, on the side\nindicated by direction.\n\nThis request always asks for the thumbnail presentation.\nA client that wants the list presentation sends show_list\ninstead, which takes the same arguments.\n\nThe identifiers argument is a wl_array of uint32 identifier\nvalues, each matching the identifier sent by the\ntreeland_foreign_toplevel_handle_v3.identifier event. The\ncompositor ignores identifiers that do not correspond to a\ncurrently mapped toplevel.\n\nCalling show while a preview is already visible replaces\nthe previous content atomically. If a tooltip is visible,\nthe preview replaces it as well: the tooltip is hidden.",
+            "summary": "show a thumbnail preview of the given toplevels"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifiers",
+              "argType": "array",
+              "summary": "array of uint32 toplevel identifiers to preview"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset of the preview popup in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset of the preview popup in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint",
+              "summary": "which side of the anchor surface the preview appears on",
+              "enum": "direction"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "show_tooltip_surface",
+          "description": {
+            "type": "description",
+            "text": "Display the given surface as the tooltip of this context, at\n(x, y) in the coordinate space of the anchor surface and on\nthe side indicated by direction. The compositor computes the\nfinal position from these values and may move the tooltip to\nkeep it on the output; clients must not assume the request is\nhonored exactly. Any tooltip this context displayed before is\nreplaced.\n\nThe compositor draws its popover frame (tint, border,\nshadow) exactly behind the surface and uses the surface's\ncommitted logical size as the tooltip size. There is no\nextra padding on any side: the client is responsible for\nits own inner padding and for keeping its content inside\nthe rounded corners. The client provides content only and\nmust not draw its own popover background, otherwise it\ncovers the frame the compositor draws.\n\nThe surface must already have a committed buffer when this\nrequest is sent. A surface without content is a client\nerror: the compositor shows nothing for that request. Asking\nfor a surface that is already shown, with the same or a new\nposition, is allowed and needs no further commit; commits\nafter the tooltip is shown update its content.\n\nA request for a surface other than the one this context\nalready shows replaces the tooltip, and the compositor may\nanimate the switch, shrinking and fading out the replaced\ntooltip into the new one. Showing the surface this context\nalready shows is not a replacement: the compositor keeps\ndrawing that one surface, moved to the new position, and\nplays no animation, even when the surface committed\ndifferent content in the meantime. A client that wants a\ntransition between two tooltips therefore has to put them\non separate surfaces; one surface repainted in place\nchanges the tooltip without animating.\n\nThis request assigns a compositor-side role to the surface,\nso the surface must be owned by the calling client and must\nnot have any other role yet; the anchor surface of this\ncontext cannot be used either. Otherwise the compositor\nraises invalid_surface. The role is never released: once a\nsurface has been shown as a tooltip it can only be shown as\na tooltip again. The compositor does not scale the tooltip;\nif it does not fit on the output it may be clipped.\n\nThe surface receives no pointer or keyboard input, no focus\nand no activation. It is owned by the client: the\ncompositor only stops using it and never destroys it.",
+            "summary": "show a client-drawn tooltip surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the wl_surface to display as the tooltip content",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset of the tooltip in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset of the tooltip in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint",
+              "summary": "which side of the anchor surface the tooltip appears on",
+              "enum": "direction"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "close",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor hide the currently visible\npopover, that is the preview popup and the tooltip surface\nalike. If nothing is visible this request is a no-op.\n\nA hidden tooltip is not destroyed and keeps the role of its\nsurface; the client shows it again with another\nshow_tooltip_surface request.",
+            "summary": "hide the popover"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "show_list",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Behaves exactly like show, except that the compositor\npresents the toplevels as a vertical list of rows, one row\nper toplevel, instead of thumbnails side by side.\n\nThe arguments and the popup placement are the same as show,\nand the two requests replace each other exactly like two\ncalls of show do.",
+            "summary": "show a list preview of the given toplevels"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "identifiers",
+              "argType": "array",
+              "summary": "array of uint32 toplevel identifiers to preview"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset of the preview popup in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset of the preview popup in anchor-surface-local coordinates"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint",
+              "summary": "which side of the anchor surface the preview appears on",
+              "enum": "direction"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "enter",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the pointer device enters the active preview\npopup area managed by this context. The compositor sends\nthis event only while a preview is visible (i.e. after\nshow and before close or destroy).",
+            "summary": "pointer entered the preview area"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "leave",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the pointer device leaves the active preview\npopup area managed by this context. A corresponding enter\nevent is guaranteed to have been sent before this event.",
+            "summary": "pointer left the preview area"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error values raised as protocol errors on misuse of\ntreeland_dock_preview_context_v3 requests.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_surface",
+              "value": "0",
+              "summary": "the wl_surface is not owned by this client, has another role, or is the anchor surface"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "direction",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Specifies on which side of the anchor surface the preview\npopup or tooltip should appear. The compositor uses this\nvalue as a placement hint; it may choose a different side\nif the requested side would be clipped by the screen edge.",
+            "summary": "position of the preview relative to the anchor surface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "0",
+              "summary": "preview appears above the anchor surface"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "1",
+              "summary": "preview appears to the right of the anchor surface"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2",
+              "summary": "preview appears below the anchor surface"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "3",
+              "summary": "preview appears to the left of the anchor surface"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

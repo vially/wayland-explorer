@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "DDE shell integration for treeland"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -12,18 +17,24 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "This interface allows DDE change some treeland function.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows DDE to configure some treeland functions.",
         "summary": "dde shell manager"
       },
       "requests": [
         {
           "type": "request",
           "name": "get_window_overlap_checker",
+          "description": {
+            "type": "description",
+            "text": "Deprecated: this request is non-functional. The created\nobject never emits events, and its requests have no\neffect apart from destroy.\n\nSuperseded by the treeland_region_watch_manager_v1\nglobal of the treeland-region-watch-unstable-v1\nprotocol.",
+            "summary": "create a window overlap checker"
+          },
           "args": [
             {
               "type": "arg",
               "name": "id",
               "argType": "new_id",
+              "summary": "the new window overlap checker object",
               "interface": "treeland_window_overlap_checker"
             }
           ]
@@ -47,6 +58,7 @@
               "type": "arg",
               "name": "surface",
               "argType": "object",
+              "summary": "the surface to create a shell surface for",
               "interface": "wl_surface",
               "protocol": "wayland"
             }
@@ -57,7 +69,7 @@
           "name": "get_treeland_dde_active",
           "description": {
             "type": "description",
-            "text": "Create a new dde active for a given seat.",
+            "text": "Deprecated: this request is non-functional. The created\nobject never emits events, and its requests have no\neffect apart from destroy.\n\nSuperseded by the treeland_active_notify_manager_v1\nglobal of the treeland-active-notify-unstable-v1\nprotocol.",
             "summary": "create a new dde active"
           },
           "args": [
@@ -82,7 +94,7 @@
           "name": "get_treeland_multitaskview",
           "description": {
             "type": "description",
-            "text": "Create a new multitaskview context for toggle.",
+            "text": "Deprecated: superseded by the open_multitask_view,\nclose_multitask_view, and toggle_multitask_view actions of\nthe treeland_compositor_action_v1 global of the\ntreeland-compositor-action-unstable-v1 protocol. This\nrequest must not be used in new code.",
             "summary": "create a new multitaskview context"
           },
           "args": [
@@ -116,7 +128,7 @@
           "name": "get_treeland_lockscreen",
           "description": {
             "type": "description",
-            "text": "Create a new lockscreen context for toggle.",
+            "text": "Deprecated: superseded by the lockscreen, shutdown_menu,\nand show_user_switch actions of the\ntreeland_compositor_action_v1 global of the\ntreeland-compositor-action-unstable-v1 protocol. This\nrequest must not be used in new code.",
             "summary": "create a new lockscreen context"
           },
           "args": [
@@ -133,7 +145,7 @@
           "name": "set_xwindow_position_relative",
           "description": {
             "type": "description",
-            "text": "Move the top-left point of a XWayland surface\nspecified with Window ID, to a position that has\n(dx, dy) offset from the top-left point of a wl_surface\n\nOnce the server finished process it send \"done\" to the\ncallback. The callback data 0 means no error occured,\n1 means something went wrong and the move cannot be\ndone.",
+            "text": "Deprecated: this request is non-functional and has no\neffect. Superseded by the set_xwindow_position_relative\nrequest of the treeland_xwindow_control_v1 global of the\ntreeland-xwindow-control-unstable-v1 protocol.",
             "summary": "Move a XWayland surface to a position relative to a wl_surface"
           },
           "args": [
@@ -147,24 +159,28 @@
             {
               "type": "arg",
               "name": "wid",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "X11 window ID"
             },
             {
               "type": "arg",
               "name": "anchor",
               "argType": "object",
+              "summary": "the reference surface",
               "interface": "wl_surface",
               "protocol": "wayland"
             },
             {
               "type": "arg",
               "name": "dx",
-              "argType": "fixed"
+              "argType": "fixed",
+              "summary": "horizontal offset from anchor"
             },
             {
               "type": "arg",
               "name": "dy",
-              "argType": "fixed"
+              "argType": "fixed",
+              "summary": "vertical offset from anchor"
             }
           ]
         },
@@ -190,8 +206,8 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "A treeland_dde_shell_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
-        "summary": "An opened toplevel"
+        "text": "Deprecated: this interface is non-functional. Apart from\nthe destroy request, all requests have no effect and no\nevents are ever emitted. New code must not use it.\n\nSuperseded by the treeland_region_watch_manager_v1\nglobal of the treeland-region-watch-unstable-v1\nprotocol.",
+        "summary": "A window overlap checker"
       },
       "requests": [
         {
@@ -206,12 +222,14 @@
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "width of the detected window region"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "height of the detected window region"
             },
             {
               "type": "arg",
@@ -235,7 +253,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Destroys the treeland_window_overlap_checker object.\n\nThis request should be called either when the client does not want to\nuse the toplevel anymore or after the closed event to finalize the\ndestruction of the object.",
+            "text": "Destroys the treeland_window_overlap_checker object.\n\nSend this request when the client no longer needs overlap\nnotifications from this object.",
             "summary": "destroy the treeland_window_overlap_checker object"
           },
           "args": []
@@ -247,8 +265,8 @@
           "name": "enter",
           "description": {
             "type": "description",
-            "text": "This event is sent when windows overlapped.\nThis event is sent only once.",
-            "summary": "Window has overlapped"
+            "text": "Sent when the detected window region begins to overlap\nwith any xdg-shell toplevel.  Sent at most once per\nupdate cycle.",
+            "summary": "detected window has become overlapped"
           },
           "args": []
         },
@@ -257,8 +275,8 @@
           "name": "leave",
           "description": {
             "type": "description",
-            "text": "This event is sent when windows not overlapped.\nThis event is sent only once.",
-            "summary": "Window not has overlapped"
+            "text": "Sent when the detected window region no longer overlaps\nwith any xdg-shell toplevel.  Sent at most once per\nupdate cycle.",
+            "summary": "detected window is no longer overlapped"
           },
           "args": []
         }
@@ -318,7 +336,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "The treeland_dde_shell_surface_v1 interface is removed from the\nwl_surface object that was turned into a shell surface with the\ntreeland_shell_v1.get_treeland_dde_shell_surface request.\n\nThe shell surface role is lost and wl_surface is unmapped.",
+            "text": "The treeland_dde_shell_surface_v1 interface is removed from the\nwl_surface object that was turned into a shell surface with the\ntreeland_dde_shell_manager_v1.get_shell_surface request.\n\nThe shell surface role is lost and wl_surface is unmapped.",
             "summary": "destroy the treeland_dde_shell_surface_v1 object"
           },
           "args": []
@@ -359,7 +377,7 @@
               "type": "arg",
               "name": "role",
               "argType": "uint",
-              "enum": "treeland_dde_shell_surface_v1.role"
+              "enum": "role"
             }
           ]
         },
@@ -464,7 +482,8 @@
             {
               "type": "entry",
               "name": "overlay",
-              "value": "1"
+              "value": "1",
+              "summary": "overlay role"
             }
           ]
         }
@@ -476,7 +495,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "An interface used to monitor special events.",
+        "text": "Deprecated: this interface is non-functional. Apart from\nthe destroy request, all requests have no effect and no\nevents are ever emitted. New code must not use it.\n\nSuperseded by the treeland_active_notify_manager_v1 global of\nthe treeland-active-notify-unstable-v1 protocol.",
         "summary": "metadata interface"
       },
       "requests": [
@@ -486,6 +505,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
+            "text": "Destroy this object.",
             "summary": "destroy the treeland_dde_active_v1 object"
           },
           "args": []
@@ -497,14 +517,14 @@
           "name": "active_in",
           "description": {
             "type": "description",
-            "summary": "activeIn event"
+            "summary": "active in event was triggered"
           },
           "args": [
             {
               "type": "arg",
               "name": "reason",
               "argType": "uint",
-              "enum": "treeland_dde_active_v1.reason"
+              "enum": "reason"
             }
           ]
         },
@@ -513,14 +533,14 @@
           "name": "active_out",
           "description": {
             "type": "description",
-            "summary": "activeOut event"
+            "summary": "active out event was triggered"
           },
           "args": [
             {
               "type": "arg",
               "name": "reason",
               "argType": "uint",
-              "enum": "treeland_dde_active_v1.reason"
+              "enum": "reason"
             }
           ]
         },
@@ -538,7 +558,7 @@
           "name": "drop",
           "description": {
             "type": "description",
-            "summary": "sent when the compositor drop operation"
+            "summary": "sent when the compositor completes a drop operation"
           },
           "args": []
         }
@@ -556,12 +576,14 @@
             {
               "type": "entry",
               "name": "mouse",
-              "value": "0"
+              "value": "0",
+              "summary": "mouse triggered"
             },
             {
               "type": "entry",
               "name": "wheel",
-              "value": "1"
+              "value": "1",
+              "summary": "mouse wheel triggered"
             }
           ]
         }
@@ -573,7 +595,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "An interface used to control multitaskview.",
+        "text": "An interface used to control multitaskview.\n\nDeprecated: superseded by the open_multitask_view,\nclose_multitask_view, and toggle_multitask_view actions of the\ntreeland_compositor_action_v1 global of the\ntreeland-compositor-action-unstable-v1 protocol. The interface\nmust not be used in new code.",
         "summary": "multitaskview context interface"
       },
       "requests": [
@@ -583,6 +605,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
+            "text": "Destroy this multitaskview context object.",
             "summary": "destroy the treeland_multitaskview_v1 object"
           },
           "args": []
@@ -617,6 +640,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
+            "text": "Destroy this window picker object.",
             "summary": "destroy the treeland_window_picker_v1 object"
           },
           "args": []
@@ -653,7 +677,7 @@
               "type": "arg",
               "name": "pid",
               "argType": "int",
-              "summary": "Pid of picked window"
+              "summary": "PID of the picked window"
             }
           ]
         }
@@ -666,7 +690,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "An interface used to operate lockscreen.",
+        "text": "An interface used to operate lockscreen.\n\nDeprecated: superseded by the lockscreen, shutdown_menu, and\nshow_user_switch actions of the treeland_compositor_action_v1\nglobal of the treeland-compositor-action-unstable-v1 protocol.\nThe interface must not be used in new code.",
         "summary": "lockscreen interface"
       },
       "requests": [
@@ -676,6 +700,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
+            "text": "Destroy this lockscreen context object.",
             "summary": "destroy the treeland_lockscreen_v1 object"
           },
           "args": []

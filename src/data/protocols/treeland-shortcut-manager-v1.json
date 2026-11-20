@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "keyboard shortcut management"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -12,7 +17,7 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "This interface allows a client to get some shell's info.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows a client to get some shell's info.",
         "summary": "shortcut manager"
       },
       "requests": [
@@ -59,7 +64,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows a client to listen a shortcut action.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows a client to listen a shortcut action.",
         "summary": "client shortcut context"
       },
       "requests": [

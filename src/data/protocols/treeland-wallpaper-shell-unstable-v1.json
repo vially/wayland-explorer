@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "wallpaper shell integration"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -96,7 +101,7 @@
     {
       "type": "interface",
       "name": "treeland_wallpaper_shell_v1",
-      "version": "2",
+      "version": "1",
       "description": {
         "type": "description",
         "text": "The treeland_wallpaper_shell_v1 interface is a global object exposed by\nthe compositor that allows a client to assign the wallpaper role to\na wl_surface and create wallpaper surface objects.\n\nA wallpaper surface represents content intended to be displayed as\nthe desktop wallpaper, such as a static image or a dynamic media\nsource, and is associated with exactly one wl_surface.\n\nThis interface follows the shell pattern used by other Wayland\nprotocols: it assigns a specific role to a wl_surface and manages\nthe lifetime and behavior of wallpaper surfaces.\n\nThis interface is a singleton. At most one client may bind to\ntreeland_wallpaper_shell_v1 at any given time.",
@@ -153,7 +158,7 @@
     {
       "type": "interface",
       "name": "treeland_wallpaper_surface_v1",
-      "version": "2",
+      "version": "1",
       "description": {
         "type": "description",
         "text": "The treeland_wallpaper_surface_v1 interface controls the behavior of a\nwallpaper surface.\n\nA wallpaper surface is bound to exactly one wl_surface and defines how\nthat surface should be sized, positioned, and synchronized with the\ncompositor's wallpaper management logic.",
@@ -166,7 +171,7 @@
           "requestType": "destructor",
           "description": {
             "type": "description",
-            "text": "Destroy the wallpaper surface object and release its association with\nthe underlying wl_surface.\n\nAfter calling this request, the wallpaper surface object becomes\ninvalid and must not be used again.\n\nThis request should only be sent when the client intends to\npermanently stop using the wallpaper surface, such as when the\nclient is shutting down or after receiving the\ntreeland_wallpaper_produce_v1.removed event for this surface.",
+            "text": "Destroy the wallpaper surface object and release its association with\nthe underlying wl_surface.\n\nAfter calling this request, the wallpaper surface object becomes\ninvalid and must not be used again.\n\nThis request should only be sent when the client intends to\npermanently stop using the wallpaper surface, such as when the\nclient is shutting down or after receiving the\ntreeland_wallpaper_notifier_v1.remove event for this surface.\nThe surface should also have released its wl_buffer attachment.",
             "summary": "Destroy the wallpaper surface"
           },
           "args": []
@@ -192,7 +197,6 @@
         {
           "type": "request",
           "name": "ready",
-          "since": "2",
           "description": {
             "type": "description",
             "text": "Informs the compositor that the wallpaper surface has completed\nits initial rendering and is ready to be displayed.\n\nThe client should send this request only after a valid buffer\nhas been attached and committed to the associated wl_surface.\n\nBefore receiving this request, the compositor may keep the\nwallpaper hidden or continue displaying a fallback wallpaper.\n\nThis request is typically used to avoid visual glitches such as\nblack frames, incomplete rendering, or uninitialized content\nduring wallpaper startup.\n\nCalling this request multiple times has no additional effect.",
@@ -234,7 +238,7 @@
           "name": "set_playback_rate",
           "description": {
             "type": "description",
-            "text": "Sets the playback speed of the wallpaper content.\n\nA rate of 1.0 represents normal speed.\nA rate of 0.0 represents a paused state.",
+            "text": "Sets the playback speed of the wallpaper content.\n\nA rate of 1.0 represents normal speed.\nA rate of 0.0 is equivalent to receiving a pause event.",
             "summary": "Set wallpaper playback rate"
           },
           "args": [

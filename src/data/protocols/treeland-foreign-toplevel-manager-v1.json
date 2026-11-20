@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "manage foreign toplevel windows"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -12,7 +17,7 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "This interface allows a client to get toplevel some info.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows a client to observe information about toplevel windows managed by the compositor.",
         "summary": "foreign toplevel manager"
       },
       "requests": [
@@ -29,11 +34,17 @@
         {
           "type": "request",
           "name": "get_dock_preview_context",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_dock_preview_context_v1 for the given surface.",
+            "summary": "create a dock preview context"
+          },
           "args": [
             {
               "type": "arg",
               "name": "relative_surface",
               "argType": "object",
+              "summary": "the surface the preview is relative to",
               "interface": "wl_surface",
               "protocol": "wayland"
             },
@@ -41,6 +52,7 @@
               "type": "arg",
               "name": "id",
               "argType": "new_id",
+              "summary": "the new dock preview context",
               "interface": "treeland_dock_preview_context_v1"
             }
           ]
@@ -60,6 +72,7 @@
               "type": "arg",
               "name": "toplevel",
               "argType": "new_id",
+              "summary": "the new toplevel handle",
               "interface": "treeland_foreign_toplevel_handle_v1"
             }
           ]
@@ -84,7 +97,7 @@
       "version": "2",
       "description": {
         "type": "description",
-        "text": "A treeland_foreign_toplevel_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "A treeland_foreign_toplevel_handle_v1 object represents an opened toplevel window. Each\napp may have multiple opened toplevels.",
         "summary": "An opened toplevel"
       },
       "requests": [
@@ -141,6 +154,7 @@
               "type": "arg",
               "name": "seat",
               "argType": "object",
+              "summary": "the seat to activate on",
               "interface": "wl_seat",
               "protocol": "wayland"
             }
@@ -169,28 +183,33 @@
               "type": "arg",
               "name": "surface",
               "argType": "object",
+              "summary": "the reference surface",
               "interface": "wl_surface",
               "protocol": "wayland"
             },
             {
               "type": "arg",
               "name": "x",
-              "argType": "int"
+              "argType": "int",
+              "summary": "x offset in surface-local coordinates"
             },
             {
               "type": "arg",
               "name": "y",
-              "argType": "int"
+              "argType": "int",
+              "summary": "y offset in surface-local coordinates"
             },
             {
               "type": "arg",
               "name": "width",
-              "argType": "int"
+              "argType": "int",
+              "summary": "width of the rectangle"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "int"
+              "argType": "int",
+              "summary": "height of the rectangle"
             }
           ]
         },
@@ -218,6 +237,7 @@
               "type": "arg",
               "name": "output",
               "argType": "object",
+              "summary": "the output to fullscreen on, or null for compositor choice",
               "interface": "wl_output",
               "allowNull": "true",
               "protocol": "wayland"
@@ -248,7 +268,8 @@
             {
               "type": "arg",
               "name": "pid",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "process ID of the application"
             }
           ]
         },
@@ -264,7 +285,8 @@
             {
               "type": "arg",
               "name": "title",
-              "argType": "string"
+              "argType": "string",
+              "summary": "the title of the toplevel"
             }
           ]
         },
@@ -280,7 +302,8 @@
             {
               "type": "arg",
               "name": "app_id",
-              "argType": "string"
+              "argType": "string",
+              "summary": "the application ID of the toplevel"
             }
           ]
         },
@@ -296,7 +319,8 @@
             {
               "type": "arg",
               "name": "identifier",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "a unique stable identifier for this toplevel"
             }
           ]
         },
@@ -313,6 +337,7 @@
               "type": "arg",
               "name": "output",
               "argType": "object",
+              "summary": "the output the toplevel entered",
               "interface": "wl_output",
               "protocol": "wayland"
             }
@@ -331,6 +356,7 @@
               "type": "arg",
               "name": "output",
               "argType": "object",
+              "summary": "the output the toplevel left",
               "interface": "wl_output",
               "protocol": "wayland"
             }
@@ -348,7 +374,8 @@
             {
               "type": "arg",
               "name": "state",
-              "argType": "array"
+              "argType": "array",
+              "summary": "array of active states"
             }
           ]
         },
@@ -385,6 +412,7 @@
               "type": "arg",
               "name": "parent",
               "argType": "object",
+              "summary": "the parent toplevel handle, or null if no parent",
               "interface": "treeland_foreign_toplevel_handle_v1",
               "allowNull": "true"
             }
@@ -456,7 +484,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface allows dock set windows preview.\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows dock set windows preview.",
         "summary": "handle dock preview"
       },
       "requests": [
@@ -487,33 +515,43 @@
             {
               "type": "arg",
               "name": "direction",
-              "argType": "uint"
+              "argType": "uint",
+              "enum": "direction"
             }
           ]
         },
         {
           "type": "request",
           "name": "show_tooltip",
+          "description": {
+            "type": "description",
+            "text": "Show a tooltip at the specified position relative to the relative_surface.",
+            "summary": "show a tooltip"
+          },
           "args": [
             {
               "type": "arg",
               "name": "tooltip",
-              "argType": "string"
+              "argType": "string",
+              "summary": "tooltip text to display"
             },
             {
               "type": "arg",
               "name": "x",
-              "argType": "int"
+              "argType": "int",
+              "summary": "x position relative to relative_surface"
             },
             {
               "type": "arg",
               "name": "y",
-              "argType": "int"
+              "argType": "int",
+              "summary": "y position relative to relative_surface"
             },
             {
               "type": "arg",
               "name": "direction",
-              "argType": "uint"
+              "argType": "uint",
+              "enum": "direction"
             }
           ]
         },
@@ -522,7 +560,7 @@
           "name": "close",
           "description": {
             "type": "description",
-            "text": "close preview box",
+            "text": "Close the preview box and hide it.",
             "summary": "close preview box"
           },
           "args": []
@@ -568,6 +606,7 @@
           "bitfield": false,
           "description": {
             "type": "description",
+            "text": "Direction of the dock preview relative to the anchor surface.",
             "summary": "types of direction on the dock preview"
           },
           "entries": [
@@ -575,25 +614,25 @@
               "type": "entry",
               "name": "top",
               "value": "0",
-              "summary": "top"
+              "summary": "above the anchor"
             },
             {
               "type": "entry",
               "name": "right",
               "value": "1",
-              "summary": "right"
+              "summary": "to the right of the anchor"
             },
             {
               "type": "entry",
               "name": "bottom",
               "value": "2",
-              "summary": "bottom"
+              "summary": "below the anchor"
             },
             {
               "type": "entry",
               "name": "left",
               "value": "3",
-              "summary": "left"
+              "summary": "to the left of the anchor"
             }
           ]
         }

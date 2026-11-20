@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "wallpaper management"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -32,7 +37,7 @@
           "name": "get_treeland_wallpaper",
           "description": {
             "type": "description",
-            "text": "Creates a treeland_wallpaper_v1 object bound to the specified wl_output.\n\nThe compositor may enforce that only one wallpaper exists for a given\n(output, role) combination.\n\nWhen a surface is associated, the compositor will track the workspace\nthe surface belongs to. Whenever the workspace changes, the compositor\nmay notify the client of the current wallpaper file path used by that\nworkspace.\n\nNote:\n1. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_output is destroyed.\n1. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_surface is destroyed.",
+            "text": "Creates a treeland_wallpaper_v1 object bound to the specified wl_output.\n\nThe compositor may enforce that only one wallpaper exists for a given\n(output, role) combination.\n\nWhen a surface is associated, the compositor will track the workspace\nthe surface belongs to. Whenever the workspace changes, the compositor\nmay notify the client of the current wallpaper file path used by that\nworkspace.\n\nNote:\n1. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_output is destroyed.\n2. The treeland_wallpaper_v1 object must be destroyed before\nthe associated wl_surface is destroyed.",
             "summary": "Create a wallpaper object for an output."
           },
           "args": [
@@ -46,6 +51,7 @@
               "type": "arg",
               "name": "output",
               "argType": "object",
+              "summary": "the output to associate the wallpaper with",
               "interface": "wl_output",
               "protocol": "wayland"
             },
@@ -104,7 +110,8 @@
               "type": "arg",
               "name": "role",
               "argType": "uint",
-              "summary": "wallpaper role"
+              "summary": "wallpaper role",
+              "enum": "wallpaper_role"
             }
           ]
         },
@@ -127,7 +134,8 @@
               "type": "arg",
               "name": "role",
               "argType": "uint",
-              "summary": "wallpaper role"
+              "summary": "wallpaper role",
+              "enum": "wallpaper_role"
             }
           ]
         }
@@ -162,7 +170,7 @@
           "name": "changed",
           "description": {
             "type": "description",
-            "text": "This event is emitted by the compositor to notify the client that the\nwallpaper source associated with this treeland_wallpaper_v1 object\nhas changed.\n\nThe event may be emitted during initial object setup or when the\nwallpaper is changed due to external factors not initiated by this\nclient, such as compositor policy decisions, workspace switches\n(except for lockscreen wallpapers) that affect the active\nwallpaper, or other system components.\n\nBecause the desktop wallpaper is designed to support different\nworkspaces. if the client is a surface, changes to its displayed\nworkspace will also send (reference set_reference_surface).\n\nThe event provides the current wallpaper source type and the\ncorresponding source file path.",
+            "text": "This event is emitted by the compositor to notify the client that the\nwallpaper source associated with this treeland_wallpaper_v1 object\nhas changed.\n\nThe event may be emitted during initial object setup or when the\nwallpaper is changed due to external factors not initiated by this\nclient, such as compositor policy decisions, workspace switches\n(except for lockscreen wallpapers) that affect the active\nwallpaper, or other system components.\n\nFor desktop wallpapers, workspace switches may also trigger\nthis event to report the wallpaper used by the new workspace.\n\nThe event provides the current wallpaper source type and the\ncorresponding source file path.",
             "summary": "Indicates that the wallpaper source has changed"
           },
           "args": [

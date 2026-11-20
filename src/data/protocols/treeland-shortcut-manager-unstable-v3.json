@@ -1,0 +1,774 @@
+{
+  "type": "protocol",
+  "name": "treeland_shortcut_manager_unstable_v3",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows privileged clients to register and manage global\nshortcuts for keyboard key sequences, touch swipe gestures, and touch\nhold gestures. It also provides a one-shot shortcut capture facility\nfor clients that need to read the next shortcut input from the user.\n\nGlobal shortcuts are managed in a per-user context. Shortcuts for\ndifferent users are isolated and will not interfere with each other.\nThis behavior is transparent to clients of this interface.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document are\nto be interpreted as described in RFC 2119.",
+    "summary": "keyboard shortcut management"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_shortcut_manager_v3",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A singleton global that manages global shortcut bindings for\nkey sequences, swipe gestures, and hold gestures.\n\nBefore registering or removing bindings the client must acquire\nexclusive control by sending the acquire request. Only one client\nmay hold the manager at a time within a given user session.\n\nBindings are registered via bind_key, bind_swipe_gesture, and\nbind_hold_gesture, and removed via unbind. All of these\nrequests take effect immediately. A bind request that cannot be\napplied is reported with a bind_failure event; successful bind\nand unbind requests generate no event, and the client can use\nthe wl_display.sync request to confirm that earlier requests\nhave been processed.\n\nIf the client's user session is not the currently active\nsession, bind and unbind requests are deferred: they are\napplied when that session becomes active again.\n\nDestroying the manager object implicitly releases the\nexclusive control acquired via acquire; no separate release\nrequest is needed.\n\nThe capture_next_shortcut request is independent of acquire and\nmay be sent at any time.",
+        "summary": "global shortcut manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the shortcut manager object. If the client currently\nholds exclusive control via acquire, that control is implicitly\nreleased so another client may acquire it. Existing shortcut\nbindings registered by this client remain active in the\ncompositor until the compositor or another client removes them.",
+            "summary": "destroy the shortcut manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "acquire",
+          "description": {
+            "type": "description",
+            "text": "Acquire exclusive control of the shortcut manager for this\nclient. The client must send this request before any bind_key,\nbind_swipe_gesture, bind_hold_gesture, or unbind request.\nSending those requests without first acquiring is a\nprotocol error (not_acquired).\n\nOnly one client may hold the manager at a time within a given\nuser session. If another client already holds it, the\ncompositor sends a protocol error (occupied).\n\nExclusive control is released implicitly when the client\ndestroys the manager object.",
+            "summary": "acquire exclusive control of the shortcut manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "bind_key",
+          "description": {
+            "type": "description",
+            "text": "Register a key sequence binding. The binding takes effect\nimmediately.\n\nThe key argument uses the portable textual format of\nQKeySequence (PortableText); see\nhttps://doc.qt.io/qt-6/qkeysequence.html#toString for the\nformat specification. Only combinations that form a valid\nshortcut can be registered; see the capture_next_shortcut\nrequest for the validity rules. An invalid combination is\nreported with bind_failure and the invalid_argument error.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, this request\nis reported with bind_failure and the name_conflict error.\n\nIf a binding with the same key sequence and action already\nexists, this request updates its flags to the new value rather\nthan failing. This upsert-on-trigger semantics\napplies only to bind_key; bind_swipe_gesture and\nbind_hold_gesture treat duplicate trigger-action pairs as\nerrors.\n\nSending this request without first acquiring is a protocol\nerror (not_acquired).",
+            "summary": "register a key sequence binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "unique name for this keybinding"
+            },
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "string",
+              "summary": "key sequence in QKeySequence portable text format"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "trigger conditions for this keybinding",
+              "enum": "keybind_flag"
+            },
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "compositor action to execute on activation",
+              "enum": "action"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "bind_swipe_gesture",
+          "description": {
+            "type": "description",
+            "text": "Register a swipe gesture binding. The binding takes effect\nimmediately.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, this request\nis reported with bind_failure and the name_conflict error.\n\nIf a binding with the same finger count, direction, and action\nalready exists, this request is reported with bind_failure\nand the duplicate_binding error.\n\nIf direction is not one of the defined direction enum values,\nthis request is reported with bind_failure and the\ninvalid_argument error.\n\nSending this request without first acquiring is a protocol\nerror (not_acquired).",
+            "summary": "register a swipe gesture binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "unique name for this swipe gesture binding"
+            },
+            {
+              "type": "arg",
+              "name": "finger",
+              "argType": "uint",
+              "summary": "number of fingers required for the swipe"
+            },
+            {
+              "type": "arg",
+              "name": "direction",
+              "argType": "uint",
+              "summary": "required swipe direction",
+              "enum": "direction"
+            },
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "compositor action to execute on activation",
+              "enum": "action"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "bind_hold_gesture",
+          "description": {
+            "type": "description",
+            "text": "Register a hold gesture binding. The binding takes effect\nimmediately.\n\nThe name argument must be unique among all existing bindings.\nIf a binding with the same name already exists, this request\nis reported with bind_failure and the name_conflict error.\n\nIf a binding with the same finger count and action already\nexists, this request is reported with bind_failure and the\nduplicate_binding error.\n\nSending this request without first acquiring is a protocol\nerror (not_acquired).",
+            "summary": "register a hold gesture binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "unique name for this hold gesture binding"
+            },
+            {
+              "type": "arg",
+              "name": "finger",
+              "argType": "uint",
+              "summary": "number of fingers required for the hold"
+            },
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "compositor action to execute on activation",
+              "enum": "action"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "unbind",
+          "description": {
+            "type": "description",
+            "text": "Remove the binding identified by name. The removal takes\neffect immediately. If no binding with the given name exists,\nthis request is silently ignored.\n\nSending this request without first acquiring is a protocol\nerror (not_acquired).",
+            "summary": "remove an existing binding"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the binding to remove"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "capture_next_shortcut",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_shortcut_capture_v3 object and start a\none-shot capture of the next shortcut input. This request\ndoes not require acquire and does not modify existing\nbindings.\n\nThe surface argument must be a wl_surface owned by the\nrequesting client. If it is not, the compositor sends a\nprotocol error (invalid_surface).\n\nThe compositor handles at most one capture at a time,\nregardless of which client requested it. A capture is also\nconsidered in progress until the compositor has consumed the\nkey_release of the last captured key, so that the release\ncannot trigger a shortcut bound in the meantime. If a capture\nis already in progress, the compositor emits failed with\nreason busy on the newly created object immediately after\ncreation.\n\nIf the seat argument is not null, the compositor verifies\nthat the keyboard focus of that seat is on the surface. If\nthe seat argument is null, the compositor selects a seat\nwhose keyboard focus is on the surface. If no seat has\nkeyboard focus on the surface, the compositor emits failed\nwith reason not_active on the newly created object\nimmediately after creation. Clients must be prepared to\nhandle a capture object that fails immediately.\n\nInput from seats other than the validated seat is not\nintercepted and is processed normally. On the validated seat\nthe capture intercepts input with priority over registered\nshortcut bindings.\n\nWhile the capture is pending, input from the validated seat\nis handled as follows. If the surface loses keyboard focus,\nthe compositor emits failed with reason aborted and lets the\ncurrent event continue to its new focus target. Auto-repeat\nevents are consumed silently. A pointer button or wheel\nevent terminates the capture with reason interrupted and is\nconsumed. A key_press of a pure modifier key (Ctrl, Alt,\nShift, and similar) is consumed silently; its key_release\nterminates the capture with reason interrupted, unless the\nkey is the Meta (Super) key: releasing Meta with no other\nmodifier held emits captured with the shortcut \"Meta\". A\nkey_press of any other key terminates the capture immediately\non the press. If the pressed combination is a valid shortcut\nthe compositor emits captured and consumes the key_release\nthat follows; otherwise it emits failed with reason\ninterrupted. In the captured and interrupted cases the\ntriggering input event is consumed and not forwarded to any\nclient.\n\nA valid shortcut is one of: a non-modifier key combined with\nCtrl, Alt, or Meta; a standalone function key (F1 to F35); a\nstandalone key such as Delete, Backspace, Pause, Print,\nInsert, Help, Menu, or Cancel; Shift combined with Space,\nEscape, Tab, or a navigation key (Home, End, PageUp, PageDown,\nand arrows); a standalone media, browser, brightness, or\nlaunch key; or the Meta (Super) key pressed alone. An\nunmodified alphanumeric key and an unmodified Escape are not\nvalid shortcuts.",
+            "summary": "start a one-shot shortcut capture"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface used to validate keyboard focus",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat to capture from, or null to capture from any available seat",
+              "interface": "wl_seat",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "capture",
+              "argType": "new_id",
+              "summary": "one-shot capture object",
+              "interface": "treeland_shortcut_capture_v3"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "activated",
+          "description": {
+            "type": "description",
+            "text": "Emitted when a binding registered with action notify is\nactivated. The name argument identifies the binding by its\nunique name. The flags argument indicates which key event\ntriggered the activation, using the keybind_flag enum values.",
+            "summary": "a notify-action shortcut was activated"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the activated binding"
+            },
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "key event type that triggered activation",
+              "enum": "keybind_flag"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "bind_failure",
+          "description": {
+            "type": "description",
+            "text": "Emitted when a bind_key, bind_swipe_gesture, or\nbind_hold_gesture request could not be applied; the rejected\nbinding has no effect. The name argument identifies the\nrejected binding; the error argument provides the reason.\n\nIf the requesting client's session is not active, the bind\nrequest is applied (and possibly rejected) only when that\nsession becomes active again, so this event may be emitted\nlong after the request was sent. Each rejected request is\nreported separately; other bindings of the same client are\nnot affected.",
+            "summary": "a bind request was rejected"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "name of the rejected binding"
+            },
+            {
+              "type": "arg",
+              "name": "error",
+              "argType": "uint",
+              "summary": "reason for the failure",
+              "enum": "bind_error"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "direction",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Cardinal directions used to specify the direction of a swipe\ngesture binding. The value 0 is reserved and must not be used\nas a direction argument.",
+            "summary": "swipe gesture direction"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "down",
+              "value": "1",
+              "summary": "swipe towards the bottom of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "2",
+              "summary": "swipe towards the left of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "up",
+              "value": "3",
+              "summary": "swipe towards the top of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "4",
+              "summary": "swipe towards the right of the screen"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "action",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Actions that the compositor executes when a shortcut with this\naction is activated.\n\nThe notify action is special: instead of performing a\ncompositor-side operation, the compositor emits an activated\nevent on this interface so the client can respond.",
+            "summary": "compositor actions assignable to a shortcut"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "notify",
+              "value": "0",
+              "summary": "emit an activated event to the client"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_1",
+              "value": "1",
+              "summary": "switch to workspace 1"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_2",
+              "value": "2",
+              "summary": "switch to workspace 2"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_3",
+              "value": "3",
+              "summary": "switch to workspace 3"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_4",
+              "value": "4",
+              "summary": "switch to workspace 4"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_5",
+              "value": "5",
+              "summary": "switch to workspace 5"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_6",
+              "value": "6",
+              "summary": "switch to workspace 6"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_7",
+              "value": "7",
+              "summary": "switch to workspace 7"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_8",
+              "value": "8",
+              "summary": "switch to workspace 8"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_9",
+              "value": "9",
+              "summary": "switch to workspace 9"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_10",
+              "value": "10",
+              "summary": "switch to workspace 10"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_11",
+              "value": "11",
+              "summary": "switch to workspace 11"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_12",
+              "value": "12",
+              "summary": "switch to workspace 12"
+            },
+            {
+              "type": "entry",
+              "name": "prev_workspace",
+              "value": "13",
+              "summary": "switch to the previous workspace"
+            },
+            {
+              "type": "entry",
+              "name": "next_workspace",
+              "value": "14",
+              "summary": "switch to the next workspace"
+            },
+            {
+              "type": "entry",
+              "name": "maximize",
+              "value": "15",
+              "summary": "maximize the active window"
+            },
+            {
+              "type": "entry",
+              "name": "cancel_maximize",
+              "value": "16",
+              "summary": "restore the active window from maximized state"
+            },
+            {
+              "type": "entry",
+              "name": "minimize",
+              "value": "17",
+              "summary": "minimize the active window"
+            },
+            {
+              "type": "entry",
+              "name": "move_window",
+              "value": "18",
+              "summary": "enter window move mode for the active window"
+            },
+            {
+              "type": "entry",
+              "name": "resize_window",
+              "value": "19",
+              "summary": "enter window resize mode for the active window"
+            },
+            {
+              "type": "entry",
+              "name": "close_window",
+              "value": "20",
+              "summary": "close the active window"
+            },
+            {
+              "type": "entry",
+              "name": "show_window_menu",
+              "value": "21",
+              "summary": "show the window menu for the active window"
+            },
+            {
+              "type": "entry",
+              "name": "move_window_to_prev_workspace",
+              "value": "22",
+              "summary": "move the active window to the previous workspace"
+            },
+            {
+              "type": "entry",
+              "name": "move_window_to_next_workspace",
+              "value": "23",
+              "summary": "move the active window to the next workspace"
+            },
+            {
+              "type": "entry",
+              "name": "show_desktop",
+              "value": "24",
+              "summary": "toggle show-desktop mode"
+            },
+            {
+              "type": "entry",
+              "name": "open_multitask_view",
+              "value": "25",
+              "summary": "open the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "close_multitask_view",
+              "value": "26",
+              "summary": "close the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "toggle_multitask_view",
+              "value": "27",
+              "summary": "toggle the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "taskswitch_next",
+              "value": "28",
+              "summary": "select the next task in the switcher"
+            },
+            {
+              "type": "entry",
+              "name": "taskswitch_prev",
+              "value": "29",
+              "summary": "select the previous task in the switcher"
+            },
+            {
+              "type": "entry",
+              "name": "taskswitch_sameapp_next",
+              "value": "30",
+              "summary": "select the next window of the same application in the switcher"
+            },
+            {
+              "type": "entry",
+              "name": "taskswitch_sameapp_prev",
+              "value": "31",
+              "summary": "select the previous window of the same application in the switcher"
+            },
+            {
+              "type": "entry",
+              "name": "tile_left",
+              "value": "32",
+              "summary": "tile the active window to the left half of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_right",
+              "value": "33",
+              "summary": "tile the active window to the right half of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_top",
+              "value": "34",
+              "summary": "tile the active window to the top half of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_bottom",
+              "value": "35",
+              "summary": "tile the active window to the bottom half of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_top_left",
+              "value": "36",
+              "summary": "tile the active window to the top-left quarter of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_top_right",
+              "value": "37",
+              "summary": "tile the active window to the top-right quarter of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_bottom_left",
+              "value": "38",
+              "summary": "tile the active window to the bottom-left quarter of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "tile_bottom_right",
+              "value": "39",
+              "summary": "tile the active window to the bottom-right quarter of the screen"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_in",
+              "value": "40",
+              "summary": "zoom in the screen"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_out",
+              "value": "41",
+              "summary": "zoom out the screen"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_reset",
+              "value": "42",
+              "summary": "reset the screen zoom level"
+            },
+            {
+              "type": "entry",
+              "name": "toggle_fps_display",
+              "value": "43",
+              "summary": "toggle the compositor FPS overlay"
+            },
+            {
+              "type": "entry",
+              "name": "lockscreen",
+              "value": "44",
+              "summary": "lock the screen"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu",
+              "value": "45",
+              "summary": "show the shutdown/session menu"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "keybind_flag",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Flags that control when a key binding fires relative to the\nkey event lifecycle.\n\nkey_press: fires when the key is pressed.\nkey_release: fires when the key is released.\nrepeat: fires repeatedly while the key is held down\n(auto-repeat). Only meaningful when combined with\nkey_press; combining with key_release causes both\nthe press and the release auto-repeat events to fire.\n\nCommon combinations:\n- key_press only: fires once on press; ignores repeat and release.\n- key_press | repeat: fires on press and on every auto-repeat tick.\n- key_press | key_release: fires on press and release;\nauto-repeat events are ignored.\n- key_press | key_release | repeat: fires on press, every\nauto-repeat tick, and on release.",
+            "summary": "keybinding trigger flags"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "key_press",
+              "value": "0x1",
+              "summary": "trigger on key press"
+            },
+            {
+              "type": "entry",
+              "name": "key_release",
+              "value": "0x2",
+              "summary": "trigger on key release"
+            },
+            {
+              "type": "entry",
+              "name": "repeat",
+              "value": "0x4",
+              "summary": "trigger on auto-repeat while the key is held"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "bind_error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error codes carried by the bind_failure event to describe\nwhy a bind request was rejected.",
+            "summary": "bind request failure codes"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "name_conflict",
+              "value": "1",
+              "summary": "a binding with this name already exists"
+            },
+            {
+              "type": "entry",
+              "name": "duplicate_binding",
+              "value": "2",
+              "summary": "an identical trigger-and-action combination already exists"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_argument",
+              "value": "3",
+              "summary": "an argument has an invalid or out-of-range value"
+            },
+            {
+              "type": "entry",
+              "name": "internal_error",
+              "value": "4",
+              "summary": "an unrecoverable compositor-internal error occurred"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error codes sent as protocol errors via wl_display.error.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "occupied",
+              "value": "1",
+              "summary": "the shortcut manager is already held by another client"
+            },
+            {
+              "type": "entry",
+              "name": "not_acquired",
+              "value": "2",
+              "summary": "the client sent a bind or unbind request without first acquiring the manager"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_surface",
+              "value": "3",
+              "summary": "the surface argument is not owned by the requesting client"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_shortcut_capture_v3",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a single pending request to capture the next shortcut\ninput from the user, created by\ntreeland_shortcut_manager_v3.capture_next_shortcut.\n\nThe compositor captures input once and emits at most one terminal\nevent: either captured or failed. After a terminal event is sent\nthis object becomes inert; the client should destroy it promptly.\n\nIf the client destroys this object while capture is still pending,\nthe capture is cancelled and no terminal event is sent.",
+        "summary": "one-shot shortcut capture object"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy this capture object. If capture is still pending,\ndestroying the object cancels it; no terminal event will be\nsent after this request is processed.",
+            "summary": "destroy the capture object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "captured",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the compositor captured one shortcut input for\nthis request. The key argument carries the shortcut sequence\nin the same QKeySequence portable text format used by\ntreeland_shortcut_manager_v3.bind_key. A capture of the Meta\n(Super) key pressed alone is reported as the shortcut \"Meta\".\n\nThis is a terminal event; the object is now inert.",
+            "summary": "a shortcut was successfully captured"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "key",
+              "argType": "string",
+              "summary": "captured shortcut sequence in QKeySequence portable text format"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "failed",
+          "description": {
+            "type": "description",
+            "text": "Emitted when the compositor could not deliver a captured\nshortcut. The reason argument describes why. See the\nfailed_reason enum for details.\n\nThis is a terminal event; the object is now inert.",
+            "summary": "the capture could not be completed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "reason the capture failed",
+              "enum": "failed_reason"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "failed_reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Describes why the compositor could not deliver a captured\nshortcut to the client.",
+            "summary": "reasons a one-shot capture could not complete"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "busy",
+              "value": "1",
+              "summary": "a capture is already in progress, or the release of the last captured key is still being consumed"
+            },
+            {
+              "type": "entry",
+              "name": "aborted",
+              "value": "2",
+              "summary": "the surface lost keyboard focus while the capture was pending"
+            },
+            {
+              "type": "entry",
+              "name": "not_active",
+              "value": "3",
+              "summary": "the provided surface did not have keyboard focus at the time of the request"
+            },
+            {
+              "type": "entry",
+              "name": "interrupted",
+              "value": "4",
+              "summary": "the first intercepted input was not a valid shortcut sequence"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

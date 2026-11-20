@@ -5,11 +5,16 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "virtual output creation and management"
+  },
   "interfaces": [
     {
       "type": "interface",
       "name": "treeland_virtual_output_manager_v1",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
         "text": "This interface is a manager that allows the creation of copied output.",
@@ -29,6 +34,7 @@
               "type": "arg",
               "name": "id",
               "argType": "new_id",
+              "summary": "the new virtual output object",
               "interface": "treeland_virtual_output_v1"
             },
             {
@@ -74,6 +80,7 @@
               "type": "arg",
               "name": "id",
               "argType": "new_id",
+              "summary": "the virtual output object",
               "interface": "treeland_virtual_output_v1"
             }
           ]
@@ -107,6 +114,24 @@
               "summary": "List of virtual output names"
             }
           ]
+        },
+        {
+          "type": "event",
+          "name": "virtual_output_modified",
+          "since": "3",
+          "description": {
+            "type": "description",
+            "text": "Sent whenever the set of virtual output groups changes: a group\nwas created, updated, or removed (e.g. copy mode collapsed to\nextension after its source was disabled).\n\nThe client should re-issue get_virtual_output_list to refresh\nits view of the available groups.",
+            "summary": "A virtual output group changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "name",
+              "argType": "string",
+              "summary": "The name of the changed virtual output"
+            }
+          ]
         }
       ],
       "enums": []
@@ -117,7 +142,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "A treeland_virtual_output_v1 represents a set virtual screen output object.",
+        "text": "Represents a virtual screen output object that mirrors the content of physical outputs.",
         "summary": "screen output object"
       },
       "requests": [
@@ -171,7 +196,7 @@
               "name": "code",
               "argType": "uint",
               "summary": "error code",
-              "enum": "treeland_virtual_output_v1.error"
+              "enum": "error"
             },
             {
               "type": "arg",

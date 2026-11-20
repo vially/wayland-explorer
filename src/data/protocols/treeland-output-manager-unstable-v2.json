@@ -1,0 +1,319 @@
+{
+  "type": "protocol",
+  "name": "treeland_output_manager_unstable_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol provides two capabilities to privileged clients such as\ndisplay configuration panels:\n\n1. Designating one connected output as the primary output, which the\ncompositor may use to decide placement of panels, notifications, and\nnewly opened windows.\n\n2. Adjusting the color temperature and brightness of individual outputs\nvia a double-buffered pending/commit model.\n\nOutputs in this protocol are addressed by opaque uuid strings instead\nof wl_output objects. Clients obtain the uuid of an output from the\ntreeland-output-uuid-unstable-v1 protocol. A uuid remains stable\nacross sessions and output reconnections, which lets clients and the\ncompositor persist per-output settings and restore them after a\nrestart. In the primary_output event an empty uuid means that no\nprimary output is currently designated.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document are\nto be interpreted as described in RFC 2119.",
+    "summary": "manage output display configuration"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_output_manager_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A singleton global that exposes two capabilities: designating the\nprimary output and creating per-output picture control objects.\n\nOnly one client should bind this interface at a time. The compositor\nmay not advertise this global to additional clients, or may ignore\nrequests from them, while a binding is already active.\n\nOn binding, the compositor immediately emits a primary_output event\ncarrying the uuid of the currently designated primary output, or\nan empty uuid if no primary output has been designated.",
+        "summary": "primary output and picture control manager"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_output_manager_v2 object.\n\nExisting treeland_output_picture_control_v2 objects created\nthrough this manager are not affected and must be destroyed\nseparately by the client.",
+            "summary": "destroy the output manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_primary_output",
+          "description": {
+            "type": "description",
+            "text": "Designate the output identified by the given uuid as the\nprimary output. The compositor uses the primary output as a\nhint for panel placement, initial window positioning, and\nother compositor-defined policies.\n\nThe uuid must identify a currently connected, enabled output.\nIf the uuid is empty, or no enabled output with this uuid is\ncurrently connected, the compositor rejects the request and\nemits a primary_output_failed event with the invalid_output\nreason; the primary output designation is unchanged. Neither\ncase is a protocol error, so a request carrying a stale uuid\nnever disconnects the client.\n\nThe compositor applies a successful change immediately and\nconfirms it by emitting a primary_output event carrying the\nuuid of the newly designated primary output.",
+            "summary": "designate an output as the primary output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "uuid",
+              "argType": "string",
+              "summary": "uuid of an enabled output to designate as primary"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "get_picture_control",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_output_picture_control_v2 object for the\noutput identified by the given uuid. The returned object\nallows the client to adjust the color temperature and\nbrightness of that output.\n\nThe uuid must identify a currently connected, enabled output.\nIf the uuid is empty, or no enabled output with this uuid is\ncurrently connected, the request still succeeds as long as the\nnew object id is valid: the picture control object is created,\nbut the compositor immediately emits a result event with the\ninvalid_output result, without waiting for a commit. Such a\nuuid is not a protocol error. Once an invalid_output result\nhas been delivered on an object, the object is permanently\ninert: only the destroy request is valid, and no further\nresult, color_temperature, or brightness events are emitted\non it. The object does not recover if an output with the same\nuuid is connected later; the client must destroy the inert\nobject and call get_picture_control again to obtain a usable\none.\n\nMultiple picture control objects may exist for the same output\nat the same time; each object reports value changes\nindependently.",
+            "summary": "create a picture control object for an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "new picture control object for the given output",
+              "interface": "treeland_output_picture_control_v2"
+            },
+            {
+              "type": "arg",
+              "name": "uuid",
+              "argType": "string",
+              "summary": "uuid of the output to control"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "primary_output",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor to report the uuid of the current\nprimary output. This event is sent once immediately after the\nclient binds this interface, and again whenever the primary\noutput designation changes — whether in response to a\nset_primary_output request or through a compositor-driven\nfallback.\n\nWhen the designated primary output is disconnected or disabled,\nthe compositor automatically selects another available output as\nthe new primary and emits this event with its uuid. When no\noutput is currently available, the event is emitted with an\nempty uuid.",
+            "summary": "current primary output has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "uuid",
+              "argType": "string",
+              "summary": "uuid of the currently designated primary output, or empty when none is available"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "primary_output_failed",
+          "description": {
+            "type": "description",
+            "text": "Emitted when a set_primary_output request cannot be applied,\nindicating that the primary output designation is unchanged.\nThe reason identifies why the request was rejected: no enabled\noutput with the provided uuid is currently connected.",
+            "summary": "a set_primary_output request was rejected"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "reason",
+              "argType": "uint",
+              "summary": "why the set_primary_output request was rejected",
+              "enum": "primary_output_failed_reason"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "primary_output_failed_reason",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Reasons returned by the primary_output_failed event.",
+            "summary": "reasons a set_primary_output request was rejected"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_output",
+              "value": "0",
+              "summary": "the provided uuid is empty or no enabled output with this uuid is currently connected"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_output_picture_control_v2",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a picture control session bound to the output\nidentified by its uuid, created by\ntreeland_output_manager_v2.get_picture_control.\n\nColor temperature and brightness are managed via a double-buffered\npending/commit model. The client accumulates changes with\nset_color_temperature and set_brightness, then atomically applies\nthem with a single commit request. After a successful commit the\ncompositor emits a color_temperature or brightness event for each\nvalue that actually changed.\n\nOn creation with a uuid that identifies a live enabled output,\nthe compositor emits color_temperature and brightness events to\nreport the current values of the output before the client has\nmade any changes.\n\nWhen the object is created for a uuid that does not identify a\nlive enabled output, the compositor immediately emits a result\nevent with the invalid_output result instead of the initial\ncolor_temperature and brightness events.\n\nAn invalid_output result is terminal, whether it is delivered\nimmediately after creation or in response to a later commit: the\nobject becomes permanently inert, only the destroy request\nremains valid, and no further events are emitted on it. The\nobject never recovers, even if an output with the same uuid is\nconnected afterwards; the client must destroy the inert object\nand call get_picture_control again to obtain a new one.",
+        "summary": "per-output color temperature and brightness control"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_output_picture_control_v2 object and\nrelease all associated compositor resources. Any uncommitted\npending settings are discarded.\n\nAfter this request the compositor will no longer send result,\ncolor_temperature, or brightness events on this object.",
+            "summary": "destroy the picture control object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_color_temperature",
+          "description": {
+            "type": "description",
+            "text": "Set the pending color temperature for the output. The value\nis not applied until the client sends a commit request.\n\nValid range is [1000, 20000] Kelvin. A value outside this\nrange is rejected immediately with the\ninvalid_color_temperature protocol error, terminating the\nconnection; nothing is stored in the pending state and no\ncommit is required to clear the request.\n\nMultiple calls before commit replace the pending value;\nonly the last value is applied.",
+            "summary": "set pending color temperature"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "temperature",
+              "argType": "uint",
+              "summary": "color temperature in Kelvin, in the range [1000, 20000]"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_brightness",
+          "description": {
+            "type": "description",
+            "text": "Set the pending brightness for the output. The value is not\napplied until the client sends a commit request.\n\nValid range is [0.0, 100.0]. A value outside this range is\nrejected immediately with the invalid_brightness protocol\nerror, terminating the connection; nothing is stored in the\npending state and no commit is required to clear the request.\n\nMultiple calls before commit replace the pending value;\nonly the last value is applied.",
+            "summary": "set pending brightness"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "brightness",
+              "argType": "fixed",
+              "summary": "brightness level in the range [0.0, 100.0]"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "commit",
+          "description": {
+            "type": "description",
+            "text": "Atomically apply all pending color temperature and brightness\nvalues accumulated since the last commit. The compositor always\nresponds with a result event indicating success or failure.\nAfter a successful commit the compositor emits a\ncolor_temperature or brightness event for each value that\nactually changed.\n\nIt is valid to call commit without any preceding set_* requests;\nthe compositor treats this as a no-op that succeeds without\nchanging any value.\n\nA failed commit reports its cause through the result event.\nRange validation of pending values is performed at set_*\ntime and never reaches a commit; a commit therefore only\nfails because of the output: it does not support the requested\nadjustment (unsupported, retrying the same settings is unlikely\nto succeed), the uuid no longer identifies a live enabled\noutput (invalid_output), or the commit could not be applied\nfor a transient or unknown reason (failed). In every failure\ncase the applied settings remain unchanged.\n\nAn invalid_output result is terminal: it permanently\ninvalidates the object, so only destroy may be sent afterwards\nand the object never recovers even if an output with the same\nuuid is connected again.",
+            "summary": "apply all pending color settings"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "result",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor to report the outcome of a commit\nrequest, and immediately after object creation when the object\nwas created for a uuid that does not identify a live enabled\noutput.\n\nIn response to a commit request the event is always sent,\nincluding commits with no pending changes, to indicate whether\nthe settings were applied. Besides the failed, unsupported,\nand invalid_output causes, no other result value is defined.\nOut-of-range pending values are rejected at set_* time with a\nfatal protocol error and never produce a commit result. After\na successful commit, a color_temperature or brightness event\nis emitted for each value that actually changed.\n\nAn invalid_output result is terminal: once it is delivered,\nthe object is permanently inert, only the destroy request\nremains valid, and no further events are emitted on it. The\nobject never recovers, even if an output with the same uuid\nis connected afterwards; the client must destroy the object\nand call get_picture_control again.",
+            "summary": "result of a commit request or object creation"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "result",
+              "argType": "uint",
+              "summary": "whether the commit succeeded or failed, or the object was created for an invalid uuid",
+              "enum": "commit_result"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "color_temperature",
+          "description": {
+            "type": "description",
+            "text": "Reports the currently applied color temperature of the output.\nWhen the object is created for a live enabled output, this\nevent is emitted once immediately after creation to provide\nthe initial value. It is also emitted whenever the applied\ncolor temperature changes — whether through a commit on this\nobject, a commit on another color control object for the same\noutput, or a compositor-driven change such as a system setting\nupdate.\n\nColor temperature is expressed in Kelvin on a Planckian locus,\nin the range [1000, 20000].",
+            "summary": "current color temperature of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "temperature",
+              "argType": "uint",
+              "summary": "current color temperature in Kelvin"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "brightness",
+          "description": {
+            "type": "description",
+            "text": "Reports the currently applied brightness of the output.\nWhen the object is created for a live enabled output, this\nevent is emitted once immediately after creation to provide\nthe initial value. It is also emitted whenever the applied\nbrightness changes — whether through a commit on this object,\na commit on another picture control object for the same\noutput, or a compositor-driven change such as a system setting\nupdate.\n\nBrightness is expressed as a percentage in the range [0.0, 100.0].",
+            "summary": "current brightness of the output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "brightness",
+              "argType": "fixed",
+              "summary": "current brightness level in the range [0.0, 100.0]"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Raised by the compositor as a fatal protocol error when a\nset_color_temperature or set_brightness request carries a\nvalue outside its valid range. The connection is terminated\nand no further requests are processed on this object.",
+            "summary": "fatal protocol errors raised by set requests"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_color_temperature",
+              "value": "0",
+              "summary": "the color temperature is outside the valid range [1000, 20000]"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_brightness",
+              "value": "1",
+              "summary": "the brightness is outside the valid range [0.0, 100.0]"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "commit_result",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Indicates the outcome of a commit request, or of object\ncreation when the object was created for a uuid that does not\nidentify a live enabled output. A commit is reported as\napplied successfully, or as failed because the output does not\nsupport the requested adjustment, because the associated\noutput is no longer available, or for another transient or\nunknown reason. An invalid_output result is terminal: the\nobject becomes permanently inert and only destroy may be sent.",
+            "summary": "result of a commit request or object creation"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "success",
+              "value": "0",
+              "summary": "all pending settings were applied successfully"
+            },
+            {
+              "type": "entry",
+              "name": "failed",
+              "value": "1",
+              "summary": "the commit failed to apply for a transient or unknown reason; settings remain unchanged"
+            },
+            {
+              "type": "entry",
+              "name": "unsupported",
+              "value": "2",
+              "summary": "the output does not support the requested adjustment, for example when its hardware cannot apply color temperature changes; settings remain unchanged"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_output",
+              "value": "3",
+              "summary": "the uuid does not identify a live enabled output; the object becomes permanently inert and settings remain unchanged"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

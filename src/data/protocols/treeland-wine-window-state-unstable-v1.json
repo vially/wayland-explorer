@@ -1,13 +1,13 @@
 {
   "type": "protocol",
-  "name": "treeland_wine_window_state_v1",
+  "name": "treeland_wine_window_state_unstable_v1",
   "copyright": {
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
   "description": {
     "type": "description",
-    "text": "This protocol provides window state management capabilities required\nby Wine (the Windows API compatibility layer) that are not available\nthrough standard Wayland protocols.\n\nStandard xdg-shell lacks:\n- any way to read whether a toplevel is minimized,\n- any way to programmatically unminimize a toplevel,\n- any way to request activation without a valid xdg-activation token\noriginating from a prior user interaction,\n- any way to request a visual attention hint (taskbar flash) without\nstealing focus.\n\nThis protocol fills those gaps.  A client obtains a\ntreeland_wine_window_state_v1 object for each xdg_toplevel whose\nstate it needs to observe or control.  The compositor remains the\nfinal authority: every request is advisory, and the compositor\nreports the authoritative state through events.\n\nThe key words \"must\", \"must not\", \"should\", \"should not\", and \"may\"\nin this document are to be interpreted as described in IETF RFC 2119.",
+    "text": "This protocol provides window state management capabilities required\nby Wine (the Windows API compatibility layer) that are not available\nthrough standard Wayland protocols.\n\nStandard xdg-shell lacks:\n- any way to read whether a toplevel is minimized,\n- any way to programmatically unminimize a toplevel,\n- any way to request activation without a valid xdg-activation token\noriginating from a prior user interaction,\n- any way to request a visual attention hint (taskbar flash) without\nstealing focus.\n\nThis protocol fills those gaps.  A client obtains a\ntreeland_wine_window_state_v1 object for each xdg_toplevel whose\nstate it needs to observe or control.  The compositor remains the\nfinal authority: every request is advisory, and the compositor\nreports the authoritative state through events.\n\nThe key words \"must\", \"must not\", \"should\", \"should not\", and \"may\"\nin this document are to be interpreted as described in IETF RFC 2119.\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
     "summary": "window state query and control for Wine"
   },
   "interfaces": [

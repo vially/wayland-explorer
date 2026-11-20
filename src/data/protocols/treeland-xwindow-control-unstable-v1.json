@@ -1,0 +1,85 @@
+{
+  "type": "protocol",
+  "name": "treeland_xwindow_control_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows a privileged DDE client such as the dock or\nshell to place XWayland windows on the compositor: moving an\nXWayland window identified by its X11 window ID to a position\nrelative to another surface.\n\nThe compositor should reject bind attempts from non-privileged\nclients.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "XWayland window placement control for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_xwindow_control_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global that exposes XWayland window placement actions to a\nprivileged DDE client.\n\nThe compositor should reject bind attempts from non-privileged\nclients.\n\nThis interface is stateless: each request is an independent\none-shot action. The compositor does not send events on this\ninterface; set_xwindow_position_relative reports its result\nthrough a per-request wl_callback.",
+        "summary": "XWayland window placement control"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_xwindow_control_v1 object.\n\nThis request does not alter any window position;\nplacements already applied remain in effect.",
+            "summary": "destroy the xwindow control object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_xwindow_position_relative",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor move the XWayland window\nidentified by the X11 window ID wid so that its top-left\npoint is placed at the anchor surface's top-left point\noffset by (dx, dy).\n\nOnce the compositor has finished processing, it sends the\ndone event to the callback and destroys the callback. The\ncallback data is 0 when the move succeeded, and 1 when it\nfailed, for example because no XWayland window with the\ngiven wid is currently mapped or the anchor surface is\ninvalid.\n\nThe compositor may apply the new position asynchronously.",
+            "summary": "move an XWayland window relative to a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "callback",
+              "argType": "new_id",
+              "summary": "callback that receives the result",
+              "interface": "wl_callback",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "wid",
+              "argType": "uint",
+              "summary": "X11 window ID"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "object",
+              "summary": "the reference surface",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "dx",
+              "argType": "fixed",
+              "summary": "horizontal offset from the anchor top-left point"
+            },
+            {
+              "type": "arg",
+              "name": "dy",
+              "argType": "fixed",
+              "summary": "vertical offset from the anchor top-left point"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}

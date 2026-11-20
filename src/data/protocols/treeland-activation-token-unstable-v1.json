@@ -1,0 +1,126 @@
+{
+  "type": "protocol",
+  "name": "treeland_activation_token_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol is privileged and singleton: only the DDE application\nmanager may bind it, and at most one client may bind it at a time\nwithin a given user session. It lets that client obtain an\nxdg-activation-v1 token for an application it is about to launch.\nThe compositor only checks the caller's identity; deciding whether\nan application may be activated is the client's responsibility.\n\nA token obtained through this protocol is accepted by\nxdg_activation_v1.activate() from any client. Even though it\ncarries no serial and no originating surface, a still-valid token\nis never downgraded to an attention request for that reason. Each\ntoken is one-shot and expires after a limited time; see the\ntreeland_activation_token_v1 interface for the detailed semantics.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "activation token source for dde-application-manager"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_activation_token_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A privileged, singleton global that mints xdg-activation-v1\ntokens for the DDE application manager.\n\nOnly the DDE application manager may bind this interface, and\nonly one client may bind it at a time within a given user\nsession. The compositor must reject bind attempts from\nnon-privileged clients by sending a protocol error\n(not_privileged), and must reject a second concurrent bind\nattempt by sending a protocol error (binding_rejected).",
+        "summary": "factory for activation tokens"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_activation_token_manager_v1 object and\nrelease the singleton binding. The compositor accepts a new\nbinding from another client after this request is processed.\nTokens already delivered through this manager are not\naffected.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "request_token",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_activation_token_v1 object. The compositor\nmints the token and delivers it with the token event on the\nnew object.\n\nEach request_token call mints an independent token.\nMultiple outstanding (unconsumed and unexpired) tokens may\ncoexist; requesting a new token does not consume,\ninvalidate, or expire any previously issued token.",
+            "summary": "create a new activation token object"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new token object",
+              "interface": "treeland_activation_token_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error codes sent as protocol errors via wl_display.error.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "binding_rejected",
+              "value": "0",
+              "summary": "the manager is already bound by another client"
+            },
+            {
+              "type": "entry",
+              "name": "not_privileged",
+              "value": "1",
+              "summary": "the client is not the privileged dde-application-manager"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_activation_token_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A token object delivers exactly one token event and is then\ninert. The token is one-shot: only the first\nxdg_activation_v1.activate() request that uses it produces a\nreal activation and consumes the token. The token also expires\nafter a limited time. Once consumed or expired, a subsequent\nactivate() with the same token produces no activation and is\ndowngraded to an attention request instead.\n\nThe client should destroy the object after receiving the token,\nto release the object and its associated compositor resources.",
+        "summary": "one-shot activation token"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_activation_token_v1 object. This does\nnot invalidate a token that was already delivered.",
+            "summary": "destroy the token object"
+          },
+          "args": []
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "token",
+          "description": {
+            "type": "description",
+            "text": "Sent once, in response to the request_token request that\ncreated this object. The event is delivered as part of that\nrequest's dispatch, so the client must add its listener\nbefore the next wl_display_dispatch()/roundtrip().",
+            "summary": "the minted activation token"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "token",
+              "argType": "string",
+              "summary": "the activation token string"
+            }
+          ]
+        }
+      ],
+      "enums": []
+    }
+  ]
+}

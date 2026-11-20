@@ -1,0 +1,213 @@
+{
+  "type": "protocol",
+  "name": "treeland_region_watch_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows a privileged DDE client such as the dock to\nmonitor whether a region anchored to an edge of an output overlaps\nwith any xdg-shell toplevel window, for example to implement smart\npanel hiding.\n\nThe compositor must reject bind attempts from non-privileged\nclients.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "edge-anchored region overlap watch for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_region_watch_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global that creates treeland_region_watch_v1\nobjects for privileged DDE clients. Each watcher monitors\none region; clients monitoring several regions create\nseveral watchers.\n\nThe compositor must reject bind attempts from non-privileged\nclients.",
+        "summary": "factory for region watchers"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_region_watch_manager_v1\nobject. Watchers created through this manager are not\naffected.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_region_watch",
+          "description": {
+            "type": "description",
+            "text": "Create a new treeland_region_watch_v1 object\nthat monitors one region.",
+            "summary": "create a new region watcher"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new region watcher object",
+              "interface": "treeland_region_watch_v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_region_watch_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A watcher object monitors whether a rectangular region\nanchored to an edge of an output overlaps with any xdg-shell\ntoplevel window.\n\nThe client registers the monitored region with the\nset_region request and the compositor reports transitions\nbetween the overlapped and clear states with the enter and\nleave events. The recorded region only changes when\nset_region is called; the client must call set_region again\nwhenever the monitored panel moves or resizes.\n\nAfter each set_region request the compositor must evaluate\nthe region against the current window layout and send the\nmatching enter or leave event; afterwards it should send\nthese events only when the overlap state changes.\n\nThe watcher is associated with the wl_output passed to the\nlast set_region request. When that output is destroyed the\ncompositor sends the output_removed event; the watcher then\nbecomes inert: it has no monitored region and sends no\nfurther enter or leave events. The watcher object itself is\nnot destroyed by output removal; the client may call\nset_region again with another wl_output to resume\nmonitoring, or call destroy to release it. The compositor\nmust not send enter, leave, or output_removed after\noutput_removed until the next successful set_region.\n\nThe client may release the wl_output proxy passed to\nset_region at any time after the request returns; the\ncompositor holds its own reference and the watcher remains\nassociated with that output until either the output is\ndestroyed (triggering output_removed) or a subsequent\nset_region rebinds to a different output.",
+        "summary": "overlap watcher for an edge-anchored region"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_region_watch_v1 object.\nThe compositor stops monitoring the region registered\nwith this watcher.",
+            "summary": "destroy the region watcher"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_region",
+          "description": {
+            "type": "description",
+            "text": "Set the monitored region on the given output, or\nre-register it when the monitored panel moves or\nresizes. The region geometry is described by the anchor\nenum; the compositor raises invalid_anchor for an\nunknown anchor value and invalid_size when width or\nheight is not positive.\n\nThe output becomes the output associated with the\nwatcher, replacing any previous one; it may be a\ndifferent output from a previous call (rebinding), for\nexample after the previous output was removed.\n\nAfter this request the compositor must evaluate the\ncurrent overlap state and send the matching enter or\nleave event.",
+            "summary": "set the monitored region"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "width of the registered region"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "height of the registered region"
+            },
+            {
+              "type": "arg",
+              "name": "anchor",
+              "argType": "uint",
+              "summary": "output edge the region is anchored to",
+              "enum": "anchor"
+            },
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "summary": "the output whose edge anchors the region",
+              "interface": "wl_output",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "enter",
+          "description": {
+            "type": "description",
+            "text": "Sent when the registered region begins to overlap any\nxdg-shell toplevel window, and after a set_region\nrequest while the region is currently overlapped.",
+            "summary": "the region is overlapped"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "leave",
+          "description": {
+            "type": "description",
+            "text": "Sent when the registered region stops overlapping all\nxdg-shell toplevel windows, and after a set_region\nrequest while the region is currently clear.",
+            "summary": "the region is no longer overlapped"
+          },
+          "args": []
+        },
+        {
+          "type": "event",
+          "name": "output_removed",
+          "description": {
+            "type": "description",
+            "text": "Sent when the wl_output passed to the last set_region\nrequest has been destroyed by the compositor. The\nwatcher then becomes inert: it has no monitored region\nand sends no further enter or leave events.\n\nThe watcher object itself is not destroyed; the client\nmay call set_region again with another wl_output to\nresume monitoring, or call destroy to release it. The\ncompositor must not send this event more than once\nwithout an intervening successful set_region.",
+            "summary": "the associated output has been destroyed"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "anchor",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The registered region is a strip along the anchored edge\nof the output: for top and bottom the strip spans the\nfull output width and is height units thick; for left and\nright it spans the full output height and is width units\nthick.\n\nThe dimension along the anchored edge is ignored: for\ntop and bottom the compositor uses the full output width\nregardless of the width argument, and for left and right\nit uses the full output height regardless of the height\nargument. Only the thickness dimension matters — height\nfor top/bottom, width for left/right — and it must be\npositive; the compositor raises invalid_size otherwise.",
+            "summary": "output edge the region is anchored to"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "0",
+              "summary": "strip along the top edge of the output"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "1",
+              "summary": "strip along the bottom edge of the output"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "2",
+              "summary": "strip along the left edge of the output"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "3",
+              "summary": "strip along the right edge of the output"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Errors raised by the treeland_region_watch_v1\ninterface.",
+            "summary": "region watcher errors"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_anchor",
+              "value": "0",
+              "summary": "anchor is not one of the enum values"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_size",
+              "value": "1",
+              "summary": "width or height is not positive"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

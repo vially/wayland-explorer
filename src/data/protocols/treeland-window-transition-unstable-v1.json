@@ -1,0 +1,174 @@
+{
+  "type": "protocol",
+  "name": "treeland_window_transition_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis extension allows a client to request that the compositor play\na window transition for a new window that opens from a specified\nrectangular area, and, when the window is closed, transitions back\nto that same rectangular area.\n\nThe rectangle is attached to an xdg-activation-v1 token string after\nthe token is committed, so the compositor can associate the rectangle\nwith the originating surface and use it as the animation source when\nthe target window appears.\n\nThe client may call set_geometry multiple times to update the\ngeometry, and the compositor uses the latest set geometry for both\nthe open and the close animation.\n\nOptionally, the client may attach a live source surface to the\nrectangle via set_source_surface. When a source surface is set, the\ncompositor uses its content as the source of the transition instead\nof an empty rectangle, and renders it live while the transition is\nplaying.\n\nThe client may temporarily disable the rectangle by setting a\ngeometry of 0x0 size (zero width and zero height). While the\nrectangle is disabled, the compositor does not use it as the\nanimation source or target and behaves as if no rectangle were\nset, but the rectangle object and its association with the\nactivation token remain alive. The client can re-enable the\nrectangle later by setting a positive size again; the target\nwindow uses the latest set geometry whenever the rectangle is\nenabled.\n\nThe full flow is:\n1. A, the originating surface, obtains an xdg_activation_token_v1,\ncalls set_surface to identify itself, and calls commit to obtain\nthe token string.\n2. A calls get_window_transition_rect on this manager, passing the\ntoken string.\n3. A calls set_geometry on the resulting rect object to define the\ntransition rectangle (relative to A), and optionally calls\nset_source_surface on the rect object to attach a live source\nsurface for the transition.\n4. A passes the token string to B, the target window.\n5. B calls xdg_activation_v1.activate with the token and B's surface.\n6. The compositor looks up the rectangle associated with the token,\nconverts it to global coordinates using A's position, and plays\nthe open animation from that rectangle to B's geometry.\n7. While B is alive, A may call set_geometry again on the rect\nobject to update the transition rectangle. The compositor uses\nthe latest set geometry when B is closed.\n8. When B is closed, the compositor plays the close animation from\nB's geometry back to the rectangle.\n9. Once the compositor stops using the rectangle, it sends the\nclosed event on the rect object. A destroys the rect object\nafter receiving this event.\n10. If A destroys the rect object before B is closed (or if A's\nclient disconnects, or if A is destroyed), the compositor falls\nback to its default animation.\n\nTiming and responsibilities:\n\nThe client must call xdg_activation_v1.activate on the target\nsurface before that surface is first mapped (i.e. before the\nwl_surface.commit that causes the compositor to map it). This\nensures the compositor has the transition rectangle available when\nthe surface appears.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "window open/close transition relative to a rectangle"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_window_transition_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface is a manager for creating window transition\nrectangle objects. A window transition rectangle is attached to\nan xdg-activation-v1 token string to request that the compositor\nplay a window transition from that rectangle when the token is\nused to activate a new window, and back to that rectangle when\nthe window is closed.",
+        "summary": "manager for window transition rectangles"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_window_transition_rect",
+          "description": {
+            "type": "description",
+            "text": "Creates a new window transition rectangle object associated\nwith the given activation token string.",
+            "summary": "create a window transition rectangle for a token"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "rect",
+              "argType": "new_id",
+              "summary": "new window transition rectangle object",
+              "interface": "treeland_window_transition_rect_v1"
+            },
+            {
+              "type": "arg",
+              "name": "token",
+              "argType": "string",
+              "summary": "the committed activation token string to attach the rectangle to"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    },
+    {
+      "type": "interface",
+      "name": "treeland_window_transition_rect_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a rectangle that the compositor uses as the\nreference area for window open and close animations. The\nrectangle coordinates are relative to the surface that was set\non the associated activation token via set_surface. The\ncompositor combines the surface's position with the rectangle\noffset to determine the global animation area.\n\nThe object remains live: the client may call set_geometry again\nto update the rectangle, and the compositor will use the latest\nset geometry for the close animation when the target window is\nclosed.\n\nWhen the client destroys this object (or the client\ndisconnects, or the originating surface is destroyed), the\ncompositor falls back to its default close animation for the\ntarget window.",
+        "summary": "window transition rectangle"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroying the rectangle object removes the animation\nassociation. If the target window is still alive, the\ncompositor will use its default close animation when the\nwindow is closed.",
+            "summary": "destroy the rectangle object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_geometry",
+          "description": {
+            "type": "description",
+            "text": "Sets the rectangle geometry, taking effect immediately. The\nx and y coordinates are relative to the surface set on the\nassociated activation token via set_surface. This request\nmay be called multiple times to update the geometry.\n\nA geometry with a positive width and a positive height is\nguaranteed to be valid. A width and height of both 0 is\nalso guaranteed to be valid and temporarily disables the\nrectangle. Otherwise might be rejected with the\ninvalid_geometry error.",
+            "summary": "set the rectangle geometry"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x offset relative to the originating surface"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y offset relative to the originating surface"
+            },
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "int",
+              "summary": "rectangle width"
+            },
+            {
+              "type": "arg",
+              "name": "height",
+              "argType": "int",
+              "summary": "rectangle height"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_source_surface",
+          "description": {
+            "type": "description",
+            "text": "Sets the surface whose content the compositor uses as the\nsource of the transition for this rectangle. The surface is\nrendered live while the transition is playing; its content is\nscaled into the rectangle set via set_geometry.\n\nThe surface must not already be in use for any other purpose,\nand the compositor reserves it for use as a transition source\nonly: it is not displayed anywhere else, and the client must not\nuse it for any other purpose. A surface that has previously been\nused as a transition source may be used again.\n\nThe client should keep the surface alive, and keep valid\ncontent on it, while it is set as the source.\n\nPassing null clears the source surface. The client may\nreplace the source by passing another surface; a previously\nset surface is no longer used as a source. Destroying the\nrect object or the surface itself also ends its use as a\nsource.\n\nA surface that cannot be used as a source, for example one\nthat is already in use for another purpose, or that belongs to\nanother client, raises the invalid_surface error.",
+            "summary": "set the live source surface used by the transition"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the live source surface, or null to clear it",
+              "interface": "wl_surface",
+              "allowNull": "true",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "closed",
+          "description": {
+            "type": "description",
+            "text": "Sent when the compositor is done with this rectangle. The\nclient must destroy the rectangle object after receiving this\nevent.\n\nThis is a notification only. No further events are delivered\non this object after closed.",
+            "summary": "the rectangle is no longer usable"
+          },
+          "args": []
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "invalid_geometry",
+              "value": "0",
+              "summary": "the geometry cannot be handled by the compositor"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_surface",
+              "value": "1",
+              "summary": "the source surface cannot be used as a transition source"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

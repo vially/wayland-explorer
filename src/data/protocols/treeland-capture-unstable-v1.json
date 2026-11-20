@@ -7,7 +7,7 @@
   },
   "description": {
     "type": "description",
-    "text": "This protocol allows authorized application to capture output contents or window\ncontents(useful for window streaming).",
+    "text": "This protocol allows authorized application to capture output contents or window\ncontents(useful for window streaming).\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
     "summary": "protocol for capturing output contents or window contents"
   },
   "interfaces": [
@@ -15,6 +15,11 @@
       "type": "interface",
       "name": "treeland_capture_session_v1",
       "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Represents a persistent screen capture session that continuously sends frames.",
+        "summary": "persistent screen capture session"
+      },
       "requests": [
         {
           "type": "request",
@@ -49,17 +54,20 @@
             {
               "type": "arg",
               "name": "tv_sec_hi",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "high 32 bits of the ready timestamp seconds"
             },
             {
               "type": "arg",
               "name": "tv_sec_lo",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "low 32 bits of the ready timestamp seconds"
             },
             {
               "type": "arg",
               "name": "tv_usec",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "ready timestamp microseconds"
             }
           ]
         }
@@ -89,43 +97,50 @@
             {
               "type": "arg",
               "name": "width",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "frame width in pixels"
             },
             {
               "type": "arg",
               "name": "height",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "frame height in pixels"
             },
             {
               "type": "arg",
               "name": "buffer_flags",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "buffer flags"
             },
             {
               "type": "arg",
               "name": "flags",
               "argType": "uint",
-              "enum": "treeland_capture_session_v1.flags"
+              "enum": "flags"
             },
             {
               "type": "arg",
               "name": "format",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "DRM format code"
             },
             {
               "type": "arg",
               "name": "mod_high",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "DRM format modifier high bits"
             },
             {
               "type": "arg",
               "name": "mod_low",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "DRM format modifier low bits"
             },
             {
               "type": "arg",
               "name": "num_objects",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "number of DMA-BUF objects in the frame"
             }
           ]
         },
@@ -134,38 +149,45 @@
           "name": "object",
           "description": {
             "type": "description",
+            "text": "Provides a DMA-BUF object for the current frame.",
             "summary": "supply the client with object fd"
           },
           "args": [
             {
               "type": "arg",
               "name": "index",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "object index"
             },
             {
               "type": "arg",
               "name": "fd",
-              "argType": "fd"
+              "argType": "fd",
+              "summary": "DMA-BUF file descriptor"
             },
             {
               "type": "arg",
               "name": "size",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "size of the DMA-BUF in bytes"
             },
             {
               "type": "arg",
               "name": "offset",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "offset into the DMA-BUF"
             },
             {
               "type": "arg",
               "name": "stride",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "line stride in bytes"
             },
             {
               "type": "arg",
               "name": "plane_index",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "plane index within the buffer"
             }
           ]
         },
@@ -181,17 +203,20 @@
             {
               "type": "arg",
               "name": "tv_sec_hi",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "high 32 bits of the presentation timestamp seconds"
             },
             {
               "type": "arg",
               "name": "tv_sec_lo",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "low 32 bits of the presentation timestamp seconds"
             },
             {
               "type": "arg",
               "name": "tv_nsec",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "presentation timestamp nanoseconds"
             }
           ]
         },
@@ -208,7 +233,7 @@
               "type": "arg",
               "name": "reason",
               "argType": "uint",
-              "enum": "treeland_capture_session_v1.cancel_reason"
+              "enum": "cancel_reason"
             }
           ]
         }
@@ -347,7 +372,7 @@
               "name": "flags",
               "argType": "uint",
               "summary": "frame flags",
-              "enum": "treeland_capture_frame_v1.flags"
+              "enum": "flags"
             }
           ]
         },
@@ -417,6 +442,7 @@
               "type": "arg",
               "name": "source_hint",
               "argType": "uint",
+              "summary": "hint for the type of source to select",
               "enum": "source_type"
             },
             {
@@ -447,7 +473,7 @@
           "name": "capture",
           "description": {
             "type": "description",
-            "text": "This event can be called just once. A second call might result in a protocol error cause\nwe just provide transient",
+            "text": "This request can be called just once. A second call might result in a protocol error cause\nwe just provide transient",
             "summary": "capture one frame"
           },
           "args": [
@@ -455,6 +481,7 @@
               "type": "arg",
               "name": "frame",
               "argType": "new_id",
+              "summary": "the new capture frame object",
               "interface": "treeland_capture_frame_v1"
             }
           ]
@@ -605,6 +632,11 @@
       "type": "interface",
       "name": "treeland_capture_manager_v1",
       "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Global factory for creating capture sessions and capture contexts.",
+        "summary": "capture manager"
+      },
       "requests": [
         {
           "type": "request",

@@ -1,0 +1,270 @@
+{
+  "type": "protocol",
+  "name": "treeland_decoration_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol fine-tunes the compositor-drawn server-side decorations\n(SSD) of the client's own toplevel windows: corner radius, shadow,\nborder, and titlebar visibility.\n\nIt is not standalone: the client must first negotiate SSD for the\nsurface via xdg-decoration. The compositor applies these requests\naccording to its own policy; in particular it may silently ignore a\nset_* request on a surface that has not negotiated SSD, or clamp an\nout-of-range value to a supported bound instead of raising an error.\n\nThis enables a \"half-CSD, half-SSD\" configuration: keep the\ncompositor's border, corners and shadow while hiding its titlebar\n(set_titlebar_mode(hide)) and drawing a custom one.\n\nEach property is opt-in: if a set_* request is never sent, the\ncompositor applies its own default for that window's SSD. Sending a\nrequest takes ownership of that property for the lifetime of the\ncontext.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document are\nto be interpreted as described in RFC 2119.",
+    "summary": "per-window server-side decoration customization"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_decoration_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global that creates per-surface SSD customization contexts.\n\nEach surface may have at most one active decoration context.\nAttempting to create a second context for the same surface while\none is already alive is a protocol error (already_used).",
+        "summary": "factory for per-window SSD customization contexts"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_decoration_manager_v1 object.\nExisting treeland_decoration_context_v1 objects\ncreated through this manager are not affected and must be\ndestroyed separately by the client.",
+            "summary": "destroy the decoration manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_decoration_context",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_decoration_context_v1 for the given\nsurface. The surface must be owned by the requesting client;\npassing a surface owned by another client raises the\ninvalid_surface protocol error.\n\nThe surface should hold a toplevel role (xdg_toplevel). The\ncontext itself may be created before SSD is negotiated; until\nSSD is negotiated via xdg-decoration, set_* requests on the\ncontext have no effect and are silently ignored by the\ncompositor.\n\nCreating a second context for the same surface while one is\nalready alive is a protocol error (already_used).",
+            "summary": "create a decoration context for a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "new decoration context for the given surface",
+              "interface": "treeland_decoration_context_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "surface to decorate; must be owned by this client",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error codes sent as protocol errors via wl_display.error.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_used",
+              "value": "0",
+              "summary": "a decoration context already exists for this surface"
+            },
+            {
+              "type": "entry",
+              "name": "invalid_surface",
+              "value": "1",
+              "summary": "the surface is not owned by the requesting client"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_decoration_context_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "Controls the compositor-drawn server-side decorations for a single\nsurface. Created by\ntreeland_decoration_manager_v1.get_decoration_context.\n\nAll requests take effect immediately; there is no pending/commit\nmodel. The compositor applies each change as soon as it processes\nthe request.\n\nThis object becomes inert when the underlying wl_surface is\ndestroyed; requests on an inert context are silently ignored.\nThe client should destroy this context before or immediately after\ndestroying the associated wl_surface.",
+        "summary": "per-surface server-side decoration customization"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the context. The compositor may revert any or all\ncustomized properties to its default behavior after this\nrequest.",
+            "summary": "destroy the decoration context"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_corner_radius",
+          "description": {
+            "type": "description",
+            "text": "Override the compositor's corner rounding for this surface.\nOnce set, the compositor no longer applies its global corner\nradius to this window.\n\nA value of 0 requests square corners. The compositor applies\nthis request according to its own policy and may clamp an\nout-of-range value to a supported bound.",
+            "summary": "override the SSD corner radius"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "uint",
+              "summary": "corner radius in pixels; 0 for square corners"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_shadow",
+          "description": {
+            "type": "description",
+            "text": "Override the compositor-drawn drop shadow for this surface.\n\nWhen radius is 0 the shadow is disabled and all other\narguments are ignored. Color components are unsigned in\n[0, 255]. The compositor applies this request according to its\nown policy and may clamp an out-of-range radius to a supported\nbound.",
+            "summary": "configure the compositor-drawn shadow"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "radius",
+              "argType": "uint",
+              "summary": "shadow blur radius in pixels; 0 to disable shadow"
+            },
+            {
+              "type": "arg",
+              "name": "offset_x",
+              "argType": "int",
+              "summary": "horizontal shadow offset in pixels; positive is right"
+            },
+            {
+              "type": "arg",
+              "name": "offset_y",
+              "argType": "int",
+              "summary": "vertical shadow offset in pixels; positive is down"
+            },
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "uint",
+              "summary": "shadow color red component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "uint",
+              "summary": "shadow color green component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "uint",
+              "summary": "shadow color blue component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "a",
+              "argType": "uint",
+              "summary": "shadow color alpha component [0, 255]"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_border",
+          "description": {
+            "type": "description",
+            "text": "Override the compositor-drawn border for this surface.\n\nWhen width is 0 the border is disabled and the color\narguments are ignored. Color components are unsigned in\n[0, 255]. The compositor applies this request according to its\nown policy and may clamp an out-of-range width to a supported\nbound.",
+            "summary": "configure the compositor-drawn border"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "width",
+              "argType": "uint",
+              "summary": "border width in pixels; 0 to disable border"
+            },
+            {
+              "type": "arg",
+              "name": "r",
+              "argType": "uint",
+              "summary": "border color red component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "g",
+              "argType": "uint",
+              "summary": "border color green component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "b",
+              "argType": "uint",
+              "summary": "border color blue component [0, 255]"
+            },
+            {
+              "type": "arg",
+              "name": "a",
+              "argType": "uint",
+              "summary": "border color alpha component [0, 255]"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_titlebar_mode",
+          "description": {
+            "type": "description",
+            "text": "Override whether the compositor draws a server-side titlebar\nfor this surface, per the titlebar_mode enum. A mode value\noutside the titlebar_mode enum range is silently ignored; the\ncurrent titlebar visibility is kept.\n\nHiding the titlebar leaves the rest of the SSD (border,\ncorner radius, shadow) in effect; the client is then expected\nto draw its own titlebar inside the window content.",
+            "summary": "control SSD titlebar visibility"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "mode",
+              "argType": "uint",
+              "summary": "titlebar visibility override",
+              "enum": "titlebar_mode"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "titlebar_mode",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Controls whether the compositor-drawn (server-side) titlebar\nis visible, overriding the compositor's default. Hiding the\ntitlebar while keeping the rest of the SSD is what produces a\n\"half-CSD, half-SSD\" configuration.",
+            "summary": "SSD titlebar visibility override"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "show",
+              "value": "0",
+              "summary": "show the compositor titlebar (the SSD default)"
+            },
+            {
+              "type": "entry",
+              "name": "hide",
+              "value": "1",
+              "summary": "hide the compositor titlebar; the client is expected to draw its own titlebar inside the window content while keeping the rest of the SSD"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

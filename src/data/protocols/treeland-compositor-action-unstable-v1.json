@@ -1,0 +1,251 @@
+{
+  "type": "protocol",
+  "name": "treeland_compositor_action_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows a privileged DDE client such as the dock, the\nshutdown applet, or the greeter to trigger compositor actions\ndirectly, without registering a keyboard or gesture shortcut.\n\nThis protocol is independent of treeland_shortcut_manager_v3 and of\nany other Treeland protocol. The action values defined here form\ntheir own value space: they are not aligned with, and must not be\nassumed to match, the action enum of the shortcut manager. The\ncompositor maps them to internal actions through its own table, and\nfuture versions of either protocol may add, renumber, or remove\nentries without regard to the other.\n\nFollowing the split used by KWin, this protocol exposes only actions\nthat are independent of the currently active window and of an\nin-progress keyboard task-switching sequence: workspace switching,\nshow-desktop, the multitask overview, screen zoom, the FPS overlay,\nand session-level actions (lock, shutdown menu, user switch). Actions\nthat act on the currently active window (maximize, minimize, close,\nmove, resize, show the window menu, snap tiling, and moving a window\nacross workspaces) and the task-switch stepping actions depend on\nimplicit runtime state (the active window or an ongoing Alt-Tab-like\nsequence) and are not exposed here; they remain available only as\nkeyboard or gesture shortcuts registered through\ntreeland_shortcut_manager_v3. Exposing those window-level actions as\na directly callable interface would let a background client manipulate\na window chosen by keyboard focus rather than by explicit reference,\nwhich is the same reason KWin keeps them behind kglobalaccel instead\nof offering them on its DBus interface.\n\nThe compositor must reject bind attempts from non-privileged\nclients.\n\nThis interface is stateless: each request is an independent one-shot\naction. The compositor does not send events in response to these\nrequests; clients that need to observe the resulting session state\nshould use the appropriate session or idle protocols instead.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "compositor action triggering for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_compositor_action_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A global that exposes compositor actions to a privileged\nDDE client.\n\nThe compositor must reject bind attempts from non-privileged\nclients.\n\nOnly window-independent actions are exposed here; actions\nthat target the currently active window or step an in-progress\ntask switch are not part of this interface and must be triggered\nas shortcuts through treeland_shortcut_manager_v3. See the\nprotocol-level description for the rationale.\n\nAll actions are triggered with the trigger request, which takes\nan action argument.\n\nThe compositor should ignore an action it cannot perform, for\nexample locking while a lock screen is already active; clients\nmust not assume an action has taken effect.\n\nThe shutdown-menu actions show the shutdown and session menu;\nthey differ only in which menu button receives the default\nkeyboard focus. shutdown_menu expresses no preference; the\npower_off, reboot, suspend, hibernate, and log_out entries\nrequest focus on the matching button. Showing the menu does not\nperform the power action itself; the compositor or greeter\ncarries out the chosen action after the user confirms.",
+        "summary": "compositor action trigger"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_compositor_action_v1 object. This request\ndoes not alter any compositor, shell, or session state.",
+            "summary": "destroy the compositor action object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "trigger",
+          "description": {
+            "type": "description",
+            "text": "Trigger the compositor action identified by the action argument.\nThe compositor should ignore the request when the action\ncannot be performed, for example locking while a lock\nscreen is already active, or showing the shutdown menu while\na lock screen is already active. Clients must not assume\nthe action has taken effect.\n\nThe shutdown-menu actions show the menu; they do not perform\nthe power action itself.",
+            "summary": "trigger a compositor action"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "action",
+              "argType": "uint",
+              "summary": "the compositor action to trigger",
+              "enum": "action"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "action",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Shell actions exposed through the trigger request, limited\nto those independent of the currently active window.\n\nThe values are specific to this protocol. They are not\naligned with the action enum of\ntreeland_shortcut_manager_v3, and clients must not build any\nmapping between the two enums.\n\nActions that target the currently active window (maximize,\nminimize, close, move, resize, show the window menu, snap\ntiling, and moving a window across workspaces) and the\ntask-switch stepping actions are not part of this enum; they\ndepend on the active window or an in-progress switching\nsequence and are reachable only as shortcuts via\ntreeland_shortcut_manager_v3.\n\nValues 25-30 (show_user_switch and the focused shutdown-menu\nactions) have no counterpart in the shortcut manager because\nthey are triggered by a shell client rather than a keyboard\nshortcut. The focused shutdown-menu entries behave like\nshutdown_menu but request default focus on the matching\nbutton.",
+            "summary": "compositor actions"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "workspace_1",
+              "value": "1",
+              "summary": "switch to workspace 1"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_2",
+              "value": "2",
+              "summary": "switch to workspace 2"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_3",
+              "value": "3",
+              "summary": "switch to workspace 3"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_4",
+              "value": "4",
+              "summary": "switch to workspace 4"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_5",
+              "value": "5",
+              "summary": "switch to workspace 5"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_6",
+              "value": "6",
+              "summary": "switch to workspace 6"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_7",
+              "value": "7",
+              "summary": "switch to workspace 7"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_8",
+              "value": "8",
+              "summary": "switch to workspace 8"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_9",
+              "value": "9",
+              "summary": "switch to workspace 9"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_10",
+              "value": "10",
+              "summary": "switch to workspace 10"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_11",
+              "value": "11",
+              "summary": "switch to workspace 11"
+            },
+            {
+              "type": "entry",
+              "name": "workspace_12",
+              "value": "12",
+              "summary": "switch to workspace 12"
+            },
+            {
+              "type": "entry",
+              "name": "prev_workspace",
+              "value": "13",
+              "summary": "switch to the previous workspace"
+            },
+            {
+              "type": "entry",
+              "name": "next_workspace",
+              "value": "14",
+              "summary": "switch to the next workspace"
+            },
+            {
+              "type": "entry",
+              "name": "show_desktop",
+              "value": "15",
+              "summary": "toggle show-desktop mode"
+            },
+            {
+              "type": "entry",
+              "name": "open_multitask_view",
+              "value": "16",
+              "summary": "open the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "close_multitask_view",
+              "value": "17",
+              "summary": "close the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "toggle_multitask_view",
+              "value": "18",
+              "summary": "toggle the multitask overview"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_in",
+              "value": "19",
+              "summary": "zoom in the screen"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_out",
+              "value": "20",
+              "summary": "zoom out the screen"
+            },
+            {
+              "type": "entry",
+              "name": "zoom_reset",
+              "value": "21",
+              "summary": "reset the screen zoom level"
+            },
+            {
+              "type": "entry",
+              "name": "toggle_fps_display",
+              "value": "22",
+              "summary": "toggle the compositor FPS overlay"
+            },
+            {
+              "type": "entry",
+              "name": "lockscreen",
+              "value": "23",
+              "summary": "lock the screen"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu",
+              "value": "24",
+              "summary": "show the shutdown/session menu with no default-focus preference"
+            },
+            {
+              "type": "entry",
+              "name": "show_user_switch",
+              "value": "25",
+              "summary": "show the user switch UI"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu_power_off",
+              "value": "26",
+              "summary": "show the shutdown/session menu, focusing the power-off button"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu_reboot",
+              "value": "27",
+              "summary": "show the shutdown/session menu, focusing the reboot button"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu_suspend",
+              "value": "28",
+              "summary": "show the shutdown/session menu, focusing the suspend button"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu_hibernate",
+              "value": "29",
+              "summary": "show the shutdown/session menu, focusing the hibernate button"
+            },
+            {
+              "type": "entry",
+              "name": "shutdown_menu_log_out",
+              "value": "30",
+              "summary": "show the shutdown/session menu, focusing the log-out button"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

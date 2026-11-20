@@ -1,0 +1,300 @@
+{
+  "type": "protocol",
+  "name": "treeland_dde_shell_unstable_v2",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol lets a privileged DDE client turn a wl_surface\ninto a shell surface that renders below the wlr-layer-shell\nlayer stack, at the overlay level of the workspace, and position\nit at coordinates relative to an output or auto-place it below\nthe cursor.\n\nThe compositor must reject bind attempts from non-privileged\nclients.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "DDE shell surface role for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_dde_shell_manager_v2",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A global that creates treeland_dde_shell_surface_v2 objects for\nprivileged DDE clients implementing parts of the shell user\ninterface.\n\nThe compositor must reject bind attempts from non-privileged\nclients.",
+        "summary": "factory for DDE shell surfaces"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_dde_shell_manager_v2 object.\nShell surfaces created through this manager are not\naffected.",
+            "summary": "destroy the manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_shell_surface",
+          "description": {
+            "type": "description",
+            "text": "Create a new treeland_dde_shell_surface_v2 object for the\ngiven surface, turning it into a shell surface. Only one\nshell surface object can be associated with a given\nwl_surface; the compositor raises already_shell_surface\nfor a second attempt.\n\nRecommended for use with xdg_surface.",
+            "summary": "create a shell surface from a surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new shell surface object",
+              "interface": "treeland_dde_shell_surface_v2"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "summary": "the surface to create a shell surface for",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Errors raised by the treeland_dde_shell_manager_v2\ninterface.",
+            "summary": "factory errors"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "already_shell_surface",
+              "value": "0",
+              "summary": "the wl_surface already has a shell surface object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_dde_shell_surface_v2",
+      "version": "2",
+      "description": {
+        "type": "description",
+        "text": "A shell surface object assigns the DDE shell surface role to a\nwl_surface. The set_role request selects normal window\nstacking, always-on-top stacking, or workspace overlay\nstacking. Always-on-top surfaces render above normal windows\nand below workspace overlay surfaces. Workspace overlay\nsurfaces render below layer-shell top and overlay surfaces.\nThe default role is overlay.\n\nThe role carries no requests that map, commit, or configure\nbuffer state; the client commits buffers with wl_surface\nsemantics as usual.\n\nOn the server side the object is automatically destroyed when\nthe related wl_surface is destroyed. On the client side,\ntreeland_dde_shell_surface_v2.destroy() must be called before\ndestroying the wl_surface object.\n\nPositioning requests are mutually exclusive: set_position_hint\nsuggests fixed coordinates relative to an output, while\nset_cursor_placement_hint asks the compositor to place the\nsurface relative to the cursor. The most recently sent\nrequest determines the placement mode. Both requests are\nhints for the initial placement of the surface: the\ncompositor decides the final position and may adjust it to\nkeep the surface accessible, for example to keep its\ntitlebar area within the output. Clients must not assume the\nrequested position is honored exactly.",
+        "summary": "shell surface role"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "The treeland_dde_shell_surface_v2 interface is removed from\nthe wl_surface object that was turned into a shell surface\nwith the treeland_dde_shell_manager_v2.get_shell_surface\nrequest.\n\nThe shell surface role is lost and the wl_surface is\nunmapped.",
+            "summary": "destroy the shell surface object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_role",
+          "description": {
+            "type": "description",
+            "text": "Assign the role identified by the role enum to this shell\nsurface, selecting the layer it renders in. The default\nrole before this request is overlay.\n\nAssigning the normal role returns the surface to the\nregular window layer, participating in normal toplevel\nstacking again.\n\nThe always_on_top role enables window always-on-top;\nselecting normal or overlay clears it. User changes to\nalways-on-top switch between normal and always_on_top.\nSince version 2, effective role changes are reported\nthrough role.",
+            "summary": "assign a rendering layer to this surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "role",
+              "argType": "uint",
+              "summary": "the rendering layer for this surface",
+              "enum": "role"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_position_hint",
+          "description": {
+            "type": "description",
+            "text": "Suggest a position for the surface. The coordinates are\nrelative to the origin of the given output; for example\n50,50 suggests placing the surface 50 units right of and\n50 units below the output's top-left corner, wherever\nthat output currently sits in the global space spanning\nall outputs.\n\nThe output argument may be null, in which case the\ncompositor uses the primary output as the anchor.\nOtherwise the output must be a valid, current wl_output.\nThe position is resolved at request time; the compositor\ndoes not keep the output associated with this surface\nafterwards, and the client may release the wl_output\nproxy once the request has been sent. If the output is\nlater destroyed, the already-applied position is not\naffected.\n\nThis request is a hint for the initial placement of the\nsurface: the compositor decides the final position and\nmay adjust it to keep the surface accessible. Clients\nmust not assume the requested position is honored\nexactly.",
+            "summary": "suggest a fixed position relative to an output"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "output",
+              "argType": "object",
+              "summary": "the output whose origin anchors the coordinates, or null for the primary output",
+              "interface": "wl_output",
+              "allowNull": "true",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "x",
+              "argType": "int",
+              "summary": "x coordinate relative to the output origin"
+            },
+            {
+              "type": "arg",
+              "name": "y",
+              "argType": "int",
+              "summary": "y coordinate relative to the output origin"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_cursor_placement_hint",
+          "description": {
+            "type": "description",
+            "text": "Suggest placing the surface relative to the current cursor\nposition: horizontally offset by x_offset from the cursor\ncenter and vertically offset by y_offset from the bottom\nof the cursor.\n\nThis request is a hint for the initial placement of the\nsurface: the compositor decides the final position and\nmay adjust it to keep the surface accessible. Clients\nmust not assume the requested position is honored\nexactly.\n\nSending this request switches the placement mode to\ncursor-relative; see the interface description for the\ninteraction with set_position_hint.",
+            "summary": "suggest placing the surface relative to the cursor"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "x_offset",
+              "argType": "int",
+              "summary": "horizontal offset of the surface center from the cursor center, positive to the right"
+            },
+            {
+              "type": "arg",
+              "name": "y_offset",
+              "argType": "int",
+              "summary": "distance from the bottom of the cursor to the top of the surface"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_skip_flags",
+          "description": {
+            "type": "description",
+            "text": "Set the shell views that should not list this surface. The\nflags argument is a bitfield of skip_flag values; setting\na flag asks the shell view not to include the surface,\nclearing it restores default listing. This request\nreplaces any previously set flags.",
+            "summary": "set window-listing preferences"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "flags",
+              "argType": "uint",
+              "summary": "bitfield of views that should not list this surface",
+              "enum": "skip_flag"
+            }
+          ]
+        },
+        {
+          "type": "request",
+          "name": "set_accept_keyboard_focus",
+          "description": {
+            "type": "description",
+            "text": "Set whether this surface can receive keyboard focus. When\nset to 0, the surface will not receive keyboard focus even\nwhen clicked or activated. When set to 1 (the default), the\nsurface receives keyboard focus normally.",
+            "summary": "control whether the surface accepts keyboard focus"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "accept",
+              "argType": "uint",
+              "summary": "0 to refuse keyboard focus, 1 to accept it"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "role",
+          "since": "2",
+          "description": {
+            "type": "description",
+            "text": "Sent after object creation to report the initial effective\nrole, and subsequently after each effective role change\ncaused by a client request, user action, or compositor\npolicy. The compositor need not send this event if the\neffective role has not changed since the last notification.",
+            "summary": "effective stacking role of this surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "role",
+              "argType": "uint",
+              "summary": "the effective stacking role",
+              "enum": "role"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "role",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "The layer a shell surface renders in. Layers are ordered by\nz depth. Multiple surfaces can share a single role, and\nordering within a single role is undefined.",
+            "summary": "rendering layer for a shell surface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "normal",
+              "value": "0",
+              "summary": "normal window layer, below the overlay layer and participating in regular toplevel stacking"
+            },
+            {
+              "type": "entry",
+              "name": "overlay",
+              "value": "1",
+              "summary": "workspace overlay layer, above normal toplevels and below layer-shell surfaces"
+            },
+            {
+              "type": "entry",
+              "name": "always_on_top",
+              "value": "2",
+              "summary": "above normal windows and below workspace overlay surfaces",
+              "since": "2"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "skip_flag",
+          "bitfield": true,
+          "description": {
+            "type": "description",
+            "text": "Flags indicating that the surface prefers not to be listed\nin specific shell views. Used by the set_skip_flags\nrequest. Compositors should honor these preferences but\nmay ignore them, for example for windows the user must\nalways be able to reach.",
+            "summary": "window-listing preferences"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "switcher",
+              "value": "0x1",
+              "summary": "do not list the window in the task switcher"
+            },
+            {
+              "type": "entry",
+              "name": "dock_preview",
+              "value": "0x2",
+              "summary": "do not show the window in dock window previews"
+            },
+            {
+              "type": "entry",
+              "name": "multitask_view",
+              "value": "0x4",
+              "summary": "do not list the window in the multitask view"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

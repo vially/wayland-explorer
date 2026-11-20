@@ -1,9 +1,14 @@
 {
   "type": "protocol",
-  "name": "treeland_prelaunch_splash_v2",
+  "name": "treeland_prelaunch_splash_unstable_v2",
   "copyright": {
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "The key words \"must\", \"must not\", \"required\", \"shall\",\n\"shall not\", \"should\", \"should not\", \"recommended\", \"may\",\nand \"optional\" in this document are to be interpreted as\ndescribed in RFC 2119.\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "prelaunch splash screen management"
   },
   "interfaces": [
     {
@@ -12,7 +17,7 @@
       "version": "1",
       "description": {
         "type": "description",
-        "text": "This interface is a manager for creating prelaunch splash screens.\nA prelaunch splash screen is a placeholder surface that is shown\nbefore an application's main window is mapped. This helps to improve\nthe perceived startup time.\n\nIt is particularly useful for application launchers to provide immediate\nfeedback to the user.\n\nCompared to treeland_prelaunch_splash_manager_v1, this version returns\na splash object from create_splash. The caller can destroy the object\nto dismiss the splash, and the compositor can send events (e.g. timeout)\nback to the caller through the object.",
+        "text": "This interface is a manager for creating prelaunch splash screens.\nA prelaunch splash screen is a placeholder surface that is shown\nbefore an application's main window is mapped. This helps to improve\nthe perceived startup time.\n\nIt is particularly useful for application launchers to provide immediate\nfeedback to the user.\n\nCompared to treeland_prelaunch_splash_manager_v1, this version returns\na splash object from create_splash. The caller can destroy the object\nto dismiss the splash, and the compositor can send events (e.g. timeout)\nback to the caller through the object.\n\nThis interface is a singleton. Only one client may bind it at a\ntime within a given user session. If a second client attempts to\nbind while a binding is already active, the compositor must\nreject the attempt by sending a protocol error\n(binding_rejected). The singleton binding is released when the\nclient destroys the manager object.",
         "summary": "prelaunch splash screen manager"
       },
       "requests": [
@@ -73,7 +78,26 @@
         }
       ],
       "events": [],
-      "enums": []
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Error codes sent as protocol errors via wl_display.error.",
+            "summary": "protocol errors for this interface"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "binding_rejected",
+              "value": "0",
+              "summary": "the manager is already bound by another client"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "interface",

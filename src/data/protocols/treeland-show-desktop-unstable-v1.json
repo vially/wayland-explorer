@@ -1,0 +1,102 @@
+{
+  "type": "protocol",
+  "name": "treeland_show_desktop_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.\n\nThis protocol allows a privileged client such as a dock or desktop\nshell to control and observe the compositor's show-desktop mode.\nIn show-desktop mode the compositor minimizes or hides all toplevel\nwindows to reveal the desktop surface underneath.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document\nare to be interpreted as described in RFC 2119.",
+    "summary": "show-desktop mode control"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_show_desktop_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A singleton global that provides read/write access to the\ncompositor's show-desktop mode state.\n\nOnly one client may bind this interface at a time. The\ncompositor should reject subsequent bind attempts from other\nclients while a binding is already active.\n\nOn binding, the compositor immediately sends a show_desktop_state\nevent carrying the current mode so that the client starts\nsynchronized.\n\nThe client sends set_show_desktop_state to request a mode transition.\nThe compositor applies the transition at its discretion and\nconfirms the new state via a show_desktop_state event. The\ncompositor may also emit show_desktop_state spontaneously when\nthe mode changes through other means (e.g. a keyboard\nshortcut or gesture).",
+        "summary": "show-desktop mode controller"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_show_desktop_v1 object and release\nthe singleton binding. The compositor will accept a new\nbinding from another client after this request is processed.\n\nThis request does not alter the current show-desktop mode;\nthe compositor retains whatever state was last set.",
+            "summary": "destroy the show-desktop controller"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "set_show_desktop_state",
+          "description": {
+            "type": "description",
+            "text": "Request that the compositor transition to the given\nshow-desktop mode. The compositor may ignore the request\nor apply it asynchronously. If the mode changes, the\ncompositor confirms the new state by emitting a\nshow_desktop_state event.\n\nSending the same mode that is already active is a no-op;\nthe compositor need not emit a show_desktop_state event in\nresponse.",
+            "summary": "request a show-desktop mode transition"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "requested show-desktop state",
+              "enum": "state"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "show_desktop_state",
+          "description": {
+            "type": "description",
+            "text": "Emitted by the compositor whenever the show-desktop mode\nchanges, including once immediately after the client binds\nthis interface to convey the initial state.\n\nThe compositor emits this event both in response to a\nset_show_desktop_state request and when the mode changes through\nany other compositor-side mechanism.",
+            "summary": "current show-desktop mode has changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "state",
+              "argType": "uint",
+              "summary": "new show-desktop state",
+              "enum": "state"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "state",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Describes the current display state of the desktop.",
+            "summary": "show-desktop mode values"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "normal",
+              "value": "0",
+              "summary": "all windows are shown normally"
+            },
+            {
+              "type": "entry",
+              "name": "show",
+              "value": "1",
+              "summary": "all windows are hidden to reveal the desktop"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

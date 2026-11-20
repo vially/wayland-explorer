@@ -5,14 +5,19 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2024-2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "keyboard shortcut management"
+  },
   "interfaces": [
     {
       "type": "interface",
       "name": "treeland_shortcut_manager_v2",
-      "version": "2",
+      "version": "3",
       "description": {
         "type": "description",
-        "text": "This interface allows privileged clients to register global shortcuts.\n\nIn treeland, global shortcuts are managed in a per-user context.\nShortcuts for different users are isolated, and will not interfere with each other.\nThis allows multiple users to use their own set of global shortcuts\non the same system without conflicts.\nThis behavior is transparent to the clients of this interface (i.e.,\nthe user context used by this protocol is the same as that of the client.)\n\nWarning! The protocol described in this file is currently in the testing\nphase. Backward compatible changes may be added together with the\ncorresponding interface version bump. Backward incompatible changes can\nonly be done by creating a new major version of the extension.",
+        "text": "This interface allows privileged clients to register global shortcuts.\n\nIn treeland, global shortcuts are managed in a per-user context.\nShortcuts for different users are isolated, and will not interfere with each other.\nThis allows multiple users to use their own set of global shortcuts\non the same system without conflicts.\nThis behavior is transparent to the clients of this interface (i.e.,\nthe user context used by this protocol is the same as that of the client.)",
         "summary": "global shortcuts manager for treeland"
       },
       "requests": [
@@ -274,22 +279,26 @@
             {
               "type": "entry",
               "name": "down",
-              "value": "1"
+              "value": "1",
+              "summary": "down direction"
             },
             {
               "type": "entry",
               "name": "left",
-              "value": "2"
+              "value": "2",
+              "summary": "left direction"
             },
             {
               "type": "entry",
               "name": "up",
-              "value": "3"
+              "value": "3",
+              "summary": "up direction"
             },
             {
               "type": "entry",
               "name": "right",
-              "value": "4"
+              "value": "4",
+              "summary": "right direction"
             }
           ]
         },
@@ -306,137 +315,178 @@
             {
               "type": "entry",
               "name": "notify",
-              "value": "1"
+              "value": "1",
+              "summary": "notify the client when the shortcut is activated"
             },
             {
               "type": "entry",
               "name": "workspace_1",
-              "value": "2"
+              "value": "2",
+              "summary": "switch to workspace 1"
             },
             {
               "type": "entry",
               "name": "workspace_2",
-              "value": "3"
+              "value": "3",
+              "summary": "switch to workspace 2"
             },
             {
               "type": "entry",
               "name": "workspace_3",
-              "value": "4"
+              "value": "4",
+              "summary": "switch to workspace 3"
             },
             {
               "type": "entry",
               "name": "workspace_4",
-              "value": "5"
+              "value": "5",
+              "summary": "switch to workspace 4"
             },
             {
               "type": "entry",
               "name": "workspace_5",
-              "value": "6"
+              "value": "6",
+              "summary": "switch to workspace 5"
             },
             {
               "type": "entry",
               "name": "workspace_6",
-              "value": "7"
+              "value": "7",
+              "summary": "switch to workspace 6"
             },
             {
               "type": "entry",
               "name": "prev_workspace",
-              "value": "8"
+              "value": "8",
+              "summary": "switch to the previous workspace"
             },
             {
               "type": "entry",
               "name": "next_workspace",
-              "value": "9"
+              "value": "9",
+              "summary": "switch to the next workspace"
             },
             {
               "type": "entry",
               "name": "show_desktop",
-              "value": "10"
+              "value": "10",
+              "summary": "toggle show desktop"
             },
             {
               "type": "entry",
               "name": "maximize",
-              "value": "11"
+              "value": "11",
+              "summary": "maximize the active window"
             },
             {
               "type": "entry",
               "name": "cancel_maximize",
-              "value": "12"
+              "value": "12",
+              "summary": "unmaximize the active window"
             },
             {
               "type": "entry",
               "name": "move_window",
-              "value": "13"
+              "value": "13",
+              "summary": "start window move mode"
             },
             {
               "type": "entry",
               "name": "close_window",
-              "value": "14"
+              "value": "14",
+              "summary": "close the active window"
             },
             {
               "type": "entry",
               "name": "show_window_menu",
-              "value": "15"
+              "value": "15",
+              "summary": "show the window menu"
             },
             {
               "type": "entry",
               "name": "open_multitask_view",
-              "value": "16"
+              "value": "16",
+              "summary": "open the multitask view"
             },
             {
               "type": "entry",
               "name": "close_multitask_view",
-              "value": "17"
+              "value": "17",
+              "summary": "close the multitask view"
             },
             {
               "type": "entry",
               "name": "toggle_multitask_view",
-              "value": "18"
+              "value": "18",
+              "summary": "toggle the multitask view"
             },
             {
               "type": "entry",
               "name": "toggle_fps_display",
-              "value": "19"
+              "value": "19",
+              "summary": "toggle FPS display"
             },
             {
               "type": "entry",
               "name": "lockscreen",
-              "value": "20"
+              "value": "20",
+              "summary": "lock the screen"
             },
             {
               "type": "entry",
               "name": "shutdown_menu",
-              "value": "21"
+              "value": "21",
+              "summary": "show shutdown menu"
             },
             {
               "type": "entry",
               "name": "quit",
-              "value": "22"
+              "value": "22",
+              "summary": "quit the compositor"
             },
             {
               "type": "entry",
               "name": "taskswitch_enter",
-              "value": "23"
+              "value": "23",
+              "summary": "enter task switcher"
             },
             {
               "type": "entry",
               "name": "taskswitch_next",
-              "value": "24"
+              "value": "24",
+              "summary": "switch to next task in switcher"
             },
             {
               "type": "entry",
               "name": "taskswitch_prev",
-              "value": "25"
+              "value": "25",
+              "summary": "switch to previous task in switcher"
             },
             {
               "type": "entry",
               "name": "taskswitch_sameapp_next",
-              "value": "26"
+              "value": "26",
+              "summary": "switch to next task of same application"
             },
             {
               "type": "entry",
               "name": "taskswitch_sameapp_prev",
-              "value": "27"
+              "value": "27",
+              "summary": "switch to previous task of same application"
+            },
+            {
+              "type": "entry",
+              "name": "tile_left",
+              "value": "28",
+              "summary": "tile the active window to the left",
+              "since": "3"
+            },
+            {
+              "type": "entry",
+              "name": "tile_right",
+              "value": "29",
+              "summary": "tile the active window to the right",
+              "since": "3"
             }
           ]
         },
@@ -483,22 +533,26 @@
             {
               "type": "entry",
               "name": "name_conflict",
-              "value": "1"
+              "value": "1",
+              "summary": "a binding with this name already exists"
             },
             {
               "type": "entry",
               "name": "duplicate_binding",
-              "value": "2"
+              "value": "2",
+              "summary": "a binding with this key sequence and action already exists"
             },
             {
               "type": "entry",
               "name": "invalid_argument",
-              "value": "3"
+              "value": "3",
+              "summary": "an argument has an invalid value"
             },
             {
               "type": "entry",
               "name": "internal_error",
-              "value": "4"
+              "value": "4",
+              "summary": "an internal compositor error occurred"
             }
           ]
         },
@@ -510,22 +564,26 @@
             {
               "type": "entry",
               "name": "occupied",
-              "value": "1"
+              "value": "1",
+              "summary": "the shortcut manager is already acquired by another client"
             },
             {
               "type": "entry",
               "name": "not_acquired",
-              "value": "2"
+              "value": "2",
+              "summary": "the client has not acquired the shortcut manager"
             },
             {
               "type": "entry",
               "name": "invalid_commit",
-              "value": "3"
+              "value": "3",
+              "summary": "a commit was sent while a previous commit is pending"
             },
             {
               "type": "entry",
               "name": "invalid_surface",
               "value": "4",
+              "summary": "the provided surface is not owned by the requesting client",
               "since": "2"
             }
           ]

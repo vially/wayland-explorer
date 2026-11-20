@@ -5,6 +5,11 @@
     "type": "copyright",
     "text": "\nSPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
   },
+  "description": {
+    "type": "description",
+    "text": "Warning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "resolve application identifiers for treeland"
+  },
   "interfaces": [
     {
       "type": "interface",
@@ -83,12 +88,14 @@
             {
               "type": "arg",
               "name": "request_id",
-              "argType": "uint"
+              "argType": "uint",
+              "summary": "the request ID from identify_request"
             },
             {
               "type": "arg",
               "name": "app_id",
-              "argType": "string"
+              "argType": "string",
+              "summary": "the resolved application identifier, or empty string on failure"
             },
             {
               "type": "arg",
@@ -115,6 +122,7 @@
           "name": "identify_request",
           "description": {
             "type": "description",
+            "text": "Sent by the compositor to ask the helper to resolve a process to an application identifier.",
             "summary": "ask client to resolve pidfd to application id"
           },
           "args": [

@@ -1,0 +1,295 @@
+{
+  "type": "protocol",
+  "name": "treeland_layer_shell_extension_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "This protocol lets a layer-shell client hand interactive move and\nresize over to the compositor: the client starts an operation with\nbegin_resize or begin_move, the compositor drives the surface size or\nposition through layer-surface configure events, and reports state,\nrejection reasons, and placement through this interface.\n\nThe key words \"must\", \"must not\", \"required\", \"shall\", \"shall not\",\n\"should\", \"should not\", \"recommended\", \"may\", and \"optional\" in this\ndocument are to be interpreted as described in RFC 2119.\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "layer surface interactive move and resize integration for treeland"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_layer_shell_extension_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "This interface allows a layer-shell client (typically a dock\nsurface) to opt in to compositor-driven interactive move and\nresize, so the compositor owns the drag state machine and the\nclient follows the resulting layer-surface configure events\ninstead of racing its own set_size requests.\n\nThis protocol applies to any layer-shell surface. The compositor\ndrives the surface's size (begin_resize) or position (begin_move)\nover an interactive drag; whether a particular axis is freely\nresizable depends on the concrete anchor configuration.",
+        "summary": "manager for layer surface interactive move and resize"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the manager object. This does not destroy layer shell\nobjects created with get_layer_shell_extension_object; those remain\nvalid until their wl_surface is destroyed or the client\ndestroys them.",
+            "summary": "destroy the layer shell extension manager"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_layer_shell_extension_object",
+          "description": {
+            "type": "description",
+            "text": "Create a layer shell extension object for an existing wl_surface. The\nsurface is expected to be a layer-shell surface; the compositor\nreports layer_shell_extension_exists if the same wl_surface already has\na layer shell extension object bound.\n\nThe layer shell extension object is tied to the wl_surface: when the\nwl_surface is destroyed, the\ntreeland_layer_shell_extension_object_v1 object is destroyed by\nthe compositor as well, and the client must call\nget_layer_shell_extension_object again for a new wl_surface. A\nlayer shell extension object must not outlive its wl_surface.",
+            "summary": "create a layer shell extension object for an existing wl_surface"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "interface": "treeland_layer_shell_extension_object_v1"
+            },
+            {
+              "type": "arg",
+              "name": "surface",
+              "argType": "object",
+              "interface": "wl_surface",
+              "protocol": "wayland"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "error",
+          "bitfield": false,
+          "entries": [
+            {
+              "type": "entry",
+              "name": "layer_shell_extension_exists",
+              "value": "0",
+              "summary": "the wl_surface already has a layer shell extension object bound"
+            },
+            {
+              "type": "entry",
+              "name": "wl_surface_invalid",
+              "value": "1",
+              "summary": "the get_layer_shell_extension_object wl_surface argument is invalid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "treeland_layer_shell_extension_object_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "The client starts an interactive resize with begin_resize, passing\na serial from a recent pointer event. The compositor validates the\nserial, takes over the drag (like xdg_toplevel.resize) and drives\nthe surface size through the standard layer-surface configure\nevents, reporting the resize state and any size restrictions\nthrough this interface.\n\nThe client may also start an interactive move with begin_move; the\nexact move semantics and state reporting are not yet finalized.",
+        "summary": "compositor-driven interactive resize and move for a layer surface"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "summary": "destroy the layer shell extension object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "begin_resize",
+          "description": {
+            "type": "description",
+            "text": "Start a compositor-driven interactive resize of the associated\nsurface. The seat and serial must come from a recent pointer\nbutton press on that seat; an invalid serial makes the\ncompositor reject the request with resize_error.bad_serial.\nedges names which edge (or corner) of the surface the client\nwants to drag, using the xdg_toplevel.resize_edge values. The\nclient owns which edge it drags; the compositor executes the\ndrag on the reported edge.\n\nThe compositor rejects the request with resize_error.bad_edges\nwhen any of the requested edges is anchored: an anchored edge\nis already fixed in place by the layer-shell layout, so\ndragging it has no effect. A corner value (top_left etc.)\nrequires both of its edges to be unanchored, otherwise the\nrequest is rejected. A dock anchored to a single screen edge,\nfor example, may only be dragged on the edge opposite to its\nanchor.\n\nAny other value is rejected with resize_error.bad_edges. The\ncompositor emits resizing(1) once the drag actually starts,\nresizing(0) when it ends, and drives the surface size through\nthe standard layer-surface configure events. On a rejected\nrequest it emits resize_rejected with a resize_error reason;\nin that case no resize starts and resizing is never emitted\nfor this request. A request on a destroyed surface or with a\ndestroyed seat is also rejected, with resize_error.bad_surface\nor resize_error.bad_seat respectively.\n\nThe min/max size arguments bound this resize only: they apply\nwhile this drag is active and are not a persistent property\nof the surface. A value of 0 means no limit in that direction\n(minimum 0 / maximum unbounded); negative values are treated\nas 0. The compositor clamps the target size to these limits\nand reflects the clamped size through the standard\nlayer-surface configure event. Invalid limits (min > max with\nboth non-zero) are ignored for that axis.",
+            "summary": "start an interactive resize"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "seat",
+              "argType": "object",
+              "summary": "seat the resize is initiated from",
+              "interface": "wl_seat",
+              "protocol": "wayland"
+            },
+            {
+              "type": "arg",
+              "name": "serial",
+              "argType": "uint",
+              "summary": "serial of a recent pointer button press on seat"
+            },
+            {
+              "type": "arg",
+              "name": "edges",
+              "argType": "uint",
+              "summary": "edge(s) the client wants to drag, none of which may be anchored",
+              "enum": "resize_edge"
+            },
+            {
+              "type": "arg",
+              "name": "min_width",
+              "argType": "int",
+              "summary": "minimum width for this resize, 0 for none"
+            },
+            {
+              "type": "arg",
+              "name": "min_height",
+              "argType": "int",
+              "summary": "minimum height for this resize, 0 for none"
+            },
+            {
+              "type": "arg",
+              "name": "max_width",
+              "argType": "int",
+              "summary": "maximum width for this resize, 0 for none"
+            },
+            {
+              "type": "arg",
+              "name": "max_height",
+              "argType": "int",
+              "summary": "maximum height for this resize, 0 for none"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "name": "resizing",
+          "description": {
+            "type": "description",
+            "text": "resizing=1 when the compositor starts the interactive drag,\nresizing=0 when it ends. The client may use this to run a\nsettle / spring animation after the drag finishes. resizing(1)\nis only emitted after the compositor has actually taken over\nthe drag; rejected begin_resize requests instead cause a\nresize_rejected event.",
+            "summary": "interactive resize state changed"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "resizing",
+              "argType": "uint",
+              "summary": "1 during interactive resize, 0 after it ends"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "resize_rejected",
+          "description": {
+            "type": "description",
+            "text": "Emitted when a begin_resize request is rejected: the reason\nnames a resize_error value. No resize starts and resizing is\nnever emitted for the rejected request. The client should use\nthis instead of inferring acceptance from the absence of a\nresizing(1) event, and may fall back to its own drag logic.",
+            "summary": "a begin_resize request was rejected"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "error",
+              "argType": "uint",
+              "summary": "reason the resize was rejected",
+              "enum": "resize_error"
+            }
+          ]
+        }
+      ],
+      "enums": [
+        {
+          "type": "enum",
+          "name": "resize_edge",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "Values indicate which edge (or corner) of the surface is being\ndragged in a resize operation, named from the surface's own\nperspective. Values are bit flags matching\nxdg_toplevel.resize_edge exactly: 1=top, 2=bottom, 4=left,\n8=right; corner values are the OR of two adjacent edges\n(top_left=5=1|4, bottom_left=6=2|4, top_right=9=1|8,\nbottom_right=10=2|8).\n\nThe layer surface is anchored to one screen edge and changes\nheight, vertical surfaces (left/right) change width. Whether an\nedge may be dragged at all depends on the surface's anchor; see\nbegin_resize.",
+            "summary": "edge values for resizing"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "top",
+              "value": "1"
+            },
+            {
+              "type": "entry",
+              "name": "bottom",
+              "value": "2"
+            },
+            {
+              "type": "entry",
+              "name": "left",
+              "value": "4"
+            },
+            {
+              "type": "entry",
+              "name": "top_left",
+              "value": "5"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_left",
+              "value": "6"
+            },
+            {
+              "type": "entry",
+              "name": "right",
+              "value": "8"
+            },
+            {
+              "type": "entry",
+              "name": "top_right",
+              "value": "9"
+            },
+            {
+              "type": "entry",
+              "name": "bottom_right",
+              "value": "10"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "resize_error",
+          "bitfield": false,
+          "description": {
+            "type": "description",
+            "text": "begin_resize is rejected (no resize starts) when the serial is\nstale (bad_serial), the edges value is not a valid resize_edge\n(bad_edges), or the compositor cannot take over the resize\nright now (inactive). It is also rejected when the associated\nsurface is invalid or has been destroyed (bad_surface), or\nthe seat is invalid or has been destroyed (bad_seat). The\ncompositor then emits resize_rejected with the reason; an\naccepted request instead emits resizing(1).",
+            "summary": "reason a begin_resize request was rejected"
+          },
+          "entries": [
+            {
+              "type": "entry",
+              "name": "bad_serial",
+              "value": "1",
+              "summary": "serial does not match a recent pointer button press on the seat"
+            },
+            {
+              "type": "entry",
+              "name": "bad_edges",
+              "value": "2",
+              "summary": "edges is not a valid resize_edge value"
+            },
+            {
+              "type": "entry",
+              "name": "inactive",
+              "value": "3",
+              "summary": "the compositor cannot take over the resize right now (no container, surface not layer, animation running, or seat refused the takeover)"
+            },
+            {
+              "type": "entry",
+              "name": "bad_surface",
+              "value": "4",
+              "summary": "the surface is invalid or has been destroyed"
+            },
+            {
+              "type": "entry",
+              "name": "bad_seat",
+              "value": "5",
+              "summary": "the seat is invalid or has been destroyed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "type": "protocol",
+  "name": "treeland_output_uuid_head_unstable_v1",
+  "copyright": {
+    "type": "copyright",
+    "text": "\nSPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.\nSPDX-License-Identifier: MIT\n"
+  },
+  "description": {
+    "type": "description",
+    "text": "Companion of treeland-output-uuid-unstable-v1 for clients that\nidentify outputs through the wlr-output-management protocol. It lets\na client obtain the same stable treeland_output_uuid_v1 object from\na zwlr_output_head_v1 instead of a wl_output.\n\nA zwlr_output_head_v1 is advertised by the wlr-output-management\nprotocol even while the output is disabled and has no live wl_output\nglobal, so this protocol lets clients identify an output in that\nstate. The uuid returned for a head is the same uuid that\ntreeland_output_uuid_manager_v1.get_uuid returns for the wl_output\nof the same physical output device.\n\nThe treeland_output_uuid_v1 interface, including the meaning and\nstability of the uuid, is defined by\ntreeland-output-uuid-unstable-v1 and is not duplicated here; this\nprotocol only adds a second factory that creates the same object.\n\nThe terms \"must\", \"must not\", \"should\", and \"may\" in this document are\nto be interpreted as described in RFC 2119.\n\nWarning! This protocol is EXPERIMENTAL and under active development.\nIt may change at any time, including in backward-incompatible ways,\nwithout incrementing the interface major version and without prior\nnotice. No compatibility guarantees of any kind are provided. Clients\nand compositors must track the upstream definition in treeland-protocols\nand must not rely on the current interface names, requests, events, or\nsemantics remaining stable across releases.",
+    "summary": "output uuid identity from wlr output heads"
+  },
+  "interfaces": [
+    {
+      "type": "interface",
+      "name": "treeland_output_uuid_head_manager_v1",
+      "version": "1",
+      "description": {
+        "type": "description",
+        "text": "A singleton global that creates treeland_output_uuid_v1 objects\nfrom zwlr_output_head_v1 objects. The client calls get_uuid for\neach head it wants to identify; the compositor reports the uuid in\nthe initial uuid event on the returned object. Multiple uuid\nobjects may be created for the same output, whether through this\nmanager or through treeland_output_uuid_manager_v1; each reports\nindependently.",
+        "summary": "factory for output uuid objects from wlr heads"
+      },
+      "requests": [
+        {
+          "type": "request",
+          "name": "destroy",
+          "requestType": "destructor",
+          "description": {
+            "type": "description",
+            "text": "Destroy the treeland_output_uuid_head_manager_v1 object and\nrelease the client's binding to the manager global.\n\nExisting treeland_output_uuid_v1 objects created through\nthis manager are not affected and must be destroyed\nseparately by the client.",
+            "summary": "destroy the manager object"
+          },
+          "args": []
+        },
+        {
+          "type": "request",
+          "name": "get_uuid",
+          "description": {
+            "type": "description",
+            "text": "Create a treeland_output_uuid_v1 object for the output\nrepresented by the given zwlr_output_head_v1. The head may be\nin any state, including disabled: a wlr_output_head is\nadvertised even when the output is turned off, so this request\ncan identify an output with no live wl_output global.",
+            "summary": "create a uuid object for a wlr output head"
+          },
+          "args": [
+            {
+              "type": "arg",
+              "name": "id",
+              "argType": "new_id",
+              "summary": "the new output uuid object",
+              "interface": "treeland_output_uuid_v1",
+              "protocol": "treeland-output-uuid-unstable-v1"
+            },
+            {
+              "type": "arg",
+              "name": "head",
+              "argType": "object",
+              "summary": "the wlr output head to identify",
+              "interface": "zwlr_output_head_v1",
+              "protocol": "wlr-output-management-unstable-v1"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "enums": []
+    }
+  ]
+}
