@@ -267,6 +267,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/ext-background-effect-v1.json'),
     },
     {
+        id: 'xdg-session-management-v1',
+        name: 'XDG session management',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Staging,
+        protocol: require('./protocols/xdg-session-management-v1.json'),
+    },
+    {
         id: 'xx-input-method-v2',
         name: 'Input method v2',
         source: WaylandProtocolSource.WaylandProtocols,
@@ -321,6 +328,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WaylandProtocols,
         stability: WaylandProtocolStability.Experimental,
         protocol: require('./protocols/xx-zones-v1.json'),
+    },
+    {
+        id: 'xx-fractional-scale-v2',
+        name: 'Fractional scale v2',
+        source: WaylandProtocolSource.WaylandProtocols,
+        stability: WaylandProtocolStability.Experimental,
+        protocol: require('./protocols/xx-fractional-scale-v2.json'),
     },
     {
         id: 'fullscreen-shell-unstable-v1',
@@ -762,6 +776,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         protocol: require('./protocols/hyprland-workspace-image-capture-source-v1.json'),
     },
     {
+        id: 'hyprland-input-capture-v1',
+        name: 'Hyprland input capture',
+        source: WaylandProtocolSource.HyprlandProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/hyprland-input-capture-v1.json'),
+    },
+    {
         id: 'cosmic-a11y-unstable-v1',
         name: 'COSMIC a11y',
         source: WaylandProtocolSource.CosmicProtocols,
@@ -914,6 +935,13 @@ const protocols: WaylandProtocolRegistryItem[] = [
         source: WaylandProtocolSource.WestonProtocols,
         stability: WaylandProtocolStability.Unstable,
         protocol: require('./protocols/weston-output-capture.json'),
+    },
+    {
+        id: 'weston-restricted-buffer',
+        name: 'Weston restricted buffer',
+        source: WaylandProtocolSource.WestonProtocols,
+        stability: WaylandProtocolStability.Unstable,
+        protocol: require('./protocols/weston-restricted-buffer.json'),
     },
     {
         id: 'weston-test',
