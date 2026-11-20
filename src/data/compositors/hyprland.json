@@ -1,9 +1,17 @@
 {
-  "generationTimestamp": 1763632454455,
-  "version": "0.52.1",
+  "generationTimestamp": 1795149848628,
+  "version": "0.57.2",
   "globals": [
     {
+      "interface": "ext_background_effect_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "ext_data_control_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_foreign_toplevel_image_capture_source_manager_v1",
       "version": 1
     },
     {
@@ -13,6 +21,14 @@
     {
       "interface": "ext_idle_notifier_v1",
       "version": 2
+    },
+    {
+      "interface": "ext_image_copy_capture_manager_v1",
+      "version": 1
+    },
+    {
+      "interface": "ext_output_image_capture_source_manager_v1",
+      "version": 1
     },
     {
       "interface": "ext_session_lock_manager_v1",
@@ -35,6 +51,10 @@
       "version": 1
     },
     {
+      "interface": "hyprland_input_capture_manager_v1",
+      "version": 2
+    },
+    {
       "interface": "hyprland_lock_notifier_v1",
       "version": 1
     },
@@ -51,7 +71,15 @@
       "version": 1
     },
     {
+      "interface": "hyprland_workspace_image_capture_source_manager_v1",
+      "version": 1
+    },
+    {
       "interface": "org_kde_kwin_server_decoration_manager",
+      "version": 1
+    },
+    {
+      "interface": "vicinae_hotkey_manager_v1",
       "version": 1
     },
     {
@@ -76,7 +104,7 @@
     },
     {
       "interface": "wl_shm",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wl_subcompositor",
@@ -88,7 +116,7 @@
     },
     {
       "interface": "wp_color_manager_v1",
-      "version": 1
+      "version": 3
     },
     {
       "interface": "wp_commit_timing_manager_v1",
@@ -100,7 +128,7 @@
     },
     {
       "interface": "wp_cursor_shape_manager_v1",
-      "version": 1
+      "version": 2
     },
     {
       "interface": "wp_drm_lease_device_v1",
@@ -164,6 +192,10 @@
     },
     {
       "interface": "xwayland_shell_v1",
+      "version": 1
+    },
+    {
+      "interface": "xx_hotkey_manager_v1",
       "version": 1
     },
     {
@@ -248,6 +280,14 @@
     },
     {
       "interface": "zxdg_decoration_manager_v1",
+      "version": 2
+    },
+    {
+      "interface": "zxdg_exporter_v2",
+      "version": 1
+    },
+    {
+      "interface": "zxdg_importer_v2",
       "version": 1
     },
     {
